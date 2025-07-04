@@ -143,8 +143,8 @@ export default function SideMenu() {
               <Image src="/logo cyber clipper.png" alt="Cyber Clipper Logo" width={36} height={36} className="object-contain" />
             </span>
             {open && (
-              <span className="font-extrabold text-thin tracking-tight text-gray-900 text-lg whitespace-nowrap relative overflow-visible cursor-pointer" style={{lineHeight:1.2}} onClick={() => router.push("/")}>
-                ADMIN PANEL
+              <span className="font-extrabold text-thin text-gray-900 text-lg whitespace-nowrap relative overflow-visible cursor-pointer" style={{lineHeight:1.2}} onClick={() => router.push("/")}>
+                ADMIN &nbsp;PANEL
                 <span
                   className="absolute left-0 -bottom-1 h-1 rounded-full bg-[#a259f7]"
                   style={{
