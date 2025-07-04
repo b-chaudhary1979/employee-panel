@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/router";
 
 const menuItems = [
   {
     label: "Dashboard",
+    route: "/dashboard",
     icon: (isActive) => (
       <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
         <rect x="3" y="3" width="7" height="7" rx="2" fill="none" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2"/>
@@ -15,6 +17,7 @@ const menuItems = [
   },
   {
     label: "Products",
+    route: "/products",
     icon: (isActive) => (
       <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
         <rect x="3" y="7" width="18" height="13" rx="2" fill="none" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2"/>
@@ -24,6 +27,7 @@ const menuItems = [
   },
   {
     label: "Employees",
+    route: "/employees",
     icon: (isActive) => (
       <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
         <path d="M17 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2"/>
@@ -35,6 +39,7 @@ const menuItems = [
   },
   {
     label: "Users and Permissions",
+    route: "/users-permissions",
     icon: (isActive) => (
       <svg width="22" height="22" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path fill="#a259f7" fillOpacity={isActive ? 1 : 0.1} d="M9.99296258,10.5729355 C12.478244,10.5729355 14.4929626,8.55821687 14.4929626,6.0729355 C14.4929626,3.58765413 12.478244,1.5729355 9.99296258,1.5729355 C7.5076812,1.5729355 5.49296258,3.58765413 5.49296258,6.0729355 C5.49296258,8.55821687 7.5076812,10.5729355 9.99296258,10.5729355 Z"/>
@@ -44,6 +49,7 @@ const menuItems = [
   },
   {
     label: "API Keys",
+    route: "/api-keys",
     icon: (isActive) => (
       <svg width="22" height="22" viewBox="0 0 511 511" fill="none" xmlns="http://www.w3.org/2000/svg">
         <g>
@@ -62,6 +68,7 @@ const menuItems = [
   },
   {
     label: "Passwords & Security",
+    route: "/security",
     icon: (isActive) => (
       <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
         <rect x="3" y="11" width="18" height="10" rx="2" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2"/>
@@ -72,6 +79,7 @@ const menuItems = [
   },
   {
     label: "Announcements",
+    route: "/announcements",
     icon: (isActive) => (
       <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
         <path d="M3 17V7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2"/>
@@ -83,6 +91,7 @@ const menuItems = [
   },
   {
     label: "Notes & Tasks",
+    route: "/notes-tasks",
     icon: (isActive) => (
       <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
         <rect x="4" y="4" width="16" height="16" rx="2" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2"/>
@@ -118,6 +127,7 @@ const underlineKeyframes = `
 export default function SideMenu() {
   const [open, setOpen] = useState(true);
   const [selected, setSelected] = useState(1); // Products selected by default
+  const router = useRouter();
 
   return (
     <>
@@ -129,11 +139,11 @@ export default function SideMenu() {
         {/* Logo and toggle */}
         <div className={`flex items-center justify-between px-6 py-6 border-b border-gray-200 ${open ? "" : "px-2 justify-center"}`}>
           <div className={`flex items-center gap-3 min-w-0 ${open ? "" : "justify-center w-full"}`}>
-            <span className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#a259f7]">
+            <span className="w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer" onClick={() => router.push("/")}>
               <Image src="/logo cyber clipper.png" alt="Cyber Clipper Logo" width={36} height={36} className="object-contain" />
             </span>
             {open && (
-              <span className="font-extrabold text-thin tracking-tight text-gray-900 text-lg whitespace-nowrap relative overflow-visible" style={{lineHeight:1.2}}>
+              <span className="font-extrabold text-thin tracking-tight text-gray-900 text-lg whitespace-nowrap relative overflow-visible cursor-pointer" style={{lineHeight:1.2}} onClick={() => router.push("/")}>
                 ADMIN PANEL
                 <span
                   className="absolute left-0 -bottom-1 h-1 rounded-full bg-[#a259f7]"
@@ -174,7 +184,7 @@ export default function SideMenu() {
               <>
                 <button
                   key={item.label}
-                  onClick={() => setSelected(idx)}
+                  onClick={() => { setSelected(idx); router.push(item.route); }}
                   className={`flex items-center ${open ? "gap-3 px-5" : "justify-center px-0"} py-3 rounded-xl font-semibold text-base transition-all duration-150 my-0.5
                     ${isActive ? "bg-[#f5edff] text-[#a259f7] shadow-sm" : "text-gray-600 hover:bg-gray-50"}
                     relative w-full text-left`}
