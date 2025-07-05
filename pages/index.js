@@ -115,32 +115,32 @@ export default function Home() {
             </div>
 
             {/* Navigation */}
-            <nav className="hidden md:flex space-x-8">
-              <a href="#home" className="text-gray-700 hover:text-[#a259f7] transition-all duration-300 font-medium relative group">
+            <nav className="hidden md:flex space-x-1">
+              <a href="#home" className="px-4 py-2 text-gray-700 hover:text-[#a259f7] transition-all duration-300 font-medium relative group rounded-lg hover:bg-[#a259f7]/5">
                 Home
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#a259f7] group-hover:w-full transition-all duration-300"></span>
+                <span className="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#a259f7] group-hover:w-full group-hover:left-0 transition-all duration-300"></span>
               </a>
-              <a href="#about" className="text-gray-700 hover:text-[#a259f7] transition-all duration-300 font-medium relative group">
+              <a href="#about" className="px-4 py-2 text-gray-700 hover:text-[#a259f7] transition-all duration-300 font-medium relative group rounded-lg hover:bg-[#a259f7]/5">
                 About Us
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#a259f7] group-hover:w-full transition-all duration-300"></span>
+                <span className="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#a259f7] group-hover:w-full group-hover:left-0 transition-all duration-300"></span>
               </a>
-              <a href="#contact" className="text-gray-700 hover:text-[#a259f7] transition-all duration-300 font-medium relative group">
+              <a href="#contact" className="px-4 py-2 text-gray-700 hover:text-[#a259f7] transition-all duration-300 font-medium relative group rounded-lg hover:bg-[#a259f7]/5">
                 Contact Us
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#a259f7] group-hover:w-full transition-all duration-300"></span>
+                <span className="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#a259f7] group-hover:w-full group-hover:left-0 transition-all duration-300"></span>
               </a>
             </nav>
 
             {/* CTA Buttons */}
-            <div className="flex space-x-4">
+            <div className="flex space-x-3">
               <button 
                 onClick={() => document.getElementById('demo-form').scrollIntoView({ behavior: 'smooth' })}
-                className="bg-gradient-to-r from-[#a259f7] to-[#8b4fd8] text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-[#a259f7]/25 transition-all duration-300 transform hover:scale-105 shadow-md"
+                className="bg-gradient-to-r from-[#a259f7] to-[#8b4fd8] text-white px-6 py-2.5 rounded-xl font-semibold hover:shadow-lg hover:shadow-[#a259f7]/25 transition-all duration-300 transform hover:scale-105 shadow-md hover:from-[#8b4fd8] hover:to-[#7a3fc7]"
               >
                 Request Demo
               </button>
               <button 
                 onClick={() => router.push('/auth/login')}
-                className="border-2 border-[#a259f7] text-[#a259f7] px-6 py-3 rounded-xl font-semibold hover:bg-[#a259f7] hover:text-white transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                className="border-2 border-[#a259f7] text-[#a259f7] px-6 py-2.5 rounded-xl font-semibold hover:bg-[#a259f7] hover:text-white transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-[#a259f7]/25"
               >
                 Get Started
               </button>
@@ -252,6 +252,118 @@ export default function Home() {
               <p className="text-gray-600">
                 Comprehensive insights and reporting tools to monitor your security posture and track performance metrics.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* About Us Section */}
+      <section id="about" className="py-20 bg-[#fbf9f4]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">About Cyber Clipper</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              We're a team of cybersecurity experts dedicated to protecting businesses in the digital age
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Content */}
+            <div className="space-y-8">
+              <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Mission</h3>
+                <p className="text-gray-600 leading-relaxed mb-6">
+                  To provide cutting-edge cybersecurity solutions that empower businesses to operate securely in an increasingly complex digital landscape. We believe that security should be accessible, effective, and seamless.
+                </p>
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-[#a259f7] rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Trust & Reliability</h4>
+                    <p className="text-sm text-gray-600">Built on years of industry expertise</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Vision</h3>
+                <p className="text-gray-600 leading-relaxed mb-6">
+                  To create a world where businesses can focus on growth and innovation without worrying about cybersecurity threats. We envision a future where security is proactive, intelligent, and invisible.
+                </p>
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-[#a259f7] rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Innovation First</h4>
+                    <p className="text-sm text-gray-600">Leading-edge technology solutions</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Content */}
+            <div className="space-y-8">
+              <div className="bg-gradient-to-br from-[#a259f7] to-[#8b4fd8] p-8 rounded-2xl text-white">
+                <h3 className="text-2xl font-bold mb-6">Our Story</h3>
+                <p className="text-lg leading-relaxed mb-6">
+                  Founded by cybersecurity veterans who witnessed the growing complexity of digital threats, Cyber Clipper was born from a simple belief: security should protect, not hinder.
+                </p>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold mb-2">500+</div>
+                    <div className="text-sm opacity-90">Happy Clients</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold mb-2">99.9%</div>
+                    <div className="text-sm opacity-90">Success Rate</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Values</h3>
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-[#a259f7] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Excellence</h4>
+                      <p className="text-sm text-gray-600">We strive for perfection in everything we do</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-[#a259f7] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Innovation</h4>
+                      <p className="text-sm text-gray-600">Constantly evolving with the latest technologies</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-[#a259f7] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Integrity</h4>
+                      <p className="text-sm text-gray-600">Honest, transparent, and trustworthy partnerships</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

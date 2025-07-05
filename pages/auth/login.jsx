@@ -1,23 +1,50 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 const Login = () => {
+  const router = useRouter();
   const [uniqueId, setUniqueId] = useState('');
   const [companyId, setCompanyId] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [showUniqueId, setShowUniqueId] = useState(false);
   const [showCompanyId, setShowCompanyId] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
 
   const handleVerify = (e) => {
     e.preventDefault();
     setVerifying(true);
     setTimeout(() => {
       setVerifying(false);
+      setShowNotification(true);
+      setTimeout(() => {
+        setShowNotification(false);
+        router.push('/playground');
+      }, 1500);
     }, 2000);
   };
 
   return (
     <div className="min-h-screen w-screen flex flex-row bg-[#f5f0ff] font-manrope">
+      
+      {/* Custom Notification */}
+      {showNotification && (
+        <div className="fixed top-6 right-6 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 animate-in slide-in-from-right duration-300">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          <span className="font-medium">Logged in successfully!</span>
+        </div>
+      )}
+      
+      {/* Back Button - Top Left */}
+              <button
+          onClick={() => router.push('/')}
+          className="absolute top-3 left-6 z-50 flex items-center space-x-2 text-[#a259f7] hover:text-[#8b5cf6] transition-colors duration-200 "
+        >
+        <span className="text-lg">←</span>
+        <span className="font-medium">Back</span>
+      </button>
       
       {/* Left Section */}
       <div className="flex-1 flex flex-col justify-start items-start py-[5vh] px-[4vw] relative">
@@ -27,7 +54,7 @@ const Login = () => {
 
         {/* Branding Info */}
         <div className="max-w-[500px]">
-          <h1 className="text-[40px] font-extrabold text-[#a259f7] mb-4">
+          <h1 className="text-[50px] mt-8 font-extrabold text-[#a259f7] mb-4">
             Welcome to Admin panel
           </h1>
           <p className="text-[18px] leading-relaxed text-[#4b5563]">
@@ -40,9 +67,7 @@ const Login = () => {
             <li>Advanced security</li>
           </ul>
           {/* Brief additional info */}
-          <p className="mt-5 text-[15px] text-[#4b5563]">
-            Trusted by businesses of all sizes, Cyber Clipper helps you stay organized and secure. Experience a modern admin panel that puts you in control—anytime, anywhere.
-          </p>
+         
           <p className="mt-5 text-[15px] text-[#4b5563]">
           Get started in minutes and empower your team with tools designed for productivity and growth.
           </p>
@@ -77,6 +102,7 @@ const Login = () => {
               onChange={(e) => setUniqueId(e.target.value)}
               placeholder="Enter your unique ID"
               autoComplete="username"
+              required
               className="w-full py-3 px-4 pr-10 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f9f9fc] outline-none"
             />
             <span
@@ -110,6 +136,7 @@ const Login = () => {
               onChange={(e) => setCompanyId(e.target.value)}
               placeholder="Enter your company ID"
               autoComplete="organization"
+              required
               className="w-full py-3 px-4 pr-10 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f9f9fc] outline-none"
             />
             <span
