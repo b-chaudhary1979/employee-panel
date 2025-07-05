@@ -8,8 +8,8 @@ const PricingComponent = ({ onPlanSelect, selectedPlan }) => {
     {
       name: "Basic",
       description: "Perfect for individuals and small projects",
-      monthlyPrice: 0,
-      annualPrice: 0,
+      monthlyPrice: 29,
+      annualPrice: 279,
       icon: Users,
       badge: null,
       features: [
@@ -21,7 +21,7 @@ const PricingComponent = ({ onPlanSelect, selectedPlan }) => {
         "Advanced Features",
         "24/7 Service",
       ],
-      buttonText: "Start Free Trial",
+      buttonText: "Get Started",
       buttonVariant: "outline",
       popular: false,
     },
