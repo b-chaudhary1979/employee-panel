@@ -73,7 +73,7 @@ const PricingComponent = ({ onPlanSelect, selectedPlan }) => {
 
   return (
     <div className="w-full">
-      <div className="text-center mb-8">
+      <div className="text-center">
         <div className="mb-4 animate-pulse bg-purple-600 hover:bg-purple-700 text-white inline-block px-4 py-1 rounded-full">
           <Star className="w-4 h-4 mr-2 inline" />
           Trusted by 10,000+ customers

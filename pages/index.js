@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import PricingComponent from "../components/pricing";
 
 export default function Home() {
   const router = useRouter();
@@ -21,6 +22,7 @@ export default function Home() {
 
   const [notification, setNotification] = useState({ show: false, message: "", type: "" });
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
   const handleDemoSubmit = async (e) => {
     e.preventDefault();
@@ -62,6 +64,20 @@ export default function Home() {
     setTimeout(() => setNotification({ show: false, message: "", type: "" }), 5000);
   };
 
+  const handlePlanSelect = (planName) => {
+    setSelectedPlan(planName);
+    setNotification({
+      show: true,
+      message: `${planName} plan selected! Redirecting to signup...`,
+      type: "success"
+    });
+    
+    // Redirect to signup after a short delay
+    setTimeout(() => {
+      router.push('/auth/signup');
+    }, 2000);
+  };
+
   return (
     <div className="bg-[#fbf9f4] min-h-screen relative">
       {/* Custom Notification */}
@@ -96,7 +112,7 @@ export default function Home() {
         </div>
       )}
       {/* Header */}
-      <header className="bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100 sticky top-0 z-50 animate-fade-in">
+      <header className="bg-purple-50/95 backdrop-blur-md sticky top-0 z-50 animate-fade-in">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             {/* Logo */}
@@ -122,6 +138,10 @@ export default function Home() {
               </a>
               <a href="#about" className="px-4 py-2 text-gray-700 hover:text-[#a259f7] transition-all duration-300 font-medium relative group rounded-lg hover:bg-[#a259f7]/5">
                 About Us
+                <span className="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#a259f7] group-hover:w-full group-hover:left-0 transition-all duration-300"></span>
+              </a>
+              <a href="#pricing" className="px-4 py-2 text-gray-700 hover:text-[#a259f7] transition-all duration-300 font-medium relative group rounded-lg hover:bg-[#a259f7]/5">
+                Pricing
                 <span className="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#a259f7] group-hover:w-full group-hover:left-0 transition-all duration-300"></span>
               </a>
               <a href="#contact" className="px-4 py-2 text-gray-700 hover:text-[#a259f7] transition-all duration-300 font-medium relative group rounded-lg hover:bg-[#a259f7]/5">
@@ -256,6 +276,92 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+
+{/* Request Demo Form */}
+<section id="demo-form" className="py-5 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Request a Demo</h2>
+            <p className="text-xl text-gray-600">
+              See how Cyber Clipper can transform your security posture. Schedule a personalized demo today.
+            </p>
+          </div>
+
+          <form onSubmit={handleDemoSubmit} className="bg-gradient-to-br from-white to-[#fbf9f4] p-8 rounded-2xl shadow-xl border-2 border-[#a259f7] hover:shadow-2xl transition-all duration-300">
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">Full Name *</label>
+                                  <input
+                    type="text"
+                    required
+                    value={demoForm.name}
+                    onChange={(e) => setDemoForm({...demoForm, name: e.target.value})}
+                    className="w-full px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a259f7] focus:border-transparent transition-all duration-300 hover:border-[#a259f7] bg-white"
+                    placeholder="Enter your full name"
+                  />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">Email Address *</label>
+                                  <input
+                    type="email"
+                    required
+                    value={demoForm.email}
+                    onChange={(e) => setDemoForm({...demoForm, email: e.target.value})}
+                    className="w-full px-4 py-3 text-gray-600 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a259f7] focus:border-transparent transition-all duration-300 hover:border-[#a259f7] bg-white"
+                    placeholder="Enter your email"
+                  />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">Company Name</label>
+                                  <input
+                    type="text"
+                    value={demoForm.company}
+                    onChange={(e) => setDemoForm({...demoForm, company: e.target.value})}
+                    className="w-full px-4 py-3 text-gray-600 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a259f7] focus:border-transparent transition-all duration-300 hover:border-[#a259f7] bg-white"
+                    placeholder="Enter your company name"
+                  />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">Phone Number</label>
+                                  <input
+                    type="tel"
+                    value={demoForm.phone}
+                    onChange={(e) => setDemoForm({...demoForm, phone: e.target.value})}
+                    className="w-full px-4 py-3 text-gray-600 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a259f7] focus:border-transparent transition-all duration-300 hover:border-[#a259f7] bg-white"
+                    placeholder="Enter your phone number"
+                  />
+              </div>
+            </div>
+            <div className="mb-6">
+              <label className="block text-gray-700 font-medium mb-2">Additional Requirements</label>
+                              <textarea
+                  value={demoForm.message}
+                  onChange={(e) => setDemoForm({...demoForm, message: e.target.value})}
+                  rows={4}
+                  className="w-full px-4 py-3 text-gray-600 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a259f7] focus:border-transparent transition-all duration-300 hover:border-[#a259f7] bg-white resize-none"
+                  placeholder="Tell us about your security needs..."
+                />
+            </div>
+            <div className="text-center">
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="bg-[#a259f7] text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-[#8b4fd8] transition-all duration-300 shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Submitting...</span>
+                  </>
+                ) : (
+                  <span>Schedule Demo</span>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </section> 
 
       {/* About Us Section */}
       <section id="about" className="py-20 bg-[#fbf9f4]">
@@ -449,88 +555,15 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Request Demo Form */}
-      <section id="demo-form" className="py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Request a Demo</h2>
-            <p className="text-xl text-gray-600">
-              See how Cyber Clipper can transform your security posture. Schedule a personalized demo today.
-            </p>
-          </div>
-
-          <form onSubmit={handleDemoSubmit} className="bg-gradient-to-br from-white to-[#fbf9f4] p-8 rounded-2xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300">
-            <div className="grid md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">Full Name *</label>
-                                  <input
-                    type="text"
-                    required
-                    value={demoForm.name}
-                    onChange={(e) => setDemoForm({...demoForm, name: e.target.value})}
-                    className="w-full px-4 py-3 border text-gray-600 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a259f7] focus:border-transparent transition-all duration-300 hover:border-[#a259f7] bg-white"
-                    placeholder="Enter your full name"
-                  />
-              </div>
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">Email Address *</label>
-                                  <input
-                    type="email"
-                    required
-                    value={demoForm.email}
-                    onChange={(e) => setDemoForm({...demoForm, email: e.target.value})}
-                    className="w-full px-4 py-3 text-gray-600 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a259f7] focus:border-transparent transition-all duration-300 hover:border-[#a259f7] bg-white"
-                    placeholder="Enter your email"
-                  />
-              </div>
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">Company Name</label>
-                                  <input
-                    type="text"
-                    value={demoForm.company}
-                    onChange={(e) => setDemoForm({...demoForm, company: e.target.value})}
-                    className="w-full px-4 py-3 text-gray-600 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a259f7] focus:border-transparent transition-all duration-300 hover:border-[#a259f7] bg-white"
-                    placeholder="Enter your company name"
-                  />
-              </div>
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">Phone Number</label>
-                                  <input
-                    type="tel"
-                    value={demoForm.phone}
-                    onChange={(e) => setDemoForm({...demoForm, phone: e.target.value})}
-                    className="w-full px-4 py-3 text-gray-600 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a259f7] focus:border-transparent transition-all duration-300 hover:border-[#a259f7] bg-white"
-                    placeholder="Enter your phone number"
-                  />
-              </div>
-            </div>
-            <div className="mb-6">
-              <label className="block text-gray-700 font-medium mb-2">Additional Requirements</label>
-                              <textarea
-                  value={demoForm.message}
-                  onChange={(e) => setDemoForm({...demoForm, message: e.target.value})}
-                  rows={4}
-                  className="w-full px-4 py-3 text-gray-600 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#a259f7] focus:border-transparent transition-all duration-300 hover:border-[#a259f7] bg-white resize-none"
-                  placeholder="Tell us about your security needs..."
-                />
-            </div>
-            <div className="text-center">
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="bg-[#a259f7] text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-[#8b4fd8] transition-all duration-300 shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Submitting...</span>
-                  </>
-                ) : (
-                  <span>Schedule Demo</span>
-                )}
-              </button>
-            </div>
-          </form>
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+         
+          
+          <PricingComponent 
+            onPlanSelect={handlePlanSelect}
+            selectedPlan={selectedPlan}
+          />
         </div>
       </section>
 
@@ -544,7 +577,7 @@ export default function Home() {
             </p>
           </div>
 
-          <form onSubmit={handleContactSubmit} className="bg-gradient-to-br from-white to-[#fbf9f4] p-8 rounded-2xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300">
+          <form onSubmit={handleContactSubmit} className="bg-gradient-to-br from-white to-[#fbf9f4] p-8 rounded-2xl shadow-xl border-2 border-[#a259f7] hover:shadow-2xl transition-all duration-300">
             <div className="grid md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label className="block text-gray-700 font-medium mb-2">Name *</label>
@@ -660,6 +693,7 @@ export default function Home() {
               <ul className="space-y-3">
                 <li><a href="#home" className="text-gray-300 hover:text-[#a259f7] transition-all duration-300 hover:translate-x-1 inline-block">Home</a></li>
                 <li><a href="#about" className="text-gray-300 hover:text-[#a259f7] transition-all duration-300 hover:translate-x-1 inline-block">About Us</a></li>
+                <li><a href="#pricing" className="text-gray-300 hover:text-[#a259f7] transition-all duration-300 hover:translate-x-1 inline-block">Pricing</a></li>
                 <li><a href="#contact" className="text-gray-300 hover:text-[#a259f7] transition-all duration-300 hover:translate-x-1 inline-block">Contact</a></li>
                 <li><a href="#demo-form" className="text-gray-300 hover:text-[#a259f7] transition-all duration-300 hover:translate-x-1 inline-block">Request Demo</a></li>
               </ul>
