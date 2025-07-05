@@ -50,7 +50,7 @@ const Login = () => {
 
         <div className="mt-10">
           <Link
-            href="/pricing"
+            href="/auth/pricing"
             className="inline-block py-2 px-4 bg-[#a259f7] text-white rounded-md font-semibold text-sm no-underline tracking-wide"
           >
             View Pricing
