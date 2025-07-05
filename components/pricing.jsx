@@ -59,7 +59,7 @@ const PricingComponent = ({ onPlanSelect, selectedPlan }) => {
         "Advanced security",
         "Dedicated manager",
       ],
-      buttonText: "Contact Sales",
+      buttonText: "Get Started",
       buttonVariant: "outline",
       popular: false,
     },
