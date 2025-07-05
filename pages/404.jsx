@@ -4,7 +4,7 @@ export default function NotFound() {
   useEffect(() => {
     const timer = setTimeout(() => {
       window.location.href = "/";
-    }, 5000);
+    }, 2000);
     return () => clearTimeout(timer);
   }, []);
 
