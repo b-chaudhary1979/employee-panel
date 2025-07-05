@@ -68,7 +68,7 @@ const Step3 = ({ onChange, values, onPlanSelect }) => (
       <label className="font-semibold text-[15px] text-[#22223b] mb-4 block">
         Choose a Plan<span className="text-red-500 ml-1">*</span>
       </label>
-      <PricingComponent 
+      <PricingComponent
         onPlanSelect={onPlanSelect}
         selectedPlan={values.plan}
       />
@@ -285,7 +285,7 @@ const SuccessNotification = () => (
 
 const Signup = () => {
   const [step, setStep] = useState(0);
-  const [formValues, setFormValues] = useState({ plan: "Free" });
+  const [formValues, setFormValues] = useState({ plan: "Basic" });
   const [submitted, setSubmitted] = useState(false);
   const [agreed, setAgreed] = useState(false);
 
@@ -356,12 +356,20 @@ const Signup = () => {
       </div>
       {/* Form */}
       <form
-        className={`bg-white rounded-xl w-full ${step === 2 ? 'max-w-6xl' : 'max-w-lg'} p-10 flex flex-col gap-8 shadow-lg mb-10`}
+        className={`bg-white rounded-xl w-full ${
+          step === 2 ? "max-w-6xl" : "max-w-lg"
+        } p-10 flex flex-col gap-8 shadow-lg mb-10`}
         onSubmit={step === steps.length - 1 ? handleSubmit : handleNext}
       >
         {step === 0 && <Step1 onChange={handleChange} values={formValues} />}
         {step === 1 && <Step2 onChange={handleChange} values={formValues} />}
-        {step === 2 && <Step3 onChange={handleChange} values={formValues} onPlanSelect={handlePlanSelect} />}
+        {step === 2 && (
+          <Step3
+            onChange={handleChange}
+            values={formValues}
+            onPlanSelect={handlePlanSelect}
+          />
+        )}
         {step === 3 && (
           <Step4
             values={formValues}
