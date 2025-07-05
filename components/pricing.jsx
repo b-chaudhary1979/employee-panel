@@ -6,7 +6,7 @@ const PricingComponent = ({ onPlanSelect, selectedPlan }) => {
 
   const plans = [
     {
-      name: "Free",
+      name: "Basic",
       description: "Perfect for individuals and small projects",
       monthlyPrice: 0,
       annualPrice: 0,
@@ -19,7 +19,7 @@ const PricingComponent = ({ onPlanSelect, selectedPlan }) => {
         "5GB storage",
         "Standard templates",
       ],
-      buttonText: "Get Started",
+      buttonText: "Start Free Trial",
       buttonVariant: "outline",
       popular: false,
     },
@@ -39,7 +39,7 @@ const PricingComponent = ({ onPlanSelect, selectedPlan }) => {
         "Team collaboration",
         "Custom integrations",
       ],
-      buttonText: "Start Free Trial",
+      buttonText: "Get Started",
       buttonVariant: "default",
       popular: true,
     },
@@ -73,11 +73,7 @@ const PricingComponent = ({ onPlanSelect, selectedPlan }) => {
 
   return (
     <div className="w-full">
-      <div className="text-center">
-        <div className="mb-4 animate-pulse bg-purple-600 hover:bg-purple-700 text-white inline-block px-4 py-1 rounded-full">
-          <Star className="w-4 h-4 mr-2 inline" />
-          Trusted by 10,000+ customers
-        </div>
+      <div className="text-center mb-8">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 bg-clip-text text-transparent mb-4">
           Choose Your Perfect Plan
         </h1>
@@ -187,17 +183,12 @@ const PricingComponent = ({ onPlanSelect, selectedPlan }) => {
                 </div>
 
                 <ul className="space-y-2 mb-4 text-sm">
-                  {plan.features.slice(0, 4).map((feature, featureIndex) => (
+                  {plan.features.map((feature, featureIndex) => (
                     <li key={feature} className="flex items-center">
                       <Check className="w-4 h-4 text-purple-500 mr-2 flex-shrink-0" />
                       <span className="text-gray-700">{feature}</span>
                     </li>
                   ))}
-                  {plan.features.length > 4 && (
-                    <li className="text-purple-600 text-xs font-medium">
-                      +{plan.features.length - 4} more features
-                    </li>
-                  )}
                 </ul>
               </div>
 
