@@ -18,6 +18,8 @@ const PricingComponent = ({ onPlanSelect, selectedPlan }) => {
         "Email support",
         "5GB storage",
         "Standard templates",
+        "Advanced Features",
+        "24/7 Service",
       ],
       buttonText: "Start Free Trial",
       buttonVariant: "outline",

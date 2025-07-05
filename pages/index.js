@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import PricingComponent from "../components/pricing";
+import NeuralNetwork from "../components/bg-animation"
 
 export default function Home() {
   const router = useRouter();
@@ -171,6 +172,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <section id="home" className="py-20 px-4 sm:px-6 lg:px-8">
+        
         <div className="max-w-7xl mx-auto">
                     <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
@@ -280,6 +282,7 @@ export default function Home() {
 
 {/* Request Demo Form */}
 <section id="demo-form" className="py-5 bg-white">
+
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Request a Demo</h2>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import PricingComponent from "../../components/pricing";
+import NeuralNetwork from "../../components/bg-animation";
 
 const steps = [1, 2, 3, 4];
 
@@ -15,7 +16,7 @@ const Step1 = ({ onChange, values }) => (
       value={values.name || ""}
       onChange={onChange}
       placeholder="Enter your full name"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f9f9fc] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
       required
     />
     <label className="font-semibold text-[15px] text-[#22223b]">
@@ -27,7 +28,7 @@ const Step1 = ({ onChange, values }) => (
       value={values.email || ""}
       onChange={onChange}
       placeholder="Enter your email"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f9f9fc] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
       required
     />
     <label className="font-semibold text-[15px] text-[#22223b]">
@@ -39,7 +40,7 @@ const Step1 = ({ onChange, values }) => (
       value={values.phone || ""}
       onChange={onChange}
       placeholder="Enter your phone number"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f9f9fc] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
       required
     />
     <label className="font-semibold text-[15px] text-[#22223b]">
@@ -51,7 +52,7 @@ const Step1 = ({ onChange, values }) => (
       value={values.altPhone || ""}
       onChange={onChange}
       placeholder="Enter alternative phone number (optional)"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f9f9fc] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
     />
     <label className="font-semibold text-[15px] text-[#22223b]">
       Country<span className="text-red-500 ml-1">*</span>
@@ -60,7 +61,7 @@ const Step1 = ({ onChange, values }) => (
       name="country"
       value={values.country || ""}
       onChange={onChange}
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f9f9fc] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
       required
     >
       <option value="">Select your country</option>
@@ -85,7 +86,7 @@ const Step1 = ({ onChange, values }) => (
       value={values.designation || ""}
       onChange={onChange}
       placeholder="Enter your designation/role"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f9f9fc] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
       required
     />
     <label className="font-semibold text-[15px] text-[#22223b]">
@@ -96,7 +97,7 @@ const Step1 = ({ onChange, values }) => (
       name="dob"
       value={values.dob || ""}
       onChange={onChange}
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f9f9fc] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
       required
     />
   </div>
@@ -113,7 +114,7 @@ const Step2 = ({ onChange, values }) => (
       value={values.company || ""}
       onChange={onChange}
       placeholder="Enter your company name"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f9f9fc] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
       required
     />
     <label className="font-semibold text-[15px] text-[#22223b]">
@@ -123,7 +124,7 @@ const Step2 = ({ onChange, values }) => (
       name="companySize"
       value={values.companySize || ""}
       onChange={onChange}
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f9f9fc] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
       required
     >
       <option value="">Select company size</option>
@@ -143,7 +144,7 @@ const Step2 = ({ onChange, values }) => (
       value={values.location || ""}
       onChange={onChange}
       placeholder="Enter company location/city"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f9f9fc] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
       required
     />
     <label className="font-semibold text-[15px] text-[#22223b]">
@@ -153,7 +154,7 @@ const Step2 = ({ onChange, values }) => (
       name="hearAboutUs"
       value={values.hearAboutUs || ""}
       onChange={onChange}
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f9f9fc] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
       required
     >
       <option value="">Select an option</option>
@@ -179,7 +180,7 @@ const Step2 = ({ onChange, values }) => (
       name="purpose"
       value={values.purpose || ""}
       onChange={onChange}
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f9f9fc] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
       required
     >
       <option value="">Select purpose of use</option>
@@ -666,123 +667,126 @@ const Signup = () => {
   const StepComponent = stepsContent[step];
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#f5f0ff] font-manrope relative">
-      {/* Heading and Subheading */}
-      <div className="text-center mt-12 mb-6">
-        <h1 className="text-[2.2rem] font-extrabold text-[#a259f7] mb-2">
-          Create Your Account
-        </h1>
-        <p className="text-[#4b5563] text-[1.1rem] max-w-xl mx-auto">
-          Sign up to get started with Cyber Clipper Admin Panel. Manage your
-          company, employees, and products with ease.
-        </p>
-      </div>
-      {/* Timeline */}
-      <div className="flex items-center justify-center gap-6 mb-10 mt-2">
-        {steps.map((s, idx) => (
-          <React.Fragment key={s}>
-            <div
-              className={`flex items-center justify-center w-10 h-10 rounded-full border-2 text-lg font-bold transition-all duration-200 ${
-                idx === step
-                  ? "bg-[#a259f7] border-[#a259f7] text-white scale-110 shadow-lg breathe"
-                  : idx < step
-                  ? "bg-[#e6f9ec] border-[#22c55e] text-[#22c55e]"
-                  : "bg-white border-[#e0dfea] text-[#a259f7]"
-              }`}
-            >
-              {s}
-            </div>
-            {idx < steps.length - 1 && (
-              <div
-                className={`w-16 h-1 rounded transition-all duration-200 ${
-                  idx < step ? "bg-[#22c55e]" : "bg-[#e0dfea]"
-                }`}
-              ></div>
-            )}
-          </React.Fragment>
-        ))}
-      </div>
-      {/* Form */}
-      <form
-        className={`bg-white rounded-xl w-full ${
-          step === 2 ? "max-w-6xl" : "max-w-2xl"
-        } p-10 flex flex-col gap-8 shadow-lg mb-10`}
-        onSubmit={step === steps.length - 1 ? handleSubmit : handleNext}
-      >
-        {step === 0 && <Step1 onChange={handleChange} values={formValues} />}
-        {step === 1 && <Step2 onChange={handleChange} values={formValues} />}
-        {step === 2 && (
-          <Step3
-            onChange={handleChange}
-            values={formValues}
-            onPlanSelect={handlePlanSelect}
-          />
-        )}
-        {step === 3 && (
-          <Step4
-            values={formValues}
-            agreed={agreed}
-            onAgree={() => setAgreed((a) => !a)}
-            uniqueId={uniqueId}
-            companyId={companyId}
-            onCopyUniqueId={handleCopyUniqueId}
-            onCopyCompanyId={handleCopyCompanyId}
-            onCopyBoth={handleCopyBoth}
-          />
-        )}
-        <div className="flex justify-between mt-6">
-          <button
-            type="button"
-            onClick={handleBack}
-            disabled={step === 0}
-            className={`py-2 px-6 rounded-lg font-semibold text-[15px] border transition-all duration-200 ${
-              step === 0
-                ? "bg-[#e0dfea] text-[#a259f7] cursor-not-allowed"
-                : "bg-white text-[#a259f7] border-[#a259f7] hover:bg-[#f5f0ff]"
-            }`}
-          >
-            Back
-          </button>
-          {step < steps.length - 1 ? (
-            <button
-              type="submit"
-              className="py-2 px-6 rounded-lg font-semibold text-[15px] bg-[#a259f7] text-white hover:bg-[#7c3aed] transition-all duration-200"
-            >
-              Next
-            </button>
-          ) : (
-            <button
-              type="submit"
-              disabled={!agreed}
-              className={`py-2 px-6 rounded-lg font-semibold text-[15px] bg-[#22c55e] text-white hover:bg-[#16a34a] transition-all duration-200 ${
-                !agreed ? "opacity-60 cursor-not-allowed" : ""
-              }`}
-            >
-              Submit
-            </button>
-          )}
+    <div className="min-h-screen w-full font-manrope relative overflow-hidden">
+      <NeuralNetwork />
+      <div className="flex flex-col items-center justify-center relative z-10">
+        {/* Heading and Subheading */}
+        <div className="text-center mt-12 mb-6">
+          <h1 className="text-[2.2rem] font-extrabold text-[#a259f7] mb-2">
+            Create Your Account
+          </h1>
+          <p className="text-[#4b5563] text-[1.1rem] max-w-xl mx-auto">
+            Sign up to get started with Cyber Clipper Admin Panel. Manage your
+            company, employees, and products with ease.
+          </p>
         </div>
-      </form>
-      {submitted && <SuccessNotification />}
-      <style jsx>{`
-        @keyframes breathe {
-          0% {
-            transform: scale(1.08);
+        {/* Timeline */}
+        <div className="flex items-center justify-center gap-6 mb-10 mt-2">
+          {steps.map((s, idx) => (
+            <React.Fragment key={s}>
+              <div
+                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 text-lg font-bold transition-all duration-200 ${
+                  idx === step
+                    ? "bg-[#a259f7] border-[#a259f7] text-white scale-110 shadow-lg breathe"
+                    : idx < step
+                    ? "bg-[#e6f9ec] border-[#22c55e] text-[#22c55e]"
+                    : "bg-white border-[#e0dfea] text-[#a259f7]"
+                }`}
+              >
+                {s}
+              </div>
+              {idx < steps.length - 1 && (
+                <div
+                  className={`w-16 h-1 rounded transition-all duration-200 ${
+                    idx < step ? "bg-[#22c55e]" : "bg-[#e0dfea]"
+                  }`}
+                ></div>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+        {/* Form */}
+        <form
+          className={`bg-[#d1d5db] rounded-xl w-full ${
+            step === 2 ? "max-w-6xl" : "max-w-2xl"
+          } p-10 flex flex-col gap-8 shadow-lg mb-10`}
+          onSubmit={step === steps.length - 1 ? handleSubmit : handleNext}
+        >
+          {step === 0 && <Step1 onChange={handleChange} values={formValues} />}
+          {step === 1 && <Step2 onChange={handleChange} values={formValues} />}
+          {step === 2 && (
+            <Step3
+              onChange={handleChange}
+              values={formValues}
+              onPlanSelect={handlePlanSelect}
+            />
+          )}
+          {step === 3 && (
+            <Step4
+              values={formValues}
+              agreed={agreed}
+              onAgree={() => setAgreed((a) => !a)}
+              uniqueId={uniqueId}
+              companyId={companyId}
+              onCopyUniqueId={handleCopyUniqueId}
+              onCopyCompanyId={handleCopyCompanyId}
+              onCopyBoth={handleCopyBoth}
+            />
+          )}
+          <div className="flex justify-between mt-6">
+            <button
+              type="button"
+              onClick={handleBack}
+              disabled={step === 0}
+              className={`py-2 px-6 rounded-lg font-semibold text-[15px] border transition-all duration-200 ${
+                step === 0
+                  ? "bg-[#e0dfea] text-[#a259f7] cursor-not-allowed"
+                  : "bg-white text-[#a259f7] border-[#a259f7] hover:bg-[#f5f0ff]"
+              }`}
+            >
+              Back
+            </button>
+            {step < steps.length - 1 ? (
+              <button
+                type="submit"
+                className="py-2 px-6 rounded-lg font-semibold text-[15px] bg-[#a259f7] text-white hover:bg-[#7c3aed] transition-all duration-200"
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={!agreed}
+                className={`py-2 px-6 rounded-lg font-semibold text-[15px] bg-[#22c55e] text-white hover:bg-[#16a34a] transition-all duration-200 ${
+                  !agreed ? "opacity-60 cursor-not-allowed" : ""
+                }`}
+              >
+                Submit
+              </button>
+            )}
+          </div>
+        </form>
+        {submitted && <SuccessNotification />}
+        <style jsx>{`
+          @keyframes breathe {
+            0% {
+              transform: scale(1.08);
+            }
+            50% {
+              transform: scale(1.22);
+            }
+            100% {
+              transform: scale(1.08);
+            }
           }
-          50% {
-            transform: scale(1.22);
+          .breathe {
+            animation: breathe 1.6s ease-in-out infinite;
           }
-          100% {
-            transform: scale(1.08);
+          .hidden {
+            display: none;
           }
-        }
-        .breathe {
-          animation: breathe 1.6s ease-in-out infinite;
-        }
-        .hidden {
-          display: none;
-        }
-      `}</style>
+        `}</style>
+      </div>
     </div>
   );
 };
