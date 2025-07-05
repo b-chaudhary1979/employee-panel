@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
+import React, { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import PricingComponent from "../../components/pricing";
 import NeuralNetwork from '../../components/bg-animation';
 
 const Login = () => {
   const router = useRouter();
-  const [uniqueId, setUniqueId] = useState('');
-  const [companyId, setCompanyId] = useState('');
+  const [uniqueId, setUniqueId] = useState("");
+  const [companyId, setCompanyId] = useState("");
   const [verifying, setVerifying] = useState(false);
   const [showUniqueId, setShowUniqueId] = useState(false);
   const [showCompanyId, setShowCompanyId] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
+  const [showPricingModal, setShowPricingModal] = useState(false);
 
   const handleVerify = (e) => {
     e.preventDefault();
@@ -20,7 +22,7 @@ const Login = () => {
       setShowNotification(true);
       setTimeout(() => {
         setShowNotification(false);
-        router.push('/playground');
+        router.push("/playground");
       }, 1500);
     }, 2000);
   };
@@ -95,7 +97,7 @@ const Login = () => {
                 placeholder="Enter your unique ID"
                 autoComplete="username"
                 required
-                className="w-full py-3 px-4 pr-10 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
+                className="w-full py-3 px-4 pr-10 text-gray-700 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
               />
               <span
                 className="absolute right-3 top-12 transform -translate-y-1/2 cursor-pointer"
@@ -128,7 +130,7 @@ const Login = () => {
                 placeholder="Enter your company ID"
                 autoComplete="organization"
                 required
-                className="w-full py-3 px-4 pr-10 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
+                className="w-full py-3 px-4 pr-10 text-gray-700 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
               />
               <span
                 className="absolute right-3 top-12 transform -translate-y-1/2 cursor-pointer"
@@ -173,6 +175,44 @@ const Login = () => {
           </form>
         </div>
       </div>
+
+      {/* Pricing Modal */}
+      {showPricingModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto relative shadow-2xl">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowPricingModal(false)}
+              className="absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors duration-200"
+            >
+              <svg
+                className="w-6 h-6 text-gray-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            {/* Pricing Content */}
+            <div className="p-8">
+              <PricingComponent
+                onPlanSelect={(planName) => {
+                  console.log("Selected plan:", planName);
+                  // You can add logic here to handle plan selection
+                }}
+                selectedPlan={null}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
