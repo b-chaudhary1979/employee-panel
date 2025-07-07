@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useSidebar } from "./SidebarContext";
@@ -275,7 +275,8 @@ const underlineKeyframes = `
 }
 `;
 
-export function SideMenu({ open, setOpen }) {
+export default function SideMenu() {
+  const { isOpen, toggleSidebar } = useSidebar();
   const router = useRouter();
 
   return (
@@ -284,7 +285,7 @@ export function SideMenu({ open, setOpen }) {
 
       <aside
         className={`fixed top-0 left-0 h-full z-40 transition-all duration-300 bg-white shadow flex flex-col ${
-          open ? "w-[270px]" : "w-16"
+          isOpen ? "w-[270px]" : "w-16"
         } border-r border-gray-100`}
         style={{
           boxShadow: "2px 0 16px 0 rgba(162,89,247,0.15), 4px 0 0 0 #e0d7f8",
@@ -293,12 +294,12 @@ export function SideMenu({ open, setOpen }) {
         {/* Logo and toggle */}
         <div
           className={`flex items-center justify-between px-6 py-6 border-b border-gray-200 ${
-            open ? "" : "px-2 justify-center"
+            isOpen ? "" : "px-2 justify-center"
           }`}
         >
           <div
             className={`flex items-center gap-3 min-w-0 ${
-              open ? "" : "justify-center w-full"
+              isOpen ? "" : "justify-center w-full"
             }`}
           >
             <span
@@ -313,7 +314,7 @@ export function SideMenu({ open, setOpen }) {
                 className="object-contain"
               />
             </span>
-            {open && (
+            {isOpen && (
               <span
                 className="font-extrabold text-thin text-gray-900 text-lg whitespace-nowrap relative overflow-visible cursor-pointer"
                 style={{ lineHeight: 1.2 }}
@@ -339,10 +340,10 @@ export function SideMenu({ open, setOpen }) {
           </div>
           <button
             className="ml-2 p-1 rounded hover:bg-gray-100 transition-colors"
-            aria-label={open ? "Close menu" : "Open menu"}
-            onClick={() => setOpen(!open)}
+            aria-label={isOpen ? "Close menu" : "Open menu"}
+            onClick={toggleSidebar}
           >
-            {open ? (
+            {isOpen ? (
               <svg
                 className="transition-transform duration-300"
                 width="28"
@@ -380,7 +381,7 @@ export function SideMenu({ open, setOpen }) {
         {/* Menu items */}
         <nav
           className={`flex-1 flex flex-col ${
-            open ? "gap-1 mt-3 px-2" : "gap-0 mt-2 px-0 items-center"
+            isOpen ? "gap-1 mt-3 px-2" : "gap-0 mt-2 px-0 items-center"
           }`}
         >
           {menuItems.map((item, idx) => {
@@ -393,7 +394,7 @@ export function SideMenu({ open, setOpen }) {
                     router.push(item.route);
                   }}
                   className={`flex items-center ${
-                    open ? "gap-3 px-5" : "justify-center px-0"
+                    isOpen ? "gap-3 px-5" : "justify-center px-0"
                   } py-3 rounded-xl font-semibold text-base transition-all duration-150 my-0.5
                     ${
                       isActive
@@ -416,7 +417,7 @@ export function SideMenu({ open, setOpen }) {
                   >
                     {item.icon(isActive)}
                   </span>
-                  {open && <span>{item.label}</span>}
+                  {isOpen && <span>{item.label}</span>}
                   {isActive && (
                     <span className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-[#a259f7]" />
                   )}
@@ -424,7 +425,7 @@ export function SideMenu({ open, setOpen }) {
                 {idx !== menuItems.length - 1 && (
                   <div
                     className={`w-full ${
-                      open ? "ml-5" : "ml-0"
+                      isOpen ? "ml-5" : "ml-0"
                     } border-t border-gray-100`}
                     style={{ height: 1 }}
                   />
@@ -435,15 +436,5 @@ export function SideMenu({ open, setOpen }) {
         </nav>
       </aside>
     </>
-  );
-}
-
-export default function SideMenuProvider({ children }) {
-  const [open, setOpen] = useState(true);
-  return (
-    <SideMenuContext.Provider value={{ open, setOpen }}>
-      <SideMenu open={open} setOpen={setOpen} />
-      {children}
-    </SideMenuContext.Provider>
   );
 }

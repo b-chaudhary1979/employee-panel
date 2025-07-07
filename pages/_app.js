@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 import Loader from "../loader/Loader";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import { SidebarProvider } from "../components/SidebarContext";
 
 export default function App({ Component, pageProps }) {
   const [loading, setLoading] = useState(false);
@@ -22,5 +23,9 @@ export default function App({ Component, pageProps }) {
     };
   }, [router]);
 
-  return loading ? <Loader /> : <Component {...pageProps} />;
+  return (
+    <SidebarProvider>
+      {loading ? <Loader /> : <Component {...pageProps} />}
+    </SidebarProvider>
+  );
 }

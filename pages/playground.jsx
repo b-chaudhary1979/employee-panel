@@ -1,8 +1,9 @@
 import SideMenu from "../components/sidemenu";
 import Header from "../components/header";
 import { useState } from "react";
+import { SidebarProvider } from "../components/SidebarContext";
 
-export default function Home() {
+function PlaygroundContent() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
@@ -15,20 +16,6 @@ export default function Home() {
         {/* Header */}
         <Header username="Admin User" />
 
-        {/* Main content */}
-        <main className="flex-1 p-6">
-          <div className="max-w-7xl mx-auto">
-            <h1 className="text-2xl font-bold text-gray-900 mb-6">
-              Playground
-            </h1>
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <p className="text-gray-600">
-                This is the playground page where you can test components and
-                features.
-              </p>
-            </div>
-          </div>
-        </main>
       </div>
     </div>
   );
@@ -36,8 +23,8 @@ export default function Home() {
 
 export default function Home() {
   return (
-    <SideMenuProvider>
+    <SidebarProvider>
       <PlaygroundContent />
-    </SideMenuProvider>
+    </SidebarProvider>
   );
 }

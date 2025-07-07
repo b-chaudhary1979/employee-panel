@@ -1,20 +1,25 @@
-import SideMenuProvider, { useSideMenu } from "../components/sidemenu";
+import SideMenu from "../components/sidemenu";
+import Header from "../components/header";
+import { SidebarProvider } from "../components/SidebarContext";
 
 function SecurityContent() {
-  const { open } = useSideMenu();
   return (
-    <div className="min-h-screen bg-[#FBF6F1] text-black w-full">
-      <main className="flex-1 p-8 transition-all duration-300" style={{ marginLeft: open ? 270 : 64 }}>
-        <h1 className="text-2xl font-bold">Passwords & Security</h1>
-      </main>
+    <div className="bg-[#fbf9f4] min-h-screen flex">
+      <SideMenu />
+      <div className="flex-1 flex flex-col min-h-screen">
+        <Header username="Admin User" />
+        <main className="flex-1 p-8 transition-all duration-300">
+          <h1 className="text-2xl font-bold">Passwords & Security</h1>
+        </main>
+      </div>
     </div>
   );
 }
 
 export default function Security() {
   return (
-    <SideMenuProvider>
+    <SidebarProvider>
       <SecurityContent />
-    </SideMenuProvider>
+    </SidebarProvider>
   );
-} 
+}
