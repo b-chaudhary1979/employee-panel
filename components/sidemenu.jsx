@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, createContext, useContext } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 
@@ -124,8 +124,21 @@ const underlineKeyframes = `
 }
 `;
 
-export default function SideMenu() {
+// Context to share SideMenu open state
+export const SideMenuContext = createContext({ open: true, setOpen: () => {} });
+export const useSideMenu = () => useContext(SideMenuContext);
+
+export default function SideMenuProvider({ children }) {
   const [open, setOpen] = useState(true);
+  return (
+    <SideMenuContext.Provider value={{ open, setOpen }}>
+      <SideMenu open={open} setOpen={setOpen} />
+      {children}
+    </SideMenuContext.Provider>
+  );
+}
+
+function SideMenu({ open, setOpen }) {
   const router = useRouter();
 
   return (
@@ -138,11 +151,11 @@ export default function SideMenu() {
         {/* Logo and toggle */}
         <div className={`flex items-center justify-between px-6 py-6 border-b border-gray-200 ${open ? "" : "px-2 justify-center"}`}>
           <div className={`flex items-center gap-3 min-w-0 ${open ? "" : "justify-center w-full"}`}>
-            <span className="w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer" onClick={() => router.push("/")}>
+            <span className="w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer" onClick={() => router.push("/playground")}>
               <Image src="/logo cyber clipper.png" alt="Cyber Clipper Logo" width={36} height={36} className="object-contain" />
             </span>
             {open && (
-              <span className="font-extrabold text-thin text-gray-900 text-lg whitespace-nowrap relative overflow-visible cursor-pointer" style={{lineHeight:1.2}} onClick={() => router.push("/")}>
+              <span className="font-extrabold text-thin text-gray-900 text-lg whitespace-nowrap relative overflow-visible cursor-pointer" style={{lineHeight:1.2}} onClick={() => router.push("/playground")}>
                 ADMIN &nbsp;PANEL
                 <span
                   className="absolute left-0 -bottom-1 h-1 rounded-full bg-[#a259f7]"
