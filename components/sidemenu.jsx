@@ -140,24 +140,17 @@ export default function SideMenuProvider({ children }) {
 
 function SideMenu({ open, setOpen }) {
   const router = useRouter();
-  // Detect if mobile (Tailwind: md:hidden)
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-
+  
   return (
     <>
       <style>{bounceKeyframes + underlineKeyframes}</style>
-      {/* Backdrop for mobile */}
-      {open && (
-        <div
-          className="fixed inset-0 z-30 bg-black bg-opacity-40 md:hidden transition-opacity duration-300"
-          onClick={() => setOpen(false)}
-        />
-      )}
+     
       <aside
-        className={`fixed top-0 left-0 h-full z-40 transition-all duration-300 bg-white shadow flex flex-col border-r border-gray-100
-          ${open ? 'translate-x-0' : '-translate-x-full'}
-          w-[270px] md:w-[270px] md:translate-x-0
+        className={`fixed top-0 left-0 h-full z-40 transition-all duration-300 bg-white shadow flex flex-col
+          ${open ? "w-[270-px]": "w-16"}
+          border-r border-gray-100
         `}
+        
         style={{ boxShadow: '2px 0 16px 0 rgba(162,89,247,0.15), 4px 0 0 0 #e0d7f8' }}
       >
         {/* Logo and toggle */}
@@ -185,7 +178,7 @@ function SideMenu({ open, setOpen }) {
             )}
           </div>
           <button
-            className="ml-2 p-1 rounded hover:bg-gray-100 transition-colors md:block"
+            className="ml-2 p-1 rounded hover:bg-gray-100 transition-colors"
             aria-label={open ? "Close menu" : "Open menu"}
             onClick={() => setOpen((v) => !v)}
           >
@@ -208,7 +201,7 @@ function SideMenu({ open, setOpen }) {
               <>
                 <button
                   key={item.label}
-                  onClick={() => { router.push(item.route); if (window.innerWidth < 768) setOpen(false); }}
+                  onClick={() => { router.push(item.route);  }}
                   className={`flex items-center ${open ? "gap-3 px-5" : "justify-center px-0"} py-3 rounded-xl font-semibold text-base transition-all duration-150 my-0.5
                     ${isActive ? "bg-[#f5edff] text-[#a259f7] shadow-sm" : "text-gray-600 hover:bg-gray-50"}
                     relative w-full text-left`}
@@ -226,18 +219,7 @@ function SideMenu({ open, setOpen }) {
           })}
         </nav>
       </aside>
-      {/* Hamburger button for mobile */}
-      {!open && (
-        <button
-          className="fixed top-4 left-4 z-50 p-2 rounded bg-white shadow md:hidden"
-          aria-label="Open menu"
-          onClick={() => setOpen(true)}
-        >
-          <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
-            <path d="M4 6h16M4 12h16M4 18h16" stroke="#222" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        </button>
-      )}
+     
     </>
   );
 } 
