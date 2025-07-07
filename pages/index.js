@@ -24,6 +24,44 @@ export default function Home() {
   const [notification, setNotification] = useState({ show: false, message: "", type: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [activeSection, setActiveSection] = useState('home');
+
+  // Section refs
+  const homeRef = React.useRef(null);
+  const aboutRef = React.useRef(null);
+  const pricingRef = React.useRef(null);
+  const contactRef = React.useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const sectionOffsets = [
+        { id: 'home', ref: homeRef },
+        { id: 'about', ref: aboutRef },
+        { id: 'pricing', ref: pricingRef },
+        { id: 'contact', ref: contactRef },
+      ].map(section => ({
+        id: section.id,
+        top: section.ref.current ? section.ref.current.getBoundingClientRect().top : Infinity,
+      }));
+
+      // Find the section closest to the top (but not above)
+      const active = sectionOffsets.reduce((closest, section) => {
+        if (section.top < window.innerHeight / 2 && section.top > -window.innerHeight / 2) {
+          if (!closest || section.top > closest.top) {
+            return section;
+          }
+        }
+        return closest;
+      }, null);
+
+      setActiveSection(active ? active.id : 'home');
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial check
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleDemoSubmit = async (e) => {
     e.preventDefault();
@@ -133,19 +171,51 @@ export default function Home() {
 
             {/* Navigation */}
             <nav className="hidden md:flex space-x-1">
-              <a href="#home" className="px-4 py-2 text-gray-700 hover:text-[#a259f7] transition-all duration-300 font-medium relative group rounded-lg hover:bg-[#a259f7]/5">
+              <a
+                href="#home"
+                onClick={e => {
+                  e.preventDefault();
+                  homeRef.current.scrollIntoView({ behavior: 'smooth' });
+                  setActiveSection('home');
+                }}
+                className={`px-4 py-2 transition-all duration-300 font-medium relative group rounded-lg hover:bg-[#a259f7]/5 ${activeSection === 'home' ? 'text-[#a259f7] font-bold !text-[#a259f7]' : 'text-gray-700 hover:text-[#a259f7]'}`}
+              >
                 Home
                 <span className="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#a259f7] group-hover:w-full group-hover:left-0 transition-all duration-300"></span>
               </a>
-              <a href="#about" className="px-4 py-2 text-gray-700 hover:text-[#a259f7] transition-all duration-300 font-medium relative group rounded-lg hover:bg-[#a259f7]/5">
+              <a
+                href="#about"
+                onClick={e => {
+                  e.preventDefault();
+                  aboutRef.current.scrollIntoView({ behavior: 'smooth' });
+                  setActiveSection('about');
+                }}
+                className={`px-4 py-2 transition-all duration-300 font-medium relative group rounded-lg hover:bg-[#a259f7]/5 ${activeSection === 'about' ? 'text-[#a259f7] font-bold !text-[#a259f7]' : 'text-gray-700 hover:text-[#a259f7]'}`}
+              >
                 About Us
                 <span className="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#a259f7] group-hover:w-full group-hover:left-0 transition-all duration-300"></span>
               </a>
-              <a href="#pricing" className="px-4 py-2 text-gray-700 hover:text-[#a259f7] transition-all duration-300 font-medium relative group rounded-lg hover:bg-[#a259f7]/5">
+              <a
+                href="#pricing"
+                onClick={e => {
+                  e.preventDefault();
+                  pricingRef.current.scrollIntoView({ behavior: 'smooth' });
+                  setActiveSection('pricing');
+                }}
+                className={`px-4 py-2 transition-all duration-300 font-medium relative group rounded-lg hover:bg-[#a259f7]/5 ${activeSection === 'pricing' ? 'text-[#a259f7] font-bold !text-[#a259f7]' : 'text-gray-700 hover:text-[#a259f7]'}`}
+              >
                 Pricing
                 <span className="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#a259f7] group-hover:w-full group-hover:left-0 transition-all duration-300"></span>
               </a>
-              <a href="#contact" className="px-4 py-2 text-gray-700 hover:text-[#a259f7] transition-all duration-300 font-medium relative group rounded-lg hover:bg-[#a259f7]/5">
+              <a
+                href="#contact"
+                onClick={e => {
+                  e.preventDefault();
+                  contactRef.current.scrollIntoView({ behavior: 'smooth' });
+                  setActiveSection('contact');
+                }}
+                className={`px-4 py-2 transition-all duration-300 font-medium relative group rounded-lg hover:bg-[#a259f7]/5 ${activeSection === 'contact' ? 'text-[#a259f7] font-bold !text-[#a259f7]' : 'text-gray-700 hover:text-[#a259f7]'}`}
+              >
                 Contact Us
                 <span className="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#a259f7] group-hover:w-full group-hover:left-0 transition-all duration-300"></span>
               </a>
@@ -171,7 +241,7 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section id="home" className="py-20 px-4 sm:px-6 lg:px-8">
+      <section id="home" ref={homeRef} className="py-20 px-4 sm:px-6 lg:px-8">
         
         <div className="max-w-7xl mx-auto">
                     <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -367,7 +437,7 @@ export default function Home() {
       </section> 
 
       {/* About Us Section */}
-      <section id="about" className="py-20 bg-[#fbf9f4]">
+      <section id="about" ref={aboutRef} className="py-20 bg-[#fbf9f4]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">About Cyber Clipper</h2>
@@ -559,7 +629,7 @@ export default function Home() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-20 bg-white">
+      <section id="pricing" ref={pricingRef} className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
          
           
@@ -571,7 +641,7 @@ export default function Home() {
       </section>
 
       {/* Contact Us Form */}
-      <section id="contact" className="py-20 bg-[#fbf9f4]">
+      <section id="contact" ref={contactRef} className="py-20 bg-[#fbf9f4]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Contact Us</h2>
