@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import PricingComponent from "../../components/pricing";
 import NeuralNetwork from "../../components/bg-animation";
+import { useRouter } from "next/router";
 
 const steps = [1, 2, 3, 4];
 
@@ -386,15 +387,21 @@ const Step4 = ({ values, agreed, onAgree, uniqueId, companyId, onCopyUniqueId, o
       </div>
 
       <div className="flex justify-center">
-        <button
-          type="button"
-          onClick={onCopyBoth}
-          className="px-6 py-3 bg-[#22c55e] text-white rounded-lg hover:bg-[#16a34a] transition-colors font-semibold relative overflow-hidden"
-          id="copyBothBtn"
-        >
-          <span className="copy-text">Copy Both IDs</span>
-          <span className="success-text hidden">✓ Copied!</span>
-        </button>
+        <div className="w-full flex flex-col items-center mb-2">
+          <div className="bg-[#f8fafc] border border-[#a259f7] rounded-lg px-6 py-4 mb-4 text-center shadow-sm max-w-xl">
+            <span className="font-bold text-[#a259f7] text-lg">Copy both IDs to access your admin panel!</span>
+            <div className="text-[#4b5563] text-sm mt-1">These are your unique credentials. Keep them safe for secure access.</div>
+          </div>
+          <button
+            type="button"
+            onClick={onCopyBoth}
+            className="px-6 py-3 bg-[#22c55e] text-white rounded-lg hover:bg-[#16a34a] transition-colors font-semibold relative overflow-hidden"
+            id="copyBothBtn"
+          >
+            <span className="copy-text">Copy Both IDs</span>
+            <span className="success-text hidden">✓ Copied!</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -588,6 +595,7 @@ const Signup = () => {
   const [agreed, setAgreed] = useState(false);
   const [uniqueId, setUniqueId] = useState("");
   const [companyId, setCompanyId] = useState("");
+  const router = useRouter();
 
   // Generate unique IDs when component mounts
   React.useEffect(() => {
@@ -630,7 +638,10 @@ const Signup = () => {
     e.preventDefault();
     if (!agreed) return;
     setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 2000);
+    setTimeout(() => {
+      setSubmitted(false);
+      router.push("/auth/login");
+    }, 2000);
   };
 
   const showCopySuccess = (buttonId) => {
