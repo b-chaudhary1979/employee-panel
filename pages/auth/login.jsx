@@ -43,7 +43,7 @@ const Login = () => {
         {/* Back Button - Top Left */}
         <button
           onClick={() => router.push('/')}
-          className="absolute top-3 left-6 z-50 flex items-center space-x-2 text-[#a259f7] hover:text-[#8b5cf6] transition-colors duration-200 "
+          className="absolute top-3 left-6 z-50 flex items-center space-x-2 text-[#a259f7] hover:text-gray-500 transition-colors duration-200 "
         >
           <span className="text-lg">←</span>
           <span className="font-medium">Back</span>
