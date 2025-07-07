@@ -126,7 +126,6 @@ const underlineKeyframes = `
 
 export default function SideMenu() {
   const [open, setOpen] = useState(true);
-  const [selected, setSelected] = useState(1); // Products selected by default
   const router = useRouter();
 
   return (
@@ -179,12 +178,12 @@ export default function SideMenu() {
         {/* Menu items */}
         <nav className={`flex-1 flex flex-col ${open ? "gap-1 mt-3 px-2" : "gap-0 mt-2 px-0 items-center"}`}>
           {menuItems.map((item, idx) => {
-            const isActive = idx === selected;
+            const isActive = router.pathname === item.route;
             return (
               <>
                 <button
                   key={item.label}
-                  onClick={() => { setSelected(idx); router.push(item.route); }}
+                  onClick={() => { router.push(item.route); }}
                   className={`flex items-center ${open ? "gap-3 px-5" : "justify-center px-0"} py-3 rounded-xl font-semibold text-base transition-all duration-150 my-0.5
                     ${isActive ? "bg-[#f5edff] text-[#a259f7] shadow-sm" : "text-gray-600 hover:bg-gray-50"}
                     relative w-full text-left`}
