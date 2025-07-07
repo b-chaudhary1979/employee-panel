@@ -71,12 +71,12 @@ const Login = () => {
             </p>
           </div>
           <div className="mt-10">
-            <Link
-              href="/auth/pricing"
-              className="inline-block py-2 px-4 bg-[#a259f7] text-white rounded-md font-semibold text-sm no-underline tracking-wide"
+            <button
+              onClick={() => setShowPricingModal(true)}
+              className="inline-block py-2 px-4 bg-[#a259f7] text-white rounded-md font-semibold text-sm no-underline tracking-wide hover:bg-[#8b4fd8] transition-colors duration-200"
             >
               View Pricing
-            </Link>
+            </button>
           </div>
         </div>
         {/* Right Section (Sign In Form) */}
