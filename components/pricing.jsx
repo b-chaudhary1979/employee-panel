@@ -139,11 +139,6 @@ const PricingComponent = ({ onPlanSelect, selectedPlan }) => {
                   ? "border-purple-300 hover:border-purple-400 bg-white/80 backdrop-blur-sm"
                   : "border-gray-200 hover:border-purple-300 bg-white/80 backdrop-blur-sm"
               } p-4 rounded-xl`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handlePlanSelect(plan.name);
-              }}
             >
               {plan.badge && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
@@ -195,7 +190,7 @@ const PricingComponent = ({ onPlanSelect, selectedPlan }) => {
               </div>
 
               <div className="text-center">
-                <div
+                <button
                   className={`w-full py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
                     selectedPlan === plan.name
                       ? "bg-purple-600 text-white"
@@ -203,9 +198,10 @@ const PricingComponent = ({ onPlanSelect, selectedPlan }) => {
                       ? "bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white"
                       : "border border-purple-300 text-purple-700 hover:bg-purple-50"
                   }`}
+                  onClick={() => handlePlanSelect(plan.name)}
                 >
                   {selectedPlan === plan.name ? "Selected" : plan.buttonText}
-                </div>
+                </button>
               </div>
             </div>
           );

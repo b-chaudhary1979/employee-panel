@@ -204,8 +204,8 @@ const Login = () => {
             <div className="p-8">
               <PricingComponent
                 onPlanSelect={(planName) => {
-                  console.log("Selected plan:", planName);
-                  // You can add logic here to handle plan selection
+                  router.push('/auth/signup');
+                  setShowPricingModal(false);
                 }}
                 selectedPlan={null}
               />
