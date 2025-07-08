@@ -4,106 +4,103 @@ import PricingComponent from "../../components/pricing";
 import NeuralNetwork from "../../components/bg-animation";
 import { useRouter } from "next/router";
 import useFetchUser from "../../hooks/useFetchUser";
+import { getNames, getCode } from 'country-list';
 
 const steps = [1, 2, 3, 4];
 
-const Step1 = ({ onChange, values }) => (
-  <div className="flex flex-col gap-4">
-    <label className="font-semibold text-[15px] text-[#22223b]">
-      Full Name<span className="text-red-500 ml-1">*</span>
-    </label>
-    <input
-      type="text"
-      name="name"
-      value={values.name || ""}
-      onChange={onChange}
-      placeholder="Enter your full name"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
-      required
-    />
-    <label className="font-semibold text-[15px] text-[#22223b]">
-      Email<span className="text-red-500 ml-1">*</span>
-    </label>
-    <input
-      type="email"
-      name="email"
-      value={values.email || ""}
-      onChange={onChange}
-      placeholder="Enter your email"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
-      required
-    />
-    <label className="font-semibold text-[15px] text-[#22223b]">
-      Phone Number<span className="text-red-500 ml-1">*</span>
-    </label>
-    <input
-      type="tel"
-      name="phone"
-      value={values.phone || ""}
-      onChange={onChange}
-      placeholder="Enter your phone number"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
-      required
-    />
-    <label className="font-semibold text-[15px] text-[#22223b]">
-      Alternative Phone Number
-    </label>
-    <input
-      type="tel"
-      name="altPhone"
-      value={values.altPhone || ""}
-      onChange={onChange}
-      placeholder="Enter alternative phone number (optional)"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
-    />
-    <label className="font-semibold text-[15px] text-[#22223b]">
-      Country<span className="text-red-500 ml-1">*</span>
-    </label>
-    <select
-      name="country"
-      value={values.country || ""}
-      onChange={onChange}
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
-      required
-    >
-      <option value="">Select your country</option>
-      <option value="US">United States</option>
-      <option value="CA">Canada</option>
-      <option value="UK">United Kingdom</option>
-      <option value="AU">Australia</option>
-      <option value="DE">Germany</option>
-      <option value="FR">France</option>
-      <option value="IN">India</option>
-      <option value="JP">Japan</option>
-      <option value="BR">Brazil</option>
-      <option value="MX">Mexico</option>
-      <option value="Other">Other</option>
-    </select>
-    <label className="font-semibold text-[15px] text-[#22223b]">
-      Designation<span className="text-red-500 ml-1">*</span>
-    </label>
-    <input
-      type="text"
-      name="designation"
-      value={values.designation || ""}
-      onChange={onChange}
-      placeholder="Enter your designation/role"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
-      required
-    />
-    <label className="font-semibold text-[15px] text-[#22223b]">
-      Date of Birth<span className="text-red-500 ml-1">*</span>
-    </label>
-    <input
-      type="date"
-      name="dob"
-      value={values.dob || ""}
-      onChange={onChange}
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
-      required
-    />
-  </div>
-);
+const Step1 = ({ onChange, values }) => {
+  const countryNames = getNames();
+  return (
+    <div className="flex flex-col gap-4">
+      <label className="font-semibold text-[15px] text-[#22223b]">
+        Full Name<span className="text-red-500 ml-1">*</span>
+      </label>
+      <input
+        type="text"
+        name="name"
+        value={values.name || ""}
+        onChange={onChange}
+        placeholder="Enter your full name"
+        className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
+        required
+      />
+      <label className="font-semibold text-[15px] text-[#22223b]">
+        Email<span className="text-red-500 ml-1">*</span>
+      </label>
+      <input
+        type="email"
+        name="email"
+        value={values.email || ""}
+        onChange={onChange}
+        placeholder="Enter your email"
+        className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
+        required
+      />
+      <label className="font-semibold text-[15px] text-[#22223b]">
+        Phone Number<span className="text-red-500 ml-1">*</span>
+      </label>
+      <input
+        type="tel"
+        name="phone"
+        value={values.phone || ""}
+        onChange={onChange}
+        placeholder="Enter your phone number"
+        className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
+        required
+      />
+      <label className="font-semibold text-[15px] text-[#22223b]">
+        Alternative Phone Number
+      </label>
+      <input
+        type="tel"
+        name="altPhone"
+        value={values.altPhone || ""}
+        onChange={onChange}
+        placeholder="Enter alternative phone number (optional)"
+        className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
+      />
+      <label className="font-semibold text-[15px] text-[#22223b]">
+        Country<span className="text-red-500 ml-1">*</span>
+      </label>
+      <select
+        name="country"
+        value={values.country || ""}
+        onChange={onChange}
+        className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
+        required
+      >
+        <option value="">Select your country</option>
+        {countryNames.map((country) => (
+          <option key={country} value={getCode(country) || country}>{country}</option>
+        ))}
+        <option value="Other">Other</option>
+      </select>
+      <label className="font-semibold text-[15px] text-[#22223b]">
+        Designation<span className="text-red-500 ml-1">*</span>
+      </label>
+      <input
+        type="text"
+        name="designation"
+        value={values.designation || ""}
+        onChange={onChange}
+        placeholder="Enter your designation/role"
+        className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
+        required
+      />
+      <label className="font-semibold text-[15px] text-[#22223b]">
+        Date of Birth<span className="text-red-500 ml-1">*</span>
+      </label>
+      <input
+        type="date"
+        name="dob"
+        value={values.dob || ""}
+        onChange={onChange}
+        className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
+        required
+      />
+    </div>
+  );
+};
 
 const Step2 = ({ onChange, values }) => (
   <div className="flex flex-col gap-4">
@@ -589,6 +586,36 @@ const SuccessNotification = () => (
   </div>
 );
 
+const getFirstThree = (str = "") => {
+  const clean = (str || "XXX").replace(/[^a-zA-Z]/g, "").toUpperCase();
+  return (clean + "XXX").slice(0, 3);
+};
+
+const getSecretCode = () => {
+  // 4 random alphanumeric chars
+  return Math.random().toString(36).substring(2, 6).toUpperCase();
+};
+
+const getJumbledDobDigits = (dob = "") => {
+  // Extract digits from dob (YYYY-MM-DD), pick 3, shuffle
+  const digits = (dob.match(/\d/g) || []).join("");
+  if (digits.length < 3) return "000";
+  // Pick 3 random digits and shuffle
+  let arr = digits.split("");
+  let selected = [];
+  for (let i = 0; i < 3; i++) {
+    const idx = Math.floor(Math.random() * arr.length);
+    selected.push(arr[idx]);
+    arr.splice(idx, 1);
+  }
+  // Shuffle selected digits
+  for (let i = selected.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [selected[i], selected[j]] = [selected[j], selected[i]];
+  }
+  return selected.join("");
+};
+
 const Signup = () => {
   const [step, setStep] = useState(0);
   const [formValues, setFormValues] = useState({ plan: "Basic" });
@@ -601,21 +628,26 @@ const Signup = () => {
 
   // Generate unique IDs when component mounts
   React.useEffect(() => {
-    const generateUniqueId = () => {
-      const timestamp = Date.now().toString(36);
-      const randomStr = Math.random().toString(36).substring(2, 8);
-      return `UID-${timestamp}-${randomStr}`.toUpperCase();
-    };
+    // Generate Company ID
+    const company = formValues.company || "";
+    const location = formValues.location || "";
+    const companyCode = getFirstThree(company);
+    const locationCode = getFirstThree(location);
+    const companySecret = getSecretCode();
+    const companyId = `CID-${companyCode}-${companySecret}-${locationCode}`;
 
-    const generateCompanyId = () => {
-      const timestamp = Date.now().toString(36);
-      const randomStr = Math.random().toString(36).substring(2, 8);
-      return `CID-${timestamp}-${randomStr}`.toUpperCase();
-    };
+    // Generate Unique User ID
+    const name = formValues.name || "";
+    const dob = formValues.dob || "";
+    const userCode = getFirstThree(name);
+    const userSecret = getSecretCode();
+    const dobDigits = getJumbledDobDigits(dob);
+    const uniqueId = `EID-${userCode}-${userSecret}-${dobDigits}`;
 
-    setUniqueId(generateUniqueId());
-    setCompanyId(generateCompanyId());
-  }, []);
+    setUniqueId(uniqueId);
+    setCompanyId(companyId);
+    // eslint-disable-next-line
+  }, [formValues.company, formValues.location, formValues.name, formValues.dob]);
 
   const handleChange = (e) => {
     setFormValues({ ...formValues, [e.target.name]: e.target.value });
