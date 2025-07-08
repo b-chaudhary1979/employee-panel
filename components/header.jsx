@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { User, LogOut, ChevronDown } from "lucide-react";
-import { useSidebar } from "./SidebarContext";
+import { useSidebar } from "../context/SidebarContext";
 import { useRouter } from "next/router";
 
 const Header = ({ username = "admin" }) => {

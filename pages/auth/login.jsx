@@ -32,6 +32,7 @@ const Login = () => {
     setVerifying(true);
     setTimeout(() => {
       setVerifying(false);
+      setNotificationMessage("Successfully logged in!");
       setShowNotification(true);
       setTimeout(() => {
         setShowNotification(false);
@@ -127,7 +128,7 @@ const Login = () => {
                 placeholder="Enter your unique ID"
                 autoComplete="username"
                 required
-                className="w-full py-3 px-4 pr-10 text-gray-700 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
+                className="w-full py-3 px-4 pr-10 text-gray-700 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
               />
               <span
                 className="absolute right-3 top-12 transform -translate-y-1/2 cursor-pointer"
@@ -190,7 +191,7 @@ const Login = () => {
                 placeholder="Enter your company ID"
                 autoComplete="organization"
                 required
-                className="w-full py-3 px-4 pr-10 text-gray-700 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
+                className="w-full py-3 px-4 pr-10 text-gray-700 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
               />
               <span
                 className="absolute right-3 top-12 transform -translate-y-1/2 cursor-pointer"
