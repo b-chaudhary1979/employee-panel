@@ -15,7 +15,7 @@ export default function NeuralNetwork() {
         options={{
           background: {
             color: {
-              value: "transparent",
+              value: "0a0a0a",
             },
           },
           fpsLimit: 60,
