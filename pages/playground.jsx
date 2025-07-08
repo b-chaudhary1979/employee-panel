@@ -1,6 +1,6 @@
 import SideMenu from "../components/sidemenu";
 import Header from "../components/header";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SidebarProvider } from "../context/SidebarContext";
 import { useSidebar } from "../context/SidebarContext";
 import { useRouter } from "next/router";
@@ -9,6 +9,22 @@ function PlaygroundContent() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { isOpen } = useSidebar();
   const router = useRouter();
+
+  // Check for ci and aid in query params
+  useEffect(() => {
+    if (router.isReady) {
+      const { ci, aid } = router.query;
+      if (!ci || !aid) {
+        router.replace("/auth/login");
+      }
+    }
+  }, [router.isReady, router.query]);
+
+  // Optionally, show nothing or a loader while checking
+  const { ci, aid } = router.query;
+  if (!ci || !aid) {
+    return null; // or a loader
+  }
   return (
     <div className="bg-[#fbf9f4] min-h-screen flex">
       {/* Sidebar */}
