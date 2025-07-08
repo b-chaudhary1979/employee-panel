@@ -3,6 +3,9 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import PricingComponent from "../components/pricing";
 import NeuralNetwork from "../components/bg-animation";
+import useStoreContactUs from "../hooks/useStoreContactUs";
+import useStoreDemoQuries from "../hooks/useStoreDemoQuries";
+
 
 export default function Home() {
   const router = useRouter();
@@ -35,6 +38,19 @@ export default function Home() {
   const aboutRef = React.useRef(null);
   const pricingRef = React.useRef(null);
   const contactRef = React.useRef(null);
+
+  const {
+    storeContactUs,
+    loading: contactLoading,
+    error: contactError,
+    success: contactSuccess,
+  } = useStoreContactUs();
+  const {
+    storeDemoQuery,
+    loading: demoLoading,
+    error: demoError,
+    success: demoSuccess,
+  } = useStoreDemoQuries();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -75,47 +91,45 @@ export default function Home() {
   const handleDemoSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    setNotification({
-      show: true,
-      message: "Demo request submitted successfully! We'll contact you soon.",
-      type: "success",
-    });
-
-    setDemoForm({ name: "", email: "", company: "", phone: "", message: "" });
+    await storeDemoQuery(demoForm);
     setIsLoading(false);
-
-    // Hide notification after 5 seconds
-    setTimeout(
-      () => setNotification({ show: false, message: "", type: "" }),
-      5000
-    );
+    if (demoSuccess) {
+      setNotification({
+        show: true,
+        message: "Demo request submitted successfully! We'll contact you soon.",
+        type: "success",
+      });
+      setDemoForm({ name: "", email: "", company: "", phone: "", message: "" });
+    } else if (demoError) {
+      setNotification({
+        show: true,
+        message: demoError,
+        type: "error",
+      });
+    }
+    setTimeout(() => setNotification({ show: false, message: "", type: "" }), 5000);
   };
 
   const handleContactSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    setNotification({
-      show: true,
-      message: "Message sent successfully! We'll get back to you soon.",
-      type: "success",
-    });
-
-    setContactForm({ name: "", email: "", subject: "", message: "" });
+    await storeContactUs(contactForm);
     setIsLoading(false);
-
-    // Hide notification after 5 seconds
-    setTimeout(
-      () => setNotification({ show: false, message: "", type: "" }),
-      5000
-    );
+    if (contactSuccess) {
+      setNotification({
+        show: true,
+        message: "Message sent successfully! We'll get back to you soon.",
+        type: "success",
+      });
+      setContactForm({ name: "", email: "", subject: "", message: "" });
+    } else if (contactError) {
+      setNotification({
+        show: true,
+        message: contactError,
+        type: "error",
+      });
+    }
+    setTimeout(() => setNotification({ show: false, message: "", type: "" }), 5000);
   };
 
   const handlePlanSelect = (planName) => {
