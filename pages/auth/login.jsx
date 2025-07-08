@@ -47,7 +47,7 @@ const Login = () => {
       setShowNotification(true);
       setTimeout(() => {
         setShowNotification(false);
-        router.push("/playground");
+        router.push(`/playground?ci=${encodeURIComponent(companyId)}&aid=${encodeURIComponent(uniqueId)}`);
       }, 1500);
     } else {
       setNotificationMessage(error || "Invalid credentials");
