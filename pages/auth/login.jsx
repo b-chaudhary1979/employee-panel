@@ -44,10 +44,10 @@ const Login = () => {
   return (
     <div className="min-h-screen w-screen font-manrope relative overflow-hidden">
       <NeuralNetwork />
-      <div className="flex flex-row relative z-10 w-full h-full">
+      <div className="flex flex-col md:flex-row relative z-10 w-full h-full">
         {/* Custom Notification */}
         {showNotification && (
-          <div className="fixed top-6 right-6 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 animate-in slide-in-from-right duration-300">
+          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 md:top-6 md:right-6 md:left-auto md:translate-x-0 z-50 bg-green-500 text-white px-4 py-2 md:px-6 md:py-3 rounded-lg shadow-lg flex items-center space-x-2 animate-in slide-in-from-right duration-300 max-w-[90vw] md:max-w-none">
             <svg
               className="w-5 h-5"
               fill="none"
@@ -61,41 +61,41 @@ const Login = () => {
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            <span className="font-medium">{notificationMessage}</span>
+            <span className="font-medium text-sm md:text-base">{notificationMessage}</span>
           </div>
         )}
         {/* Back Button - Top Left */}
         <button
           onClick={() => router.push("/")}
-          className="absolute top-3 left-6 z-50 flex items-center space-x-2 text-[#a259f7] hover:text-gray-500 transition-colors duration-200 "
+          className="absolute top-2 left-2 md:top-3 md:left-6 z-50 flex items-center space-x-2 text-[#a259f7] hover:text-gray-500 transition-colors duration-200 text-base md:text-lg"
         >
           <span className="text-lg">←</span>
           <span className="font-medium">Back</span>
         </button>
         {/* Left Section */}
-        <div className="flex-1 flex flex-col justify-start items-start py-[5vh] px-[4vw] relative bg-white/5 backdrop-blur-xs">
+        <div className="flex-1 flex flex-col justify-start items-start py-8 px-4 sm:px-8 md:py-[5vh] md:px-[4vw] relative bg-white/5 backdrop-blur-xs w-full md:w-auto">
           {/* Branding Info */}
-          <div className="max-w-[500px]">
-            <h1 className="text-[50px] mt-8 font-extrabold text-[#a259f7] mb-4">
+          <div className="max-w-full md:max-w-[500px]">
+            <h1 className="text-[32px] sm:text-[40px] md:text-[50px] mt-4 md:mt-8 font-extrabold text-[#a259f7] mb-3 md:mb-4">
               Welcome to Admin panel
             </h1>
-            <p className="text-[18px] leading-relaxed text-[#fff]">
+            <p className="text-[15px] sm:text-[16px] md:text-[18px] leading-relaxed text-[#fff]">
               Manage your company, employees, and products with ease. Cyber
               Clipper gives you a powerful admin panel that is fast, secure, and
               reliable.
             </p>
-            <ul className="mt-5 pl-5 text-[#a259f7] font-semibold list-disc">
+            <ul className="mt-4 md:mt-5 pl-5 text-[#a259f7] font-semibold list-disc text-[14px] sm:text-[15px] md:text-[16px]">
               <li>Easy user management</li>
               <li>Real-time analytics</li>
               <li>Advanced security</li>
             </ul>
             {/* Brief additional info */}
-            <p className="mt-5 text-[15px] text-[#fff]">
+            <p className="mt-4 md:mt-5 text-[13px] sm:text-[14px] md:text-[15px] text-[#fff]">
               Get started in minutes and empower your team with tools designed
               for productivity and growth.
             </p>
           </div>
-          <div className="mt-10">
+          <div className="mt-8 md:mt-10 w-full flex justify-center md:justify-start">
             <button
               onClick={() => setShowPricingModal(true)}
               className="inline-block py-2 px-4 bg-[#a259f7] text-white rounded-md font-semibold text-sm no-underline tracking-wide hover:bg-[#8b4fd8] transition-colors duration-200"
@@ -105,20 +105,20 @@ const Login = () => {
           </div>
         </div>
         {/* Right Section (Sign In Form) */}
-        <div className="flex-1 flex  justify-center items-center py-[5vh] px-[4vw]">
+        <div className="flex-1 flex justify-center items-center py-8 px-4 sm:px-8 md:py-[5vh] md:px-[4vw] w-full md:w-auto">
           <form
             onSubmit={handleVerify}
-            className="bg-gray-300 rounded-xl w-full max-w-[400px] p-10 flex flex-col gap-6"
+            className="bg-gray-300 rounded-xl w-full max-w-[95vw] sm:max-w-[400px] p-6 sm:p-8 md:p-10 flex flex-col gap-5 sm:gap-6"
           >
-            <h2 className="text-[30px] font-extrabold text-[#a259f7] mb-1">
+            <h2 className="text-[24px] sm:text-[28px] md:text-[30px] font-extrabold text-[#a259f7] mb-1">
               Sign In
             </h2>
-            <p className="text-[#6b7280] text-[15px] mb-2">
+            <p className="text-[#6b7280] text-[14px] sm:text-[15px] mb-2">
               Welcome back! Please login to your account.
             </p>
             {/* Unique ID Input */}
             <div className="relative">
-              <label className="font-semibold text-[15px] text-[#22223b] mb-1 block">
+              <label className="font-semibold text-[14px] sm:text-[15px] text-[#22223b] mb-1 block">
                 Unique ID
               </label>
               <input
@@ -128,10 +128,10 @@ const Login = () => {
                 placeholder="Enter your unique ID"
                 autoComplete="username"
                 required
-                className="w-full py-3 px-4 pr-10 text-gray-700 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
+                className="w-full py-3 px-4 pr-10 text-gray-700 rounded-lg border border-[#e0dfea] text-[14px] sm:text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
               />
               <span
-                className="absolute right-3 top-12 transform -translate-y-1/2 cursor-pointer"
+                className="absolute right-3 top-10 sm:top-12 transform -translate-y-1/2 cursor-pointer"
                 onClick={() => setShowUniqueId((prev) => !prev)}
                 tabIndex={0}
                 role="button"
@@ -181,7 +181,7 @@ const Login = () => {
             </div>
             {/* Company ID Input */}
             <div className="relative">
-              <label className="font-semibold text-[15px] text-[#22223b] mb-1 block">
+              <label className="font-semibold text-[14px] sm:text-[15px] text-[#22223b] mb-1 block">
                 Company ID
               </label>
               <input
@@ -191,10 +191,10 @@ const Login = () => {
                 placeholder="Enter your company ID"
                 autoComplete="organization"
                 required
-                className="w-full py-3 px-4 pr-10 text-gray-700 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
+                className="w-full py-3 px-4 pr-10 text-gray-700 rounded-lg border border-[#e0dfea] text-[14px] sm:text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
               />
               <span
-                className="absolute right-3 top-12 transform -translate-y-1/2 cursor-pointer"
+                className="absolute right-3 top-10 sm:top-12 transform -translate-y-1/2 cursor-pointer"
                 onClick={() => setShowCompanyId((prev) => !prev)}
                 tabIndex={0}
                 role="button"
@@ -248,7 +248,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={verifying}
-              className={`w-full py-[13px] rounded-lg text-[17px] font-bold transition-all duration-200 tracking-wider border-none ${
+              className={`w-full py-[13px] rounded-lg text-[16px] sm:text-[17px] font-bold transition-all duration-200 tracking-wider border-none ${
                 verifying
                   ? "bg-[#e0dfea] text-[#a259f7] cursor-not-allowed"
                   : "bg-[#a259f7] text-white cursor-pointer"
@@ -257,7 +257,7 @@ const Login = () => {
               {verifying ? "Verifying ..." : "Verify"}
             </button>
             {/* Signup Link */}
-            <div className="text-[15px] text-[#4b5563] text-center">
+            <div className="text-[14px] sm:text-[15px] text-[#4b5563] text-center">
               Don&apos;t have an account?{" "}
               <Link
                 href="/auth/signup"
@@ -272,12 +272,12 @@ const Login = () => {
 
       {/* Pricing Modal */}
       {showPricingModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto relative shadow-2xl">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-xl w-full max-w-[98vw] sm:max-w-6xl max-h-[90vh] overflow-y-auto relative shadow-2xl">
             {/* Close Button */}
             <button
               onClick={() => setShowPricingModal(false)}
-              className="absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors duration-200"
+              className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors duration-200"
             >
               <svg
                 className="w-6 h-6 text-gray-600"
@@ -295,7 +295,7 @@ const Login = () => {
             </button>
 
             {/* Pricing Content */}
-            <div className="p-8">
+            <div className="p-4 sm:p-8">
               <PricingComponent
                 onPlanSelect={(planName) => {
                   router.push("/auth/signup");

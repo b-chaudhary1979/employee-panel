@@ -403,7 +403,9 @@ const Step4 = ({ values, agreed, onAgree, uniqueId, companyId, onCopyUniqueId, o
       </div>
     </div>
 
-    <label className="flex items-center gap-2 text-gray-500 text-[15px]">
+    <label className="flex flex-wrap items-center gap-x-2 gap-y-1 text-gray-500 text-[15px] mt-2 sm:mt-0">
+     
+      <span className="flex flex-wrap items-center gap-x-1 gap-y-1">
       <input
         type="checkbox"
         checked={agreed}
@@ -411,18 +413,19 @@ const Step4 = ({ values, agreed, onAgree, uniqueId, companyId, onCopyUniqueId, o
         className="accent-[#a259f7]"
         required
       />
-      I agree to the
-      <Link href="/terms" className="text-[#a259f7] underline" target="_blank">
-        Terms &amp; Conditions
-      </Link>
-      and
-      <Link
-        href="/privacy"
-        className="text-[#a259f7] underline"
-        target="_blank"
-      >
-        Privacy Policy
-      </Link>
+        I agree to the
+        <Link href="/terms" className="text-[#a259f7] underline" target="_blank">
+          Terms &amp; Conditions
+        </Link>
+        and
+        <Link
+          href="/privacy"
+          className="text-[#a259f7] underline"
+          target="_blank"
+        >
+          Privacy Policy
+        </Link>
+      </span>
     </label>
   </div>
 );
@@ -480,8 +483,8 @@ const confettiBursts = [
 const allConfetti = confettiBursts.flat();
 
 const SuccessNotification = () => (
-  <div className="fixed inset-0 flex items-center justify-center z-50 bg-white/10 backdrop-blur-md">
-    <div className="relative bg-white rounded-xl p-16 min-w-[440px] flex flex-col items-center shadow-lg animate-fade-in overflow-visible">
+  <div className="fixed inset-0 flex items-center justify-center z-50 bg-white/10 backdrop-blur-md px-2">
+    <div className="relative bg-white rounded-xl p-6 sm:p-12 md:p-16 w-full max-w-xs sm:max-w-md md:min-w-[440px] flex flex-col items-center shadow-lg animate-fade-in overflow-visible">
       {/* Confetti Bursts: large SVG, not clipped to box */}
       <div className="pointer-events-none fixed left-0 top-0 w-full h-full z-50">
         <svg
@@ -510,7 +513,7 @@ const SuccessNotification = () => (
           ))}
         </svg>
       </div>
-      <svg className="w-24 h-24 mb-6 animate-tick" viewBox="0 0 52 52">
+      <svg className="w-16 h-16 sm:w-24 sm:h-24 mb-4 sm:mb-6 animate-tick" viewBox="0 0 52 52">
         <circle cx="26" cy="26" r="25" fill="#e6f9ec" />
         <path
           fill="none"
@@ -521,7 +524,7 @@ const SuccessNotification = () => (
           d="M14 27l7 7 16-16"
         />
       </svg>
-      <div className="text-3xl font-extrabold text-[#22c55e] mb-2">
+      <div className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#22c55e] mb-2 text-center">
         Successfully submitted
       </div>
     </div>
@@ -718,21 +721,21 @@ const Signup = () => {
       <NeuralNetwork />
       <div className="flex flex-col items-center justify-center relative z-10">
         {/* Heading and Subheading */}
-        <div className="text-center mt-12 mb-6">
-          <h1 className="text-[2.2rem] font-extrabold text-[#a259f7] mb-2">
+        <div className="text-center mt-8 mb-4 sm:mt-12 sm:mb-6 px-4 w-full">
+          <h1 className="text-[1.6rem] sm:text-[2.2rem] font-extrabold text-[#a259f7] mb-2">
             Create Your Account
           </h1>
-          <p className="text-[#4b5563] text-[1.1rem] max-w-xl mx-auto">
+          <p className="text-[#4b5563] text-[1rem] sm:text-[1.1rem] max-w-xl mx-auto">
             Sign up to get started with Cyber Clipper Admin Panel. Manage your
             company, employees, and products with ease.
           </p>
         </div>
         {/* Timeline */}
-        <div className="flex items-center justify-center gap-6 mb-10 mt-2">
+        <div className="flex items-center justify-center gap-2 sm:gap-6 mb-6 mt-2 px-2  max-w-xs sm:max-w-none">
           {steps.map((s, idx) => (
             <React.Fragment key={s}>
               <div
-                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 text-lg font-bold transition-all duration-200 ${
+                className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 text-base sm:text-lg font-bold transition-all duration-200 ${
                   idx === step
                     ? "bg-[#a259f7] border-[#a259f7] text-white scale-110 shadow-lg breathe"
                     : idx < step
@@ -744,7 +747,7 @@ const Signup = () => {
               </div>
               {idx < steps.length - 1 && (
                 <div
-                  className={`w-16 h-1 rounded transition-all duration-200 ${
+                  className={`h-1 rounded transition-all duration-200 flex-1 min-w-[12px] sm:w-16 ${
                     idx < step ? "bg-[#22c55e]" : "bg-[#e0dfea]"
                   }`}
                 ></div>
@@ -755,8 +758,8 @@ const Signup = () => {
         {/* Form */}
         <form
           className={`bg-[#d1d5db] rounded-xl w-full ${
-            step === 2 ? "max-w-6xl" : "max-w-2xl"
-          } p-10 flex flex-col gap-8 shadow-lg mb-10`}
+            step === 2 ? "max-w-full sm:max-w-3xl md:max-w-6xl" : "max-w-full sm:max-w-xl md:max-w-2xl"
+          } p-4 sm:p-8 md:p-10 flex flex-col gap-6 sm:gap-8 shadow-lg mb-8 sm:mb-10 mx-2`}
           onSubmit={step === steps.length - 1 ? handleSubmit : handleNext}
         >
           {step === 0 && <Step1 onChange={handleChange} values={formValues} />}
@@ -786,12 +789,12 @@ const Signup = () => {
           {storingUser && (
             <div className="text-blue-500 text-center font-semibold">Storing user info...</div>
           )}
-          <div className="flex justify-between mt-6">
+          <div className="flex flex-col sm:flex-row justify-between mt-4 sm:mt-6 gap-2 sm:gap-0">
             <button
               type="button"
               onClick={handleBack}
               disabled={step === 0}
-              className={`py-2 px-6 rounded-lg font-semibold text-[15px] border transition-all duration-200 ${
+              className={`py-2 px-4 sm:px-6 rounded-lg font-semibold text-[15px] border transition-all duration-200 ${
                 step === 0
                   ? "bg-[#e0dfea] text-[#a259f7] cursor-not-allowed"
                   : "bg-white text-[#a259f7] border-[#a259f7] hover:bg-[#f5f0ff]"
@@ -802,7 +805,7 @@ const Signup = () => {
             {step < steps.length - 1 ? (
               <button
                 type="submit"
-                className="py-2 px-6 rounded-lg font-semibold text-[15px] bg-[#a259f7] text-white hover:bg-[#7c3aed] transition-all duration-200"
+                className="py-2 px-4 sm:px-6 rounded-lg font-semibold text-[15px] bg-[#a259f7] text-white hover:bg-[#7c3aed] transition-all duration-200"
               >
                 Next
               </button>
@@ -810,7 +813,7 @@ const Signup = () => {
               <button
                 type="submit"
                 disabled={!agreed}
-                className={`py-2 px-6 rounded-lg font-semibold text-[15px] bg-[#22c55e] text-white hover:bg-[#16a34a] transition-all duration-200 ${
+                className={`py-2 px-4 sm:px-6 rounded-lg font-semibold text-[15px] bg-[#22c55e] text-white hover:bg-[#16a34a] transition-all duration-200 ${
                   !agreed ? "opacity-60 cursor-not-allowed" : ""
                 }`}
               >
