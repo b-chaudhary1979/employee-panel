@@ -3,17 +3,22 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import PricingComponent from "../../components/pricing";
 import NeuralNetwork from "../../components/bg-animation";
+import usefetchCredentials from "../../hooks/usefetchCredentials";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const Login = () => {
   const router = useRouter();
   const [uniqueId, setUniqueId] = useState("");
   const [companyId, setCompanyId] = useState("");
-  const [verifying, setVerifying] = useState(false);
   const [showUniqueId, setShowUniqueId] = useState(false);
   const [showCompanyId, setShowCompanyId] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [showPricingModal, setShowPricingModal] = useState(false);
+  const [captchaValue, setCaptchaValue] = useState(null);
+
+  // Use the authentication hook
+  const { authenticate, loading, error, user } = usefetchCredentials();
 
   useEffect(() => {
     if (
@@ -27,18 +32,28 @@ const Login = () => {
     }
   }, []);
 
-  const handleVerify = (e) => {
+  const handleVerify = async (e) => {
     e.preventDefault();
-    setVerifying(true);
-    setTimeout(() => {
-      setVerifying(false);
+    if (!captchaValue) {
+      setNotificationMessage("Please complete the captcha");
+      setShowNotification(true);
+      setTimeout(() => setShowNotification(false), 2000);
+      return;
+    }
+    // Use the authenticate function from the hook
+    const result = await authenticate(companyId, uniqueId);
+    if (result) {
       setNotificationMessage("Successfully logged in!");
       setShowNotification(true);
       setTimeout(() => {
         setShowNotification(false);
         router.push("/playground");
       }, 1500);
-    }, 2000);
+    } else {
+      setNotificationMessage(error || "Invalid credentials");
+      setShowNotification(true);
+      setTimeout(() => setShowNotification(false), 2000);
+    }
   };
 
   return (
@@ -49,20 +64,29 @@ const Login = () => {
       <div className="flex flex-col md:flex-row relative z-10 w-full h-full max-w-7xl mx-auto">
         {/* Custom Notification */}
         {showNotification && (
-          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 md:top-6 md:right-6 md:left-auto md:translate-x-0 z-50 bg-green-500 text-white px-4 py-2 md:px-6 md:py-3 rounded-lg shadow-lg flex items-center space-x-2 animate-in slide-in-from-right duration-300 max-w-[90vw] md:max-w-none">
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+          <div
+            className={`fixed top-4 left-1/2 transform -translate-x-1/2 md:top-6 md:right-6 md:left-auto md:translate-x-0 z-50 px-4 py-2 md:px-6 md:py-3 rounded-lg shadow-lg flex items-center space-x-2 animate-in slide-in-from-right duration-300 max-w-[90vw] md:max-w-none 
+              ${notificationMessage && (notificationMessage.toLowerCase().includes('invalid credentials') || notificationMessage.toLowerCase().includes('please complete the captcha'))
+                ? 'bg-red-400 text-white'
+                : 'bg-green-500 text-white'}
+            `}
+          >
+            {notificationMessage && notificationMessage.toLowerCase().includes('invalid credentials') ? (
+              // Cross (X) SVG for error
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : notificationMessage && notificationMessage.toLowerCase().includes('please complete the captcha') ? (
+              // Exclamation SVG for captcha warning
+              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M12 17a5 5 0 100-10 5 5 0 000 10z" />
+              </svg>
+            ) : (
+              // Checkmark SVG for success
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            )}
             <span className="font-medium text-sm md:text-base">{notificationMessage}</span>
           </div>
         )}
@@ -110,12 +134,12 @@ const Login = () => {
         <div className="flex-1 flex justify-center items-center py-8 px-4 sm:px-8 md:py-[5vh] md:px-[4vw] w-full md:w-auto">
           <form
             onSubmit={handleVerify}
-            className="bg-gray-300 rounded-xl w-full max-w-[95vw] sm:max-w-[400px] p-6 sm:p-8 md:p-10 flex flex-col gap-5 sm:gap-6"
+            className="bg-gray-300 rounded-xl w-full max-w-[95vw] sm:max-w-[400px] pt-2 pb-4 px-4 sm:pt-3 sm:pb-6 sm:px-6 md:pt-4 md:pb-8 md:px-8 flex flex-col gap-4 sm:gap-5"
           >
-            <h2 className="text-[24px] sm:text-[28px] md:text-[30px] font-extrabold text-[#a259f7] mb-1">
+            <h2 className="text-[24px] sm:text-[28px] md:text-[30px] font-extrabold text-[#a259f7]">
               Sign In
             </h2>
-            <p className="text-[#6b7280] text-[14px] sm:text-[15px] mb-2">
+            <p className="text-[#6b7280] text-[14px] sm:text-[15px]">
               Welcome back! Please login to your account.
             </p>
             {/* Unique ID Input */}
@@ -246,17 +270,24 @@ const Login = () => {
                 )}
               </span>
             </div>
+            {/* Google reCAPTCHA */}
+            <div className="flex justify-center my-2">
+              <ReCAPTCHA
+                sitekey="6LdR-HsrAAAAAO6pQXWNROYbxE2F956skASebGNL"
+                onChange={setCaptchaValue}
+              />
+            </div>
             {/* Verify Button */}
             <button
               type="submit"
-              disabled={verifying}
+              disabled={loading}
               className={`w-full py-[13px] rounded-lg text-[16px] sm:text-[17px] font-bold transition-all duration-200 tracking-wider border-none ${
-                verifying
+                loading
                   ? "bg-[#e0dfea] text-[#a259f7] cursor-not-allowed"
                   : "bg-[#a259f7] text-white cursor-pointer"
               }`}
             >
-              {verifying ? "Verifying ..." : "Verify"}
+              {loading ? "Verifying ..." : "Verify"}
             </button>
             {/* Signup Link */}
             <div className="text-[14px] sm:text-[15px] text-[#4b5563] text-center">

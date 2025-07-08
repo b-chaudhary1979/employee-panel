@@ -3,13 +3,13 @@ import { db } from '../firebase';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 /**
- * useFetchUser - Hook to store user signup info in Firestore (users collection)
+ * useStoreUser - Hook to store user signup info in Firestore (users collection)
  *
  * Usage:
- *   const { storeUser, loading, error, success } = useFetchUser();
+ *   const { storeUser, loading, error, success } = useStoreUser();
  *   storeUser(userData, companyId);
  */
-export default function useFetchUser() {
+export default function useStoreUser() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);

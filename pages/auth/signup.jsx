@@ -3,7 +3,7 @@ import Link from "next/link";
 import PricingComponent from "../../components/pricing";
 import NeuralNetwork from "../../components/bg-animation";
 import { useRouter } from "next/router";
-import useFetchUser from "../../hooks/useFetchUser";
+import useStoreUser from "../../hooks/useStoreUser";
 import { getNames, getCode } from 'country-list';
 
 const steps = [1, 2, 3, 4];
@@ -627,7 +627,7 @@ const Signup = () => {
   const [uniqueId, setUniqueId] = useState("");
   const [companyId, setCompanyId] = useState("");
   const router = useRouter();
-  const { storeUser, loading: storingUser, error: storeError, success: storeSuccess } = useFetchUser();
+  const { storeUser, loading: storingUser, error: storeError, success: storeSuccess } = useStoreUser();
 
   // Generate unique IDs when component mounts
   React.useEffect(() => {
