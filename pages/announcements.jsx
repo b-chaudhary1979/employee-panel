@@ -1,6 +1,6 @@
 import SideMenu from "../components/sidemenu";
 import Header from "../components/header";
-import { SidebarProvider } from "../components/SidebarContext";
+import { SidebarProvider } from "../context/SidebarContext";
 
 function AnnouncementsContent() {
   return (

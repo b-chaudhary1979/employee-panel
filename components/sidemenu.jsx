@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useSidebar } from "./SidebarContext";
+import { useSidebar } from "../context/SidebarContext";
 
 const menuItems = [
   {

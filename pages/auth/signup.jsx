@@ -3,6 +3,7 @@ import Link from "next/link";
 import PricingComponent from "../../components/pricing";
 import NeuralNetwork from "../../components/bg-animation";
 import { useRouter } from "next/router";
+import useFetchUser from "../../hooks/useFetchUser";
 
 const steps = [1, 2, 3, 4];
 
@@ -17,7 +18,7 @@ const Step1 = ({ onChange, values }) => (
       value={values.name || ""}
       onChange={onChange}
       placeholder="Enter your full name"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
       required
     />
     <label className="font-semibold text-[15px] text-[#22223b]">
@@ -29,7 +30,7 @@ const Step1 = ({ onChange, values }) => (
       value={values.email || ""}
       onChange={onChange}
       placeholder="Enter your email"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
       required
     />
     <label className="font-semibold text-[15px] text-[#22223b]">
@@ -41,7 +42,7 @@ const Step1 = ({ onChange, values }) => (
       value={values.phone || ""}
       onChange={onChange}
       placeholder="Enter your phone number"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
       required
     />
     <label className="font-semibold text-[15px] text-[#22223b]">
@@ -53,7 +54,7 @@ const Step1 = ({ onChange, values }) => (
       value={values.altPhone || ""}
       onChange={onChange}
       placeholder="Enter alternative phone number (optional)"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
     />
     <label className="font-semibold text-[15px] text-[#22223b]">
       Country<span className="text-red-500 ml-1">*</span>
@@ -62,7 +63,7 @@ const Step1 = ({ onChange, values }) => (
       name="country"
       value={values.country || ""}
       onChange={onChange}
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
       required
     >
       <option value="">Select your country</option>
@@ -87,7 +88,7 @@ const Step1 = ({ onChange, values }) => (
       value={values.designation || ""}
       onChange={onChange}
       placeholder="Enter your designation/role"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
       required
     />
     <label className="font-semibold text-[15px] text-[#22223b]">
@@ -98,7 +99,7 @@ const Step1 = ({ onChange, values }) => (
       name="dob"
       value={values.dob || ""}
       onChange={onChange}
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
       required
     />
   </div>
@@ -115,7 +116,7 @@ const Step2 = ({ onChange, values }) => (
       value={values.company || ""}
       onChange={onChange}
       placeholder="Enter your company name"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
       required
     />
     <label className="font-semibold text-[15px] text-[#22223b]">
@@ -125,7 +126,7 @@ const Step2 = ({ onChange, values }) => (
       name="companySize"
       value={values.companySize || ""}
       onChange={onChange}
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
       required
     >
       <option value="">Select company size</option>
@@ -145,7 +146,7 @@ const Step2 = ({ onChange, values }) => (
       value={values.location || ""}
       onChange={onChange}
       placeholder="Enter company location/city"
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
       required
     />
     <label className="font-semibold text-[15px] text-[#22223b]">
@@ -155,7 +156,7 @@ const Step2 = ({ onChange, values }) => (
       name="hearAboutUs"
       value={values.hearAboutUs || ""}
       onChange={onChange}
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
       required
     >
       <option value="">Select an option</option>
@@ -181,7 +182,7 @@ const Step2 = ({ onChange, values }) => (
       name="purpose"
       value={values.purpose || ""}
       onChange={onChange}
-      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none"
+      className="w-full py-3 px-4 text-gray-500 rounded-lg border border-[#e0dfea] text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
       required
     >
       <option value="">Select purpose of use</option>
@@ -596,6 +597,7 @@ const Signup = () => {
   const [uniqueId, setUniqueId] = useState("");
   const [companyId, setCompanyId] = useState("");
   const router = useRouter();
+  const { storeUser, loading: storingUser, error: storeError, success: storeSuccess } = useFetchUser();
 
   // Generate unique IDs when component mounts
   React.useEffect(() => {
@@ -634,10 +636,12 @@ const Signup = () => {
     setStep((prev) => Math.max(prev - 1, 0));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!agreed) return;
     setSubmitted(true);
+    // Store user info in Firestore
+    await storeUser({ ...formValues, uniqueId }, companyId);
     setTimeout(() => {
       setSubmitted(false);
       router.push("/auth/login");
@@ -743,6 +747,12 @@ const Signup = () => {
               onCopyCompanyId={handleCopyCompanyId}
               onCopyBoth={handleCopyBoth}
             />
+          )}
+          {storeError && (
+            <div className="text-red-500 text-center font-semibold">{storeError}</div>
+          )}
+          {storingUser && (
+            <div className="text-blue-500 text-center font-semibold">Storing user info...</div>
           )}
           <div className="flex justify-between mt-6">
             <button

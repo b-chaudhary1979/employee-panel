@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import PricingComponent from "../components/pricing";
-import NeuralNetwork from "../components/bg-animation";
 import useStoreContactUs from "../hooks/useStoreContactUs";
 import useStoreDemoQuries from "../hooks/useStoreDemoQuries";
 
