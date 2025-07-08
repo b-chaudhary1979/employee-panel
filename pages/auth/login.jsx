@@ -42,9 +42,11 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen w-screen font-manrope relative overflow-hidden">
+    <div className="min-h-screen w-screen font-manrope relative overflow-hidden flex items-center justify-center">
+      {/* Full-page blur background */}
+      <div className="absolute inset-0 bg-white/5 backdrop-blur-xs z-0" />
       <NeuralNetwork />
-      <div className="flex flex-col md:flex-row relative z-10 w-full h-full">
+      <div className="flex flex-col md:flex-row relative z-10 w-full h-full max-w-7xl mx-auto">
         {/* Custom Notification */}
         {showNotification && (
           <div className="fixed top-4 left-1/2 transform -translate-x-1/2 md:top-6 md:right-6 md:left-auto md:translate-x-0 z-50 bg-green-500 text-white px-4 py-2 md:px-6 md:py-3 rounded-lg shadow-lg flex items-center space-x-2 animate-in slide-in-from-right duration-300 max-w-[90vw] md:max-w-none">
