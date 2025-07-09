@@ -5,6 +5,7 @@ import { SidebarProvider } from "../context/SidebarContext";
 import { useSidebar } from "../context/SidebarContext";
 import { useRouter } from "next/router";
 import CryptoJS from "crypto-js";
+import useStoreUserInfoEdit from "../hooks/useStoreUserInfoEdit";
 
 // Utility to decrypt token into ci and aid
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!"; // Should match the key used for encryption
@@ -36,6 +37,18 @@ function PlaygroundContent() {
   const { ci, aid } = decryptToken(token);
   const headerRef = useRef(null);
   const [headerHeight, setHeaderHeight] = useState(0);
+
+  // Fetch user info from Firestore
+  const {
+    user,
+    loading: userLoading,
+    error: userError,
+    fetchUser,
+  } = useStoreUserInfoEdit(ci);
+
+  useEffect(() => {
+    if (ci) fetchUser();
+  }, [ci, fetchUser]);
 
   // Check for ci and aid in query params
   useEffect(() => {
@@ -92,6 +105,12 @@ function PlaygroundContent() {
   if (!ci || !aid) {
     return null; // or a loader
   }
+  if (userLoading) {
+    return <div>Loading user info...</div>;
+  }
+  if (userError) {
+    return <div>Error loading user info: {userError}</div>;
+  }
 
   return (
     <div className="bg-[#fbf9f4] min-h-screen flex relative">
@@ -125,6 +144,8 @@ function PlaygroundContent() {
           ref={headerRef}
           onMobileSidebarToggle={handleMobileSidebarToggle}
           mobileSidebarOpen={mobileSidebarOpen}
+          username={user?.name || "admin"}
+          companyName={user?.company || "Cyber LMS Solutions"}
         />
         <main
           className="transition-all duration-300 px-2 sm:px-8 py-12 md:py-6"
