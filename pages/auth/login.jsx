@@ -5,6 +5,14 @@ import PricingComponent from "../../components/pricing";
 import NeuralNetwork from "../../components/bg-animation";
 import usefetchCredentials from "../../hooks/usefetchCredentials";
 import ReCAPTCHA from "react-google-recaptcha";
+import CryptoJS from "crypto-js";
+
+// Utility to encrypt ci and aid into a token
+const ENCRYPTION_KEY = "cyberclipperSecretKey123!"; // Should be stored securely in production
+function encryptToken(ci, aid) {
+  const data = JSON.stringify({ ci, aid });
+  return CryptoJS.AES.encrypt(data, ENCRYPTION_KEY).toString();
+}
 
 const Login = () => {
   const router = useRouter();
@@ -47,7 +55,8 @@ const Login = () => {
       setShowNotification(true);
       setTimeout(() => {
         setShowNotification(false);
-        router.push(`/playground?ci=${encodeURIComponent(companyId)}&aid=${encodeURIComponent(uniqueId)}`);
+        const token = encryptToken(companyId, uniqueId);
+        router.push(`/playground?token=${encodeURIComponent(token)}`);
       }, 1500);
     } else {
       setNotificationMessage(error || "Invalid credentials");

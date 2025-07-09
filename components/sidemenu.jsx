@@ -2,6 +2,22 @@ import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useSidebar } from "../context/SidebarContext";
+import CryptoJS from "crypto-js";
+const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
+function decryptToken(token) {
+  try {
+    const bytes = CryptoJS.AES.decrypt(token, ENCRYPTION_KEY);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    const { ci, aid } = JSON.parse(decrypted);
+    return { ci, aid };
+  } catch {
+    return { ci: null, aid: null };
+  }
+}
+function encryptToken(ci, aid) {
+  const data = JSON.stringify({ ci, aid });
+  return CryptoJS.AES.encrypt(data, ENCRYPTION_KEY).toString();
+}
 
 const menuItems = [
   {
@@ -278,6 +294,9 @@ const underlineKeyframes = `
 export default function SideMenu() {
   const { isOpen, toggleSidebar } = useSidebar();
   const router = useRouter();
+  // Get token from current query and decrypt
+  const { token } = router.query;
+  const { ci, aid } = decryptToken(token);
 
   return (
     <>
@@ -391,7 +410,12 @@ export default function SideMenu() {
                 <button
                   key={item.label}
                   onClick={() => {
-                    router.push(item.route);
+                    if (ci && aid) {
+                      const newToken = encryptToken(ci, aid);
+                      router.push(`${item.route}?token=${encodeURIComponent(newToken)}`);
+                    } else {
+                      router.push(item.route);
+                    }
                   }}
                   className={`flex items-center ${
                     isOpen ? "gap-3 px-5" : "justify-center px-0"
