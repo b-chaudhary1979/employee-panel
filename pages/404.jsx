@@ -1,15 +1,18 @@
 import React, { useEffect } from "react";
+import { useRouter } from "next/router";
 
 export default function NotFound() {
+  const router = useRouter();
+
   useEffect(() => {
     const timer = setTimeout(() => {
-      window.location.href = "/";
+      router.push("/");
     }, 2000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [router]);
 
   const handleHome = () => {
-    window.location.href = "/";
+    router.push("/");
   };
 
   return (
