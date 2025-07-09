@@ -2,15 +2,37 @@ import SideMenu from "../components/sidemenu";
 import Header from "../components/header";
 import { useState, useEffect, useRef } from "react";
 import { SidebarProvider } from "../context/SidebarContext";
+import CryptoJS from "crypto-js";
+const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
+function decryptToken(token) {
+  try {
+    const bytes = CryptoJS.AES.decrypt(token, ENCRYPTION_KEY);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    const { ci, aid } = JSON.parse(decrypted);
+    return { ci, aid };
+  } catch {
+    return { ci: null, aid: null };
+  }
+}
 import { useSidebar } from "../context/SidebarContext";
 import { useRouter } from "next/router";
 
 function EmployeesContent() {
+  const router = useRouter();
+  const { token } = router.query;
+  const { ci, aid } = decryptToken(token);
+
+  // All hooks must be called before any conditional returns
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { isOpen, isMobile, isHydrated } = useSidebar();
-  const router = useRouter();
   const headerRef = useRef(null);
   const [headerHeight, setHeaderHeight] = useState(0);
+
+  useEffect(() => {
+    if (router.isReady && (!ci || !aid)) {
+      router.replace("/auth/login");
+    }
+  }, [router.isReady, ci, aid]);
 
   // Responsive marginLeft for content (matches header)
   const getContentMarginLeft = () => {
@@ -49,6 +71,9 @@ function EmployeesContent() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // Conditional return after all hooks
+  if (!ci || !aid) return null;
 
   return (
     <div className="bg-[#fbf9f4] min-h-screen flex relative">
