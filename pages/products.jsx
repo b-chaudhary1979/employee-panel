@@ -1,8 +1,32 @@
 import SideMenu from "../components/sidemenu";
 import Header from "../components/header";
 import { SidebarProvider } from "../context/SidebarContext";
+import CryptoJS from "crypto-js";
+// Utility to decrypt token into ci and aid
+const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
+function decryptToken(token) {
+  try {
+    const bytes = CryptoJS.AES.decrypt(token, ENCRYPTION_KEY);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    const { ci, aid } = JSON.parse(decrypted);
+    return { ci, aid };
+  } catch {
+    return { ci: null, aid: null };
+  }
+}
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 function ProductsContent() {
+  const router = useRouter();
+  const { token } = router.query;
+  const { ci, aid } = decryptToken(token);
+  useEffect(() => {
+    if (router.isReady && (!ci || !aid)) {
+      router.replace("/auth/login");
+    }
+  }, [router.isReady, ci, aid]);
+  if (!ci || !aid) return null;
   return (
     <div className="bg-[#fbf9f4] min-h-screen flex">
       <SideMenu />

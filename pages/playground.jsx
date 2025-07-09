@@ -4,24 +4,45 @@ import { useState, useEffect } from "react";
 import { SidebarProvider } from "../context/SidebarContext";
 import { useSidebar } from "../context/SidebarContext";
 import { useRouter } from "next/router";
+import CryptoJS from "crypto-js";
+
+// Utility to decrypt token into ci and aid
+const ENCRYPTION_KEY = "cyberclipperSecretKey123!"; // Should match the key used for encryption
+function decryptToken(token) {
+  try {
+    const bytes = CryptoJS.AES.decrypt(token, ENCRYPTION_KEY);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    const { ci, aid } = JSON.parse(decrypted);
+    return { ci, aid };
+  } catch {
+    return { ci: null, aid: null };
+  }
+}
+
+// Utility to re-encrypt ci and aid for navigation
+function encryptToken(ci, aid) {
+  const data = JSON.stringify({ ci, aid });
+  return CryptoJS.AES.encrypt(data, ENCRYPTION_KEY).toString();
+}
 
 function PlaygroundContent() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { isOpen } = useSidebar();
   const router = useRouter();
 
+  // Get token from query and decrypt
+  const { token } = router.query;
+  const { ci, aid } = decryptToken(token);
+
   // Check for ci and aid in query params
   useEffect(() => {
     if (router.isReady) {
-      const { ci, aid } = router.query;
       if (!ci || !aid) {
         router.replace("/auth/login");
       }
     }
-  }, [router.isReady, router.query]);
+  }, [router.isReady, ci, aid]);
 
-  // Optionally, show nothing or a loader while checking
-  const { ci, aid } = router.query;
   if (!ci || !aid) {
     return null; // or a loader
   }
@@ -46,7 +67,7 @@ function PlaygroundContent() {
             <h2 className="text-4xl font-extrabold text-[#a259f7] tracking-tight animate-fade-in-up">Instructions</h2>
             <button
               className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold py-2 px-6 rounded-lg shadow transition-colors duration-200"
-              onClick={() => router.push("/dashboard")}
+              onClick={() => router.push(`/dashboard?token=${encodeURIComponent(encryptToken(ci, aid))}`)}
             >
               Go to Dashboard
             </button>
@@ -76,13 +97,13 @@ function PlaygroundContent() {
                 <span>
                   Use the side menu (left) to access all features. It's always visible and collapsible for more space. Each icon and label links to a different section:
                   <ul className="list-disc ml-8 mt-2 space-y-1">
-                    <li><span className="underline cursor-pointer hover:text-[#a259f7]" onClick={() => window.location.href='/products'}>Products</span>: Manage your product catalog.</li>
-                    <li><span className="underline cursor-pointer hover:text-[#a259f7]" onClick={() => window.location.href='/employees'}>Employees</span>: Manage employee records.</li>
-                    <li><span className="underline cursor-pointer hover:text-[#a259f7]" onClick={() => window.location.href='/users-permissions'}>Users & Permissions</span>: Control user accounts and access rights.</li>
-                    <li><span className="underline cursor-pointer hover:text-[#a259f7]" onClick={() => window.location.href='/api-keys'}>API Keys</span>: View and manage integration keys.</li>
-                    <li><span className="underline cursor-pointer hover:text-[#a259f7]" onClick={() => window.location.href='/security'}>Passwords & Security</span>: Adjust security settings and password policies.</li>
-                    <li><span className="underline cursor-pointer hover:text-[#a259f7]" onClick={() => window.location.href='/announcements'}>Announcements</span>: View or post company-wide updates.</li>
-                    <li><span className="underline cursor-pointer hover:text-[#a259f7]" onClick={() => window.location.href='/notes-tasks'}>Notes & Tasks</span>: Organize your notes and to-dos.</li>
+                    <li><span className="underline cursor-pointer hover:text-[#a259f7]" onClick={() => router.push(`/products?token=${encodeURIComponent(encryptToken(ci, aid))}`)}>Products</span>: Manage your product catalog.</li>
+                    <li><span className="underline cursor-pointer hover:text-[#a259f7]" onClick={() => router.push(`/employees?token=${encodeURIComponent(encryptToken(ci, aid))}`)}>Employees</span>: Manage employee records.</li>
+                    <li><span className="underline cursor-pointer hover:text-[#a259f7]" onClick={() => router.push(`/users-permissions?token=${encodeURIComponent(encryptToken(ci, aid))}`)}>Users & Permissions</span>: Control user accounts and access rights.</li>
+                    <li><span className="underline cursor-pointer hover:text-[#a259f7]" onClick={() => router.push(`/api-keys?token=${encodeURIComponent(encryptToken(ci, aid))}`)}>API Keys</span>: View and manage integration keys.</li>
+                    <li><span className="underline cursor-pointer hover:text-[#a259f7]" onClick={() => router.push(`/security?token=${encodeURIComponent(encryptToken(ci, aid))}`)}>Passwords & Security</span>: Adjust security settings and password policies.</li>
+                    <li><span className="underline cursor-pointer hover:text-[#a259f7]" onClick={() => router.push(`/announcements?token=${encodeURIComponent(encryptToken(ci, aid))}`)}>Announcements</span>: View or post company-wide updates.</li>
+                    <li><span className="underline cursor-pointer hover:text-[#a259f7]" onClick={() => router.push(`/notes-tasks?token=${encodeURIComponent(encryptToken(ci, aid))}`)}>Notes & Tasks</span>: Organize your notes and to-dos.</li>
                   </ul>
                 </span>
               </li>
