@@ -3,6 +3,7 @@ import Loader from "../loader/Loader";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { SidebarProvider } from "../context/SidebarContext";
+import { UserInfoProvider } from "../context/UserInfoContext";
 
 export default function App({ Component, pageProps }) {
   const [loading, setLoading] = useState(false);
@@ -25,7 +26,9 @@ export default function App({ Component, pageProps }) {
 
   return (
     <SidebarProvider>
-      {loading ? <Loader /> : <Component {...pageProps} />}
+      <UserInfoProvider>
+        {loading ? <Loader /> : <Component {...pageProps} />}
+      </UserInfoProvider>
     </SidebarProvider>
   );
 }
