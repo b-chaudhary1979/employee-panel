@@ -3,6 +3,15 @@ import Header from "../components/header";
 import { useState, useEffect, useRef } from "react";
 import { SidebarProvider } from "../context/SidebarContext";
 import CryptoJS from "crypto-js";
+import { useRouter } from "next/router";
+import { useSidebar } from "../context/SidebarContext";
+import AutoIntegration from "../components/autointegration";
+import ManualProductIntegration from "../components/manualproductintegration";
+import { useUserInfo } from "../context/UserInfoContext";
+import Loader from "../loader/Loader";
+import { Fragment } from "react";
+
+
 // Utility to decrypt token into ci and aid
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
 function decryptToken(token) {
@@ -15,12 +24,6 @@ function decryptToken(token) {
     return { ci: null, aid: null };
   }
 }
-import { useRouter } from "next/router";
-import { useSidebar } from "../context/SidebarContext";
-import AutoIntegration from "../components/autointegration";
-import ManualProductIntegration from "../components/manualproductintegration";
-import { useUserInfo } from "../context/UserInfoContext";
-import Loader from "../loader/Loader";
 
 function ProductsContent() {
   const router = useRouter();
@@ -33,6 +36,33 @@ function ProductsContent() {
   const [integrationType, setIntegrationType] = useState("auto");
   const { user, loading, error } = useUserInfo();
   const [notification, setNotification] = useState({ show: false, message: "" });
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showAutoPopup, setShowAutoPopup] = useState(false);
+  const [showManualPopup, setShowManualPopup] = useState(false);
+
+  // Placeholder product data
+  const products = [
+    {
+      id: 1,
+      name: "Ray-Ban Aviator Classic",
+      brand: "Ray-Ban",
+      price: 129.99,
+      stock: 45,
+      category: "Sunglasses",
+      status: "Active",
+      image: "",
+    },
+    {
+      id: 2,
+      name: "Oakley Holbrook",
+      brand: "Oakley",
+      price: 89.99,
+      stock: 12,
+      category: "Sunglasses",
+      status: "Active",
+      image: "",
+    },
+  ];
 
   useEffect(() => {
     if (router.isReady && (!ci || !aid)) {
@@ -102,6 +132,73 @@ function ProductsContent() {
           </div>
         </div>
       )}
+      {/* Add Product Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-xs flex flex-col items-center relative border-2 border-[#a259f7]">
+            <h2 className="text-xl font-bold mb-6 text-gray-800">Add Product</h2>
+            <button
+              className="w-full mb-4 py-3 rounded-lg bg-[#a259f7] text-white font-semibold text-lg hover:bg-[#7c3aed] transition-colors"
+              onClick={() => {
+                setShowAddModal(false);
+                setTimeout(() => setShowAutoPopup(true), 200);
+              }}
+            >
+              Auto Integration
+            </button>
+            <button
+              className="w-full py-3 rounded-lg bg-[#f3f4f6] text-[#a259f7] font-semibold text-lg border border-[#a259f7] hover:bg-[#ede9fe] transition-colors"
+              onClick={() => {
+                setShowAddModal(false);
+                setTimeout(() => setShowManualPopup(true), 200);
+              }}
+            >
+              Manual Integration
+            </button>
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl"
+              onClick={() => setShowAddModal(false)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
+      {/* Auto Integration Fullscreen Popup */}
+      {showAutoPopup && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-white/90 backdrop-blur-xl">
+          <button
+            className="absolute top-6 right-8 text-gray-400 hover:text-gray-600 text-4xl z-10"
+            onClick={() => setShowAutoPopup(false)}
+            aria-label="Close"
+          >
+            &times;
+          </button>
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="w-full h-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-8 overflow-auto flex flex-col">
+              <AutoIntegration />
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Manual Integration Fullscreen Popup */}
+      {showManualPopup && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-white/90 backdrop-blur-xl">
+          <button
+            className="absolute top-6 right-8 text-gray-400 hover:text-gray-600 text-4xl z-10"
+            onClick={() => setShowManualPopup(false)}
+            aria-label="Close"
+          >
+            &times;
+          </button>
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="w-full h-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-8 overflow-auto flex flex-col">
+              <ManualProductIntegration />
+            </div>
+          </div>
+        </div>
+      )}
       <div className="bg-[#fbf9f4] min-h-screen flex relative">
         {/* Sidebar for desktop */}
         <div
@@ -137,32 +234,84 @@ function ProductsContent() {
             companyName={user?.company || "company name"}
           />
           <main
-            className="transition-all duration-300 px-2 sm:px-8 py-12 md:py-6"
+            className="transition-all duration-300 px-2 mt-6 sm:px-8 py-12 md:py-6"
             style={{ marginLeft: 0, paddingTop: headerHeight + 16 }}
           >
             <div className="max-w-6xl mx-auto">
-              <h1 className="text-2xl font-bold mb-6">Products</h1>
-              {/* Integration Tabs */}
-              <div className="flex space-x-4 mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h1 className="text-3xl font-extrabold text-gray-900 mb-1">Product Management</h1>
+                  <p className="text-gray-500 text-lg">Manage your eyewear inventory and product catalog</p>
+                </div>
                 <button
-                  className={`px-6 py-2 rounded-t-lg font-medium border-b-2 transition-colors duration-200 ${integrationType === "auto" ? "border-blue-600 text-blue-600 bg-white" : "border-transparent text-gray-500 bg-gray-100"}`}
-                  onClick={() => setIntegrationType("auto")}
+                  className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold py-3 px-6 rounded-lg shadow text-lg flex items-center gap-2"
+                  onClick={() => setShowAddModal(true)}
                 >
-                  Auto Integration
-                </button>
-                <button
-                  className={`px-6 py-2 rounded-t-lg font-medium border-b-2 transition-colors duration-200 ${integrationType === "manual" ? "border-blue-600 text-blue-600 bg-white" : "border-transparent text-gray-500 bg-gray-100"}`}
-                  onClick={() => setIntegrationType("manual")}
-                >
-                  Manual Integration
+                  <span className="text-2xl font-bold">+</span> Add Product
                 </button>
               </div>
-              {/* Integration Content */}
-              {integrationType === "auto" ? (
-                <AutoIntegration />
-              ) : (
-                <ManualProductIntegration />
-              )}
+              {/* Search and Filters */}
+              <div className="flex flex-col sm:flex-row gap-4 mb-6 items-center bg-white p-4 rounded-xl shadow border border-gray-100">
+                <input
+                  type="text"
+                  placeholder="Search products, brands, categories..."
+                  className="flex-1 px-4 py-3 rounded-lg border text-gray-500 border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg"
+                />
+                <select className="px-4 py-3 text-gray-500 rounded-lg border border-gray-200 text-lg">
+                  <option>All Categories</option>
+                </select>
+                <select className="px-4 py-3 text-gray-500  rounded-lg border border-gray-200 text-lg">
+                  <option>All Status</option>
+                </select>
+                <button className="flex items-center gap-2 px-4 py-3 rounded-lg border border-gray-200 text-lg text-gray-700 hover:bg-gray-50">
+                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" stroke="#a259f7" strokeWidth="2" strokeLinecap="round"/></svg>
+                  Filter
+                </button>
+              </div>
+              {/* Product Table */}
+              <div className="bg-white rounded-2xl shadow border border-gray-100 overflow-x-auto">
+                <table className="min-w-full text-left">
+                  <thead>
+                    <tr className="text-gray-500 text-base font-semibold border-b">
+                      <th className="py-4 px-6">PRODUCT</th>
+                      <th className="py-4 px-6">BRAND</th>
+                      <th className="py-4 px-6">PRICE</th>
+                      <th className="py-4 px-6">STOCK</th>
+                      <th className="py-4 px-6">CATEGORY</th>
+                      <th className="py-4 px-6">STATUS</th>
+                      <th className="py-4 px-6">ACTIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products.map((product) => (
+                      <tr key={product.id} className="border-b hover:bg-gray-50 transition">
+                        <td className="py-4 px-6 flex items-center gap-4">
+                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                            {/* Placeholder for image */}
+                            <svg width="24" height="24" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#e5e7eb" strokeWidth="2" /></svg>
+                          </div>
+                          <div>
+                            <div className="font-bold text-lg text-gray-900">{product.name}</div>
+                            <div className="text-gray-400 text-sm">ID: #{product.id}</div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6 text-gray-700 font-medium">{product.brand}</td>
+                        <td className="py-4 px-6 font-bold text-gray-900">${product.price.toFixed(2)}</td>
+                        <td className={`py-4 px-6 font-semibold ${product.stock > 20 ? 'text-green-600' : 'text-orange-500'}`}>{product.stock} units</td>
+                        <td className="py-4 px-6 text-gray-700">{product.category}</td>
+                        <td className="py-4 px-6">
+                          <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-700">{product.status}</span>
+                        </td>
+                        <td className="py-4 px-6 flex gap-4 items-center">
+                          <button className="text-[#a259f7] hover:text-[#7c3aed]" title="View"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M12 5c-7 0-9 7-9 7s2 7 9 7 9-7 9-7-2-7-9-7zm0 10a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" strokeWidth="2"/></svg></button>
+                          <button className="text-[#a259f7] hover:text-[#7c3aed]" title="Edit"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a4 4 0 01-1.414.828l-4.243 1.414 1.414-4.243a4 4 0 01.828-1.414z" stroke="currentColor" strokeWidth="2"/></svg></button>
+                          <button className="text-red-500 hover:text-red-700" title="Delete"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M6 7h12M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3m2 0v12a2 2 0 01-2 2H8a2 2 0 01-2-2V7h12z" stroke="currentColor" strokeWidth="2"/></svg></button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </main>
         </div>

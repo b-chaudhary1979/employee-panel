@@ -124,7 +124,7 @@ const Header = forwardRef(function Header(
           )}
           <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-900">
             Welcome,{" "}
-            <span className="text-blue-600 font-semibold">{username}</span>
+            <span className="text-purple-600 font-semibold">{username}</span>
           </h1>
         </div>
 
@@ -132,7 +132,7 @@ const Header = forwardRef(function Header(
         <div className="flex items-center space-x-4">
           {/* Company name */}
           <div className="hidden md:block">
-            <h2 className="text-lg font-semibold text-gray-800">
+            <h2 className="text-lg font-semibold text-purple-500">
               {companyName}
             </h2>
           </div>
@@ -143,7 +143,7 @@ const Header = forwardRef(function Header(
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center overflow-hidden">
+              <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center overflow-hidden">
                 <User className="w-5 h-5 text-white" />
               </div>
               <ChevronDown
