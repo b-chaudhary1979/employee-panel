@@ -1,16 +1,43 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, forwardRef } from "react";
 import { User, LogOut, ChevronDown } from "lucide-react";
 import { useSidebar } from "../context/SidebarContext";
 import { useRouter } from "next/router";
 
-const Header = ({ username = "admin" }) => {
+// Refactor Header to use forwardRef
+const Header = forwardRef(function Header(
+  { username = "admin", onMobileSidebarToggle, mobileSidebarOpen },
+  ref
+) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1024
+  );
   const dropdownRef = useRef(null);
   const { isOpen } = useSidebar();
   const router = useRouter();
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth < 640 : true
+  );
+
+  // Track window width for responsive margin
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Compute left and width for header
+  const getHeaderLeft = () => {
+    if (windowWidth < 640) return 0;
+    return isOpen ? 270 : 64;
+  };
+  const getHeaderWidth = () => {
+    if (windowWidth < 640) return "100%";
+    return `calc(100% - ${isOpen ? 270 : 64}px)`;
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -24,6 +51,13 @@ const Header = ({ username = "admin" }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
+  }, []);
+
+  // Track window width for mobile responsiveness
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const handleProfileClick = () => {
@@ -52,13 +86,43 @@ const Header = ({ username = "admin" }) => {
 
   return (
     <header
-      className="bg-white shadow-sm border-b border-gray-200 px-4 py-3 sticky top-0 z-30 transition-all duration-300"
-      style={{ marginLeft: isOpen ? 270 : 64 }}
+      ref={ref}
+      className="bg-white shadow-sm border-b border-gray-200 px-4 py-3 fixed top-0 z-30 transition-all duration-300"
+      style={{ left: getHeaderLeft(), width: getHeaderWidth() }}
     >
       <div className="flex items-center justify-between">
-        {/* Left side - Welcome message */}
+        {/* Left side - Welcome message and mobile sidebar toggle */}
         <div className="flex items-center">
-          <h1 className="text-2xl font-bold text-gray-900">
+          {/* Hamburger for mobile only, JS-based */}
+          {isMobile && (
+            <button
+              type="button"
+              className="mr-3 bg-[#a259f7] text-white rounded-full p-2 shadow-lg focus:outline-none"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              onClick={onMobileSidebarToggle}
+              aria-label="Open sidebar"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"
+                />
+              </svg>
+            </button>
+          )}
+          <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-900">
             Welcome,{" "}
             <span className="text-blue-600 font-semibold">{username}</span>
           </h1>
@@ -140,6 +204,6 @@ const Header = ({ username = "admin" }) => {
       </div>
     </header>
   );
-};
+});
 
 export default Header;

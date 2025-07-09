@@ -275,18 +275,23 @@ const underlineKeyframes = `
 }
 `;
 
-export default function SideMenu() {
+export default function SideMenu({ mobileOverlay = false }) {
   const { isOpen, toggleSidebar } = useSidebar();
   const router = useRouter();
+
+  // Determine sidebar width class
+  const sidebarWidthClass = mobileOverlay
+    ? "w-full"
+    : isOpen
+    ? "w-[270px]"
+    : "w-16";
 
   return (
     <>
       <style>{bounceKeyframes + underlineKeyframes}</style>
 
       <aside
-        className={`fixed top-0 left-0 h-full z-40 transition-all duration-300 bg-white shadow flex flex-col ${
-          isOpen ? "w-[270px]" : "w-16"
-        } border-r border-gray-100`}
+        className={`fixed top-0 left-0 h-full z-40 transition-all duration-300 bg-white shadow flex flex-col ${sidebarWidthClass} border-r border-gray-100`}
         style={{
           boxShadow: "2px 0 16px 0 rgba(162,89,247,0.15), 4px 0 0 0 #e0d7f8",
         }}
@@ -294,12 +299,12 @@ export default function SideMenu() {
         {/* Logo and toggle */}
         <div
           className={`flex items-center justify-between px-6 py-6 border-b border-gray-200 ${
-            isOpen ? "" : "px-2 justify-center"
+            mobileOverlay ? "" : isOpen ? "" : "px-2 justify-center"
           }`}
         >
           <div
             className={`flex items-center gap-3 min-w-0 ${
-              isOpen ? "" : "justify-center w-full"
+              mobileOverlay ? "" : isOpen ? "" : "justify-center w-full"
             }`}
           >
             <span
@@ -314,7 +319,7 @@ export default function SideMenu() {
                 className="object-contain"
               />
             </span>
-            {isOpen && (
+            {(mobileOverlay || isOpen) && (
               <span
                 className="font-extrabold text-thin text-gray-900 text-lg whitespace-nowrap relative overflow-visible cursor-pointer"
                 style={{ lineHeight: 1.2 }}
@@ -338,50 +343,57 @@ export default function SideMenu() {
               </span>
             )}
           </div>
-          <button
-            className="ml-2 p-1 rounded hover:bg-gray-100 transition-colors"
-            aria-label={isOpen ? "Close menu" : "Open menu"}
-            onClick={toggleSidebar}
-          >
-            {isOpen ? (
-              <svg
-                className="transition-transform duration-300"
-                width="28"
-                height="28"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M15 19l-7-7 7-7"
-                  stroke="#222"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            ) : (
-              <svg
-                className="transition-transform duration-300"
-                width="28"
-                height="28"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M9 5l7 7-7 7"
-                  stroke="#222"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            )}
-          </button>
+          {/* Only show arrow/collapse button on desktop (not mobile overlay) */}
+          {!mobileOverlay && (
+            <button
+              className="ml-2 p-1 rounded hover:bg-gray-100 transition-colors"
+              aria-label={isOpen ? "Close menu" : "Open menu"}
+              onClick={toggleSidebar}
+            >
+              {isOpen ? (
+                <svg
+                  className="transition-transform duration-300"
+                  width="28"
+                  height="28"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M15 19l-7-7 7-7"
+                    stroke="#222"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="transition-transform duration-300"
+                  width="28"
+                  height="28"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M9 5l7 7-7 7"
+                    stroke="#222"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
+            </button>
+          )}
         </div>
         {/* Menu items */}
         <nav
           className={`flex-1 flex flex-col ${
-            isOpen ? "gap-1 mt-3 px-2" : "gap-0 mt-2 px-0 items-center"
+            mobileOverlay
+              ? ""
+              : isOpen
+              ? "gap-1 mt-3 px-2"
+              : "gap-0 mt-2 px-0 items-center"
           }`}
         >
           {menuItems.map((item, idx) => {
@@ -394,8 +406,12 @@ export default function SideMenu() {
                     router.push(item.route);
                   }}
                   className={`flex items-center ${
-                    isOpen ? "gap-3 px-5" : "justify-center px-0"
-                  } py-3 rounded-xl font-semibold text-base transition-all duration-150 my-0.5
+                    mobileOverlay
+                      ? "justify-start px-6 py-4 text-lg font-semibold text-gray-900 w-full"
+                      : isOpen
+                      ? "gap-3 px-5"
+                      : "justify-center px-0"
+                  } rounded-xl transition-all duration-150 my-0.5
                     ${
                       isActive
                         ? "bg-[#f5edff] text-[#a259f7] shadow-sm"
@@ -409,20 +425,28 @@ export default function SideMenu() {
                     minHeight: 48,
                   }}
                 >
-                  <span
-                    className={`text-xl flex-shrink-0 flex items-center justify-center ${
-                      isActive ? "animate-bounce-custom" : ""
-                    }`}
-                    style={isActive ? { animation: "bounce-custom 0.8s" } : {}}
-                  >
-                    {item.icon(isActive)}
-                  </span>
-                  {isOpen && <span>{item.label}</span>}
-                  {isActive && (
+                  {/* Only show icon on desktop, always for collapsed, with text if open */}
+                  {!mobileOverlay && (
+                    <span
+                      className={`text-xl flex-shrink-0 flex items-center justify-center ${
+                        isActive ? "animate-bounce-custom" : ""
+                      }`}
+                      style={
+                        isActive ? { animation: "bounce-custom 0.8s" } : {}
+                      }
+                    >
+                      {item.icon(isActive)}
+                    </span>
+                  )}
+                  {/* Show text: always on mobile overlay, or on desktop if open */}
+                  {(mobileOverlay || isOpen) && <span>{item.label}</span>}
+                  {/* Only show active indicator on desktop */}
+                  {!mobileOverlay && isActive && (
                     <span className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-[#a259f7]" />
                   )}
                 </button>
-                {idx !== menuItems.length - 1 && (
+                {/* Only show divider on desktop */}
+                {!mobileOverlay && idx !== menuItems.length - 1 && (
                   <div
                     className={`w-full ${
                       isOpen ? "ml-5" : "ml-0"
