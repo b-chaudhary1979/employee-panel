@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 
 // Refactor Header to use forwardRef
 const Header = forwardRef(function Header(
-  { username = "admin", onMobileSidebarToggle, mobileSidebarOpen },
+  { username = "admin", companyName = "Cyber LMS Solutions", onMobileSidebarToggle, mobileSidebarOpen },
   ref
 ) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -133,7 +133,7 @@ const Header = forwardRef(function Header(
           {/* Company name */}
           <div className="hidden md:block">
             <h2 className="text-lg font-semibold text-gray-800">
-              Cyber LMS Solutions
+              {companyName}
             </h2>
           </div>
 
