@@ -8,6 +8,7 @@ import { useSidebar } from "../context/SidebarContext";
 import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
 import { Search, Filter, Plus, Package } from "lucide-react";
+import Head from "next/head";
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
 function decryptToken(token) {
   try {
@@ -55,6 +56,9 @@ function NotesTasksContent() {
     dueDate: "",
     completed: false,
   });
+  // Add state for task detail modal
+  const [showTaskDetailModal, setShowTaskDetailModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   // Store tasks in state
   const [tasks, setTasks] = useState([
@@ -277,6 +281,9 @@ function NotesTasksContent() {
 
   return (
     <>
+      <Head>
+        <style>{`html,body{background-color:#fbf9f4 !important;}`}</style>
+      </Head>
       {notification.show && (
         <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300">
           <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown">
@@ -487,6 +494,67 @@ function NotesTasksContent() {
           </div>
         </div>
       )}
+      {/* Task Detail Modal (Desktop/Tablet) */}
+      {showTaskDetailModal && selectedTask && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md relative animate-fadeIn pointer-events-auto">
+            <h2 className="text-xl font-bold mb-4 text-black">Task Details</h2>
+            <div className="mb-2">
+              <span className="font-semibold text-gray-700">Task:</span>
+              <span className="ml-2 text-gray-900">{selectedTask.task}</span>
+            </div>
+            <div className="mb-2">
+              <span className="font-semibold text-gray-700">Description:</span>
+              <span className="ml-2 text-gray-900">
+                {selectedTask.description}
+              </span>
+            </div>
+            <div className="mb-2">
+              <span className="font-semibold text-gray-700">Priority:</span>
+              <span
+                className={
+                  "ml-2 font-bold px-3 py-1 rounded-full text-sm " +
+                  (selectedTask.priority === "High"
+                    ? "bg-red-100 text-red-600"
+                    : selectedTask.priority === "Medium"
+                    ? "bg-orange-100 text-orange-500"
+                    : "bg-green-100 text-green-600")
+                }
+              >
+                {selectedTask.priority}
+              </span>
+            </div>
+            <div className="mb-2">
+              <span className="font-semibold text-gray-700">Due Date:</span>
+              <span className="ml-2 text-gray-900">{selectedTask.dueDate}</span>
+            </div>
+            <div className="mb-2">
+              <span className="font-semibold text-gray-700">Completed:</span>
+              <span className="ml-2 text-gray-900">
+                {selectedTask.completed ? "Yes" : "No"}
+              </span>
+            </div>
+            <div className="flex gap-2 mt-4">
+              <button
+                className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200"
+                onClick={() => {
+                  setShowTaskDetailModal(false);
+                  handleOpenUpdateTask(selectedTask.id);
+                }}
+              >
+                Update
+              </button>
+              {/* Remove Delete button, add Close button */}
+              <button
+                className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg px-4 py-2 transition-colors duration-200"
+                onClick={() => setShowTaskDetailModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="bg-[#fbf9f4] min-h-screen flex relative font-manrope">
         {/* Sidebar for desktop */}
         <div
@@ -531,16 +599,16 @@ function NotesTasksContent() {
             <div className="pl-4">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h1 className="text-3xl font-extrabold text-gray-900 mb-1">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 mb-1">
                     Notes and Tasks
                   </h1>
-                  <p className="text-gray-500 text-lg">
+                  <p className="text-gray-500 text-sm sm:text-base md:text-lg">
                     Manage your tasks and track progress
                   </p>
                 </div>
                 <button
                   className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg shadow transition-colors duration-200
-                  px-4 py-3 text-lg"
+                  px-2 py-1 sm:px-3 sm:py-2 md:px-4 md:py-3 text-xs sm:text-sm md:text-lg"
                   aria-label="Add Task"
                   onClick={() => setShowAddTaskModal(true)}
                 >
@@ -638,8 +706,8 @@ function NotesTasksContent() {
                   </select>
                 </div>
               </div>
-              {/* Tasks Table */}
-              <div className="mt-8 overflow-x-auto">
+              {/* Tasks Table (Desktop/Tablet) */}
+              <div className="hidden sm:block mt-8 overflow-x-auto">
                 <table className="min-w-full bg-white rounded-2xl shadow border border-gray-100 text-lg">
                   <thead>
                     <tr className="bg-[#f3e8ff] text-gray-900">
@@ -665,6 +733,10 @@ function NotesTasksContent() {
                       <tr
                         key={task.id}
                         className="border-t border-gray-100 text-gray-900 hover:bg-gray-50 transition-colors cursor-pointer"
+                        onClick={() => {
+                          setSelectedTask(task);
+                          setShowTaskDetailModal(true);
+                        }}
                       >
                         <td className="py-4 px-6 font-bold text-lg">
                           {task.task}
@@ -696,7 +768,10 @@ function NotesTasksContent() {
                         <td className="py-4 px-6">
                           <button
                             className="flex items-center gap-1 bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg px-3 py-[6px] text-xs sm:text-sm transition-colors duration-200"
-                            onClick={() => handleOpenUpdateTask(task.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenUpdateTask(task.id);
+                            }}
                           >
                             <Plus size={16} className="inline-block" />
                             Update Task
@@ -706,6 +781,55 @@ function NotesTasksContent() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+              {/* Card-based Task List (Mobile) */}
+              <div className="sm:hidden mt-8">
+                {filteredTasks.length === 0 ? (
+                  <div className="text-center text-gray-500 text-lg">
+                    No tasks found.
+                  </div>
+                ) : (
+                  filteredTasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className="bg-white rounded-xl shadow border border-gray-100 p-4 mb-4 flex flex-col cursor-pointer hover:bg-gray-50 transition-colors"
+                      onClick={() => {
+                        setSelectedTask(task);
+                        setShowTaskDetailModal(true);
+                      }}
+                    >
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-bold text-base text-gray-900">
+                          {task.task}
+                        </span>
+                        <span
+                          className={
+                            "px-3 py-1 rounded-full text-xs font-semibold " +
+                            (task.priority === "High"
+                              ? "bg-red-100 text-red-600"
+                              : task.priority === "Medium"
+                              ? "bg-orange-100 text-orange-500"
+                              : "bg-green-100 text-green-600")
+                          }
+                        >
+                          {task.priority}
+                        </span>
+                      </div>
+                      <div className="text-gray-500 text-sm mb-2">
+                        Due: {task.dueDate}
+                      </div>
+                      <button
+                        className="self-end bg-[#a259f7] hover:bg-[#7c3aed] text-white rounded px-3 py-1 text-xs font-semibold transition-colors duration-200"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenUpdateTask(task.id);
+                        }}
+                      >
+                        Update
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </main>

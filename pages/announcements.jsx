@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 import { useSidebar } from "../context/SidebarContext";
 import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
-
+import Head from "next/head";
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
 function decryptToken(token) {
   try {
@@ -260,6 +260,9 @@ function AnnouncementsContent() {
   /* ───────────────────────────────────────── component ui ──────────────────────────────────── */
   return (
     <>
+      <Head>
+        <style>{`html,body{background-color:#fbf9f4 !important;}`}</style>
+      </Head>
       {notification.show && (
         <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300">
           <div
