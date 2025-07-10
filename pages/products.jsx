@@ -245,7 +245,7 @@ function ProductsContent() {
                 </div>
                 <button
                   className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold py-3 px-6 rounded-lg shadow text-lg flex items-center gap-2"
-                  onClick={() => setShowAddModal(true)}
+                  onClick={() => router.push({ pathname: '/product-dashboard', query: { token } })}
                 >
                   <span className="text-2xl font-bold">+</span> Add Product
                 </button>

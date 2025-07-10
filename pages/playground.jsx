@@ -173,7 +173,7 @@ function PlaygroundContent() {
             className="transition-all duration-300 px-2 sm:px-8 py-12 md:py-6"
             style={{ marginLeft: 0, paddingTop: headerHeight + 16 }}
           >
-            <div className="max-w-6xl mt-16 md:mt-16 mx-auto">
+            <div className="max-w-6xl mt-16 md:mt-6 mx-auto">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#a259f7] tracking-tight animate-fade-in-up">
                   Instructions
