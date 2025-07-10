@@ -42,13 +42,11 @@ export const SidebarProvider = ({ children }) => {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [isOpen, isHydrated]);
+  }, [isHydrated]);
 
   const toggleSidebar = () => {
-    // Only allow toggle on desktop
-    if (!isMobile) {
-      setIsOpen(!isOpen);
-    }
+    // Allow toggle on all screen sizes
+    setIsOpen(!isOpen);
   };
 
   return (
