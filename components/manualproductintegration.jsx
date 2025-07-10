@@ -1,69 +1,269 @@
-import React from "react";
+import React, { useState } from "react";
 
-export default function ManualProductIntegration({ onBack }) {
+const ManualProductIntegration = () => {
+  const [form, setForm] = useState({
+    name: "",
+    url: "",
+    screenshot: "",
+    description: "",
+    category: "",
+    price: "",
+    email: "",
+    tags: "",
+    contactNumber: "",
+    launchDate: "",
+    companyName: "",
+    version: "",
+    website: "",
+    supportHours: "",
+    address: "",
+  });
+  const [customQuestions, setCustomQuestions] = useState([]);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCustomQuestionChange = (idx, field, value) => {
+    setCustomQuestions((prev) => {
+      const updated = [...prev];
+      updated[idx] = { ...updated[idx], [field]: value };
+      return updated;
+    });
+  };
+
+  const addCustomQuestion = () => {
+    setCustomQuestions((prev) => [...prev, { question: "", answer: "" }]);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitted(true);
+    // Here you could add logic to send data to a backend
+  };
+
   return (
-    <div className="w-full min-h-[80vh] flex flex-col gap-12 px-0 sm:px-12 py-12 bg-gradient-to-br from-[#f8f6ff] via-[#f3f4f6] to-[#e9e4fa] relative">
-      <div className="flex items-center mb-8">
-        <button
-          className="flex items-center gap-2 px-6 py-3 bg-[#a259f7] hover:bg-[#7c3aed] text-white font-bold text-lg rounded-full shadow-lg transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#a259f7] border-2 border-[#a259f7]"
-          onClick={onBack || (() => window.history.back())}
-        >
-          <span className="text-2xl">&#8592;</span>
-          <span>Back</span>
-        </button>
-      </div>
-      <header className="mb-4">
-        <h1 className="text-5xl sm:text-6xl font-extrabold text-[#a259f7] mb-3 tracking-tight drop-shadow-sm">Manual Product Integration</h1>
-        <p className="text-2xl sm:text-3xl text-gray-600 font-medium max-w-3xl">Manually add your product details below. This method is ideal for custom or unique products.</p>
-      </header>
-      <section className="flex flex-col gap-10 w-full max-w-6xl mx-auto">
-        <form className="flex flex-col gap-8 w-full">
-          <div className="flex flex-col md:flex-row gap-8 w-full">
-            <div className="flex-1">
-              <label className="block text-xl font-semibold text-gray-700 mb-2">Product Name</label>
-              <input type="text" className="w-full px-6 py-4 rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-[#a259f7] text-xl" placeholder="Enter product name" />
-            </div>
-            <div className="flex-1">
-              <label className="block text-xl font-semibold text-gray-700 mb-2">Brand</label>
-              <input type="text" className="w-full px-6 py-4 rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-[#a259f7] text-xl" placeholder="Enter brand name" />
-            </div>
-          </div>
-          <div className="flex flex-col md:flex-row gap-8 w-full">
-            <div className="flex-1">
-              <label className="block text-xl font-semibold text-gray-700 mb-2">Price ($)</label>
-              <input type="number" className="w-full px-6 py-4 rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-[#a259f7] text-xl" placeholder="Enter price" />
-            </div>
-            <div className="flex-1">
-              <label className="block text-xl font-semibold text-gray-700 mb-2">Stock</label>
-              <input type="number" className="w-full px-6 py-4 rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-[#a259f7] text-xl" placeholder="Enter stock quantity" />
-            </div>
-          </div>
-          <div className="flex flex-col md:flex-row gap-8 w-full">
-            <div className="flex-1">
-              <label className="block text-xl font-semibold text-gray-700 mb-2">Category</label>
-              <input type="text" className="w-full px-6 py-4 rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-[#a259f7] text-xl" placeholder="Enter category" />
-            </div>
-            <div className="flex-1">
-              <label className="block text-xl font-semibold text-gray-700 mb-2">Status</label>
-              <select className="w-full px-6 py-4 rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-[#a259f7] text-xl">
-                <option>Active</option>
-                <option>Inactive</option>
-              </select>
-            </div>
-          </div>
-          <div className="w-full">
-            <label className="block text-xl font-semibold text-gray-700 mb-2">Product Image</label>
-            <input type="file" className="w-full px-6 py-3 rounded-xl border-2 border-gray-300 text-xl" />
-          </div>
-          <div className="flex justify-end">
-            <button type="submit" className="px-10 py-4 bg-[#a259f7] hover:bg-[#7c3aed] text-white font-bold rounded-xl text-xl shadow-lg transition-all duration-200 active:scale-95">Add Product</button>
-          </div>
-        </form>
-        <div className="border-t border-gray-200 pt-10">
-          <h2 className="text-2xl font-bold text-gray-800 mb-3">Need Help?</h2>
-          <p className="text-gray-600">Check our <a href="#" className="text-[#a259f7] underline">manual integration guide</a> or <a href="#" className="text-[#a259f7] underline">contact support</a> for assistance.</p>
+    <div className="p-2 sm:p-4 bg-white rounded-xl shadow-md w-full">
+      <h2 className="text-3xl font-bold text-[#7c3aed] mb-4">Add Your Product</h2>
+      <p className="text-lg text-gray-700 mb-2">Fill out the form below to manually add your product for advanced control and customization.</p>
+      <ol className="list-decimal pl-6 text-gray-600 mb-6">
+        <li>Download the integration template</li>
+        <li>Fill in your product details as per the instructions</li>
+        <li>Upload the completed template to our platform</li>
+        <li>Verify and activate your integration</li>
+      </ol>
+      <form onSubmit={handleSubmit} className="space-y-4 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Product Name</label>
+          <input
+            type="text"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+            placeholder="Enter product name"
+          />
         </div>
-      </section>
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Product URL</label>
+          <input
+            type="url"
+            name="url"
+            value={form.url}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+            placeholder="https://yourproduct.com"
+          />
+        </div>
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Screenshot URL</label>
+          <input
+            type="url"
+            name="screenshot"
+            value={form.screenshot}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+            placeholder="https://example.com/screenshot.png"
+          />
+        </div>
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Description</label>
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+            rows={3}
+            placeholder="Describe your product"
+          />
+        </div>
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Category</label>
+          <input
+            type="text"
+            name="category"
+            value={form.category}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+            placeholder="e.g. SaaS, E-commerce, Tool"
+          />
+        </div>
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Price</label>
+          <input
+            type="number"
+            name="price"
+            value={form.price}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+            placeholder="Enter price in USD"
+            min="0"
+            step="0.01"
+          />
+        </div>
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Contact Email</label>
+          <input
+            type="email"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+            placeholder="contact@yourproduct.com"
+          />
+        </div>
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Tags</label>
+          <input
+            type="text"
+            name="tags"
+            value={form.tags}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+            placeholder="e.g. productivity, ai, finance"
+          />
+        </div>
+        {/* New fields start here */}
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Contact Number</label>
+          <input
+            type="tel"
+            name="contactNumber"
+            value={form.contactNumber}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+            placeholder="+1 234 567 8900"
+          />
+        </div>
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Product Launch Date</label>
+          <input
+            type="date"
+            name="launchDate"
+            value={form.launchDate}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-gray-900"
+          />
+        </div>
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Company Name</label>
+          <input
+            type="text"
+            name="companyName"
+            value={form.companyName}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+            placeholder="Your company name"
+          />
+        </div>
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Product Version</label>
+          <input
+            type="text"
+            name="version"
+            value={form.version}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+            placeholder="e.g. 1.0.0"
+          />
+        </div>
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Website (if different)</label>
+          <input
+            type="url"
+            name="website"
+            value={form.website}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+            placeholder="https://companywebsite.com"
+          />
+        </div>
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Support Hours</label>
+          <input
+            type="text"
+            name="supportHours"
+            value={form.supportHours}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+            placeholder="e.g. 9am - 5pm, Mon-Fri"
+          />
+        </div>
+        <div className="col-span-1 sm:col-span-2">
+          <label className="block text-gray-700 font-medium mb-1">Address/Location</label>
+          <input
+            type="text"
+            name="address"
+            value={form.address}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+            placeholder="123 Main St, City, Country"
+          />
+        </div>
+        {/* Custom Questions */}
+        <div className="col-span-1 sm:col-span-2">
+          <button
+            type="button"
+            onClick={addCustomQuestion}
+            className="mb-2 bg-gray-100 text-[#7c3aed] px-4 py-2 rounded hover:bg-gray-200 transition w-full sm:w-auto"
+          >
+            + Add Custom Question
+          </button>
+          {customQuestions.map((q, idx) => (
+            <div key={idx} className="flex flex-col sm:flex-row gap-2 mb-2">
+              <input
+                type="text"
+                value={q.question}
+                onChange={e => handleCustomQuestionChange(idx, 'question', e.target.value)}
+                className="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+                placeholder={`Custom question #${idx + 1}`}
+              />
+              <input
+                type="text"
+                value={q.answer}
+                onChange={e => handleCustomQuestionChange(idx, 'answer', e.target.value)}
+                className="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+                placeholder="Answer"
+              />
+            </div>
+          ))}
+        </div>
+        <div className="col-span-1 sm:col-span-2 flex justify-center">
+          <button
+            type="submit"
+            className="bg-[#7c3aed] text-white px-6 py-2 rounded hover:bg-[#5b21b6] transition w-full sm:w-auto"
+          >
+            Submit Product
+          </button>
+        </div>
+        {submitted && (
+          <div className="col-span-1 sm:col-span-2 mt-4 text-green-600 font-semibold text-center">Product submitted successfully!</div>
+        )}
+      </form>
     </div>
   );
-} 
+};
+
+export default ManualProductIntegration;
