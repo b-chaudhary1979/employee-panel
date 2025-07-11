@@ -45,9 +45,6 @@ function APIKeysContent() {
   const [isVaultLocked, setIsVaultLocked] = useState(false);
   const [lockoutUntil, setLockoutUntil] = useState(null);
 
-  // Correct vault key (in production, this should be stored securely)
-  const CORRECT_VAULT_KEY = "CyberClipper2025!";
-
   // API keys data (in production, this will be fetched from database)
   const [apiKeys, setApiKeys] = useState([]);
 
@@ -63,6 +60,8 @@ function APIKeysContent() {
 
   // Add state for Add Key modal
   const [showAddKeyModal, setShowAddKeyModal] = useState(false);
+  const [showAddKeyChoiceModal, setShowAddKeyChoiceModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [newKeyName, setNewKeyName] = useState("");
   const [newKeyStatus, setNewKeyStatus] = useState("Active");
   const [customKey, setCustomKey] = useState("");
@@ -88,6 +87,7 @@ function APIKeysContent() {
   // Calculate totals
   const totalKeys = apiKeys.length;
   const activeKeys = apiKeys.filter((key) => !key.isEncrypted).length;
+  const inactiveKeys = apiKeys.filter((key) => key.status !== "Active").length;
 
   // Encryption function using CryptoJS
   const encryptKey = (text, password) => {
@@ -240,7 +240,7 @@ function APIKeysContent() {
   // Handle vault verification for key details
   const handleKeyDetailVaultSubmit = (e) => {
     e.preventDefault();
-    if (keyDetailVaultKey === CORRECT_VAULT_KEY) {
+    if (keyDetailVaultKey === ci) {
       setShowKeyDetailVaultModal(false);
       setShowKeyDetailModal(true);
       setKeyDetailVaultKey("");
@@ -281,7 +281,7 @@ function APIKeysContent() {
     setAddKeyError("");
     if (!addKeyVaultKey.trim() || !pendingAddKey) return;
     // Validate vault key
-    if (addKeyVaultKey !== CORRECT_VAULT_KEY) {
+    if (addKeyVaultKey !== ci) {
       setAddKeyError("Incorrect vault key. Please try again.");
       return;
     }
@@ -354,7 +354,7 @@ function APIKeysContent() {
     // Simulate processing delay for security
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    if (vaultKey === CORRECT_VAULT_KEY) {
+    if (vaultKey === ci) {
       setIsVaultUnlocked(true);
       // Reset failed attempts on successful login
       localStorage.removeItem("vaultFailedAttempts");
@@ -1185,7 +1185,7 @@ function APIKeysContent() {
                       <button
                         className="mt-2 sm:mt-[10px] bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg shadow transition-colors duration-200 px-3 sm:px-4 py-1 text-base flex items-center gap-2"
                         style={{ marginTop: "10px" }}
-                        onClick={() => setShowAddKeyModal(true)}
+                        onClick={() => setShowAddKeyChoiceModal(true)}
                       >
                         <span className="text-xl font-bold">+</span>
                         Add API Key
@@ -1227,6 +1227,23 @@ function APIKeysContent() {
                           <Key
                             size={20}
                             className="sm:w-7 sm:h-7 text-green-600"
+                          />
+                        </div>
+                      </div>
+                      {/* Inactive API Keys */}
+                      <div className="flex-1 bg-white rounded-xl shadow border border-gray-100 hover:bg-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 px-4 py-6 sm:px-6 flex items-stretch w-full cursor-pointer">
+                        <div className="flex flex-col justify-center w-full">
+                          <span className="text-base sm:text-lg text-gray-500 font-semibold">
+                            Inactive API Keys
+                          </span>
+                          <span className="text-2xl sm:text-3xl font-bold text-yellow-600">
+                            {inactiveKeys}
+                          </span>
+                        </div>
+                        <div className="p-2 sm:p-3 bg-yellow-100 border-2 border-yellow-600 rounded-lg self-center ml-2 sm:ml-4">
+                          <Key
+                            size={20}
+                            className="sm:w-7 sm:h-7 text-yellow-600"
                           />
                         </div>
                       </div>
@@ -1438,6 +1455,73 @@ function APIKeysContent() {
           </main>
         </div>
       </div>
+      {/* Add Key Choice Modal */}
+      {showAddKeyChoiceModal && (
+        <div className="fixed inset-0 z-[210] flex items-center justify-center bg-black/20">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-xs relative animate-fadeIn">
+            <button
+              className="absolute top-3 right-3 text-gray-400 hover:text-black text-2xl font-bold"
+              onClick={() => setShowAddKeyChoiceModal(false)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <h2 className="text-xl font-bold mb-6 text-black text-center">
+              Add API Key
+            </h2>
+            <div className="flex flex-col gap-4">
+              <button
+                className="w-full bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg px-4 py-3 transition-colors duration-200"
+                onClick={() => {
+                  setShowAddKeyChoiceModal(false);
+                  setShowAddKeyModal(true);
+                }}
+              >
+                Add keys manually
+              </button>
+              <button
+                className="w-full bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold rounded-lg px-4 py-3 transition-colors duration-200"
+                onClick={() => {
+                  setShowAddKeyChoiceModal(false);
+                  setShowImportModal(true);
+                }}
+              >
+                Import from files
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Import Modal (placeholder) */}
+      {showImportModal && (
+        <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/20">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative animate-fadeIn">
+            <button
+              className="absolute top-3 right-3 text-gray-400 hover:text-black text-2xl font-bold"
+              onClick={() => setShowImportModal(false)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <h2 className="text-xl font-bold mb-6 text-black text-center">
+              Import API Keys from File
+            </h2>
+            <div className="text-gray-700 mb-4 text-center">
+              (Import functionality coming soon. Please select a file format:
+              CSV, JSON, etc.)
+            </div>
+            <div className="flex justify-center">
+              <button
+                className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg px-4 py-2"
+                onClick={() => setShowImportModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
