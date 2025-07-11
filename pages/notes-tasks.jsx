@@ -307,8 +307,8 @@ function NotesTasksContent() {
       )}
       {/* Add Task Modal */}
       {showAddTaskModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md relative animate-fadeIn pointer-events-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur">
+          <div className="relative w-full max-w-md mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] border-2 border-purple-500">
             <button
               className="absolute top-3 right-3 text-gray-400 hover:text-black text-2xl font-bold"
               onClick={() => setShowAddTaskModal(false)}
@@ -390,8 +390,8 @@ function NotesTasksContent() {
       )}
       {/* Update Task Modal */}
       {showUpdateTaskModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md relative animate-fadeIn pointer-events-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur">
+          <div className="relative w-full max-w-md mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] border-2 border-purple-500">
             <button
               className="absolute top-3 right-3 text-gray-400 hover:text-black text-2xl font-bold"
               onClick={() => {
@@ -496,8 +496,15 @@ function NotesTasksContent() {
       )}
       {/* Task Detail Modal (Desktop/Tablet) */}
       {showTaskDetailModal && selectedTask && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md relative animate-fadeIn pointer-events-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur">
+          <div className="relative w-full max-w-md mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] border-2 border-purple-500">
+            <button
+              className="absolute top-3 right-3 text-gray-400 hover:text-black text-2xl font-bold"
+              onClick={() => setShowTaskDetailModal(false)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
             <h2 className="text-xl font-bold mb-4 text-black">Task Details</h2>
             <div className="mb-2">
               <span className="font-semibold text-gray-700">Task:</span>

@@ -10,7 +10,7 @@ import ManualProductIntegration from "../components/manualproductintegration";
 import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
 import { Fragment } from "react";
-
+import Head from "next/head";
 
 // Utility to decrypt token into ci and aid
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
@@ -35,7 +35,10 @@ function ProductsContent() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [integrationType, setIntegrationType] = useState("auto");
   const { user, loading, error } = useUserInfo();
-  const [notification, setNotification] = useState({ show: false, message: "" });
+  const [notification, setNotification] = useState({
+    show: false,
+    message: "",
+  });
   const [showAddModal, setShowAddModal] = useState(false);
   const [showAutoPopup, setShowAutoPopup] = useState(false);
   const [showManualPopup, setShowManualPopup] = useState(false);
@@ -72,8 +75,14 @@ function ProductsContent() {
 
   useEffect(() => {
     if (error) {
-      setNotification({ show: true, message: `Error loading user info: ${error}` });
-      const timer = setTimeout(() => setNotification({ show: false, message: "" }), 2000);
+      setNotification({
+        show: true,
+        message: `Error loading user info: ${error}`,
+      });
+      const timer = setTimeout(
+        () => setNotification({ show: false, message: "" }),
+        2000
+      );
       return () => clearTimeout(timer);
     }
   }, [error]);
@@ -119,15 +128,35 @@ function ProductsContent() {
   // Only return after all hooks
   if (!ci || !aid) return null;
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen w-full"><Loader /></div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen w-full">
+        <Loader />
+      </div>
+    );
   }
 
   return (
     <>
+      <Head>
+        <style>{`html,body{background-color:#fbf9f4 !important;}`}</style>
+      </Head>
       {notification.show && (
         <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300">
           <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-white"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-6 h-6 text-white"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
             {notification.message}
           </div>
         </div>
@@ -136,7 +165,9 @@ function ProductsContent() {
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-xs flex flex-col items-center relative border-2 border-[#a259f7]">
-            <h2 className="text-xl font-bold mb-6 text-gray-800">Add Product</h2>
+            <h2 className="text-xl font-bold mb-6 text-gray-800">
+              Add Product
+            </h2>
             <button
               className="w-full mb-4 py-3 rounded-lg bg-[#a259f7] text-white font-semibold text-lg hover:bg-[#7c3aed] transition-colors"
               onClick={() => {
@@ -240,12 +271,21 @@ function ProductsContent() {
             <div className="max-w-6xl mx-auto">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h1 className="text-3xl font-extrabold text-gray-900 mb-1">Product Management</h1>
-                  <p className="text-gray-500 text-lg">Manage your eyewear inventory and product catalog</p>
+                  <h1 className="text-3xl font-extrabold text-gray-900 mb-1">
+                    Product Management
+                  </h1>
+                  <p className="text-gray-500 text-lg">
+                    Manage your eyewear inventory and product catalog
+                  </p>
                 </div>
                 <button
                   className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold py-3 px-6 rounded-lg shadow text-lg flex items-center gap-2"
-                  onClick={() => router.push({ pathname: '/product-dashboard', query: { token } })}
+                  onClick={() =>
+                    router.push({
+                      pathname: "/product-dashboard",
+                      query: { token },
+                    })
+                  }
                 >
                   <span className="text-2xl font-bold">+</span> Add Product
                 </button>
@@ -264,7 +304,14 @@ function ProductsContent() {
                   <option>All Status</option>
                 </select>
                 <button className="flex items-center gap-2 px-4 py-3 rounded-lg border border-gray-200 text-lg text-gray-700 hover:bg-gray-50">
-                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" stroke="#a259f7" strokeWidth="2" strokeLinecap="round"/></svg>
+                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                    <path
+                      d="M3 6h18M3 12h18M3 18h18"
+                      stroke="#a259f7"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
                   Filter
                 </button>
               </div>
@@ -284,28 +331,112 @@ function ProductsContent() {
                   </thead>
                   <tbody>
                     {products.map((product) => (
-                      <tr key={product.id} className="border-b hover:bg-gray-50 transition">
+                      <tr
+                        key={product.id}
+                        className="border-b hover:bg-gray-50 transition"
+                      >
                         <td className="py-4 px-6 flex items-center gap-4">
                           <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
                             {/* Placeholder for image */}
-                            <svg width="24" height="24" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#e5e7eb" strokeWidth="2" /></svg>
+                            <svg
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="#e5e7eb"
+                                strokeWidth="2"
+                              />
+                            </svg>
                           </div>
                           <div>
-                            <div className="font-bold text-lg text-gray-900">{product.name}</div>
-                            <div className="text-gray-400 text-sm">ID: #{product.id}</div>
+                            <div className="font-bold text-lg text-gray-900">
+                              {product.name}
+                            </div>
+                            <div className="text-gray-400 text-sm">
+                              ID: #{product.id}
+                            </div>
                           </div>
                         </td>
-                        <td className="py-4 px-6 text-gray-700 font-medium">{product.brand}</td>
-                        <td className="py-4 px-6 font-bold text-gray-900">${product.price.toFixed(2)}</td>
-                        <td className={`py-4 px-6 font-semibold ${product.stock > 20 ? 'text-green-600' : 'text-orange-500'}`}>{product.stock} units</td>
-                        <td className="py-4 px-6 text-gray-700">{product.category}</td>
+                        <td className="py-4 px-6 text-gray-700 font-medium">
+                          {product.brand}
+                        </td>
+                        <td className="py-4 px-6 font-bold text-gray-900">
+                          ${product.price.toFixed(2)}
+                        </td>
+                        <td
+                          className={`py-4 px-6 font-semibold ${
+                            product.stock > 20
+                              ? "text-green-600"
+                              : "text-orange-500"
+                          }`}
+                        >
+                          {product.stock} units
+                        </td>
+                        <td className="py-4 px-6 text-gray-700">
+                          {product.category}
+                        </td>
                         <td className="py-4 px-6">
-                          <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-700">{product.status}</span>
+                          <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-700">
+                            {product.status}
+                          </span>
                         </td>
                         <td className="py-4 px-6 flex gap-4 items-center">
-                          <button className="text-[#a259f7] hover:text-[#7c3aed]" title="View"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M12 5c-7 0-9 7-9 7s2 7 9 7 9-7 9-7-2-7-9-7zm0 10a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" strokeWidth="2"/></svg></button>
-                          <button className="text-[#a259f7] hover:text-[#7c3aed]" title="Edit"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a4 4 0 01-1.414.828l-4.243 1.414 1.414-4.243a4 4 0 01.828-1.414z" stroke="currentColor" strokeWidth="2"/></svg></button>
-                          <button className="text-red-500 hover:text-red-700" title="Delete"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M6 7h12M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3m2 0v12a2 2 0 01-2 2H8a2 2 0 01-2-2V7h12z" stroke="currentColor" strokeWidth="2"/></svg></button>
+                          <button
+                            className="text-[#a259f7] hover:text-[#7c3aed]"
+                            title="View"
+                          >
+                            <svg
+                              width="20"
+                              height="20"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M12 5c-7 0-9 7-9 7s2 7 9 7 9-7 9-7-2-7-9-7zm0 10a3 3 0 100-6 3 3 0 000 6z"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              />
+                            </svg>
+                          </button>
+                          <button
+                            className="text-[#a259f7] hover:text-[#7c3aed]"
+                            title="Edit"
+                          >
+                            <svg
+                              width="20"
+                              height="20"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a4 4 0 01-1.414.828l-4.243 1.414 1.414-4.243a4 4 0 01.828-1.414z"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              />
+                            </svg>
+                          </button>
+                          <button
+                            className="text-red-500 hover:text-red-700"
+                            title="Delete"
+                          >
+                            <svg
+                              width="20"
+                              height="20"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M6 7h12M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3m2 0v12a2 2 0 01-2 2H8a2 2 0 01-2-2V7h12z"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              />
+                            </svg>
+                          </button>
                         </td>
                       </tr>
                     ))}
