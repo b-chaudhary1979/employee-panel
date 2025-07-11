@@ -8,6 +8,8 @@ import { useSidebar } from "../context/SidebarContext";
 import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
 import Head from "next/head";
+import { Edit, Trash2 } from "lucide-react";
+
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
 function decryptToken(token) {
   try {
@@ -44,18 +46,63 @@ function AnnouncementsContent() {
   /** announcement form state **/
   const [form, setForm] = useState({
     title: "",
-    body: "",
-    priority: "Normal",
-    schedule: "now", // now | later
-    publishDate: "", // YYYY‑MM‑DDTHH:MM
-    attachments: [], // File list
+    type: "information", // warning, information, urgent
+    content: "",
   });
 
   /** form validation state **/
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const priorities = ["Low", "Normal", "High"];
+  // Mock announcements data
+  const [announcements, setAnnouncements] = useState([
+    {
+      id: "ANN001",
+      title: "System Maintenance Notice",
+      type: "warning",
+      content:
+        "Scheduled maintenance will occur on Saturday from 2-4 AM. Some services may be temporarily unavailable.",
+      status: "published",
+      views: 45,
+      createdAt: "2024-01-15T10:30:00",
+      author: "Admin",
+    },
+    {
+      id: "ANN002",
+      title: "New Feature Release",
+      type: "information",
+      content:
+        "We're excited to announce the release of our new dashboard features. Check out the updated interface!",
+      status: "published",
+      views: 89,
+      createdAt: "2024-01-14T14:20:00",
+      author: "Admin",
+    },
+    {
+      id: "ANN003",
+      title: "Security Alert",
+      type: "urgent",
+      content:
+        "Important security update required. Please update your passwords and enable 2FA immediately.",
+      status: "draft",
+      views: 0,
+      createdAt: "2024-01-13T09:15:00",
+      author: "Admin",
+    },
+  ]);
+
+  // Summary stats
+  const totalAnnouncements = announcements.length;
+  const activeAnnouncements = announcements.filter(
+    (a) => a.status === "published"
+  ).length;
+  const totalViews = announcements.reduce((sum, a) => sum + a.views, 0);
+
+  const types = [
+    { value: "warning", label: "Warning", color: "yellow" },
+    { value: "information", label: "Information", color: "blue" },
+    { value: "urgent", label: "Urgent", color: "red" },
+  ];
 
   // Validation function
   const validateForm = () => {
@@ -70,53 +117,13 @@ function AnnouncementsContent() {
       newErrors.title = "Title must be less than 100 characters";
     }
 
-    // Body validation
-    if (!form.body.trim()) {
-      newErrors.body = "Body is required";
-    } else if (form.body.trim().length < 10) {
-      newErrors.body = "Body must be at least 10 characters long";
-    } else if (form.body.trim().length > 2000) {
-      newErrors.body = "Body must be less than 2000 characters";
-    }
-
-    // Schedule validation
-    if (form.schedule === "later") {
-      if (!form.publishDate) {
-        newErrors.publishDate =
-          "Publish date is required when scheduling for later";
-      } else {
-        const selectedDate = new Date(form.publishDate);
-        const now = new Date();
-        if (selectedDate <= now) {
-          newErrors.publishDate = "Publish date must be in the future";
-        }
-      }
-    }
-
-    // File validation
-    if (form.attachments.length > 0) {
-      const maxFileSize = 10 * 1024 * 1024; // 10MB
-      const allowedTypes = [
-        "image/jpeg",
-        "image/png",
-        "image/gif",
-        "application/pdf",
-        "text/plain",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      ];
-
-      for (let i = 0; i < form.attachments.length; i++) {
-        const file = form.attachments[i];
-        if (file.size > maxFileSize) {
-          newErrors.attachments = `File "${file.name}" is too large. Maximum size is 10MB`;
-          break;
-        }
-        if (!allowedTypes.includes(file.type)) {
-          newErrors.attachments = `File "${file.name}" has an unsupported type. Allowed types: JPG, PNG, GIF, PDF, TXT, DOC, DOCX`;
-          break;
-        }
-      }
+    // Content validation
+    if (!form.content.trim()) {
+      newErrors.content = "Content is required";
+    } else if (form.content.trim().length < 10) {
+      newErrors.content = "Content must be at least 10 characters long";
+    } else if (form.content.trim().length > 2000) {
+      newErrors.content = "Content must be less than 2000 characters";
     }
 
     setErrors(newErrors);
@@ -134,22 +141,6 @@ function AnnouncementsContent() {
     }
   };
 
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    setForm((prevForm) => ({ ...prevForm, attachments: files }));
-    // Clear file errors when new files are selected
-    if (errors.attachments) {
-      setErrors((prev) => ({ ...prev, attachments: null }));
-    }
-  };
-
-  const removeFile = (index) => {
-    setForm((prevForm) => ({
-      ...prevForm,
-      attachments: prevForm.attachments.filter((_, i) => i !== index),
-    }));
-  };
-
   const showNotification = (message, type = "success") => {
     setNotification({ show: true, message, type });
     setTimeout(() => {
@@ -157,7 +148,7 @@ function AnnouncementsContent() {
     }, 5000);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, action = "publish") => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -171,17 +162,33 @@ function AnnouncementsContent() {
       // Simulate API call delay
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      // Frontend-only: Just show success and reset form
-      showNotification("Announcement created successfully!", "success");
+      // Create new announcement
+      const newAnnouncement = {
+        id: `ANN${String(announcements.length + 1).padStart(3, "0")}`,
+        title: form.title,
+        type: form.type,
+        content: form.content,
+        status: action,
+        views: 0,
+        createdAt: new Date().toISOString(),
+        author: user?.name || "Admin",
+      };
 
-      // Reset form with proper state update
+      setAnnouncements((prev) => [newAnnouncement, ...prev]);
+
+      // Show success message
+      showNotification(
+        `Announcement ${
+          action === "publish" ? "published" : "saved as draft"
+        } successfully!`,
+        "success"
+      );
+
+      // Reset form
       setForm({
         title: "",
-        body: "",
-        priority: "Normal",
-        schedule: "now",
-        publishDate: "",
-        attachments: [],
+        type: "information",
+        content: "",
       });
 
       // Clear errors
@@ -197,11 +204,68 @@ function AnnouncementsContent() {
     }
   };
 
-  // Get minimum datetime for scheduling (current time + 1 minute)
-  const getMinDateTime = () => {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() + 1);
-    return now.toISOString().slice(0, 16);
+  const getTypeColor = (type) => {
+    switch (type) {
+      case "warning":
+        return "yellow";
+      case "urgent":
+        return "red";
+      default:
+        return "blue";
+    }
+  };
+
+  const getTypeIcon = (type) => {
+    switch (type) {
+      case "warning":
+        return (
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+            />
+          </svg>
+        );
+      case "urgent":
+        return (
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v3.75m0 0v3.75m0-3.75h3.75m-3.75 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        );
+      default:
+        return (
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        );
+    }
   };
 
   /* ───────────────────────────────────────── hooks ───────────────────────────────────────── */
@@ -352,285 +416,324 @@ function AnnouncementsContent() {
             }}
           >
             <div className="pl-4">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h1 className="text-3xl font-extrabold text-gray-900 mb-1">
-                    Create Announcement
-                  </h1>
-                  <p className="text-gray-500 text-lg">
-                    Create and manage announcements for your organization
-                  </p>
+              {/* Page Title */}
+              <h1 className="text-3xl font-bold text-purple-500 mb-2">
+                Create Announcement
+              </h1>
+              <p className="text-gray-500 text-lg mb-8">
+                Create and manage announcements for your organization
+              </p>
+
+              {/* Summary Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                <div className="bg-white rounded-xl shadow flex items-center gap-4 px-6 py-5">
+                  <div className="bg-purple-100 p-3 rounded-full">
+                    <svg
+                      className="w-7 h-7 text-purple-500"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 text-sm">
+                      Total Announcements
+                    </div>
+                    <div className="text-2xl text-gray-600 font-bold">
+                      {totalAnnouncements}
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-xl shadow flex items-center gap-4 px-6 py-5">
+                  <div className="bg-green-100 p-3 rounded-full">
+                    <svg
+                      className="w-7 h-7 text-green-500"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 text-sm">Active</div>
+                    <div className="text-2xl text-gray-600 font-bold">
+                      {activeAnnouncements}
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-xl shadow flex items-center gap-4 px-6 py-5">
+                  <div className="bg-blue-100 p-3 rounded-full">
+                    <svg
+                      className="w-7 h-7 text-blue-500"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 text-sm">Total Views</div>
+                    <div className="text-2xl text-gray-600 font-bold">
+                      {totalViews}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <form
-                onSubmit={handleSubmit}
-                className="bg-white rounded-2xl shadow border border-gray-100 p-8 space-y-6"
-              >
-                {/* Title */}
-                <div>
-                  <label className="block text-lg font-semibold text-gray-700 mb-2">
-                    Title <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={form.title}
-                    onChange={(e) => {
-                      setForm((prevForm) => ({
-                        ...prevForm,
-                        title: e.target.value,
-                      }));
-                    }}
-                    className={`w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg text-gray-900 ${
-                      errors.title ? "border-red-500" : "border-gray-200"
-                    }`}
-                    placeholder="Enter announcement title here..."
-                    required
-                    maxLength={100}
-                    disabled={isSubmitting}
-                  />
-                  {errors.title && (
-                    <p className="text-red-500 text-sm mt-1">{errors.title}</p>
-                  )}
-                </div>
+              {/* Create New Announcement Form */}
+              <div className="bg-white rounded-2xl shadow border border-gray-100 p-8 mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                  Create New Announcement
+                </h2>
 
-                {/* Body */}
-                <div>
-                  <label className="block text-lg font-semibold text-gray-700 mb-2">
-                    Body <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    value={form.body}
-                    onChange={(e) => {
-                      setForm((prevForm) => ({
-                        ...prevForm,
-                        body: e.target.value,
-                      }));
-                    }}
-                    className={`w-full border border-gray-200 rounded-lg px-4 py-3 h-40 resize-y focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg text-gray-900 ${
-                      errors.body ? "border-red-500" : "border-gray-200"
-                    }`}
-                    placeholder="Write your announcement..."
-                    required
-                    maxLength={2000}
-                    disabled={isSubmitting}
-                  />
-                  <div className="flex justify-between items-center mt-1">
-                    {errors.body && (
-                      <p className="text-red-500 text-sm">{errors.body}</p>
-                    )}
-                    <p className="text-gray-500 text-sm ml-auto">
-                      {form.body.length}/2000 characters
-                    </p>
-                  </div>
-                </div>
-
-                {/* Priority */}
-                <div>
-                  <label className="block text-lg font-semibold text-gray-700 mb-3">
-                    Priority
-                  </label>
-                  <div className="flex gap-3">
-                    {priorities.map((p) => (
-                      <button
-                        key={p}
-                        type="button"
-                        onClick={() => {
-                          setForm((prevForm) => {
-                            const newForm = { ...prevForm, priority: p };
-                            return newForm;
-                          });
-                        }}
-                        className={`px-6 py-3 rounded-lg text-lg font-semibold border transition-colors ${
-                          form.priority === p
-                            ? "bg-[#a259f7] text-white border-[#a259f7]"
-                            : "bg-gray-100 border-gray-200 text-gray-700 hover:bg-gray-200"
-                        }`}
-                        aria-pressed={form.priority === p}
-                        disabled={isSubmitting}
-                      >
-                        {p}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Schedule */}
-                <div className="grid sm:grid-cols-2 gap-6">
-                  <div>
-                    <span className="block text-lg font-semibold text-gray-700 mb-2">
-                      Publish
-                    </span>
-                    <label className="inline-flex items-center gap-3 mr-6">
-                      <input
-                        type="radio"
-                        name="schedule"
-                        value="now"
-                        checked={form.schedule === "now"}
-                        onChange={() => {
-                          setForm((prevForm) => ({
-                            ...prevForm,
-                            schedule: "now",
-                            publishDate: "",
-                          }));
-                        }}
-                        className="text-[#a259f7] focus:ring-[#a259f7]"
-                        disabled={isSubmitting}
-                      />
-                      <span className="text-lg text-gray-700">Now</span>
-                    </label>
-                    <label className="inline-flex items-center gap-3">
-                      <input
-                        type="radio"
-                        name="schedule"
-                        value="later"
-                        checked={form.schedule === "later"}
-                        onChange={() => {
-                          setForm((prevForm) => ({
-                            ...prevForm,
-                            schedule: "later",
-                          }));
-                        }}
-                        className="text-[#a259f7] focus:ring-[#a259f7]"
-                        disabled={isSubmitting}
-                      />
-                      <span className="text-lg text-gray-700">Later</span>
-                    </label>
-                  </div>
-
-                  {form.schedule === "later" && (
+                <form
+                  onSubmit={(e) => handleSubmit(e, "publish")}
+                  className="space-y-6"
+                >
+                  {/* Title and Type in one row */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Title */}
                     <div>
                       <label className="block text-lg font-semibold text-gray-700 mb-2">
-                        Publish Date &amp; Time{" "}
-                        <span className="text-red-500">*</span>
+                        Title <span className="text-red-500">*</span>
                       </label>
                       <input
-                        type="datetime-local"
-                        value={form.publishDate}
-                        onChange={(e) => {
-                          setForm((prevForm) => ({
-                            ...prevForm,
-                            publishDate: e.target.value,
-                          }));
-                        }}
-                        min={getMinDateTime()}
+                        type="text"
+                        value={form.title}
+                        onChange={(e) =>
+                          handleInputChange("title", e.target.value)
+                        }
                         className={`w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg text-gray-900 ${
-                          errors.publishDate
-                            ? "border-red-500"
-                            : "border-gray-200"
+                          errors.title ? "border-red-500" : "border-gray-200"
                         }`}
+                        placeholder="Enter announcement title here..."
                         required
+                        maxLength={100}
                         disabled={isSubmitting}
                       />
-                      {errors.publishDate && (
+                      {errors.title && (
                         <p className="text-red-500 text-sm mt-1">
-                          {errors.publishDate}
+                          {errors.title}
                         </p>
                       )}
                     </div>
-                  )}
-                </div>
 
-                {/* Attachments */}
-                <div>
-                  <label className="block text-lg font-semibold text-gray-700 mb-2">
-                    Attachments
-                  </label>
-                  <input
-                    type="file"
-                    multiple
-                    onChange={handleFileChange}
-                    accept=".jpg,.jpeg,.png,.gif,.pdf,.txt,.doc,.docx"
-                    className={`w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-lg file:font-semibold file:bg-[#a259f7] file:text-white hover:file:bg-[#7c3aed] ${
-                      errors.attachments ? "border-red-500" : "border-gray-200"
-                    }`}
-                  />
-                  {errors.attachments && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.attachments}
-                    </p>
-                  )}
-                  {form.attachments.length > 0 && (
-                    <div className="mt-4 space-y-3">
-                      <p className="text-lg text-gray-700 font-semibold">
-                        Selected files:
-                      </p>
-                      {form.attachments.map((file, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3"
-                        >
-                          <div className="flex items-center gap-3">
-                            <svg
-                              className="w-5 h-5 text-gray-500"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                              />
-                            </svg>
-                            <span className="text-lg text-gray-700">
-                              {file.name}
-                            </span>
-                            <span className="text-sm text-gray-500">
-                              ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                            </span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => removeFile(index)}
-                            className="text-red-500 hover:text-red-700 text-lg font-semibold"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      ))}
+                    {/* Type */}
+                    <div>
+                      <label className="block text-lg font-semibold text-gray-700 mb-2">
+                        Type <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        value={form.type}
+                        onChange={(e) =>
+                          handleInputChange("type", e.target.value)
+                        }
+                        className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg text-gray-900"
+                        disabled={isSubmitting}
+                      >
+                        {types.map((type) => (
+                          <option key={type.value} value={type.value}>
+                            {type.label}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                  )}
-                </div>
+                  </div>
 
-                {/* Action buttons */}
-                <div className="flex gap-4 justify-end pt-4">
-                  <button
-                    type="button"
-                    className="px-6 py-3 rounded-lg border border-gray-200 text-lg text-gray-700 hover:bg-gray-50 transition-colors font-semibold"
-                    onClick={() => {
-                      setForm({
-                        title: "",
-                        body: "",
-                        priority: "Normal",
-                        schedule: "now",
-                        publishDate: "",
-                        attachments: [],
-                      });
-                      setErrors({});
-                      showNotification("Form cleared", "success");
-                    }}
-                    disabled={isSubmitting}
+                  {/* Content */}
+                  <div>
+                    <label className="block text-lg font-semibold text-gray-700 mb-2">
+                      Content <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      value={form.content}
+                      onChange={(e) =>
+                        handleInputChange("content", e.target.value)
+                      }
+                      className={`w-full border border-gray-200 rounded-lg px-4 py-3 h-40 resize-y focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg text-gray-900 ${
+                        errors.content ? "border-red-500" : "border-gray-200"
+                      }`}
+                      placeholder="Write your announcement content..."
+                      required
+                      maxLength={2000}
+                      disabled={isSubmitting}
+                    />
+                    <div className="flex justify-between items-center mt-1">
+                      {errors.content && (
+                        <p className="text-red-500 text-sm">{errors.content}</p>
+                      )}
+                      <p className="text-gray-500 text-sm ml-auto">
+                        {form.content.length}/2000 characters
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="flex gap-3 justify-start pt-4">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="px-4 py-2 rounded-lg bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Publishing...
+                        </>
+                      ) : (
+                        "Publish"
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => handleSubmit(e, "draft")}
+                      disabled={isSubmitting}
+                      className="px-4 py-2 rounded-lg border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isSubmitting ? "Saving..." : "Draft"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Announcements List */}
+              <div className="space-y-4">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                  All Announcements
+                </h2>
+
+                {announcements.map((announcement) => (
+                  <div
+                    key={announcement.id}
+                    className="bg-white rounded-xl shadow border border-gray-100 p-6"
                   >
-                    Clear Form
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="px-8 py-3 rounded-lg bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 text-lg"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Publishing...
-                      </>
-                    ) : (
-                      "Publish Announcement"
-                    )}
-                  </button>
-                </div>
-              </form>
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-4">
+                            <h3 className="text-xl font-bold text-gray-900">
+                              {announcement.title}
+                            </h3>
+                            <div
+                              className={`flex items-center gap-1 px-2 py-1 rounded-full bg-${getTypeColor(
+                                announcement.type
+                              )}-100 hover:bg-${getTypeColor(
+                                announcement.type
+                              )}-200 transition-colors cursor-pointer`}
+                              title={`${
+                                announcement.type.charAt(0).toUpperCase() +
+                                announcement.type.slice(1)
+                              } announcement`}
+                            >
+                              <div
+                                className={`text-${getTypeColor(
+                                  announcement.type
+                                )}-500`}
+                              >
+                                {getTypeIcon(announcement.type)}
+                              </div>
+                              <span
+                                className={`text-xs font-semibold text-${getTypeColor(
+                                  announcement.type
+                                )}-700`}
+                              >
+                                {announcement.type.charAt(0).toUpperCase() +
+                                  announcement.type.slice(1)}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4 mt-1"></div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button className="text-blue-500 hover:text-blue-700 p-2 rounded-full hover:bg-blue-50 transition-colors border border-blue-200 hover:border-blue-300">
+                          <Edit size={23} />
+                        </button>
+                        <button className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-colors border border-red-200 hover:border-red-300">
+                          <Trash2 size={23} />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="text-gray-700 leading-relaxed mb-4">
+                      {announcement.content}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <span>
+                          {new Date(
+                            announcement.createdAt
+                          ).toLocaleDateString()}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            />
+                          </svg>
+                          {announcement.views} views
+                        </span>
+                        <span
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                            announcement.status === "published"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {announcement.status === "published"
+                            ? "Published"
+                            : "Draft"}
+                        </span>
+                      </div>
+                      <div>
+                        {announcement.status === "draft" && (
+                          <button className="px-4 py-2 bg-[#a259f7] hover:bg-[#7c3aed] text-white rounded-lg text-sm font-semibold transition-colors">
+                            Publish Now
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </main>
         </div>

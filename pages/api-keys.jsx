@@ -48,42 +48,8 @@ function APIKeysContent() {
   // Correct vault key (in production, this should be stored securely)
   const CORRECT_VAULT_KEY = "CyberClipper2025!";
 
-  // Dummy API keys data (in production, this will be fetched from database)
-  const [apiKeys, setApiKeys] = useState([
-    {
-      id: 1,
-      serialNo: 1,
-      keyName: "Stripe Payment API",
-      storeDate: "2024-01-15",
-      storedBy: "John Doe",
-      key: "sk_live_1234567890abcdef",
-      encryptedKey: null,
-      isEncrypted: false,
-      isDecrypted: true,
-    },
-    {
-      id: 2,
-      serialNo: 2,
-      keyName: "AWS Access Key",
-      storeDate: "2024-01-20",
-      storedBy: "Jane Smith",
-      key: "AKIAIOSFODNN7EXAMPLE",
-      encryptedKey: null,
-      isEncrypted: false,
-      isDecrypted: true,
-    },
-    {
-      id: 3,
-      serialNo: 3,
-      keyName: "Google Maps API",
-      storeDate: "2024-01-25",
-      storedBy: "Mike Johnson",
-      key: "AIzaSyBweOkTz2iTZQiN45P6IeWOA-jlWVL8hQY",
-      encryptedKey: null,
-      isEncrypted: false,
-      isDecrypted: true,
-    },
-  ]);
+  // API keys data (in production, this will be fetched from database)
+  const [apiKeys, setApiKeys] = useState([]);
 
   // Encryption/Decryption modal state
   const [showEncryptModal, setShowEncryptModal] = useState(false);
@@ -99,18 +65,25 @@ function APIKeysContent() {
   const [showAddKeyModal, setShowAddKeyModal] = useState(false);
   const [newKeyName, setNewKeyName] = useState("");
   const [newKeyStatus, setNewKeyStatus] = useState("Active");
-  const [generatedKey, setGeneratedKey] = useState("");
   const [customKey, setCustomKey] = useState("");
-  const [isGeneratingKey, setIsGeneratingKey] = useState(false);
   const [showAddKeyEncryptModal, setShowAddKeyEncryptModal] = useState(false);
   const [addKeyVaultKey, setAddKeyVaultKey] = useState("");
   const [showAddKeyVaultKey, setShowAddKeyVaultKey] = useState(false);
   const [pendingAddKey, setPendingAddKey] = useState(null);
   const [addKeyError, setAddKeyError] = useState("");
 
+  // Custom QA state
+  const [customQA, setCustomQA] = useState([{ question: "", answer: "" }]);
+
+  // Add state for API key visibility toggle
+  const [showApiKey, setShowApiKey] = useState(false);
+
   // Add state for API key detail modal
   const [showKeyDetailModal, setShowKeyDetailModal] = useState(false);
   const [selectedKey, setSelectedKey] = useState(null);
+  const [showKeyDetailVaultModal, setShowKeyDetailVaultModal] = useState(false);
+  const [keyDetailVaultKey, setKeyDetailVaultKey] = useState("");
+  const [showKeyDetailVaultKey, setShowKeyDetailVaultKey] = useState(false);
 
   // Calculate totals
   const totalKeys = apiKeys.length;
@@ -251,28 +224,41 @@ function APIKeysContent() {
     setTimeout(() => setNotification({ show: false, message: "" }), 3000);
   };
 
-  // Generate random API key
-  const generateRandomKey = () => {
-    setIsGeneratingKey(true);
-    setTimeout(() => {
-      const charset =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-      let key = "sk_live_";
-      for (let i = 0; i < 24; i++) {
-        key += charset.charAt(Math.floor(Math.random() * charset.length));
-      }
-      setGeneratedKey(key);
-      setCustomKey(""); // Clear custom key if generating
-      setIsGeneratingKey(false);
-    }, 500);
+  // Custom QA functions
+  const handleCustomQAChange = (idx, field, value) => {
+    setCustomQA((prev) => {
+      const updated = [...prev];
+      updated[idx][field] = value;
+      return updated;
+    });
+  };
+
+  const addCustomQA = () => {
+    setCustomQA((prev) => [...prev, { question: "", answer: "" }]);
+  };
+
+  // Handle vault verification for key details
+  const handleKeyDetailVaultSubmit = (e) => {
+    e.preventDefault();
+    if (keyDetailVaultKey === CORRECT_VAULT_KEY) {
+      setShowKeyDetailVaultModal(false);
+      setShowKeyDetailModal(true);
+      setKeyDetailVaultKey("");
+      setShowKeyDetailVaultKey(false);
+    } else {
+      setNotification({
+        show: true,
+        message: "Incorrect vault key. Access denied.",
+      });
+      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+    }
   };
 
   // Open vault key modal before adding key
   const handleAddKey = (e) => {
     e.preventDefault();
     setAddKeyError("");
-    const keyToEncrypt = generatedKey || customKey;
-    if (!newKeyName.trim() || !keyToEncrypt.trim()) return;
+    if (!newKeyName.trim() || !customKey.trim()) return;
     // Check for duplicate key name (case-insensitive)
     const duplicate = apiKeys.some(
       (k) => k.keyName.trim().toLowerCase() === newKeyName.trim().toLowerCase()
@@ -284,7 +270,7 @@ function APIKeysContent() {
     setPendingAddKey({
       keyName: newKeyName.trim(),
       status: newKeyStatus,
-      key: keyToEncrypt,
+      key: customKey,
     });
     setShowAddKeyEncryptModal(true);
   };
@@ -318,8 +304,9 @@ function APIKeysContent() {
     setShowAddKeyEncryptModal(false);
     setNewKeyName("");
     setNewKeyStatus("Active");
-    setGeneratedKey("");
     setCustomKey("");
+    setShowApiKey(false);
+    setCustomQA([{ question: "", answer: "" }]);
     setAddKeyVaultKey("");
     setPendingAddKey(null);
     setAddKeyError("");
@@ -680,107 +667,129 @@ function APIKeysContent() {
 
       {/* Add Key Modal */}
       {showAddKeyModal && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center pointer-events-none p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg relative animate-fadeIn pointer-events-auto">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/10 backdrop-blur">
+          <div className="relative w-full max-w-3xl mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh]">
             <button
-              className="absolute top-4 right-4 text-gray-400 hover:text-black text-2xl font-bold"
+              className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold"
               onClick={() => {
                 setShowAddKeyModal(false);
                 setAddKeyError("");
               }}
-              aria-label="Close"
             >
-              &times;
+              &#8592; Back
             </button>
-            <h2 className="text-2xl font-bold mb-6 text-black">Add API Key</h2>
-            <form className="flex flex-col gap-6" onSubmit={handleAddKey}>
-              <div>
-                <label className="block text-base font-semibold text-gray-700 mb-3">
-                  Key Name
-                </label>
-                <input
-                  type="text"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-base text-black"
-                  value={newKeyName}
-                  onChange={(e) => setNewKeyName(e.target.value)}
-                  placeholder="Enter key name..."
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-base font-semibold text-gray-700 mb-3">
-                  Status
-                </label>
-                <select
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-base text-black bg-white"
-                  value={newKeyStatus}
-                  onChange={(e) => setNewKeyStatus(e.target.value)}
-                  required
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-base font-semibold text-gray-700 mb-3">
-                  Generated Key
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-base text-black bg-gray-100 cursor-not-allowed"
-                    value={generatedKey}
-                    readOnly
-                    placeholder="Click Generate Key..."
-                  />
+            <div className="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow space-y-4 text-gray-800 border-2 border-purple-500">
+              <h2 className="text-2xl font-bold mb-4 text-purple-600">
+                Add API Key
+              </h2>
+              <form className="flex flex-col gap-6" onSubmit={handleAddKey}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Key Name <span className="text-red-600">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800"
+                      value={newKeyName}
+                      onChange={(e) => setNewKeyName(e.target.value)}
+                      placeholder="Enter key name..."
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Status
+                    </label>
+                    <select
+                      className="w-full border rounded px-3 py-2 text-gray-800"
+                      value={newKeyStatus}
+                      onChange={(e) => setNewKeyStatus(e.target.value)}
+                      required
+                    >
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    API Key <span className="text-red-600">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showApiKey ? "text" : "password"}
+                      className="w-full border rounded px-3 py-2 pr-12 placeholder-gray-500 text-gray-800"
+                      value={customKey}
+                      onChange={(e) => {
+                        setCustomKey(e.target.value);
+                      }}
+                      placeholder="Enter your API key..."
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showApiKey ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Custom QA Section */}
+                <div>
+                  <h3 className="font-semibold mb-2">
+                    Custom Questions & Answers
+                  </h3>
+                  {customQA.map((qa, idx) => (
+                    <div
+                      key={idx}
+                      className="flex flex-col md:flex-row gap-2 mb-2"
+                    >
+                      <input
+                        type="text"
+                        placeholder="Question"
+                        value={qa.question}
+                        onChange={(e) =>
+                          handleCustomQAChange(idx, "question", e.target.value)
+                        }
+                        className="flex-1 border rounded px-3 py-2 placeholder-gray-500 text-gray-800"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Answer"
+                        value={qa.answer}
+                        onChange={(e) =>
+                          handleCustomQAChange(idx, "answer", e.target.value)
+                        }
+                        className="flex-1 border rounded px-3 py-2 placeholder-gray-500 text-gray-800"
+                      />
+                    </div>
+                  ))}
                   <button
                     type="button"
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg px-4 py-3 transition-colors duration-200 flex items-center gap-2"
-                    onClick={generateRandomKey}
-                    disabled={isGeneratingKey}
+                    onClick={addCustomQA}
+                    className="mt-2 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
                   >
-                    {isGeneratingKey ? (
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    ) : (
-                      <>Generate Key</>
-                    )}
+                    + Add Custom Q&A
                   </button>
                 </div>
-              </div>
-              <div>
-                <label className="block text-base font-semibold text-gray-700 mb-3">
-                  Or Custom Key
-                </label>
-                <input
-                  type="text"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-base text-black"
-                  value={customKey}
-                  onChange={(e) => {
-                    setCustomKey(e.target.value);
-                    if (e.target.value) setGeneratedKey("");
-                  }}
-                  placeholder="Enter your own key..."
-                  disabled={!!generatedKey}
-                />
-              </div>
-              {addKeyError && (
-                <div className="text-red-600 text-sm font-semibold mt-2">
-                  {addKeyError}
-                </div>
-              )}
-              <button
-                type="submit"
-                className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg px-6 py-3 mt-4 transition-colors duration-200 flex items-center justify-center gap-3 text-base"
-                disabled={
-                  !(
-                    newKeyName.trim() &&
-                    (generatedKey.trim() || customKey.trim())
-                  )
-                }
-              >
-                Add Key
-              </button>
-            </form>
+
+                {addKeyError && (
+                  <div className="text-red-600 text-sm font-semibold mt-2">
+                    {addKeyError}
+                  </div>
+                )}
+                <button
+                  type="submit"
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl mt-4"
+                  disabled={!(newKeyName.trim() && customKey.trim())}
+                >
+                  Add Key
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       )}
@@ -845,6 +854,69 @@ function APIKeysContent() {
           </div>
         </div>
       )}
+      {/* Vault Verification Modal for Key Details */}
+      {showKeyDetailVaultModal && selectedKey && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/10 backdrop-blur">
+          <div className="relative w-full max-w-md mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh]">
+            <button
+              className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold"
+              onClick={() => {
+                setShowKeyDetailVaultModal(false);
+                setSelectedKey(null);
+                setKeyDetailVaultKey("");
+                setShowKeyDetailVaultKey(false);
+              }}
+            >
+              &#8592; Back
+            </button>
+            <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow space-y-4 text-gray-800 border-2 border-purple-500">
+              <h2 className="text-2xl font-bold mb-4 text-purple-600">
+                Verify Access
+              </h2>
+              <p className="text-gray-600 mb-4">
+                Enter vault key to view API key details
+              </p>
+              <form onSubmit={handleKeyDetailVaultSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Vault Key <span className="text-red-600">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showKeyDetailVaultKey ? "text" : "password"}
+                      className="w-full border rounded px-3 py-2 pr-12 placeholder-gray-500 text-gray-800"
+                      value={keyDetailVaultKey}
+                      onChange={(e) => setKeyDetailVaultKey(e.target.value)}
+                      placeholder="Enter vault key..."
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowKeyDetailVaultKey(!showKeyDetailVaultKey)
+                      }
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showKeyDetailVaultKey ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <Eye size={18} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl mt-4"
+                >
+                  Verify & View Details
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* API Key Detail Modal */}
       {showKeyDetailModal && selectedKey && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center pointer-events-none p-4">
@@ -1197,26 +1269,34 @@ function APIKeysContent() {
                               className="border-t border-gray-100 text-gray-900 hover:bg-gray-50 transition-colors cursor-pointer"
                               onClick={() => {
                                 setSelectedKey(key);
-                                setShowKeyDetailModal(true);
+                                setShowKeyDetailVaultModal(true);
+                                setKeyDetailVaultKey("");
+                                setShowKeyDetailVaultKey(false);
                               }}
                             >
-                              <td className="py-3 px-3 sm:py-4 sm:px-6 font-bold text-sm sm:text-lg">
+                              <td className="py-6 px-3 sm:py-8 sm:px-6 font-bold text-sm sm:text-lg">
                                 {key.serialNo}
                               </td>
-                              <td className="py-3 px-3 sm:py-4 sm:px-6 text-gray-700 font-semibold text-xs sm:text-base">
+                              <td className="py-6 px-3 sm:py-8 sm:px-6 text-gray-700 font-semibold text-xs sm:text-base">
                                 {key.keyName}
                               </td>
-                              <td className="py-3 px-3 sm:py-4 sm:px-6 text-gray-700 text-xs sm:text-base hidden sm:table-cell">
+                              <td className="py-6 px-3 sm:py-8 sm:px-6 text-gray-700 text-xs sm:text-base hidden sm:table-cell">
                                 {key.storeDate}
                               </td>
-                              <td className="py-3 px-3 sm:py-4 sm:px-6 text-gray-700 text-xs sm:text-base hidden md:table-cell">
+                              <td className="py-6 px-3 sm:py-8 sm:px-6 text-gray-700 text-xs sm:text-base hidden md:table-cell">
                                 {key.storedBy}
                               </td>
-                              <td className="py-3 px-3 sm:py-4 sm:px-6">
+                              <td className="py-6 px-3 sm:py-8 sm:px-6">
                                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2">
                                   <span className="font-mono text-xs sm:text-sm bg-gray-100 px-1 sm:px-2 py-1 rounded break-all">
                                     {key.isEncrypted
-                                      ? key.encryptedKey || "••••••••••••••••"
+                                      ? key.encryptedKey &&
+                                        key.encryptedKey.length > 2
+                                        ? key.encryptedKey.substring(0, 2) +
+                                          "..."
+                                        : key.encryptedKey || "••••••••••••••••"
+                                      : key.key.length > 2
+                                      ? key.key.substring(0, 2) + "..."
                                       : key.key}
                                   </span>
                                   <span
@@ -1232,7 +1312,7 @@ function APIKeysContent() {
                                   </span>
                                 </div>
                               </td>
-                              <td className="py-3 px-3 sm:py-4 sm:px-6">
+                              <td className="py-6 px-3 sm:py-8 sm:px-6">
                                 <span
                                   className={`px-2 py-1 rounded-full text-xs font-semibold ${
                                     key.status === "Active"
@@ -1243,7 +1323,7 @@ function APIKeysContent() {
                                   {key.status || "Active"}
                                 </span>
                               </td>
-                              <td className="py-3 px-3 sm:py-4 sm:px-6">
+                              <td className="py-6 px-3 sm:py-8 sm:px-6">
                                 {key.isEncrypted ? (
                                   <button
                                     onClick={(e) => {
@@ -1285,7 +1365,9 @@ function APIKeysContent() {
                           className="bg-white rounded-xl shadow border border-gray-100 p-4 mb-4 flex flex-col cursor-pointer hover:bg-gray-50 transition-colors"
                           onClick={() => {
                             setSelectedKey(key);
-                            setShowKeyDetailModal(true);
+                            setShowKeyDetailVaultModal(true);
+                            setKeyDetailVaultKey("");
+                            setShowKeyDetailVaultKey(false);
                           }}
                         >
                           <div className="flex justify-between items-center mb-2">
@@ -1305,7 +1387,12 @@ function APIKeysContent() {
                           <div className="text-gray-500 text-sm mb-2">
                             <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded break-all">
                               {key.isEncrypted
-                                ? key.encryptedKey || "••••••••••••••••"
+                                ? key.encryptedKey &&
+                                  key.encryptedKey.length > 2
+                                  ? key.encryptedKey.substring(0, 2) + "..."
+                                  : key.encryptedKey || "••••••••••••••••"
+                                : key.key.length > 2
+                                ? key.key.substring(0, 2) + "..."
                                 : key.key}
                             </span>
                           </div>
