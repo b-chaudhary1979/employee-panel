@@ -87,6 +87,23 @@ body {
   }
 }
 
+@keyframes shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-7deg); }
+  20% { transform: rotate(7deg); }
+  40% { transform: rotate(-5deg); }
+  60% { transform: rotate(5deg); }
+  80% { transform: rotate(-3deg); }
+}
+
 /* Animation Classes */
 .animate-fade-in {
   animation: fade-in 0.8s ease-out;
@@ -106,6 +123,14 @@ body {
 
 .animate-bounce-in {
   animation: bounce-in 0.8s ease-out;
+}
+
+.animate-shake {
+  animation: shake 0.7s cubic-bezier(.36,.07,.19,.97) both infinite;
+}
+
+.animate-wiggle {
+  animation: wiggle 1s ease-in-out infinite;
 }
 
 /* Hover Effects */
