@@ -175,7 +175,7 @@ function PlaygroundContent() {
           >
             <div className="max-w-6xl mt-16 md:mt-6 mx-auto">
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#a259f7] tracking-tight animate-fade-in-up">
+                <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#7c3aed] tracking-tight animate-fade-in-up">
                   Instructions
                 </h2>
                 <button
@@ -500,7 +500,7 @@ function PlaygroundContent() {
                   </li>
                 </ol>
               </div>
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#a259f7] mb-8 tracking-tight animate-fade-in-up">
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#7c3aed] mb-8 tracking-tight animate-fade-in-up">
                 How to Use
               </h2>
               <div className="rounded-2xl bg-[#232136] p-8 shadow-xl border border-[#a259f7]/20">

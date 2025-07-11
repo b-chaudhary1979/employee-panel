@@ -59,7 +59,7 @@ function ProductDashboardContent() {
         <main className="w-full px-3 sm:px-8 py-8 sm:py-12 mt-20 sm:mt-16 md:py-10">
           <div className="w-full">
             <h1 className="text-3xl sm:text-5xl font-extrabold text-[#7c3aed] mb-2 pl-1 sm:pl-2">Product Dashboard</h1>
-            <p className="text-lg sm:text-2xl text-[#a259f7] mb-6 sm:mb-10 pl-1 sm:pl-2">Manage your product settings and configurations</p>
+            <p className="text-lg sm:text-2xl text-gray-500 mb-6 sm:mb-10 pl-1 sm:pl-2">Manage your product settings and configurations</p>
             {/* Premium horizontal options */}
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-8 sm:mb-12 w-full pl-0 sm:pl-2">
               <button

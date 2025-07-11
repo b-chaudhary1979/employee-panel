@@ -18,6 +18,7 @@ import { useSidebar } from "../context/SidebarContext";
 import { useRouter } from "next/router";
 import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
+import React from "react"; // Added missing import for React.cloneElement
 
 function UsersPermissionsContent() {
   const router = useRouter();
@@ -82,6 +83,75 @@ function UsersPermissionsContent() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Placeholder summary data
+  const summary = [
+    {
+      label: "Total Users",
+      value: "12,847",
+      change: "+12% vs last month",
+      iconBg: "bg-blue-500",
+      icon: (
+        <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z" fill="currentColor"/></svg>
+      ),
+      color: "text-blue-500"
+    },
+    {
+      label: "Active Users",
+      value: "11,203",
+      change: "+8% vs last month",
+      iconBg: "bg-green-500",
+      icon: (
+        <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z" fill="currentColor"/></svg>
+      ),
+      color: "text-green-500"
+    },
+    {
+      label: "VIP Customers",
+      value: "1,247",
+      change: "+15% vs last month",
+      iconBg: "bg-purple-500",
+      icon: (
+        <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z" fill="currentColor"/></svg>
+      ),
+      color: "text-purple-500"
+    },
+    {
+      label: "Suspended",
+      value: "397",
+      change: "-5% vs last month",
+      iconBg: "bg-red-500",
+      icon: (
+        <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z" fill="currentColor"/></svg>
+      ),
+      color: "text-red-500"
+    }
+  ];
+  // Placeholder user data
+  const users = [
+    {
+      initials: "JD",
+      name: "John Doe",
+      email: "john@example.com",
+      role: "Customer",
+      joinDate: "2023-12-15",
+      orders: 12,
+      spent: "$1249.85",
+      status: "Active",
+      lastLogin: "2024-01-15"
+    },
+    {
+      initials: "JS",
+      name: "Jane Smith",
+      email: "jane@example.com",
+      role: "Customer",
+      joinDate: "2023-11-20",
+      orders: 8,
+      spent: "$895.5",
+      status: "Active",
+      lastLogin: "2024-01-14"
+    }
+  ];
+
   // Only return after all hooks
   if (!ci || !aid) return null;
   if (loading) {
@@ -100,44 +170,90 @@ function UsersPermissionsContent() {
       )}
       <div className="bg-[#fbf9f4] min-h-screen flex relative">
         {/* Sidebar for desktop */}
-        <div
-          className="hidden sm:block fixed top-0 left-0 h-full z-40"
-          style={{ width: 270 }}
-        >
+        <div className="hidden sm:block fixed top-0 left-0 h-full z-40" style={{ width: 270 }}>
           <SideMenu />
         </div>
         {/* Sidebar for mobile (full screen overlay) */}
         {mobileSidebarOpen && (
           <div className="sm:hidden fixed inset-0 z-50 bg-white">
-            <button
-              className="absolute top-4 right-4 z-60 text-3xl text-gray-500"
-              aria-label="Close sidebar"
-              onClick={handleMobileSidebarClose}
-            >
-              &times;
-            </button>
+            <button className="absolute top-4 right-4 z-60 text-3xl text-gray-500" aria-label="Close sidebar" onClick={handleMobileSidebarClose}>&times;</button>
             <SideMenu mobileOverlay={true} />
           </div>
         )}
         {/* Main content area */}
-        <div
-          className="flex-1 flex flex-col min-h-screen transition-all duration-300"
-          style={{ marginLeft: getContentMarginLeft() }}
-        >
+        <div className="flex-1 flex flex-col min-h-screen transition-all duration-300" style={{ marginLeft: getContentMarginLeft() }}>
           {/* Header */}
-          <Header
-            ref={headerRef}
-            onMobileSidebarToggle={handleMobileSidebarToggle}
-            mobileSidebarOpen={mobileSidebarOpen}
-            username={user?.name || "admin"}
-            companyName={user?.company || "company name"}
-          />
-          <main
-            className="transition-all duration-300 px-2 sm:px-8 py-12 md:py-6"
-            style={{ marginLeft: 0, paddingTop: headerHeight + 16 }}
-          >
+          <Header ref={headerRef} onMobileSidebarToggle={handleMobileSidebarToggle} mobileSidebarOpen={mobileSidebarOpen} username={user?.name || "admin"} companyName={user?.company || "company name"} />
+          <main className="transition-all duration-300 px-2 sm:px-8 py-12 md:py-6" style={{ marginLeft: 0, paddingTop: headerHeight + 16 }}>
             <div className="max-w-6xl mx-auto">
-              <h1 className="text-2xl font-bold">Users and Permissions</h1>
+              <h1 className="text-3xl font-extrabold text-[#7c3aed] mb-1">User Management</h1>
+              <p className="text-gray-500 text-lg mb-6">Manage customer accounts and user permissions</p>
+              {/* Summary cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                {summary.map((item, idx) => (
+                  <div key={item.label} className="bg-white rounded-xl shadow border border-gray-100 p-4 flex items-center gap-3">
+                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${item.iconBg}`}>{React.cloneElement(item.icon, { className: 'w-5 h-5 text-white' })}</div>
+                    <div>
+                      <div className="text-lg font-bold text-gray-900">{item.value}</div>
+                      <div className="text-gray-500 text-sm font-semibold">{item.label}</div>
+                      <div className="text-green-600 text-xs font-semibold">{item.change}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Search and filter bar */}
+              <div className="flex flex-col md:flex-row gap-3 mb-4 items-center bg-white p-3 rounded-xl shadow border border-gray-100">
+                <input type="text" placeholder="Search users by name, email, or ID..." className="flex-1 px-3 py-2 rounded-lg border text-gray-500 border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-base" />
+                <select className="px-3 py-2 text-gray-500 rounded-lg border border-gray-200 text-base"><option>All Roles</option></select>
+                <select className="px-3 py-2 text-gray-500 rounded-lg border border-gray-200 text-base"><option>All Status</option></select>
+                <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-base text-gray-700 hover:bg-gray-50"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" stroke="#a259f7" strokeWidth="2" strokeLinecap="round"/></svg>Filter</button>
+              </div>
+              {/* User table */}
+              <div className="bg-white rounded-xl shadow border border-gray-100 overflow-x-auto">
+                <table className="min-w-full text-left text-sm">
+                  <thead>
+                    <tr className="text-gray-500 font-semibold border-b text-xs">
+                      <th className="py-3 px-4">USER</th>
+                      <th className="py-3 px-4">ROLE</th>
+                      <th className="py-3 px-4">JOIN DATE</th>
+                      <th className="py-3 px-4">ORDERS</th>
+                      <th className="py-3 px-4">TOTAL SPENT</th>
+                      <th className="py-3 px-4">STATUS</th>
+                      <th className="py-3 px-4">LAST LOGIN</th>
+                      <th className="py-3 px-4">ACTIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((user, idx) => (
+                      <tr key={user.email} className="border-b hover:bg-gray-50 transition">
+                        <td className="py-3 px-4 flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-base">{user.initials}</div>
+                          <div>
+                            <div className="font-bold text-base text-gray-900">{user.name}</div>
+                            <div className="text-gray-400 text-xs">{user.email}</div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="inline-block px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold">{user.role}</span>
+                        </td>
+                        <td className="py-3 px-4 text-gray-700">{user.joinDate}</td>
+                        <td className="py-3 px-4 text-gray-700">{user.orders}</td>
+                        <td className="py-3 px-4 font-bold text-gray-900">{user.spent}</td>
+                        <td className="py-3 px-4">
+                          <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">{user.status}</span>
+                        </td>
+                        <td className="py-3 px-4 text-gray-700">{user.lastLogin}</td>
+                        <td className="py-3 px-4 flex gap-2 items-center">
+                          <button className="text-purple-500 hover:text-purple-700" title="View"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M12 5c-7 0-9 7-9 7s2 7 9 7 9-7 9-7-2-7-9-7zm0 10a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" strokeWidth="2"/></svg></button>
+                          <button className="text-green-500 hover:text-green-700" title="Message"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" strokeWidth="2"/></svg></button>
+                          <button className="text-blue-500 hover:text-blue-700" title="Edit"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a4 4 0 01-1.414.828l-4.243 1.414 1.414-4.243a4 4 0 01.828-1.414z" stroke="currentColor" strokeWidth="2"/></svg></button>
+                          <button className="text-red-500 hover:text-red-700" title="Suspend"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M6 7h12M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3m2 0v12a2 2 0 01-2 2H8a2 2 0 01-2-2V7h12z" stroke="currentColor" strokeWidth="2"/></svg></button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </main>
         </div>

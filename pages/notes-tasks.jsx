@@ -606,7 +606,7 @@ function NotesTasksContent() {
             <div className="pl-4">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 mb-1">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#7c3aed] mb-1">
                     Notes and Tasks
                   </h1>
                   <p className="text-gray-500 text-sm sm:text-base md:text-lg">
