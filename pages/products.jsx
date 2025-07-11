@@ -269,17 +269,13 @@ function ProductsContent() {
             style={{ marginLeft: 0, paddingTop: headerHeight + 16 }}
           >
             <div className="max-w-6xl mx-auto">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h1 className="text-3xl font-extrabold text-gray-900 mb-1">
-                    Product Management
-                  </h1>
-                  <p className="text-gray-500 text-lg">
-                    Manage your eyewear inventory and product catalog
-                  </p>
+                  <h1 className="text-3xl font-extrabold text-[#7c3aed]  mb-1">Product Management</h1>
+                  <p className="text-gray-500 text-lg">Manage your eyewear inventory and product catalog</p>
                 </div>
                 <button
-                  className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold py-3 px-6 rounded-lg shadow text-lg flex items-center gap-2"
+                  className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold py-2 px-4 rounded-lg shadow text-base flex items-center gap-2"
                   onClick={() =>
                     router.push({
                       pathname: "/product-dashboard",
@@ -287,24 +283,24 @@ function ProductsContent() {
                     })
                   }
                 >
-                  <span className="text-2xl font-bold">+</span> Add Product
+                  <span className="text-xl font-bold">+</span> Add Product
                 </button>
               </div>
               {/* Search and Filters */}
-              <div className="flex flex-col sm:flex-row gap-4 mb-6 items-center bg-white p-4 rounded-xl shadow border border-gray-100">
+              <div className="flex flex-col sm:flex-row gap-3 mb-4 items-center bg-white p-3 rounded-xl shadow border border-gray-100">
                 <input
                   type="text"
                   placeholder="Search products, brands, categories..."
-                  className="flex-1 px-4 py-3 rounded-lg border text-gray-500 border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg"
+                  className="flex-1 px-3 py-2 rounded-lg border text-gray-500 border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-base"
                 />
-                <select className="px-4 py-3 text-gray-500 rounded-lg border border-gray-200 text-lg">
+                <select className="px-3 py-2 text-gray-500 rounded-lg border border-gray-200 text-base">
                   <option>All Categories</option>
                 </select>
-                <select className="px-4 py-3 text-gray-500  rounded-lg border border-gray-200 text-lg">
+                <select className="px-3 py-2 text-gray-500 rounded-lg border border-gray-200 text-base">
                   <option>All Status</option>
                 </select>
-                <button className="flex items-center gap-2 px-4 py-3 rounded-lg border border-gray-200 text-lg text-gray-700 hover:bg-gray-50">
-                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-base text-gray-700 hover:bg-gray-50">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
                     <path
                       d="M3 6h18M3 12h18M3 18h18"
                       stroke="#a259f7"
@@ -316,17 +312,17 @@ function ProductsContent() {
                 </button>
               </div>
               {/* Product Table */}
-              <div className="bg-white rounded-2xl shadow border border-gray-100 overflow-x-auto">
-                <table className="min-w-full text-left">
+              <div className="bg-white rounded-xl shadow border border-gray-100 overflow-x-auto">
+                <table className="min-w-full text-left text-sm">
                   <thead>
-                    <tr className="text-gray-500 text-base font-semibold border-b">
-                      <th className="py-4 px-6">PRODUCT</th>
-                      <th className="py-4 px-6">BRAND</th>
-                      <th className="py-4 px-6">PRICE</th>
-                      <th className="py-4 px-6">STOCK</th>
-                      <th className="py-4 px-6">CATEGORY</th>
-                      <th className="py-4 px-6">STATUS</th>
-                      <th className="py-4 px-6">ACTIONS</th>
+                    <tr className="text-gray-500 font-semibold border-b text-xs">
+                      <th className="py-3 px-4">PRODUCT</th>
+                      <th className="py-3 px-4">BRAND</th>
+                      <th className="py-3 px-4">PRICE</th>
+                      <th className="py-3 px-4">STOCK</th>
+                      <th className="py-3 px-4">CATEGORY</th>
+                      <th className="py-3 px-4">STATUS</th>
+                      <th className="py-3 px-4">ACTIONS</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -335,12 +331,12 @@ function ProductsContent() {
                         key={product.id}
                         className="border-b hover:bg-gray-50 transition"
                       >
-                        <td className="py-4 px-6 flex items-center gap-4">
-                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <td className="py-3 px-4 flex items-center gap-3">
+                          <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center">
                             {/* Placeholder for image */}
                             <svg
-                              width="24"
-                              height="24"
+                              width="18"
+                              height="18"
                               fill="none"
                               viewBox="0 0 24 24"
                             >
@@ -354,22 +350,22 @@ function ProductsContent() {
                             </svg>
                           </div>
                           <div>
-                            <div className="font-bold text-lg text-gray-900">
+                            <div className="font-bold text-base text-gray-900">
                               {product.name}
                             </div>
-                            <div className="text-gray-400 text-sm">
+                            <div className="text-gray-400 text-xs">
                               ID: #{product.id}
                             </div>
                           </div>
                         </td>
-                        <td className="py-4 px-6 text-gray-700 font-medium">
+                        <td className="py-3 px-4 text-gray-700 font-medium">
                           {product.brand}
                         </td>
-                        <td className="py-4 px-6 font-bold text-gray-900">
+                        <td className="py-3 px-4 font-bold text-gray-900">
                           ${product.price.toFixed(2)}
                         </td>
                         <td
-                          className={`py-4 px-6 font-semibold ${
+                          className={`py-3 px-4 font-semibold ${
                             product.stock > 20
                               ? "text-green-600"
                               : "text-orange-500"
@@ -377,22 +373,22 @@ function ProductsContent() {
                         >
                           {product.stock} units
                         </td>
-                        <td className="py-4 px-6 text-gray-700">
+                        <td className="py-3 px-4 text-gray-700">
                           {product.category}
                         </td>
-                        <td className="py-4 px-6">
-                          <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-700">
+                        <td className="py-3 px-4">
+                          <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">
                             {product.status}
                           </span>
                         </td>
-                        <td className="py-4 px-6 flex gap-4 items-center">
+                        <td className="py-3 px-4 flex gap-2 items-center">
                           <button
                             className="text-[#a259f7] hover:text-[#7c3aed]"
                             title="View"
                           >
                             <svg
-                              width="20"
-                              height="20"
+                              width="16"
+                              height="16"
                               fill="none"
                               viewBox="0 0 24 24"
                             >

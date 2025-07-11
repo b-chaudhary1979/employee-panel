@@ -96,6 +96,19 @@ const menuItems = [
       </svg>
     ),
   },
+  // Data menu item
+  {
+    label: "Data",
+    route: "/data",
+    icon: (isActive) => (
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+        <rect x="3" y="7" width="18" height="10" rx="2" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" fill="none" />
+        <rect x="7" y="11" width="2" height="2" rx="1" fill={isActive ? "#a259f7" : "#222"} />
+        <rect x="11" y="11" width="2" height="2" rx="1" fill={isActive ? "#a259f7" : "#222"} />
+        <rect x="15" y="11" width="2" height="2" rx="1" fill={isActive ? "#a259f7" : "#222"} />
+      </svg>
+    ),
+  },
   {
     label: "Employees",
     route: "/employees",
@@ -129,7 +142,7 @@ const menuItems = [
     ),
   },
   {
-    label: "Users and Permissions",
+    label: "Users",
     route: "/users-permissions",
     icon: (isActive) => (
       <svg
@@ -307,7 +320,20 @@ export default function SideMenu({ mobileOverlay = false }) {
 
   return (
     <>
-      <style>{bounceKeyframes + underlineKeyframes}</style>
+      <style>{bounceKeyframes + underlineKeyframes + `
+  nav::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+  }
+  nav::-webkit-scrollbar-thumb {
+    background:rgb(167, 100, 234); /* Tailwind purple-500 */
+    border-radius: 6px;
+  }
+  nav {
+    scrollbar-color:rgb(183, 138, 235) transparent;
+    scrollbar-width: thin;
+  }
+`}</style>
 
       <aside
         className={`fixed top-0 left-0 h-full z-40 transition-all duration-300 bg-white shadow flex flex-col ${sidebarWidthClass} border-r border-gray-100`}
@@ -414,6 +440,12 @@ export default function SideMenu({ mobileOverlay = false }) {
               ? "gap-1 mt-3 px-2"
               : "gap-0 mt-2 px-0 items-center"
           }`}
+          style={{
+            overflowY: "auto",
+            overflowX: "hidden", // Prevent horizontal scrollbar
+            scrollbarWidth: "thin",
+            maxHeight: "100vh"
+          }}
         >
           {menuItems.map((item, idx) => {
             const isActive = router.pathname === item.route;
