@@ -514,6 +514,24 @@ export default function SideMenu({ mobileOverlay = false }) {
             );
           })}
         </nav>
+        {/* Footer */}
+        {(!mobileOverlay && isOpen) || mobileOverlay ? (
+          <div
+            className={`px-4 py-3 text-xs text-gray-500 flex flex-col items-center justify-center ${mobileOverlay ? '' : isOpen ? '' : 'px-0'}`}
+            style={{ borderTop: '1px solid #f3e8ff', marginTop: 'auto' }}
+          >
+            <span className="font-semibold" style={{ color: '#a259f7' }}>
+              <a href="https://cyberclipper.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#a259f7', textDecoration: 'underline', cursor: 'pointer' }}>
+                Powered by CyberClipper Solutions LLP.
+              </a>
+            </span>
+            <span className="flex items-center gap-1 mt-1">
+              Made with
+              <span style={{ color: 'red', fontSize: '1.1em', margin: '0 2px' }} role="img" aria-label="love">❤️</span>
+              in India
+            </span>
+          </div>
+        ) : null}
       </aside>
     </>
   );
