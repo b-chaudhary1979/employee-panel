@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
 import CryptoJS from "crypto-js";
+import Support from "../components/support";
 
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
 function decryptToken(token) {
@@ -363,6 +364,48 @@ function DashboardContent() {
                   </div>
                 </div>
               </div>
+
+              {/* Learn How to Use Section */}
+              <div className="w-full rounded-xl bg-gradient-to-r from-[#a259f7] to-[#b78aeb] shadow-md p-8 mt-10 flex flex-col items-center text-center">
+                <h2 className="text-2xl font-bold text-white mb-2">Learn How to Use the Admin Panel</h2>
+                <p className="text-white/90 mb-5 max-w-2xl">
+                  Explore the features and capabilities of your admin panel in a safe, interactive environment. Try out different options, see how things work, and become a pro at managing your company!
+                </p>
+                <button
+                  className="px-6 py-2 rounded-full font-semibold text-[#a259f7] bg-white hover:bg-gray-100 shadow transition-colors text-lg"
+                  onClick={() => router.push(`/playground${token ? `?token=${encodeURIComponent(token)}` : ''}`)}
+                >
+                  Learn More
+                </button>
+              </div>
+
+              {/* Terms & Privacy Section */}
+              <div className="w-full rounded-xl bg-white border border-gray-100 shadow-md p-8 mt-8 flex flex-col items-center text-center">
+                <h2 className="text-2xl font-bold mb-2" style={{ color: '#a259f7' }}>Terms & Privacy</h2>
+                <p className="text-gray-700 mb-2 max-w-2xl">
+                  We value your trust and are committed to protecting your data. Please take a moment to review our Terms of Service and Privacy Policy to understand your rights and responsibilities as an admin panel user.
+                </p>
+                <p className="text-gray-700 mb-6 max-w-2xl">
+                  Staying informed helps you make the most of our platform while ensuring your information is handled with care. Your privacy and security are our top priorities.
+                </p>
+                <div className="flex gap-4 flex-wrap justify-center">
+                  <button
+                    className="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-[#a259f7] to-[#b78aeb] hover:from-[#b78aeb] hover:to-[#a259f7] shadow transition-colors text-lg"
+                    onClick={() => router.push(`/terms${token ? `?token=${encodeURIComponent(token)}` : ''}`)}
+                  >
+                    Read Terms
+                  </button>
+                  <button
+                    className="px-6 py-2 rounded-full font-semibold text-[#a259f7] bg-white border border-[#a259f7] hover:bg-[#f5edff] shadow transition-colors text-lg"
+                    onClick={() => router.push(`/privacy${token ? `?token=${encodeURIComponent(token)}` : ''}`)}
+                  >
+                    Read Privacy Policy
+                  </button>
+                </div>
+              </div>
+
+              {/* Support Component */}
+              <Support />
             </div>
           </main>
         </div>
