@@ -9,6 +9,7 @@ import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
 import Head from "next/head";
 import { Edit, Trash2 } from "lucide-react";
+import useAnnouncements from "../hooks/useAnnouncements";
 
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
 function decryptToken(token) {
@@ -20,6 +21,54 @@ function decryptToken(token) {
   } catch {
     return { ci: null, aid: null };
   }
+}
+
+// Add EditToggle component (slider style) if not already present
+function EditToggle({ value, onChange }) {
+  return (
+    <div className="flex flex-col items-center" style={{ marginLeft: '-28px' }}>
+      <div className="flex items-center">
+        <button
+          type="button"
+          className={`relative w-14 h-8 flex items-center rounded-full transition-colors duration-300 focus:outline-none shadow ${value ? 'bg-green-500' : 'bg-red-500'}`}
+          onClick={() => onChange(!value)}
+          aria-label="Toggle Edit"
+          style={{ transition: 'background 0.3s cubic-bezier(.4,2,.6,1)' }}
+        >
+          <span
+            className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-transform duration-300`}
+            style={{ left: value ? 'calc(100% - 2rem)' : '0.25rem', transition: 'left 0.3s cubic-bezier(.4,2,.6,1)' }}
+          />
+        </button>
+        <span className={`ml-3 text-sm font-bold ${value ? 'text-green-600' : 'text-red-600'}`}>{value ? 'ON' : 'OFF'}</span>
+      </div>
+      <span className={`mt-1 text-xs font-bold ${value ? 'text-green-600' : 'text-red-600'}`}>{value ? 'Edit is ON' : 'Edit is OFF'}</span>
+    </div>
+  );
+}
+
+// Add StatusSwitch component for active/inactive toggle if not already present
+function StatusSwitch({ value, onChange, disabled }) {
+  return (
+    <div className="flex flex-col items-center">
+      <div className="flex items-center">
+        <button
+          type="button"
+          className={`relative w-14 h-8 flex items-center rounded-full transition-colors duration-300 focus:outline-none shadow ${value === 'published' ? 'bg-green-500' : 'bg-red-500'}`}
+          onClick={() => !disabled && onChange(value === 'published' ? 'not published' : 'published')}
+          aria-label="Toggle Status"
+          style={{ transition: 'background 0.3s cubic-bezier(.4,2,.6,1)' }}
+          disabled={disabled}
+        >
+          <span
+            className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-transform duration-300`}
+            style={{ left: value === 'published' ? 'calc(100% - 2rem)' : '0.25rem', transition: 'left 0.3s cubic-bezier(.4,2,.6,1)' }}
+          />
+        </button>
+        <span className={`ml-3 text-sm font-bold ${value === 'published' ? 'text-green-600' : 'text-red-600'}`}>{value === 'published' ? 'Active' : 'Inactive'}</span>
+      </div>
+    </div>
+  );
 }
 
 function AnnouncementsContent() {
@@ -46,62 +95,49 @@ function AnnouncementsContent() {
   /** announcement form state **/
   const [form, setForm] = useState({
     title: "",
+    subtitle: "",
     type: "information", // warning, information, urgent
     content: "",
+    link: "",
+    image: "",
+    audience: "",
+    expiryDate: "",
+    tags: "",
   });
 
   /** form validation state **/
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Mock announcements data
-  const [announcements, setAnnouncements] = useState([
-    {
-      id: "ANN001",
-      title: "System Maintenance Notice",
-      type: "warning",
-      content:
-        "Scheduled maintenance will occur on Saturday from 2-4 AM. Some services may be temporarily unavailable.",
-      status: "published",
-      views: 45,
-      createdAt: "2024-01-15T10:30:00",
-      author: "Admin",
-    },
-    {
-      id: "ANN002",
-      title: "New Feature Release",
-      type: "information",
-      content:
-        "We're excited to announce the release of our new dashboard features. Check out the updated interface!",
-      status: "published",
-      views: 89,
-      createdAt: "2024-01-14T14:20:00",
-      author: "Admin",
-    },
-    {
-      id: "ANN003",
-      title: "Security Alert",
-      type: "urgent",
-      content:
-        "Important security update required. Please update your passwords and enable 2FA immediately.",
-      status: "draft",
-      views: 0,
-      createdAt: "2024-01-13T09:15:00",
-      author: "Admin",
-    },
-  ]);
+  // Add state for edit modal
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editAnnouncement, setEditAnnouncement] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  // Add state for custom Q&A in form and edit modal
+  const [customQA, setCustomQA] = useState([{ question: "", answer: "" }]);
+  const [editCustomQA, setEditCustomQA] = useState([{ question: "", answer: "" }]);
 
-  // Summary stats
+  // Add state for confirmation modals
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [confirmPublishId, setConfirmPublishId] = useState(null);
+  const [confirmStatusId, setConfirmStatusId] = useState(null);
+  const [pendingStatus, setPendingStatus] = useState(null);
+
+  const { announcements, loading: loadingAnnouncements, error: announcementsError, addAnnouncement, updateAnnouncement, deleteAnnouncement } = useAnnouncements(ci);
+
+  // Summary stats (dynamic)
   const totalAnnouncements = announcements.length;
-  const activeAnnouncements = announcements.filter(
-    (a) => a.status === "published"
-  ).length;
-  const totalViews = announcements.reduce((sum, a) => sum + a.views, 0);
+  const activeAnnouncements = announcements.filter(a => a.status === 'published' || a.active).length;
+  const totalViews = announcements.reduce((sum, a) => sum + (a.views || 0), 0);
 
   const types = [
     { value: "warning", label: "Warning", color: "yellow" },
     { value: "information", label: "Information", color: "blue" },
     { value: "urgent", label: "Urgent", color: "red" },
+    { value: "event", label: "Event", color: "purple" },
+    { value: "reminder", label: "Reminder", color: "green" },
+    { value: "promotion", label: "Promotion", color: "pink" },
+    { value: "other", label: "Other", color: "gray" },
   ];
 
   // Validation function
@@ -159,22 +195,16 @@ function AnnouncementsContent() {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Create new announcement
-      const newAnnouncement = {
-        id: `ANN${String(announcements.length + 1).padStart(3, "0")}`,
-        title: form.title,
-        type: form.type,
-        content: form.content,
-        status: action,
+      const status = action === "publish" ? "published" : "not published";
+      await addAnnouncement({
+        ...form,
+        status,
+        active: status === 'published',
+        customQA,
         views: 0,
         createdAt: new Date().toISOString(),
         author: user?.name || "Admin",
-      };
-
-      setAnnouncements((prev) => [newAnnouncement, ...prev]);
+      });
 
       // Show success message
       showNotification(
@@ -187,9 +217,16 @@ function AnnouncementsContent() {
       // Reset form
       setForm({
         title: "",
+        subtitle: "",
         type: "information",
         content: "",
+        link: "",
+        image: "",
+        audience: "",
+        expiryDate: "",
+        tags: "",
       });
+      setCustomQA([{ question: "", answer: "" }]);
 
       // Clear errors
       setErrors({});
@@ -267,6 +304,21 @@ function AnnouncementsContent() {
         );
     }
   };
+
+  // Helper to get a valid date string from Firestore Timestamp or string
+  function getAnnouncementDate(createdAt) {
+    if (!createdAt) return 'N/A';
+    // Firestore Timestamp object
+    if (typeof createdAt === 'object' && createdAt.seconds) {
+      return new Date(createdAt.seconds * 1000).toLocaleDateString();
+    }
+    // ISO string or other string
+    const date = new Date(createdAt);
+    if (!isNaN(date.getTime())) {
+      return date.toLocaleDateString();
+    }
+    return 'N/A';
+  }
 
   /* ───────────────────────────────────────── hooks ───────────────────────────────────────── */
   useEffect(() => {
@@ -592,6 +644,121 @@ function AnnouncementsContent() {
                     </div>
                   </div>
 
+                  {/* Subtitle */}
+                  <div>
+                    <label className="block text-lg font-semibold text-gray-700 mb-2">Subtitle</label>
+                    <input
+                      type="text"
+                      value={form.subtitle}
+                      onChange={(e) => handleInputChange("subtitle", e.target.value)}
+                      className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg text-gray-900"
+                      placeholder="Enter subtitle here..."
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  {/* Link */}
+                  <div>
+                    <label className="block text-lg font-semibold text-gray-700 mb-2">Link</label>
+                    <input
+                      type="text"
+                      value={form.link}
+                      onChange={(e) => handleInputChange("link", e.target.value)}
+                      className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg text-gray-900"
+                      placeholder="Enter link (optional)"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  {/* Image */}
+                  <div>
+                    <label className="block text-lg font-semibold text-gray-700 mb-2">Image URL</label>
+                    <input
+                      type="text"
+                      value={form.image}
+                      onChange={(e) => handleInputChange("image", e.target.value)}
+                      className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg text-gray-900"
+                      placeholder="Paste image URL (optional)"
+                      disabled={isSubmitting}
+                    />
+                    {form.image && (
+                      <img src={form.image} alt="Announcement" className="max-h-32 rounded-lg border mt-2" />
+                    )}
+                  </div>
+                  {/* Audience */}
+                  <div>
+                    <label className="block text-lg font-semibold text-gray-700 mb-2">Audience</label>
+                    <input
+                      type="text"
+                      value={form.audience}
+                      onChange={(e) => handleInputChange("audience", e.target.value)}
+                      className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg text-gray-900"
+                      placeholder="Target audience (optional)"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  {/* Expiry Date */}
+                  <div>
+                    <label className="block text-lg font-semibold text-gray-700 mb-2">Expiry Date</label>
+                    <input
+                      type="date"
+                      value={form.expiryDate}
+                      onChange={(e) => handleInputChange("expiryDate", e.target.value)}
+                      className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg text-gray-900"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  {/* Tags */}
+                  <div>
+                    <label className="block text-lg font-semibold text-gray-700 mb-2">Tags</label>
+                    <input
+                      type="text"
+                      value={form.tags}
+                      onChange={(e) => handleInputChange("tags", e.target.value)}
+                      className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg text-gray-900"
+                      placeholder="Comma separated tags (optional)"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  {/* Custom Q&A */}
+                  <div>
+                    <label className="block text-lg font-semibold text-gray-700 mb-2">Custom Q&A</label>
+                    {customQA.map((qa, idx) => (
+                      <div key={idx} className="flex flex-col md:flex-row gap-2 mb-2">
+                        <input
+                          type="text"
+                          placeholder="Question"
+                          value={qa.question}
+                          onChange={e => {
+                            const updatedQA = [...customQA];
+                            updatedQA[idx].question = e.target.value;
+                            setCustomQA(updatedQA);
+                          }}
+                          className="flex-1 border rounded px-3 py-2 placeholder-gray-500 text-gray-800"
+                          disabled={isSubmitting}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Answer"
+                          value={qa.answer}
+                          onChange={e => {
+                            const updatedQA = [...customQA];
+                            updatedQA[idx].answer = e.target.value;
+                            setCustomQA(updatedQA);
+                          }}
+                          className="flex-1 border rounded px-3 py-2 placeholder-gray-500 text-gray-800"
+                          disabled={isSubmitting}
+                        />
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setCustomQA([...customQA, { question: "", answer: "" }])}
+                      className="mt-2 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                      disabled={isSubmitting}
+                    >
+                      + Add Custom Q&A
+                    </button>
+                  </div>
+
                   {/* Action buttons */}
                   <div className="flex gap-3 justify-start pt-4">
                     <button
@@ -665,15 +832,34 @@ function AnnouncementsContent() {
                                   announcement.type.slice(1)}
                               </span>
                             </div>
+                            <StatusSwitch
+                              value={announcement.status || (announcement.active ? 'published' : 'not published')}
+                              onChange={status => {
+                                setConfirmStatusId(announcement.id);
+                                setPendingStatus(status);
+                              }}
+                              disabled={false}
+                            />
                           </div>
                           <div className="flex items-center gap-4 mt-1"></div>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <button className="text-blue-500 hover:text-blue-700 p-2 rounded-full hover:bg-blue-50 transition-colors border border-blue-200 hover:border-blue-300">
+                        <button
+                          className="text-blue-500 hover:text-blue-700 p-2 rounded-full hover:bg-blue-50 transition-colors border border-blue-200 hover:border-blue-300"
+                          onClick={() => {
+                            setEditAnnouncement(announcement);
+                            setEditCustomQA(announcement.customQA || [{ question: "", answer: "" }]);
+                            setShowEditModal(true);
+                            setEditMode(false);
+                          }}
+                        >
                           <Edit size={23} />
                         </button>
-                        <button className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-colors border border-red-200 hover:border-red-300">
+                        <button
+                          className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-colors border border-red-200 hover:border-red-300"
+                          onClick={() => setConfirmDeleteId(announcement.id)}
+                        >
                           <Trash2 size={23} />
                         </button>
                       </div>
@@ -686,9 +872,7 @@ function AnnouncementsContent() {
                     <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                       <div className="flex items-center gap-4 text-sm text-gray-500">
                         <span>
-                          {new Date(
-                            announcement.createdAt
-                          ).toLocaleDateString()}
+                          {getAnnouncementDate(announcement.createdAt)}
                         </span>
                         <span className="flex items-center gap-1">
                           <svg
@@ -718,14 +902,15 @@ function AnnouncementsContent() {
                               : "bg-gray-100 text-gray-700"
                           }`}
                         >
-                          {announcement.status === "published"
-                            ? "Published"
-                            : "Draft"}
+                          {announcement.status === "published" ? "Published" : "Not Published"}
                         </span>
                       </div>
                       <div>
-                        {announcement.status === "draft" && (
-                          <button className="px-4 py-2 bg-[#a259f7] hover:bg-[#7c3aed] text-white rounded-lg text-sm font-semibold transition-colors">
+                        {announcement.status === "not published" && (
+                          <button
+                            className="px-4 py-2 bg-[#a259f7] hover:bg-[#7c3aed] text-white rounded-lg text-sm font-semibold transition-colors"
+                            onClick={() => setConfirmPublishId(announcement.id)}
+                          >
                             Publish Now
                           </button>
                         )}
@@ -738,6 +923,301 @@ function AnnouncementsContent() {
           </main>
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {showEditModal && editAnnouncement && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur">
+          <div className="relative w-full max-w-xl mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] border-2 border-purple-500">
+            <button
+              className="absolute top-1 right-3 text-gray-400 hover:text-black text-4xl"
+              onClick={() => { setShowEditModal(false); setEditMode(false); }}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-purple-700">Edit Announcement</h2>
+              <EditToggle value={editMode} onChange={setEditMode} />
+            </div>
+            <form
+              className="flex flex-col gap-4"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const { id, ...updateData } = editAnnouncement;
+                await updateAnnouncement(editAnnouncement.id, { ...updateData, customQA: editCustomQA });
+                setShowEditModal(false);
+                setEditMode(false);
+              }}
+            >
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Title</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
+                  value={editAnnouncement.title || ""}
+                  onChange={e => setEditAnnouncement({ ...editAnnouncement, title: e.target.value })}
+                  required
+                  disabled={!editMode}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Subtitle</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
+                  value={editAnnouncement.subtitle || ""}
+                  onChange={e => setEditAnnouncement({ ...editAnnouncement, subtitle: e.target.value })}
+                  disabled={!editMode}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Type</label>
+                <select
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black bg-white"
+                  value={editAnnouncement.type || "information"}
+                  onChange={e => setEditAnnouncement({ ...editAnnouncement, type: e.target.value })}
+                  disabled={!editMode}
+                >
+                  {types.map((type) => (
+                    <option key={type.value} value={type.value}>{type.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Content</label>
+                <textarea
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
+                  value={editAnnouncement.content || ""}
+                  onChange={e => setEditAnnouncement({ ...editAnnouncement, content: e.target.value })}
+                  rows={3}
+                  required
+                  disabled={!editMode}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Link</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
+                  value={editAnnouncement.link || ""}
+                  onChange={e => setEditAnnouncement({ ...editAnnouncement, link: e.target.value })}
+                  disabled={!editMode}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Image URL</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
+                  value={editAnnouncement.image || ""}
+                  onChange={e => setEditAnnouncement({ ...editAnnouncement, image: e.target.value })}
+                  disabled={!editMode}
+                />
+                {editAnnouncement.image && (
+                  <img src={editAnnouncement.image} alt="Announcement" className="max-h-32 rounded-lg border mt-2" />
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Audience</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
+                  value={editAnnouncement.audience || ""}
+                  onChange={e => setEditAnnouncement({ ...editAnnouncement, audience: e.target.value })}
+                  disabled={!editMode}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Expiry Date</label>
+                <input
+                  type="date"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
+                  value={editAnnouncement.expiryDate || ""}
+                  onChange={e => setEditAnnouncement({ ...editAnnouncement, expiryDate: e.target.value })}
+                  disabled={!editMode}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Tags</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
+                  value={editAnnouncement.tags || ""}
+                  onChange={e => setEditAnnouncement({ ...editAnnouncement, tags: e.target.value })}
+                  disabled={!editMode}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Custom Q&A</label>
+                {(editCustomQA || []).map((qa, idx) => (
+                  <div key={idx} className="flex flex-col md:flex-row gap-2 mb-2">
+                    <input
+                      type="text"
+                      placeholder="Question"
+                      value={qa.question}
+                      onChange={e => {
+                        if (!editMode) return;
+                        const updatedQA = [...editCustomQA];
+                        updatedQA[idx].question = e.target.value;
+                        setEditCustomQA(updatedQA);
+                      }}
+                      className="flex-1 border rounded px-3 py-2 placeholder-gray-500 text-gray-800"
+                      disabled={!editMode}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Answer"
+                      value={qa.answer}
+                      onChange={e => {
+                        if (!editMode) return;
+                        const updatedQA = [...editCustomQA];
+                        updatedQA[idx].answer = e.target.value;
+                        setEditCustomQA(updatedQA);
+                      }}
+                      className="flex-1 border rounded px-3 py-2 placeholder-gray-500 text-gray-800"
+                      disabled={!editMode}
+                    />
+                  </div>
+                ))}
+                {editMode && (
+                  <button
+                    type="button"
+                    onClick={() => setEditCustomQA([...(editCustomQA || []), { question: "", answer: "" }])}
+                    className="mt-2 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                  >
+                    + Add Custom Q&A
+                  </button>
+                )}
+              </div>
+              {editMode && (
+                <div className="flex gap-2 mt-6 justify-end">
+                  <button
+                    type="button"
+                    className="bg-red-500 hover:bg-red-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200"
+                    onClick={async () => {
+                      await deleteAnnouncement(editAnnouncement.id);
+                      setShowEditModal(false);
+                      setEditMode(false);
+                    }}
+                  >
+                    Delete Announcement
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200"
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    type="button"
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg px-4 py-2 transition-colors duration-200"
+                    onClick={() => { setShowEditModal(false); setEditMode(false); }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal for Delete */}
+      {confirmDeleteId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
+          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-4 text-red-600 flex items-center gap-2">
+              <Trash2 className="w-6 h-6 text-red-600" />
+              Confirm Delete
+            </h2>
+            <p className="mb-6 text-gray-700">
+              Are you sure you want to delete this announcement? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold"
+                onClick={() => setConfirmDeleteId(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white font-semibold"
+                onClick={async () => {
+                  await deleteAnnouncement(confirmDeleteId);
+                  setConfirmDeleteId(null);
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal for Publish */}
+      {confirmPublishId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
+          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-4 text-purple-600 flex items-center gap-2">
+              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              Confirm Publish
+            </h2>
+            <p className="mb-6 text-gray-700">
+              Are you sure you want to publish this announcement?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold"
+                onClick={() => setConfirmPublishId(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold"
+                onClick={async () => {
+                  await updateAnnouncement(confirmPublishId, { status: "published" });
+                  setConfirmPublishId(null);
+                }}
+              >
+                Publish
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal for Status Toggle */}
+      {confirmStatusId && pendingStatus && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
+          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-4 text-purple-600 flex items-center gap-2">
+              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              Confirm Status Change
+            </h2>
+            <p className="mb-6 text-gray-700">
+              Are you sure you want to change the status of this announcement to "{pendingStatus === 'published' ? 'Published' : 'Not Published'}"?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold"
+                onClick={() => { setConfirmStatusId(null); setPendingStatus(null); }}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold"
+                onClick={async () => {
+                  await updateAnnouncement(confirmStatusId, { status: pendingStatus, active: pendingStatus === 'published' });
+                  setConfirmStatusId(null);
+                  setPendingStatus(null);
+                }}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
