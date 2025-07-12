@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { SidebarProvider } from "../context/SidebarContext";
 import CryptoJS from "crypto-js";
 import Head from "next/head";
+import useStoreApiKeys from "../hooks/useStoreApiKeys";
+
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
 function decryptToken(token) {
   try {
@@ -36,6 +38,22 @@ function APIKeysContent() {
     message: "",
   });
 
+  // Use the API keys hook
+  const {
+    addKey,
+    importFromFile,
+    fetchKeys,
+    decryptKey: serverDecryptKey,
+    keys: dbKeys,
+    loading: apiKeysLoading,
+    error: apiKeysError,
+    fetchingKeys,
+  } = useStoreApiKeys(ci, user);
+
+  // Show loading state for API keys operations
+  const [isAddingKey, setIsAddingKey] = useState(false);
+  const [isImportingKeys, setIsImportingKeys] = useState(false);
+
   // Vault security state
   const [isVaultUnlocked, setIsVaultUnlocked] = useState(false);
   const [vaultKey, setVaultKey] = useState("");
@@ -45,7 +63,7 @@ function APIKeysContent() {
   const [isVaultLocked, setIsVaultLocked] = useState(false);
   const [lockoutUntil, setLockoutUntil] = useState(null);
 
-  // API keys data (in production, this will be fetched from database)
+  // API keys data from database
   const [apiKeys, setApiKeys] = useState([]);
 
   // Encryption/Decryption modal state
@@ -70,6 +88,16 @@ function APIKeysContent() {
   const [showAddKeyVaultKey, setShowAddKeyVaultKey] = useState(false);
   const [pendingAddKey, setPendingAddKey] = useState(null);
   const [addKeyError, setAddKeyError] = useState("");
+
+  // New fields state
+  const [description, setDescription] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [linkedProject, setLinkedProject] = useState("");
+  const [usageLimit, setUsageLimit] = useState("");
+  const [environment, setEnvironment] = useState("development");
+  const [platform, setPlatform] = useState("github");
+  const [customPlatform, setCustomPlatform] = useState("");
+  const [showCustomPlatform, setShowCustomPlatform] = useState(false);
 
   // Custom QA state
   const [customQA, setCustomQA] = useState([{ question: "", answer: "" }]);
@@ -171,57 +199,61 @@ function APIKeysContent() {
 
     setIsProcessing(true);
 
-    // Simulate processing delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      const selectedKey = apiKeys.find((key) => key.id === selectedKeyId);
+      if (!selectedKey) {
+        setNotification({
+          show: true,
+          message: "No key found.",
+        });
+        setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+        setIsProcessing(false);
+        return;
+      }
 
-    const selectedKey = apiKeys.find((key) => key.id === selectedKeyId);
-    if (!selectedKey || !selectedKey.encryptedKey) {
+      // Use server-side decryption
+      const decryptedKey = await serverDecryptKey(selectedKey.keyName, decryptionPassword);
+
+      if (!decryptedKey) {
+        setNotification({
+          show: true,
+          message: "Incorrect password. Decryption failed.",
+        });
+        setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+        setIsProcessing(false);
+        return;
+      }
+
+      setApiKeys((prevKeys) =>
+        prevKeys.map((key) =>
+          key.id === selectedKeyId
+            ? {
+                ...key,
+                key: decryptedKey,
+                isEncrypted: false,
+                isDecrypted: true,
+              }
+            : key
+        )
+      );
+
+      setShowDecryptModal(false);
+      setDecryptionPassword("");
+      setIsProcessing(false);
+
       setNotification({
         show: true,
-        message: "No encrypted key found.",
+        message: "API key decrypted successfully!",
+      });
+      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+    } catch (error) {
+      setNotification({
+        show: true,
+        message: `Decryption failed: ${error.message}`,
       });
       setTimeout(() => setNotification({ show: false, message: "" }), 3000);
       setIsProcessing(false);
-      return;
     }
-
-    const decryptedKey = decryptKey(
-      selectedKey.encryptedKey,
-      decryptionPassword
-    );
-
-    if (!decryptedKey) {
-      setNotification({
-        show: true,
-        message: "Incorrect password. Decryption failed.",
-      });
-      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
-      setIsProcessing(false);
-      return;
-    }
-
-    setApiKeys((prevKeys) =>
-      prevKeys.map((key) =>
-        key.id === selectedKeyId
-          ? {
-              ...key,
-              key: decryptedKey,
-              isEncrypted: false,
-              isDecrypted: true,
-            }
-          : key
-      )
-    );
-
-    setShowDecryptModal(false);
-    setDecryptionPassword("");
-    setIsProcessing(false);
-
-    setNotification({
-      show: true,
-      message: "API key decrypted successfully!",
-    });
-    setTimeout(() => setNotification({ show: false, message: "" }), 3000);
   };
 
   // Custom QA functions
@@ -235,6 +267,18 @@ function APIKeysContent() {
 
   const addCustomQA = () => {
     setCustomQA((prev) => [...prev, { question: "", answer: "" }]);
+  };
+
+  // Handle platform change
+  const handlePlatformChange = (e) => {
+    const value = e.target.value;
+    setPlatform(value);
+    if (value === "custom") {
+      setShowCustomPlatform(true);
+    } else {
+      setShowCustomPlatform(false);
+      setCustomPlatform("");
+    }
   };
 
   // Handle vault verification for key details
@@ -271,12 +315,18 @@ function APIKeysContent() {
       keyName: newKeyName.trim(),
       status: newKeyStatus,
       key: customKey,
+      description: description.trim(),
+      expiryDate: expiryDate,
+      linkedProject: linkedProject.trim(),
+      usageLimit: usageLimit ? parseInt(usageLimit) : null,
+      environment: environment,
+      platform: platform === "custom" ? customPlatform.trim() : platform,
     });
     setShowAddKeyEncryptModal(true);
   };
 
   // Actually add the key after vault key is provided and validated
-  const handleAddKeyEncrypt = (e) => {
+  const handleAddKeyEncrypt = async (e) => {
     e.preventDefault();
     setAddKeyError("");
     if (!addKeyVaultKey.trim() || !pendingAddKey) return;
@@ -285,34 +335,130 @@ function APIKeysContent() {
       setAddKeyError("Incorrect vault key. Please try again.");
       return;
     }
-    setApiKeys((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        serialNo: prev.length + 1,
+
+    setIsAddingKey(true);
+    try {
+      // Use the hook to add the key, passing vaultKey
+      await addKey({
         keyName: pendingAddKey.keyName,
-        storeDate: new Date().toISOString().slice(0, 10),
-        storedBy: user?.name || "admin",
-        key: "", // never store plaintext
-        encryptedKey: encryptKey(pendingAddKey.key, addKeyVaultKey),
+        rawKey: pendingAddKey.key,
+        status: pendingAddKey.status.toLowerCase(),
+        environment: pendingAddKey.environment || "development",
+        platform: pendingAddKey.platform,
+        description: pendingAddKey.description,
+        expiryDate: pendingAddKey.expiryDate,
+        linkedProject: pendingAddKey.linkedProject,
+        usageLimit: pendingAddKey.usageLimit,
+        vaultKey: addKeyVaultKey, // <-- pass vaultKey
+        custom: {
+          vaultKey: addKeyVaultKey,
+          customQA: customQA.filter((qa) => qa.question && qa.answer),
+        },
+      });
+
+      setShowAddKeyModal(false);
+      setShowAddKeyEncryptModal(false);
+      setNewKeyName("");
+      setNewKeyStatus("Active");
+      setCustomKey("");
+      setShowApiKey(false);
+      setCustomQA([{ question: "", answer: "" }]);
+      setAddKeyVaultKey("");
+      setPendingAddKey(null);
+      setAddKeyError("");
+      // Reset new fields
+      setDescription("");
+      setExpiryDate("");
+      setLinkedProject("");
+      setUsageLimit("");
+      setEnvironment("development");
+      setPlatform("github");
+      setCustomPlatform("");
+      setShowCustomPlatform(false);
+      setNotification({ show: true, message: "API key added and encrypted!" });
+      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+    } catch (error) {
+      setAddKeyError(error.message || "Failed to add key");
+      setNotification({
+        show: true,
+        message: `Error: ${error.message || "Failed to add key"}`,
+      });
+      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+    } finally {
+      setIsAddingKey(false);
+    }
+  };
+
+  // Handle file import
+  const handleFileImport = async (file) => {
+    setIsImportingKeys(true);
+    try {
+      await importFromFile(file);
+      setNotification({
+        show: true,
+        message: "API keys imported successfully!",
+      });
+      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+      setShowImportModal(false);
+    } catch (error) {
+      setNotification({
+        show: true,
+        message: `Import failed: ${error.message}`,
+      });
+      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+    } finally {
+      setIsImportingKeys(false);
+    }
+  };
+
+  // Show API keys error if any
+  useEffect(() => {
+    if (apiKeysError) {
+      setNotification({
+        show: true,
+        message: `API Keys Error: ${apiKeysError.message}`,
+      });
+      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+    }
+  }, [apiKeysError]);
+
+  // Fetch keys when vault is unlocked
+  useEffect(() => {
+    if (isVaultUnlocked && ci) {
+      fetchKeys().catch(console.error);
+    }
+  }, [isVaultUnlocked, ci, fetchKeys]);
+
+  // Update local state when database keys change
+  useEffect(() => {
+    if (dbKeys && dbKeys.length > 0) {
+      // Transform database keys to match local format
+      const transformedKeys = dbKeys.map((key, index) => ({
+        id: key.id || `key-${index}`,
+        serialNo: index + 1,
+        keyName: key.keyName,
+        storeDate: key.createdAt
+          ? new Date(key.createdAt).toISOString().slice(0, 10)
+          : new Date().toISOString().slice(0, 10),
+        storedBy: key.createdBy || user?.name || "admin",
+        key: "", // Never store plaintext keys
+        encryptedKey: key.encryptedKey,
         isEncrypted: true,
         isDecrypted: false,
-        status: pendingAddKey.status,
-      },
-    ]);
-    setShowAddKeyModal(false);
-    setShowAddKeyEncryptModal(false);
-    setNewKeyName("");
-    setNewKeyStatus("Active");
-    setCustomKey("");
-    setShowApiKey(false);
-    setCustomQA([{ question: "", answer: "" }]);
-    setAddKeyVaultKey("");
-    setPendingAddKey(null);
-    setAddKeyError("");
-    setNotification({ show: true, message: "API key added and encrypted!" });
-    setTimeout(() => setNotification({ show: false, message: "" }), 3000);
-  };
+        status: key.status || "Active",
+        environment: key.environment || "development",
+        platform: key.platform || "github",
+        description: key.description || "",
+        expiryDate: key.expiryDate || "",
+        linkedProject: key.linkedProject || "",
+        usageLimit: key.usageLimit || null,
+        custom: key.custom || {},
+      }));
+      setApiKeys(transformedKeys);
+    } else if (dbKeys && dbKeys.length === 0) {
+      setApiKeys([]);
+    }
+  }, [dbKeys, user]);
 
   // Check if vault is locked on component mount
   useEffect(() => {
@@ -598,7 +744,7 @@ function APIKeysContent() {
 
       {/* Decryption Modal */}
       {showDecryptModal && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center pointer-events-none p-4">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/10 backdrop-blur pointer-events-none p-4">
           <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg relative animate-fadeIn pointer-events-auto">
             <button
               className="absolute top-4 right-4 text-gray-400 hover:text-black text-2xl font-bold"
@@ -737,6 +883,103 @@ function APIKeysContent() {
                   </div>
                 </div>
 
+                {/* New Fields Section */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Environment
+                    </label>
+                    <select
+                      className="w-full border rounded px-3 py-2 text-gray-800"
+                      value={environment}
+                      onChange={(e) => setEnvironment(e.target.value)}
+                    >
+                      <option value="development">Development</option>
+                      <option value="staging">Staging</option>
+                      <option value="production">Production</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Platform
+                    </label>
+                    <select
+                      className="w-full border rounded px-3 py-2 text-gray-800"
+                      value={platform}
+                      onChange={handlePlatformChange}
+                    >
+                      <option value="github">GitHub</option>
+                      <option value="stripe">Stripe</option>
+                      <option value="aws">AWS</option>
+                      <option value="custom">Custom Service</option>
+                    </select>
+                  </div>
+                </div>
+                {showCustomPlatform && (
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Custom Platform Name
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800"
+                      value={customPlatform}
+                      onChange={(e) => setCustomPlatform(e.target.value)}
+                      placeholder="Enter custom platform name"
+                    />
+                  </div>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Linked Project
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800"
+                      value={linkedProject}
+                      onChange={(e) => setLinkedProject(e.target.value)}
+                      placeholder="e.g. Project Alpha"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Usage Limit
+                    </label>
+                    <input
+                      type="number"
+                      className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800"
+                      value={usageLimit}
+                      onChange={(e) => setUsageLimit(e.target.value)}
+                      placeholder="e.g. 1000"
+                      min="0"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Expiry Date
+                  </label>
+                  <input
+                    type="date"
+                    className="w-full border rounded px-3 py-2 text-gray-800"
+                    value={expiryDate}
+                    onChange={(e) => setExpiryDate(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Enter detailed description..."
+                    rows={3}
+                  />
+                </div>
+
                 {/* Custom QA Section */}
                 <div>
                   <h3 className="font-semibold mb-2">
@@ -846,9 +1089,17 @@ function APIKeysContent() {
               )}
               <button
                 type="submit"
-                className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg px-6 py-3 mt-4 transition-colors duration-200 flex items-center justify-center gap-3 text-base"
+                disabled={isAddingKey}
+                className="bg-[#a259f7] hover:bg-[#7c3aed] disabled:bg-gray-400 text-white font-semibold rounded-lg px-6 py-3 mt-4 transition-colors duration-200 flex items-center justify-center gap-3 text-base"
               >
-                Encrypt & Add Key
+                {isAddingKey ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Adding Key...
+                  </>
+                ) : (
+                  "Encrypt & Add Key"
+                )}
               </button>
             </form>
           </div>
@@ -978,6 +1229,44 @@ function APIKeysContent() {
                 {selectedKey.isEncrypted ? "Encrypted" : "Decrypted"}
               </span>
             </div>
+            {selectedKey.environment && (
+              <div className="mb-2">
+                <span className="font-semibold text-gray-700">Environment:</span>
+                <span className="ml-2 text-gray-900 capitalize">{selectedKey.environment}</span>
+              </div>
+            )}
+            {selectedKey.platform && (
+              <div className="mb-2">
+                <span className="font-semibold text-gray-700">Platform:</span>
+                <span className="ml-2 text-gray-900 capitalize">{selectedKey.platform}</span>
+              </div>
+            )}
+            {selectedKey.linkedProject && (
+              <div className="mb-2">
+                <span className="font-semibold text-gray-700">Linked Project:</span>
+                <span className="ml-2 text-gray-900">{selectedKey.linkedProject}</span>
+              </div>
+            )}
+            {selectedKey.usageLimit && (
+              <div className="mb-2">
+                <span className="font-semibold text-gray-700">Usage Limit:</span>
+                <span className="ml-2 text-gray-900">{selectedKey.usageLimit}</span>
+              </div>
+            )}
+            {selectedKey.expiryDate && (
+              <div className="mb-2">
+                <span className="font-semibold text-gray-700">Expiry Date:</span>
+                <span className="ml-2 text-gray-900">{selectedKey.expiryDate}</span>
+              </div>
+            )}
+            {selectedKey.description && (
+              <div className="mb-2">
+                <span className="font-semibold text-gray-700">Description:</span>
+                <div className="mt-1">
+                  <span className="text-gray-900 text-sm">{selectedKey.description}</span>
+                </div>
+              </div>
+            )}
             <div className="flex gap-2 mt-4">
               {selectedKey.isEncrypted ? (
                 <button
@@ -1166,6 +1455,17 @@ function APIKeysContent() {
               ) : (
                 // API Keys Content (when vault is unlocked)
                 <div className="space-y-4 sm:space-y-6">
+                  {/* Loading state for fetching keys */}
+                  {fetchingKeys && (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="flex items-center gap-3">
+                        <div className="w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                        <span className="text-gray-600 font-semibold">
+                          Loading API keys...
+                        </span>
+                      </div>
+                    </div>
+                  )}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0 mb-4 sm:mb-6">
                     <div>
                       <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-1">
@@ -1251,204 +1551,254 @@ function APIKeysContent() {
                   </div>
 
                   {/* API Keys Table (Desktop/Tablet) */}
-                  <div className="hidden sm:block bg-white rounded-2xl shadow border border-gray-100 overflow-hidden">
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full text-left">
-                        <thead>
-                          <tr className="bg-[#f3e8ff] text-gray-900">
-                            <th className="py-3 px-3 sm:py-4 sm:px-6 text-left font-semibold text-xs sm:text-base">
-                              Serial No
-                            </th>
-                            <th className="py-3 px-3 sm:py-4 sm:px-6 text-left font-semibold text-xs sm:text-base">
-                              Key Name
-                            </th>
-                            <th className="py-3 px-3 sm:py-4 sm:px-6 text-left font-semibold text-xs sm:text-base hidden sm:table-cell">
-                              Store Date
-                            </th>
-                            <th className="py-3 px-3 sm:py-4 sm:px-6 text-left font-semibold text-xs sm:text-base hidden md:table-cell">
-                              Stored By
-                            </th>
-                            <th className="py-3 px-3 sm:py-4 sm:px-6 text-left font-semibold text-xs sm:text-base">
-                              Key
-                            </th>
-                            <th className="py-3 px-3 sm:py-4 sm:px-6 text-left font-semibold text-xs sm:text-base">
-                              Status
-                            </th>
-                            <th className="py-3 px-3 sm:py-4 sm:px-6 text-left font-semibold text-xs sm:text-base">
-                              Actions
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {apiKeys.map((key) => (
-                            <tr
-                              key={key.id}
-                              className="border-t border-gray-100 text-gray-900 hover:bg-gray-50 transition-colors cursor-pointer"
-                              onClick={() => {
-                                setSelectedKey(key);
-                                setShowKeyDetailVaultModal(true);
-                                setKeyDetailVaultKey("");
-                                setShowKeyDetailVaultKey(false);
-                              }}
-                            >
-                              <td className="py-6 px-3 sm:py-8 sm:px-6 font-bold text-sm sm:text-lg">
-                                {key.serialNo}
-                              </td>
-                              <td className="py-6 px-3 sm:py-8 sm:px-6 text-gray-700 font-semibold text-xs sm:text-base">
-                                {key.keyName}
-                              </td>
-                              <td className="py-6 px-3 sm:py-8 sm:px-6 text-gray-700 text-xs sm:text-base hidden sm:table-cell">
-                                {key.storeDate}
-                              </td>
-                              <td className="py-6 px-3 sm:py-8 sm:px-6 text-gray-700 text-xs sm:text-base hidden md:table-cell">
-                                {key.storedBy}
-                              </td>
-                              <td className="py-6 px-3 sm:py-8 sm:px-6">
-                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2">
-                                  <span className="font-mono text-xs sm:text-sm bg-gray-100 px-1 sm:px-2 py-1 rounded break-all">
-                                    {key.isEncrypted
-                                      ? key.encryptedKey &&
-                                        key.encryptedKey.length > 2
-                                        ? key.encryptedKey.substring(0, 2) +
-                                          "..."
-                                        : key.encryptedKey || "••••••••••••••••"
-                                      : key.key.length > 2
-                                      ? key.key.substring(0, 2) + "..."
-                                      : key.key}
-                                  </span>
+                  {!fetchingKeys && apiKeys.length === 0 ? (
+                    <div className="hidden sm:block bg-white rounded-2xl shadow border border-gray-100 p-8">
+                      <div className="text-center">
+                        <Key className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                          No API Keys Found
+                        </h3>
+                        <p className="text-gray-500 mb-4">
+                          You haven't added any API keys yet. Start by adding
+                          your first key.
+                        </p>
+                        <button
+                          onClick={() => setShowAddKeyChoiceModal(true)}
+                          className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200"
+                        >
+                          Add Your First Key
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="hidden sm:block bg-white rounded-2xl shadow border border-gray-100 overflow-hidden">
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full text-left">
+                          <thead>
+                            <tr className="bg-[#f3e8ff] text-gray-900">
+                              <th className="py-3 px-3 sm:py-4 sm:px-6 text-left font-semibold text-xs sm:text-base">
+                                Serial No
+                              </th>
+                              <th className="py-3 px-3 sm:py-4 sm:px-6 text-left font-semibold text-xs sm:text-base">
+                                Key Name
+                              </th>
+                              <th className="py-3 px-3 sm:py-4 sm:px-6 text-left font-semibold text-xs sm:text-base hidden sm:table-cell">
+                                Store Date
+                              </th>
+                              <th className="py-3 px-3 sm:py-4 sm:px-6 text-left font-semibold text-xs sm:text-base hidden md:table-cell">
+                                Stored By
+                              </th>
+                              <th className="py-3 px-3 sm:py-4 sm:px-6 text-left font-semibold text-xs sm:text-base">
+                                Key
+                              </th>
+                              <th className="py-3 px-3 sm:py-4 sm:px-6 text-left font-semibold text-xs sm:text-base">
+                                Status
+                              </th>
+                              <th className="py-3 px-3 sm:py-4 sm:px-6 text-left font-semibold text-xs sm:text-base">
+                                Actions
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {apiKeys.map((key) => (
+                              <tr
+                                key={key.id}
+                                className="border-t border-gray-100 text-gray-900 hover:bg-gray-50 transition-colors cursor-pointer"
+                                onClick={() => {
+                                  // Prevent clicks when any modal is open
+                                  if (showDecryptModal || showEncryptModal || showAddKeyModal || showKeyDetailVaultModal) {
+                                    return;
+                                  }
+                                  setSelectedKey(key);
+                                  setShowKeyDetailVaultModal(true);
+                                  setKeyDetailVaultKey("");
+                                  setShowKeyDetailVaultKey(false);
+                                }}
+                              >
+                                <td className="py-6 px-3 sm:py-8 sm:px-6 font-bold text-sm sm:text-lg">
+                                  {key.serialNo}
+                                </td>
+                                <td className="py-6 px-3 sm:py-8 sm:px-6 text-gray-700 font-semibold text-xs sm:text-base">
+                                  {key.keyName}
+                                </td>
+                                <td className="py-6 px-3 sm:py-8 sm:px-6 text-gray-700 text-xs sm:text-base hidden sm:table-cell">
+                                  {key.storeDate}
+                                </td>
+                                <td className="py-6 px-3 sm:py-8 sm:px-6 text-gray-700 text-xs sm:text-base hidden md:table-cell">
+                                  {key.storedBy}
+                                </td>
+                                <td className="py-6 px-3 sm:py-8 sm:px-6">
+                                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2">
+                                    <span className="font-mono text-xs sm:text-sm bg-gray-100 px-1 sm:px-2 py-1 rounded break-all">
+                                      {key.isEncrypted
+                                        ? key.encryptedKey &&
+                                          key.encryptedKey.length > 2
+                                          ? key.encryptedKey.substring(0, 2) +
+                                            "..."
+                                          : key.encryptedKey ||
+                                            "••••••••••••••••"
+                                        : key.key.length > 2
+                                        ? key.key.substring(0, 2) + "..."
+                                        : key.key}
+                                    </span>
+                                    <span
+                                      className={`px-1 sm:px-2 py-1 rounded-full text-xs font-semibold ${
+                                        key.isEncrypted
+                                          ? "bg-red-100 text-red-600"
+                                          : "bg-green-100 text-green-600"
+                                      }`}
+                                    >
+                                      {key.isEncrypted
+                                        ? "Encrypted"
+                                        : "Decrypted"}
+                                    </span>
+                                  </div>
+                                </td>
+                                <td className="py-6 px-3 sm:py-8 sm:px-6">
                                   <span
-                                    className={`px-1 sm:px-2 py-1 rounded-full text-xs font-semibold ${
-                                      key.isEncrypted
-                                        ? "bg-red-100 text-red-600"
-                                        : "bg-green-100 text-green-600"
+                                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                      key.status === "Active"
+                                        ? "bg-green-100 text-green-600"
+                                        : "bg-gray-200 text-gray-600"
                                     }`}
                                   >
-                                    {key.isEncrypted
-                                      ? "Encrypted"
-                                      : "Decrypted"}
+                                    {key.status || "Active"}
                                   </span>
-                                </div>
-                              </td>
-                              <td className="py-6 px-3 sm:py-8 sm:px-6">
-                                <span
-                                  className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                                    key.status === "Active"
-                                      ? "bg-green-100 text-green-600"
-                                      : "bg-gray-200 text-gray-600"
-                                  }`}
-                                >
-                                  {key.status || "Active"}
-                                </span>
-                              </td>
-                              <td className="py-6 px-3 sm:py-8 sm:px-6">
-                                {key.isEncrypted ? (
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDecrypt(key.id);
-                                    }}
-                                    className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg px-2 py-1 sm:px-3 text-xs sm:text-sm transition-colors duration-200"
-                                  >
-                                    Decrypt
-                                  </button>
-                                ) : (
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleEncrypt(key.id);
-                                    }}
-                                    className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg px-2 py-1 sm:px-3 text-xs sm:text-sm transition-colors duration-200"
-                                  >
-                                    Encrypt
-                                  </button>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                  {/* Card-based API Keys List (Mobile) */}
-                  <div className="sm:hidden mt-8">
-                    {apiKeys.length === 0 ? (
-                      <div className="text-center text-gray-500 text-lg">
-                        No API keys found.
+                                </td>
+                                <td className="py-6 px-3 sm:py-8 sm:px-6">
+                                  {key.isEncrypted ? (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDecrypt(key.id);
+                                      }}
+                                      className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg px-2 py-1 sm:px-3 text-xs sm:text-sm transition-colors duration-200"
+                                    >
+                                      Decrypt
+                                    </button>
+                                  ) : (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleEncrypt(key.id);
+                                      }}
+                                      className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg px-2 py-1 sm:px-3 text-xs sm:text-sm transition-colors duration-200"
+                                    >
+                                      Encrypt
+                                    </button>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
-                    ) : (
-                      apiKeys.map((key) => (
-                        <div
-                          key={key.id}
-                          className="bg-white rounded-xl shadow border border-gray-100 p-4 mb-4 flex flex-col cursor-pointer hover:bg-gray-50 transition-colors"
-                          onClick={() => {
-                            setSelectedKey(key);
-                            setShowKeyDetailVaultModal(true);
-                            setKeyDetailVaultKey("");
-                            setShowKeyDetailVaultKey(false);
-                          }}
+                    </div>
+                  )}
+                  {/* Card-based API Keys List (Mobile) */}
+                  {!fetchingKeys && apiKeys.length === 0 ? (
+                    <div className="sm:hidden mt-8">
+                      <div className="bg-white rounded-xl shadow border border-gray-100 p-6 text-center">
+                        <Key className="w-8 h-8 text-gray-400 mx-auto mb-3" />
+                        <h3 className="text-base font-semibold text-gray-600 mb-2">
+                          No API Keys Found
+                        </h3>
+                        <p className="text-sm text-gray-500 mb-4">
+                          You haven't added any API keys yet.
+                        </p>
+                        <button
+                          onClick={() => setShowAddKeyChoiceModal(true)}
+                          className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg px-3 py-2 text-sm transition-colors duration-200"
                         >
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="font-bold text-base text-gray-900">
-                              #{key.serialNo} {key.keyName}
-                            </span>
-                            <span
-                              className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                                key.status === "Active"
-                                  ? "bg-green-100 text-green-600"
-                                  : "bg-gray-200 text-gray-600"
-                              }`}
-                            >
-                              {key.status || "Active"}
-                            </span>
-                          </div>
-                          <div className="text-gray-500 text-sm mb-2">
-                            <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded break-all">
-                              {key.isEncrypted
-                                ? key.encryptedKey &&
-                                  key.encryptedKey.length > 2
-                                  ? key.encryptedKey.substring(0, 2) + "..."
-                                  : key.encryptedKey || "••••••••••••••••"
-                                : key.key.length > 2
-                                ? key.key.substring(0, 2) + "..."
-                                : key.key}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span
-                              className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                                key.isEncrypted
-                                  ? "bg-red-100 text-red-600"
-                                  : "bg-green-100 text-green-600"
-                              }`}
-                            >
-                              {key.isEncrypted ? "Encrypted" : "Decrypted"}
-                            </span>
-                            {key.isEncrypted ? (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDecrypt(key.id);
-                                }}
-                                className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg px-3 py-1 text-xs transition-colors duration-200"
-                              >
-                                Decrypt
-                              </button>
-                            ) : (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEncrypt(key.id);
-                                }}
-                                className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg px-3 py-1 text-xs transition-colors duration-200"
-                              >
-                                Encrypt
-                              </button>
-                            )}
-                          </div>
+                          Add Your First Key
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="sm:hidden mt-8">
+                      {apiKeys.length === 0 ? (
+                        <div className="text-center text-gray-500 text-lg">
+                          No API keys found.
                         </div>
-                      ))
-                    )}
-                  </div>
+                      ) : (
+                        apiKeys.map((key) => (
+                          <div
+                            key={key.id}
+                            className="bg-white rounded-xl shadow border border-gray-100 p-4 mb-4 flex flex-col cursor-pointer hover:bg-gray-50 transition-colors"
+                            onClick={() => {
+                              // Prevent clicks when any modal is open
+                              if (showDecryptModal || showEncryptModal || showAddKeyModal || showKeyDetailVaultModal) {
+                                return;
+                              }
+                              setSelectedKey(key);
+                              setShowKeyDetailVaultModal(true);
+                              setKeyDetailVaultKey("");
+                              setShowKeyDetailVaultKey(false);
+                            }}
+                          >
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="font-bold text-base text-gray-900">
+                                #{key.serialNo} {key.keyName}
+                              </span>
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                  key.status === "Active"
+                                    ? "bg-green-100 text-green-600"
+                                    : "bg-gray-200 text-gray-600"
+                                }`}
+                              >
+                                {key.status || "Active"}
+                              </span>
+                            </div>
+                            <div className="text-gray-500 text-sm mb-2">
+                              <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded break-all">
+                                {key.isEncrypted
+                                  ? key.encryptedKey &&
+                                    key.encryptedKey.length > 2
+                                    ? key.encryptedKey.substring(0, 2) + "..."
+                                    : key.encryptedKey || "••••••••••••••••"
+                                  : key.key.length > 2
+                                  ? key.key.substring(0, 2) + "..."
+                                  : key.key}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                  key.isEncrypted
+                                    ? "bg-red-100 text-red-600"
+                                    : "bg-green-100 text-green-600"
+                                }`}
+                              >
+                                {key.isEncrypted ? "Encrypted" : "Decrypted"}
+                              </span>
+                              {key.isEncrypted ? (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDecrypt(key.id);
+                                  }}
+                                  className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg px-3 py-1 text-xs transition-colors duration-200"
+                                >
+                                  Decrypt
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEncrypt(key.id);
+                                  }}
+                                  className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg px-3 py-1 text-xs transition-colors duration-200"
+                                >
+                                  Encrypt
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1493,7 +1843,7 @@ function APIKeysContent() {
         </div>
       )}
 
-      {/* Import Modal (placeholder) */}
+      {/* Import Modal */}
       {showImportModal && (
         <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/20">
           <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative animate-fadeIn">
@@ -1508,16 +1858,44 @@ function APIKeysContent() {
               Import API Keys from File
             </h2>
             <div className="text-gray-700 mb-4 text-center">
-              (Import functionality coming soon. Please select a file format:
-              CSV, JSON, etc.)
+              Upload a CSV or JSON file with your API keys.
+              <br />
+              <span className="text-sm text-gray-500">
+                Expected columns: keyName, rawKey, environment, status
+              </span>
             </div>
-            <div className="flex justify-center">
-              <button
-                className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg px-4 py-2"
-                onClick={() => setShowImportModal(false)}
-              >
-                Close
-              </button>
+            <div className="space-y-4">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <input
+                  type="file"
+                  accept=".csv,.json"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      handleFileImport(file);
+                    }
+                  }}
+                  className="hidden"
+                  id="file-upload"
+                />
+                <label
+                  htmlFor="file-upload"
+                  className="cursor-pointer bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold rounded-lg px-4 py-2 transition-colors duration-200"
+                >
+                  Choose File
+                </label>
+                <p className="text-sm text-gray-500 mt-2">
+                  Supported formats: CSV, JSON
+                </p>
+              </div>
+              <div className="flex justify-center gap-2">
+                <button
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg px-4 py-2"
+                  onClick={() => setShowImportModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>

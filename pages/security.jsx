@@ -953,7 +953,7 @@ function SecurityContent() {
                             {p.category}
                           </div>
                           {/* Show strength and duplicate on mobile stacked */}
-                          <div className="block sm:hidden mt-1 flex flex-wrap gap-2">
+                          <div className="sm:hidden mt-1 flex flex-wrap gap-2">
                             <span
                               className={
                                 getPasswordStrength(p.password) === "Strong"
