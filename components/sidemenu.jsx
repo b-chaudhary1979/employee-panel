@@ -353,8 +353,7 @@ export default function SideMenu({ mobileOverlay = false }) {
             }`}
           >
             <span
-              className="w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer"
-              onClick={() => router.push("/")}
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
             >
               <Image
                 src="/logo cyber clipper.png"
@@ -368,7 +367,14 @@ export default function SideMenu({ mobileOverlay = false }) {
               <span
                 className="font-extrabold text-thin text-gray-900 text-lg whitespace-nowrap relative overflow-visible cursor-pointer"
                 style={{ lineHeight: 1.2 }}
-                onClick={() => router.push("/")}
+                onClick={() => {
+                  if (ci && aid) {
+                    const newToken = encryptToken(ci, aid);
+                    router.push(`/dashboard?token=${encodeURIComponent(newToken)}`);
+                  } else {
+                    router.push("/dashboard");
+                  }
+                }}
               >
                 ADMIN &nbsp;PANEL
                 <span
