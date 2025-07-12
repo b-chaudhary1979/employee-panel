@@ -248,7 +248,7 @@ function EmployeesContent() {
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m13-6.13A4 4 0 0012 7a4 4 0 00-7 3.13M12 7V3m0 0a4 4 0 014 4v4m0 0a4 4 0 01-4 4v0a4 4 0 01-4-4V7a4 4 0 014-4z"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                       />
                     </svg>
                   </div>
