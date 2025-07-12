@@ -45,7 +45,12 @@ function NotesTasksContent() {
     description: "",
     priority: "Low",
     dueDate: "",
+    assignee: "",
+    tags: "",
+    estimatedTime: "",
+    attachment: null,
   });
+  const [customQA, setCustomQA] = useState([{ question: "", answer: "" }]);
   const [showUpdateTaskModal, setShowUpdateTaskModal] = useState(false);
   const [editTaskId, setEditTaskId] = useState(null);
   const [editTask, setEditTask] = useState({
@@ -284,6 +289,17 @@ function NotesTasksContent() {
     );
   }
 
+  const handleCustomQAChange = (idx, field, value) => {
+    setCustomQA((prev) => {
+      const updated = [...prev];
+      updated[idx][field] = value;
+      return updated;
+    });
+  };
+  const addCustomQA = () => {
+    setCustomQA((prev) => [...prev, { question: "", answer: "" }]);
+  };
+
   return (
     <>
       <Head>
@@ -313,7 +329,7 @@ function NotesTasksContent() {
       {/* Add Task Modal */}
       {showAddTaskModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur">
-          <div className="relative w-full max-w-md mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] border-2 border-purple-500">
+          <div className="relative w-full max-w-xl mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] border-2 border-purple-500">
             <button
               className="absolute top-3 right-3 text-gray-400 hover:text-black text-2xl font-bold"
               onClick={() => setShowAddTaskModal(false)}
@@ -321,7 +337,10 @@ function NotesTasksContent() {
             >
               &times;
             </button>
-            <h2 className="text-xl font-bold mb-4 text-black">Add New Task</h2>
+            <div className="flex flex-col items-center mb-2">
+          
+              <h2 className="text-3xl font-bold mb-4 text-purple-600">Add New Task</h2>
+            </div>
             <form className="flex flex-col gap-4" onSubmit={handleAddTask}>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
@@ -331,9 +350,7 @@ function NotesTasksContent() {
                   type="text"
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
                   value={newTask.task}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, task: e.target.value })
-                  }
+                  onChange={(e) => setNewTask({ ...newTask, task: e.target.value })}
                   required
                 />
               </div>
@@ -344,23 +361,57 @@ function NotesTasksContent() {
                 <textarea
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
                   value={newTask.description}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, description: e.target.value })
-                  }
+                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
                   rows={3}
                   required
                 />
               </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Assignee</label>
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
+                    value={newTask.assignee}
+                    onChange={(e) => setNewTask({ ...newTask, assignee: e.target.value })}
+                    placeholder="Assignee"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Tags</label>
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
+                    value={newTask.tags}
+                    onChange={(e) => setNewTask({ ...newTask, tags: e.target.value })}
+                    placeholder="Tags (comma separated)"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Estimated Time</label>
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
+                    value={newTask.estimatedTime}
+                    onChange={(e) => setNewTask({ ...newTask, estimatedTime: e.target.value })}
+                    placeholder="e.g. 2h 30m"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Attachment</label>
+                  <input
+                    type="file"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
+                    onChange={(e) => setNewTask({ ...newTask, attachment: e.target.files[0] })}
+                  />
+                </div>
+              </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Priority
-                </label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Priority</label>
                 <select
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black bg-white"
                   value={newTask.priority}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, priority: e.target.value })
-                  }
+                  onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
                   required
                 >
                   <option value="Low">Low</option>
@@ -369,23 +420,41 @@ function NotesTasksContent() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Due Date
-                </label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Due Date</label>
                 <input
                   type="date"
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
                   value={newTask.dueDate}
                   min={getToday()}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, dueDate: e.target.value })
-                  }
+                  onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
                   required
                 />
               </div>
+              <div>
+                <h3 className="font-semibold text-gray-800 mb-2">Custom Questions & Answers</h3>
+                {customQA.map((qa, idx) => (
+                  <div key={idx} className="flex flex-col md:flex-row gap-2 mb-2">
+                    <input
+                      type="text"
+                      placeholder="Question"
+                      value={qa.question}
+                      onChange={e => handleCustomQAChange(idx, "question", e.target.value)}
+                      className="flex-1 border rounded px-3 py-2 placeholder-gray-500 text-gray-800"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Answer"
+                      value={qa.answer}
+                      onChange={e => handleCustomQAChange(idx, "answer", e.target.value)}
+                      className="flex-1 border rounded px-3 py-2 placeholder-gray-500 text-gray-800"
+                    />
+                  </div>
+                ))}
+                <button type="button" onClick={addCustomQA} className="mt-2 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">+ Add Custom Q&A</button>
+              </div>
               <button
                 type="submit"
-                className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg px-4 py-2 mt-2 transition-colors duration-200"
+                className="bg-[#7c3aed] hover:bg-[#a259f7] text-white font-semibold rounded-lg px-4 py-2 mt-2 transition-colors duration-200"
               >
                 Add Task
               </button>
@@ -396,7 +465,7 @@ function NotesTasksContent() {
       {/* Update Task Modal */}
       {showUpdateTaskModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur">
-          <div className="relative w-full max-w-md mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] border-2 border-purple-500">
+          <div className="relative w-full max-w-xl mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] border-2 border-purple-500">
             <button
               className="absolute top-3 right-3 text-gray-400 hover:text-black text-2xl font-bold"
               onClick={() => {
@@ -502,7 +571,7 @@ function NotesTasksContent() {
       {/* Task Detail Modal (Desktop/Tablet) */}
       {showTaskDetailModal && selectedTask && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur">
-          <div className="relative w-full max-w-md mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] border-2 border-purple-500">
+          <div className="relative w-full max-w-xl mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] border-2 border-purple-500">
             <button
               className="absolute top-3 right-3 text-gray-400 hover:text-black text-2xl font-bold"
               onClick={() => setShowTaskDetailModal(false)}
@@ -611,19 +680,31 @@ function NotesTasksContent() {
             <div className="pl-4">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#7c3aed] mb-1">
+                  <h1 className="text-3xl text-[#7c3aed] font-bold">
                     Notes and Tasks
                   </h1>
-                  <p className="text-gray-500 text-sm sm:text-base md:text-lg">
+                  <p className="text-gray-500 mb-6">
                     Manage your tasks and track progress
                   </p>
                 </div>
                 <button
-                  className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg shadow transition-colors duration-200
-                  px-2 py-1 sm:px-3 sm:py-2 md:px-4 md:py-3 text-xs sm:text-sm md:text-lg"
+                  className="bg-[#7c3aed] hover:bg-[#a259f7] text-white font-semibold px-5 py-2 rounded-lg shadow flex items-center gap-2"
                   aria-label="Add Task"
                   onClick={() => setShowAddTaskModal(true)}
                 >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
                   Add Task
                 </button>
               </div>
@@ -640,7 +721,7 @@ function NotesTasksContent() {
                         {tasks.length}
                       </span>
                     </div>
-                    <div className="p-3 bg-blue-100 border-2 border-blue-600 rounded-lg self-center ml-4">
+                    <div className="p-2 bg-blue-100 rounded-lg self-center ml-4">
                       <Package size={28} className="text-blue-600" />
                     </div>
                   </div>
@@ -654,7 +735,7 @@ function NotesTasksContent() {
                         {tasks.filter((t) => t.priority === "Low").length}
                       </span>
                     </div>
-                    <div className="p-3 bg-green-100 border-2 border-green-600 rounded-lg self-center ml-4">
+                    <div className="p-2 bg-green-100 rounded-lg self-center ml-4">
                       <Package size={28} className="text-green-600" />
                     </div>
                   </div>
@@ -668,7 +749,7 @@ function NotesTasksContent() {
                         {tasks.filter((t) => t.priority === "Medium").length}
                       </span>
                     </div>
-                    <div className="p-3 bg-orange-100 border-2 border-orange-500 rounded-lg self-center ml-4">
+                    <div className="p-2 bg-orange-100 rounded-lg self-center ml-4">
                       <Package size={28} className="text-orange-500" />
                     </div>
                   </div>
@@ -682,7 +763,7 @@ function NotesTasksContent() {
                         {tasks.filter((t) => t.priority === "High").length}
                       </span>
                     </div>
-                    <div className="p-3 bg-red-100 border-2 border-red-600 rounded-lg self-center ml-4">
+                    <div className="p-2 bg-red-100 rounded-lg self-center ml-4">
                       <Package size={28} className="text-red-600" />
                     </div>
                   </div>

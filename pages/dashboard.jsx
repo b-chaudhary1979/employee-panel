@@ -6,15 +6,40 @@ import { useSidebar } from "../context/SidebarContext";
 import { useRouter } from "next/router";
 import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
+import CryptoJS from "crypto-js";
+
+const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
+function decryptToken(token) {
+  try {
+    const bytes = CryptoJS.AES.decrypt(token, ENCRYPTION_KEY);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    const { ci, aid } = JSON.parse(decrypted);
+    return { ci, aid };
+  } catch {
+    return { ci: null, aid: null };
+  }
+}
+function encryptToken(ci, aid) {
+  const data = JSON.stringify({ ci, aid });
+  return CryptoJS.AES.encrypt(data, ENCRYPTION_KEY).toString();
+}
 
 function DashboardContent() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { isOpen, isMobile, isHydrated } = useSidebar();
   const router = useRouter();
+  const { token } = router.query;
+  const { ci, aid } = decryptToken(token);
   const headerRef = useRef(null);
   const [headerHeight, setHeaderHeight] = useState(0);
   const { user, loading, error } = useUserInfo();
   const [notification, setNotification] = useState({ show: false, message: "" });
+
+  useEffect(() => {
+    if (router.isReady && (!ci || !aid)) {
+      router.replace("/auth/login");
+    }
+  }, [router.isReady, ci, aid]);
 
   useEffect(() => {
     if (error) {
@@ -63,6 +88,7 @@ function DashboardContent() {
   }, []);
 
   // Only return after all hooks
+  if (!ci || !aid) return null;
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen w-full"><Loader /></div>;
   }
@@ -116,7 +142,227 @@ function DashboardContent() {
             style={{ marginLeft: 0, paddingTop: headerHeight + 16 }}
           >
             <div className="max-w-6xl mx-auto">
-              <h1 className="text-2xl font-bold">Dashboard</h1>
+              <h1 className="text-4xl font-extrabold text-[#7c3aed] mt-8">Dashboard</h1>
+              <p className="mt-2 text-gray-500 text-lg">Welcome back! Here's what's happening with your company today.</p>
+              {/* Stat Cards Section */}
+              <div
+                className="w-full"
+                style={{
+                  overflowX: "auto",
+                  paddingBottom: "1rem",
+                }}
+              >
+                <div
+                  className="grid gap-6 mt-8"
+                  style={{
+                    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+                    minWidth: 0,
+                  }}
+                >
+                  {/* Total Employees */}
+                  <div 
+                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 cursor-pointer group"
+                    onClick={() => {
+                      if (ci && aid) {
+                        const newToken = encryptToken(ci, aid);
+                        router.push(`/employees?token=${encodeURIComponent(newToken)}`);
+                      }
+                    }}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div>
+                        <span className="text-gray-900 font-semibold text-xl block">Total Employees</span>
+                        <div className="text-3xl font-extrabold mt-2 text-purple-600">1,234</div>
+                        <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <span>Click to view</span>
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-blue-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Total Passwords */}
+                  <div 
+                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 cursor-pointer group"
+                    onClick={() => {
+                      if (ci && aid) {
+                        const newToken = encryptToken(ci, aid);
+                        router.push(`/security?token=${encodeURIComponent(newToken)}`);
+                      }
+                    }}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div>
+                        <span className="text-gray-900 font-semibold text-xl block">Total Passwords</span>
+                        <div className="text-3xl font-extrabold mt-2 text-purple-600">567</div>
+                        <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <span>Click to view</span>
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-pink-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns='http://www.w3.org/2000/svg' className='h-7 w-7 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 11c0-1.104.896-2 2-2s2 .896 2 2v1h-4v-1zm6 1v-1a6 6 0 10-12 0v1a2 2 0 00-2 2v5a2 2 0 002 2h12a2 2 0 002-2v-5a2 2 0 00-2-2z' /></svg>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Total Products */}
+                  <div 
+                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 cursor-pointer group"
+                    onClick={() => {
+                      if (ci && aid) {
+                        const newToken = encryptToken(ci, aid);
+                        router.push(`/products?token=${encodeURIComponent(newToken)}`);
+                      }
+                    }}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div>
+                        <span className="text-gray-900 font-semibold text-xl block">Total Products</span>
+                        <div className="text-3xl font-extrabold mt-2 text-purple-600">89</div>
+                        <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <span>Click to view</span>
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-yellow-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns='http://www.w3.org/2000/svg' className='h-7 w-7 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M3 7h18M3 12h18M3 17h18' /></svg>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Total Users */}
+                  <div 
+                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 cursor-pointer group"
+                    onClick={() => {
+                      if (ci && aid) {
+                        const newToken = encryptToken(ci, aid);
+                        router.push(`/users-permissions?token=${encodeURIComponent(newToken)}`);
+                      }
+                    }}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div>
+                        <span className="text-gray-900 font-semibold text-xl block">Total Users</span>
+                        <div className="text-3xl font-extrabold mt-2 text-purple-600">2,345</div>
+                        <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <span>Click to view</span>
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-purple-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                          </svg>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Total Tasks */}
+                  <div 
+                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 cursor-pointer group"
+                    onClick={() => {
+                      if (ci && aid) {
+                        const newToken = encryptToken(ci, aid);
+                        router.push(`/notes-tasks?token=${encodeURIComponent(newToken)}`);
+                      }
+                    }}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div>
+                        <span className="text-gray-900 font-semibold text-xl block">Total Tasks</span>
+                        <div className="text-3xl font-extrabold mt-2 text-purple-600">120</div>
+                        <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <span>Click to view</span>
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-green-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2l4-4m5 2a9 9 0 11-18 0a9 9 0 0118 0z" />
+                          </svg>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Total Announcements */}
+                  <div 
+                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 cursor-pointer group"
+                    onClick={() => {
+                      if (ci && aid) {
+                        const newToken = encryptToken(ci, aid);
+                        router.push(`/announcements?token=${encodeURIComponent(newToken)}`);
+                      }
+                    }}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div>
+                        <span className="text-gray-900 font-semibold text-xl block">Total Announcements</span>
+                        <div className="text-3xl font-extrabold mt-2 text-purple-600">15</div>
+                        <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <span>Click to view</span>
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-red-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns='http://www.w3.org/2000/svg' className='h-7 w-7 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 13V7a2 2 0 00-2-2H7a2 2 0 00-2 2v6m14 0a2 2 0 01-2 2H7a2 2 0 01-2-2m14 0v6a2 2 0 01-2 2H7a2 2 0 01-2-2v-6' /></svg>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Total Media */}
+                  <div 
+                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 cursor-pointer group"
+                    onClick={() => {
+                      if (ci && aid) {
+                        const newToken = encryptToken(ci, aid);
+                        router.push(`/data?token=${encodeURIComponent(newToken)}`);
+                      }
+                    }}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div>
+                        <span className="text-gray-900 font-semibold text-xl block">Total Media</span>
+                        <div className="text-3xl font-extrabold mt-2 text-purple-600">42</div>
+                        <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <span>Click to view</span>
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-indigo-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns='http://www.w3.org/2000/svg' className='h-7 w-7 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 10l4.553-2.276A2 2 0 0021 6.382V17.618a2 2 0 01-1.447 1.894L15 17.618M9 10l-4.553-2.276A2 2 0 003 6.382V17.618a2 2 0 001.447 1.894L9 17.618' /></svg>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </main>
         </div>
