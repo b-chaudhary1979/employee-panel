@@ -9,6 +9,9 @@ import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
 import { Search, Filter, Plus, Package, Trash2 } from "lucide-react";
 import Head from "next/head";
+import useNotesTasks from "../hooks/useNotesTasks";
+import { storage } from "../firebase";
+import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
 function decryptToken(token) {
   try {
@@ -24,6 +27,56 @@ function decryptToken(token) {
 // Helper to generate unique id
 const generateId = () =>
   Date.now().toString(36) + Math.random().toString(36).slice(2);
+
+// 1. Add a custom Status Toggle component
+function StatusToggle({ value, onChange }) {
+  return (
+    <div className="flex flex-wrap sm:flex-nowrap items-center gap-4 w-full">
+      {['Pending', 'Ongoing', 'Postponed', 'Completed'].map((status, idx) => (
+        <button
+          key={status}
+          type="button"
+          onClick={() => onChange(status)}
+          className={`relative px-4 py-2 rounded-full font-semibold transition-all duration-300 focus:outline-none shadow text-sm sm:text-base
+            ${value === status ? "bg-[#a259f7] text-white shadow-lg" : "bg-gray-200 text-gray-700"}
+            ${idx === 0 ? "ml-0" : "-ml-2"}
+            w-full sm:w-auto mb-2 sm:mb-0
+          `}
+          style={{ zIndex: value === status ? 2 : 1, minWidth: '90px' }}
+        >
+          {status}
+          {value === status && (
+            <span className="absolute left-0 top-0 w-full h-full rounded-full border-2 border-[#a259f7] animate-pulse" style={{ pointerEvents: 'none' }} />
+          )}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// Add EditToggle component (slider style)
+function EditToggle({ value, onChange }) {
+  return (
+    <div className="flex flex-col items-center" style={{ marginLeft: '-28px' }}>
+      <div className="flex items-center">
+        <button
+          type="button"
+          className={`relative w-14 h-8 flex items-center rounded-full transition-colors duration-300 focus:outline-none shadow ${value ? 'bg-green-500' : 'bg-red-500'}`}
+          onClick={() => onChange(!value)}
+          aria-label="Toggle Edit"
+          style={{ transition: 'background 0.3s cubic-bezier(.4,2,.6,1)' }}
+        >
+          <span
+            className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-transform duration-300`}
+            style={{ left: value ? 'calc(100% - 2rem)' : '0.25rem', transition: 'left 0.3s cubic-bezier(.4,2,.6,1)' }}
+          />
+        </button>
+        <span className={`ml-3 text-sm font-bold ${value ? 'text-green-600' : 'text-red-600'}`}>{value ? 'ON' : 'OFF'}</span>
+      </div>
+      <span className={`mt-1 text-xs font-bold ${value ? 'text-green-600' : 'text-red-600'}`}>{value ? 'Edit is ON' : 'Edit is OFF'}</span>
+    </div>
+  );
+}
 
 function NotesTasksContent() {
   const router = useRouter();
@@ -67,79 +120,48 @@ function NotesTasksContent() {
   // State for delete confirmation
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteTaskId, setDeleteTaskId] = useState(null);
+  // Add state for edit mode in the modal
+  const [editMode, setEditMode] = useState(false);
 
-  // Store tasks in state
-  const [tasks, setTasks] = useState([
-    {
-      id: generateId(),
-      task: "Design Login Page",
-      description: "Create a responsive login page for the admin panel.",
-      priority: "High",
-      dueDate: "2024-07-01",
-      completed: false,
-    },
-    {
-      id: generateId(),
-      task: "Update User Roles",
-      description: "Review and update user permissions for new employees.",
-      priority: "Medium",
-      dueDate: "2024-07-05",
-      completed: false,
-    },
-    {
-      id: generateId(),
-      task: "Backup Database",
-      description: "Schedule and verify weekly database backups.",
-      priority: "Low",
-      dueDate: "2024-07-10",
-      completed: false,
-    },
-    {
-      id: generateId(),
-      task: "Announce New Feature",
-      description: "Draft and send announcement for the new dashboard feature.",
-      priority: "Medium",
-      dueDate: "2024-07-03",
-      completed: false,
-    },
-    {
-      id: generateId(),
-      task: "Clean Up Old Logs",
-      description: "Remove logs older than 6 months from the server.",
-      priority: "Low",
-      dueDate: "2024-07-15",
-      completed: false,
-    },
-  ]);
+  // Remove local tasks state, use Firestore
+  const {
+    tasks,
+    loading: tasksLoading,
+    addTask,
+    deleteTask: firestoreDeleteTask,
+    updateTask: firestoreUpdateTask,
+  } = useNotesTasks(ci);
 
-  // Add Task handler
-  const handleAddTask = (e) => {
+  // Add Task handler (Firestore)
+  const handleAddTask = async (e) => {
     e.preventDefault();
     if (!newTask.task.trim() || !newTask.description.trim() || !newTask.dueDate)
       return;
-    setTasks((prev) => [
-      ...prev,
-      {
-        id: generateId(),
-        task: newTask.task.trim(),
-        description: newTask.description.trim(),
-        priority: newTask.priority,
-        dueDate: newTask.dueDate,
-        completed: false,
-      },
-    ]);
+    await addTask({
+      task: newTask.task.trim(),
+      description: newTask.description.trim(),
+      priority: newTask.priority,
+      dueDate: newTask.dueDate,
+      assignee: newTask.assignee,
+      tags: newTask.tags,
+      estimatedTime: newTask.estimatedTime,
+      attachment: null, // Add file upload logic if needed
+      completed: false,
+      customQA,
+    });
     setShowAddTaskModal(false);
     setNewTask({ task: "", description: "", priority: "Low", dueDate: "" });
+    setCustomQA([{ question: "", answer: "" }]);
   };
 
-  // Delete Task handler (by id)
-  const handleDeleteTask = (id) => {
-    setTasks((prev) => prev.filter((task) => task.id !== id));
+  // Delete Task handler (Firestore)
+  const handleDeleteTask = async (id) => {
+    await firestoreDeleteTask(id);
     setShowDeleteConfirm(false);
     setDeleteTaskId(null);
   };
 
-  // Open update modal with selected task by id
+  // Open update modal with selected task by id (Firestore)
   const handleOpenUpdateTask = (id) => {
     const t = tasks.find((task) => task.id === id);
     if (!t) return;
@@ -155,8 +177,8 @@ function NotesTasksContent() {
     setShowUpdateTaskModal(true);
   };
 
-  // Update task handler by id
-  const handleUpdateTask = (e) => {
+  // Update task handler by id (Firestore)
+  const handleUpdateTask = async (e) => {
     e.preventDefault();
     if (
       !editTask.task.trim() ||
@@ -164,20 +186,13 @@ function NotesTasksContent() {
       !editTask.dueDate
     )
       return;
-    setTasks((prev) =>
-      prev.map((t) =>
-        t.id === editTaskId
-          ? {
-              ...t,
-              task: editTask.task.trim(),
-              description: editTask.description.trim(),
-              priority: editTask.priority,
-              dueDate: editTask.dueDate,
-              completed: !!editTask.completed,
-            }
-          : t
-      )
-    );
+    await firestoreUpdateTask(editTaskId, {
+      task: editTask.task.trim(),
+      description: editTask.description.trim(),
+      priority: editTask.priority,
+      dueDate: editTask.dueDate,
+      completed: !!editTask.completed,
+    });
     setShowUpdateTaskModal(false);
     setEditTaskId(null);
     setEditTask({
@@ -194,11 +209,11 @@ function NotesTasksContent() {
   const [priorityFilter, setPriorityFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Add status options
+  const statusOptions = ["Pending", "Ongoing", "Postponed", "Completed"];
+
   // Filtered tasks based on priority and search
   const filteredTasks = tasks.filter((task) => {
-    // Hide completed tasks
-    if (task.completed) return false;
-
     // Priority filter
     const priorityMatch =
       priorityFilter === "All" ||
@@ -281,7 +296,7 @@ function NotesTasksContent() {
 
   // Conditional returns after all hooks
   if (!ci || !aid) return null;
-  if (loading) {
+  if (loading || tasksLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen w-full">
         <Loader />
@@ -350,6 +365,7 @@ function NotesTasksContent() {
                   type="text"
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
                   value={newTask.task}
+                  placeholder="Enter task...."
                   onChange={(e) => setNewTask({ ...newTask, task: e.target.value })}
                   required
                 />
@@ -361,6 +377,7 @@ function NotesTasksContent() {
                 <textarea
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
                   value={newTask.description}
+                  placeholder="Enter description...."
                   onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
                   rows={3}
                   required
@@ -395,14 +412,6 @@ function NotesTasksContent() {
                     value={newTask.estimatedTime}
                     onChange={(e) => setNewTask({ ...newTask, estimatedTime: e.target.value })}
                     placeholder="e.g. 2h 30m"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Attachment</label>
-                  <input
-                    type="file"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
-                    onChange={(e) => setNewTask({ ...newTask, attachment: e.target.files[0] })}
                   />
                 </div>
               </div>
@@ -568,69 +577,229 @@ function NotesTasksContent() {
           </div>
         </div>
       )}
-      {/* Task Detail Modal (Desktop/Tablet) */}
+      {/* Task Detail Modal (Editable) */}
       {showTaskDetailModal && selectedTask && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur">
           <div className="relative w-full max-w-xl mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] border-2 border-purple-500">
             <button
-              className="absolute top-3 right-3 text-gray-400 hover:text-black text-2xl font-bold"
-              onClick={() => setShowTaskDetailModal(false)}
+              className="absolute top-1 right-3 text-gray-400 hover:text-black text-4xl"
+              onClick={() => { setShowTaskDetailModal(false); setEditMode(false); }}
               aria-label="Close"
             >
               &times;
             </button>
-            <h2 className="text-xl font-bold mb-4 text-black">Task Details</h2>
-            <div className="mb-2">
-              <span className="font-semibold text-gray-700">Task:</span>
-              <span className="ml-2 text-gray-900">{selectedTask.task}</span>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-purple-700">Task Details</h2>
+              <EditToggle value={editMode} onChange={setEditMode} />
             </div>
-            <div className="mb-2">
-              <span className="font-semibold text-gray-700">Description:</span>
-              <span className="ml-2 text-gray-900">
-                {selectedTask.description}
-              </span>
-            </div>
-            <div className="mb-2">
-              <span className="font-semibold text-gray-700">Priority:</span>
-              <span
-                className={
-                  "ml-2 font-bold px-3 py-1 rounded-full text-sm " +
-                  (selectedTask.priority === "High"
-                    ? "bg-red-100 text-red-600"
-                    : selectedTask.priority === "Medium"
-                    ? "bg-orange-100 text-orange-500"
-                    : "bg-green-100 text-green-600")
-                }
-              >
-                {selectedTask.priority}
-              </span>
-            </div>
-            <div className="mb-2">
-              <span className="font-semibold text-gray-700">Due Date:</span>
-              <span className="ml-2 text-gray-900">{selectedTask.dueDate}</span>
-            </div>
-            <div className="mb-2">
-              <span className="font-semibold text-gray-700">Completed:</span>
-              <span className="ml-2 text-gray-900">
-                {selectedTask.completed ? "Yes" : "No"}
-              </span>
-            </div>
-            <div className="flex gap-2 mt-4">
+            <form
+              className="flex flex-col gap-4"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                // Create a shallow copy and remove 'id' property
+                const { id, ...updateData } = selectedTask;
+                await firestoreUpdateTask(selectedTask.id, updateData);
+                setShowTaskDetailModal(false);
+                setEditMode(false);
+              }}
+            >
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Task</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
+                  value={selectedTask.task || ""}
+                  onChange={e => setSelectedTask({ ...selectedTask, task: e.target.value })}
+                  required
+                  disabled={!editMode}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+                <textarea
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
+                  value={selectedTask.description || ""}
+                  onChange={e => setSelectedTask({ ...selectedTask, description: e.target.value })}
+                  rows={3}
+                  required
+                  disabled={!editMode}
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Assignee</label>
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
+                    value={selectedTask.assignee || ""}
+                    onChange={e => setSelectedTask({ ...selectedTask, assignee: e.target.value })}
+                    placeholder="Assignee"
+                    disabled={!editMode}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Tags</label>
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
+                    value={selectedTask.tags || ""}
+                    onChange={e => setSelectedTask({ ...selectedTask, tags: e.target.value })}
+                    placeholder="Tags (comma separated)"
+                    disabled={!editMode}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Estimated Time</label>
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
+                    value={selectedTask.estimatedTime || ""}
+                    onChange={e => setSelectedTask({ ...selectedTask, estimatedTime: e.target.value })}
+                    placeholder="e.g. 2h 30m"
+                    disabled={!editMode}
+                  />
+                </div>
+                {/* Display image if present */}
+                {selectedTask.attachment && (
+                  <div className="mb-2 col-span-2">
+                    <img src={selectedTask.attachment} alt="Attachment" className="max-h-32 rounded-lg border mb-2" />
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Priority</label>
+                <select
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black bg-white"
+                  value={selectedTask.priority || "Low"}
+                  onChange={e => setSelectedTask({ ...selectedTask, priority: e.target.value })}
+                  required
+                  disabled={!editMode}
+                >
+                  <option value="Low">Low</option>
+                  <option value="Medium">Medium</option>
+                  <option value="High">High</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Due Date</label>
+                <input
+                  type="date"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
+                  value={selectedTask.dueDate || ""}
+                  min={getToday()}
+                  onChange={e => setSelectedTask({ ...selectedTask, dueDate: e.target.value })}
+                  required
+                  disabled={!editMode}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Status</label>
+                <StatusToggle
+                  value={selectedTask.status || "Pending"}
+                  onChange={status => editMode && setSelectedTask({ ...selectedTask, status })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Custom Q&A</label>
+                {(selectedTask.customQA || []).map((qa, idx) => (
+                  <div key={idx} className="flex flex-col md:flex-row gap-2 mb-2">
+                    <input
+                      type="text"
+                      placeholder="Question"
+                      value={qa.question}
+                      onChange={e => {
+                        if (!editMode) return;
+                        const updatedQA = [...selectedTask.customQA];
+                        updatedQA[idx].question = e.target.value;
+                        setSelectedTask({ ...selectedTask, customQA: updatedQA });
+                      }}
+                      className="flex-1 border rounded px-3 py-2 placeholder-gray-500 text-gray-800"
+                      disabled={!editMode}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Answer"
+                      value={qa.answer}
+                      onChange={e => {
+                        if (!editMode) return;
+                        const updatedQA = [...selectedTask.customQA];
+                        updatedQA[idx].answer = e.target.value;
+                        setSelectedTask({ ...selectedTask, customQA: updatedQA });
+                      }}
+                      className="flex-1 border rounded px-3 py-2 placeholder-gray-500 text-gray-800"
+                      disabled={!editMode}
+                    />
+                  </div>
+                ))}
+                {editMode && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTask({ ...selectedTask, customQA: [...(selectedTask.customQA || []), { question: "", answer: "" }] })}
+                    className="mt-2 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                  >
+                    + Add Custom Q&A
+                  </button>
+                )}
+              </div>
+              {editMode && (
+                <div className="flex gap-2 mt-6 justify-end">
+                  <button
+                    type="button"
+                    className="bg-red-500 hover:bg-red-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200"
+                    onClick={async () => {
+                      await firestoreDeleteTask(selectedTask.id);
+                      setShowTaskDetailModal(false);
+                      setEditMode(false);
+                    }}
+                  >
+                    Delete Task
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200"
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    type="button"
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg px-4 py-2 transition-colors duration-200"
+                    onClick={() => { setShowTaskDetailModal(false); setEditMode(false); }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
+          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-4 text-red-600 flex items-center gap-2">
+              <Trash2 className="w-6 h-6 text-red-600" />
+              Confirm Delete
+            </h2>
+            <p className="mb-6 text-gray-700">
+              Are you sure you want to delete this task? This action
+              cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
               <button
-                className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200"
+                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold"
                 onClick={() => {
-                  setShowTaskDetailModal(false);
-                  handleOpenUpdateTask(selectedTask.id);
+                  setShowDeleteConfirm(false);
+                  setDeleteTaskId(null);
                 }}
               >
-                Update
+                Cancel
               </button>
-              {/* Remove Delete button, add Close button */}
               <button
-                className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg px-4 py-2 transition-colors duration-200"
-                onClick={() => setShowTaskDetailModal(false)}
+                className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white font-semibold"
+                onClick={() => handleDeleteTask(deleteTaskId)}
               >
-                Close
+                Delete
               </button>
             </div>
           </div>
@@ -678,7 +847,7 @@ function NotesTasksContent() {
             }}
           >
             <div className="pl-4">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div>
                   <h1 className="text-3xl text-[#7c3aed] font-bold">
                     Notes and Tasks
@@ -688,7 +857,7 @@ function NotesTasksContent() {
                   </p>
                 </div>
                 <button
-                  className="bg-[#7c3aed] hover:bg-[#a259f7] text-white font-semibold px-5 py-2 rounded-lg shadow flex items-center gap-2"
+                  className="w-full sm:w-auto bg-[#7c3aed] hover:bg-[#a259f7] text-white font-semibold px-5 py-2 rounded-lg shadow flex items-center justify-center gap-2"
                   aria-label="Add Task"
                   onClick={() => setShowAddTaskModal(true)}
                 >
@@ -710,61 +879,61 @@ function NotesTasksContent() {
               </div>
               {/* Task Summary Box */}
               <div className="mt-6 mb-8">
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-3">
                   {/* Total Tasks */}
-                  <div className="flex-1 bg-white rounded-xl shadow border border-gray-100 hover:bg-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 px-6 py-6 flex items-stretch w-full cursor-pointer">
+                  <div className="flex-1 min-w-[140px] max-w-[180px] bg-white rounded-xl shadow border border-gray-100 hover:bg-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 px-3 py-3 flex items-stretch w-full cursor-pointer">
                     <div className="flex flex-col justify-center w-full">
-                      <span className="text-lg text-gray-500 font-semibold">
+                      <span className="text-base text-gray-500 font-semibold">
                         Total Tasks
                       </span>
-                      <span className="text-3xl font-bold text-blue-600">
+                      <span className="text-xl font-bold text-blue-600">
                         {tasks.length}
                       </span>
                     </div>
-                    <div className="p-2 bg-blue-100 rounded-lg self-center ml-4">
-                      <Package size={28} className="text-blue-600" />
+                    <div className="p-1 bg-blue-100 rounded-lg self-center ml-2">
+                      <Package size={18} className="text-blue-600" />
                     </div>
                   </div>
                   {/* Low Priority */}
-                  <div className="flex-1 bg-white rounded-xl shadow border border-gray-100 hover:bg-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 px-6 py-6 flex items-stretch w-full cursor-pointer">
+                  <div className="flex-1 min-w-[140px] max-w-[180px] bg-white rounded-xl shadow border border-gray-100 hover:bg-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 px-3 py-3 flex items-stretch w-full cursor-pointer">
                     <div className="flex flex-col justify-center w-full">
-                      <span className="text-lg text-gray-500 font-semibold">
+                      <span className="text-base text-gray-500 font-semibold">
                         Low Priority
                       </span>
-                      <span className="text-3xl font-bold text-green-600">
+                      <span className="text-xl font-bold text-green-600">
                         {tasks.filter((t) => t.priority === "Low").length}
                       </span>
                     </div>
-                    <div className="p-2 bg-green-100 rounded-lg self-center ml-4">
-                      <Package size={28} className="text-green-600" />
+                    <div className="p-1 bg-green-100 rounded-lg self-center ml-2">
+                      <Package size={18} className="text-green-600" />
                     </div>
                   </div>
                   {/* Medium Priority */}
-                  <div className="flex-1 bg-white rounded-xl shadow border border-gray-100 hover:bg-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 px-6 py-6 flex items-stretch w-full cursor-pointer">
+                  <div className="flex-1 min-w-[140px] max-w-[180px] bg-white rounded-xl shadow border border-gray-100 hover:bg-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 px-3 py-3 flex items-stretch w-full cursor-pointer">
                     <div className="flex flex-col justify-center w-full">
-                      <span className="text-lg text-gray-500 font-semibold">
+                      <span className="text-base text-gray-500 font-semibold">
                         Medium Priority
                       </span>
-                      <span className="text-3xl font-bold text-orange-500">
+                      <span className="text-xl font-bold text-orange-500">
                         {tasks.filter((t) => t.priority === "Medium").length}
                       </span>
                     </div>
-                    <div className="p-2 bg-orange-100 rounded-lg self-center ml-4">
-                      <Package size={28} className="text-orange-500" />
+                    <div className="p-1 bg-orange-100 rounded-lg self-center ml-2">
+                      <Package size={18} className="text-orange-500" />
                     </div>
                   </div>
                   {/* High Priority */}
-                  <div className="flex-1 bg-white rounded-xl shadow border border-gray-100 hover:bg-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 px-6 py-6 flex items-stretch w-full cursor-pointer">
+                  <div className="flex-1 min-w-[140px] max-w-[180px] bg-white rounded-xl shadow border border-gray-100 hover:bg-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 px-3 py-3 flex items-stretch w-full cursor-pointer">
                     <div className="flex flex-col justify-center w-full">
-                      <span className="text-lg text-gray-500 font-semibold">
+                      <span className="text-base text-gray-500 font-semibold">
                         High Priority
                       </span>
-                      <span className="text-3xl font-bold text-red-600">
+                      <span className="text-xl font-bold text-red-600">
                         {tasks.filter((t) => t.priority === "High").length}
                       </span>
                     </div>
-                    <div className="p-2 bg-red-100 rounded-lg self-center ml-4">
-                      <Package size={28} className="text-red-600" />
+                    <div className="p-1 bg-red-100 rounded-lg self-center ml-2">
+                      <Package size={18} className="text-red-600" />
                     </div>
                   </div>
                 </div>
@@ -801,45 +970,32 @@ function NotesTasksContent() {
               </div>
               {/* Tasks Table (Desktop/Tablet) */}
               <div className="hidden sm:block mt-8 overflow-x-auto">
-                <table className="min-w-full bg-white rounded-2xl shadow border border-gray-100">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full bg-white rounded-2xl shadow border border-gray-100 text-base">
+                  <thead className="bg-gray-200">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Task
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Description
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Priority
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Due Date
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
+                      <th className="px-4 py-3 text-left text-base font-bold text-gray-700 uppercase tracking-wider">S.No</th>
+                      <th className="px-4 py-3 text-left text-base font-bold text-black uppercase tracking-wider">Task</th>
+                      <th className="px-4 py-3 text-left text-base font-bold text-gray-700 uppercase tracking-wider">Description</th>
+                      <th className="px-4 py-3 text-left text-base font-bold text-gray-700 uppercase tracking-wider">Priority</th>
+                      <th className="px-4 py-3 text-left text-base font-bold text-gray-700 uppercase tracking-wider">Status</th>
+                      <th className="px-4 py-3 text-left text-base font-bold text-gray-700 uppercase tracking-wider">Due Date</th>
+                      <th className="px-4 py-3 text-center text-base font-bold text-gray-700 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white divide-y divide-gray-200 text-lg">
                     {filteredTasks.map((task, idx) => (
                       <tr
                         key={task.id}
-                        className="border-t border-gray-100 text-gray-900 hover:bg-gray-50 transition-colors cursor-pointer"
+                        className="border-t border-gray-100 text-gray-900 hover:bg-gray-50 transition-colors cursor-pointer h-16"
                         onClick={() => {
                           setSelectedTask(task);
                           setShowTaskDetailModal(true);
                         }}
                       >
-                        <td className="px-6 py-4 whitespace-nowrap font-bold text-gray-500">
-                          {task.task}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                          {task.description.length > 45
-                            ? task.description.slice(0, 45) + "..."
-                            : task.description}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 py-3 whitespace-nowrap font-bold text-gray-500">{idx + 1}</td>
+                        <td className="px-4 py-3 whitespace-nowrap font-bold text-black">{task.task}</td>
+                        <td className="px-4 py-3 whitespace-nowrap text-gray-500">{task.description.length > 45 ? task.description.slice(0, 45) + "..." : task.description}</td>
+                        <td className="px-4 py-3 whitespace-nowrap">
                           <span
                             className={
                               `px-3 py-1 rounded-full text-xs font-semibold ` +
@@ -855,20 +1011,39 @@ function NotesTasksContent() {
                             {task.priority}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                          {task.dueDate}
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <span
+                            className={
+                              `px-3 py-1 rounded-full text-xs font-semibold ` +
+                              (task.status === "Completed"
+                                ? "bg-purple-100 text-purple-700"
+                                : task.status === "Ongoing"
+                                ? "bg-blue-100 text-blue-700"
+                                : task.status === "Postponed"
+                                ? "bg-yellow-100 text-yellow-700"
+                                : "bg-gray-100 text-gray-900")
+                            }
+                          >
+                            {task.status || "Pending"}
+                          </span>
                         </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-gray-500">{task.dueDate}</td>
                         <td
-                          className="px-6 py-4 whitespace-nowrap text-center flex items-center justify-center gap-3"
+                          className="px-4 py-3 whitespace-nowrap text-center flex items-center justify-center gap-3"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <button
                             className="text-purple-500 hover:text-purple-700"
                             title="Update Task"
-                            onClick={() => handleOpenUpdateTask(task.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedTask(task);
+                              setShowTaskDetailModal(true);
+                              // Do not set editMode true automatically
+                            }}
                           >
                             <svg
-                              className="w-5 h-5"
+                              className="w-7 h-7"
                               fill="none"
                               stroke="currentColor"
                               strokeWidth="2"
@@ -904,19 +1079,17 @@ function NotesTasksContent() {
                     No tasks found.
                   </div>
                 ) : (
-                  filteredTasks.map((task) => (
+                  filteredTasks.map((task, idx) => (
                     <div
                       key={task.id}
-                      className="bg-white rounded-xl shadow border border-gray-100 p-4 mb-4 flex flex-col cursor-pointer hover:bg-gray-50 transition-colors"
+                      className="bg-white rounded-xl shadow border border-gray-100 p-6 mb-6 flex flex-col cursor-pointer hover:bg-gray-50 transition-colors"
                       onClick={() => {
                         setSelectedTask(task);
                         setShowTaskDetailModal(true);
                       }}
                     >
                       <div className="flex justify-between items-center mb-2">
-                        <span className="font-bold text-gray-500">
-                          {task.task}
-                        </span>
+                        <span className="font-bold text-black">{idx + 1}. {task.task}</span>
                         <span
                           className={
                             "px-3 py-1 rounded-full text-xs font-semibold " +
@@ -930,6 +1103,22 @@ function NotesTasksContent() {
                           {task.priority}
                         </span>
                       </div>
+                      <div className="flex gap-2 mb-2">
+                        <span
+                          className={
+                            "px-3 py-1 rounded-full text-xs font-semibold " +
+                            (task.status === "Completed"
+                              ? "bg-purple-100 text-purple-700"
+                              : task.status === "Ongoing"
+                              ? "bg-blue-100 text-blue-700"
+                              : task.status === "Postponed"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-gray-100 text-gray-900")
+                          }
+                        >
+                          {task.status || "Pending"}
+                        </span>
+                      </div>
                       <div className="text-gray-500 text-sm mb-2">
                         Due: {task.dueDate}
                       </div>
@@ -939,11 +1128,13 @@ function NotesTasksContent() {
                           title="Update Task"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleOpenUpdateTask(task.id);
+                            setSelectedTask(task);
+                            setShowTaskDetailModal(true);
+                            // Do not set editMode true automatically
                           }}
                         >
                           <svg
-                            className="w-5 h-5"
+                            className="w-7 h-7"
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="2"
@@ -972,38 +1163,6 @@ function NotesTasksContent() {
                   ))
                 )}
               </div>
-              {/* Delete Confirmation Modal */}
-              {showDeleteConfirm && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
-                  <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
-                    <h2 className="text-lg font-bold mb-4 text-red-600 flex items-center gap-2">
-                      <Trash2 className="w-6 h-6 text-red-600" />
-                      Confirm Delete
-                    </h2>
-                    <p className="mb-6 text-gray-700">
-                      Are you sure you want to delete this task? This action
-                      cannot be undone.
-                    </p>
-                    <div className="flex justify-end gap-3">
-                      <button
-                        className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold"
-                        onClick={() => {
-                          setShowDeleteConfirm(false);
-                          setDeleteTaskId(null);
-                        }}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white font-semibold"
-                        onClick={() => handleDeleteTask(deleteTaskId)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </main>
         </div>
