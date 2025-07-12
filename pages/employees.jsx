@@ -227,7 +227,7 @@ function EmployeesContent() {
           >
             <div className="max-w-6xl mx-auto">
               {/* Page Title and Subtitle */}
-              <h1 className="text-3xl font-bold text-[#7c3aed] font-bold">
+              <h1 className="text-3xl text-[#7c3aed] font-bold">
                 Employee Management
               </h1>
               <p className="text-gray-500 mb-6">
