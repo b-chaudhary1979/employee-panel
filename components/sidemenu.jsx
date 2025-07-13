@@ -257,7 +257,7 @@ const menuItems = [
     ),
   },
   {
-    label: "Notes & Tasks",
+    label: "Notepad",
     route: "/notes-tasks",
     icon: (isActive) => (
       <svg width="22" height="22" fill="none" viewBox="0 0 24 24">

@@ -302,6 +302,17 @@ const AutoIntegration = () => {
           </div>
         </div>
       )}
+      {/* Instructions Section */}
+      <div className="mt-8">
+        <h3 className="text-xl font-semibold text-gray-500 mb-2">How to Use</h3>
+        <ul className="list-decimal pl-6 space-y-2 text-gray-400 text-base">
+          <li>Add the above integration script to your website's <span className="font-semibold">&lt;head&gt;</span> or just before the closing <span className="font-semibold">&lt;/body&gt;</span> tag.</li>
+          <li>This script adds a security layer by requiring an access key before allowing access to protected content or features.</li>
+          <li>No one can proceed without entering the correct access key, keeping your product or page secure from unauthorized users.</li>
+          <li>You can customize the <span className="font-semibold">ACCESS_KEY</span> in the script to your own secret key for enhanced security.</li>
+          <li>The modal is user-friendly, visually appealing, and easy to integrate—no extra dependencies required.</li>
+        </ul>
+      </div>
     </div>
   );
 };
