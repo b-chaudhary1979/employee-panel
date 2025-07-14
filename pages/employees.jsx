@@ -21,6 +21,8 @@ import Loader from "../loader/Loader";
 import { Fragment } from "react";
 import RegisterEmployeeForm from "../components/RegisterEmployeeForm";
 import Head from "next/head";
+import useStoreEmployees from "../hooks/useStoreEmployees";
+import { Pen, Trash2 } from "lucide-react";
 function EmployeesContent() {
   const router = useRouter();
   const { token } = router.query;
@@ -33,51 +35,46 @@ function EmployeesContent() {
   const [notification, setNotification] = useState({
     show: false,
     message: "",
+    color: "green", // 'green' for success, 'red' for delete
   });
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [showEmployeeModal, setShowEmployeeModal] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteEmpId, setDeleteEmpId] = useState(null);
+  const { employees, loading: empLoading, addEmployee, updateEmployee, deleteEmployee, error: empError } = useStoreEmployees(ci);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
-  // Mock employee data
-  const [employees, setEmployees] = useState([
-    {
-      id: "EMP001",
-      name: "Alice Johnson",
-      email: "alice@company.com",
-      role: "Manager",
-      status: "Active",
-      dateJoined: "2023-01-10",
-    },
-    {
-      id: "EMP002",
-      name: "Bob Smith",
-      email: "bob@company.com",
-      role: "Developer",
-      status: "Inactive",
-      dateJoined: "2022-11-22",
-    },
-    {
-      id: "EMP003",
-      name: "Carol Lee",
-      email: "carol@company.com",
-      role: "Designer",
-      status: "Active",
-      dateJoined: "2023-03-05",
-    },
-    {
-      id: "EMP004",
-      name: "David Kim",
-      email: "david@company.com",
-      role: "Support",
-      status: "Active",
-      dateJoined: "2023-02-18",
-    },
-  ]);
+  // Add handler for form submit
+  const handleAddEmployee = async (form, customQA) => {
+    await addEmployee({ ...form, customQA });
+    setShowRegisterModal(false);
+    setNotification({ show: true, message: "Employee registered successfully!", color: "green" });
+    setTimeout(() => setNotification({ show: false, message: "", color: "green" }), 2000);
+  };
 
-  // Summary stats
-  const totalEmployees = employees.length;
-  const activeEmployees = employees.filter((e) => e.status === "Active").length;
-  const inactiveEmployees = employees.filter(
-    (e) => e.status === "Inactive"
-  ).length;
+  // Add handler for edit
+  const handleEditEmployee = (emp) => {
+    setSelectedEmployee(emp);
+    setEditMode(true);
+    setShowEmployeeModal(true);
+  };
+  // Add handler for view
+  const handleViewEmployee = (emp) => {
+    setSelectedEmployee(emp);
+    setEditMode(false);
+    setShowEmployeeModal(true);
+  };
+  // Add handler for delete
+  const handleDeleteEmployee = async (id) => {
+    await deleteEmployee(id); // Hard delete
+    setShowDeleteConfirm(false);
+    setDeleteEmpId(null);
+    setNotification({ show: true, message: "Employee deleted successfully!", color: "red" });
+    setTimeout(() => setNotification({ show: false, message: "", color: "red" }), 2000);
+  };
 
   useEffect(() => {
     if (router.isReady && (!ci || !aid)) {
@@ -137,9 +134,27 @@ function EmployeesContent() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Filter employees by search and status
+  const filteredEmployees = employees.filter(emp => {
+    // Status filter
+    const statusMatch = !statusFilter || (emp.status || "Active") === statusFilter;
+    // Search filter (name, email, id)
+    const q = searchQuery.trim().toLowerCase();
+    const name = `${emp.firstName || ''} ${emp.lastName || ''}`.toLowerCase();
+    const email = (emp.email || '').toLowerCase();
+    const id = (emp.employeeId || emp.id || '').toLowerCase();
+    const searchMatch = !q || name.includes(q) || email.includes(q) || id.includes(q);
+    return statusMatch && searchMatch;
+  });
+
+  // Summary stats
+  const totalEmployees = employees.length;
+  const activeEmployees = employees.filter(emp => (emp.status || "Active") === "Active").length;
+  const inactiveEmployees = employees.filter(emp => (emp.status || "Active") !== "Active").length;
+
   // Only return after all hooks
   if (!ci || !aid) return null;
-  if (loading) {
+  if (loading || empLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen w-full">
         <Loader />
@@ -153,24 +168,17 @@ function EmployeesContent() {
         <style>{`html,body{background-color:#fbf9f4 !important;}`}</style>
       </Head>
       {notification.show && (
-        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300">
-          <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-6 h-6 text-white"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
+        <div className={`fixed top-8 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 ${notification.color === 'green' ? 'bg-green-500' : 'bg-gradient-to-r from-red-500 to-pink-500'} text-white px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown`}>
+          {notification.color === 'green' ? (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-white">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
-            {notification.message}
-          </div>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-white">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          )}
+          {notification.message}
         </div>
       )}
       {/* Register Employee Modal */}
@@ -183,7 +191,173 @@ function EmployeesContent() {
             >
               &#8592; Back
             </button>
-            <RegisterEmployeeForm />
+            <RegisterEmployeeForm onSubmit={handleAddEmployee} />
+          </div>
+        </div>
+      )}
+      {/* Employee Detail Modal (View/Edit) */}
+      {showEmployeeModal && selectedEmployee && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur">
+          <div className="relative w-full max-w-xl mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] border-2 border-purple-500">
+            <button
+              className="absolute top-1 right-3 text-gray-400 hover:text-black text-4xl"
+              onClick={() => { setShowEmployeeModal(false); setEditMode(false); }}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            {/* Profile Picture at the top (moved inside the border) */}
+            <div className="flex flex-col items-center mb-4 mt-2">
+              {selectedEmployee.photo ? (
+                <img src={selectedEmployee.photo} alt="Profile" className="w-24 h-24 rounded-full object-cover border mb-2" />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 border mb-2">
+                  <svg className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-purple-700">Employee Details</h2>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-gray-500">Edit</span>
+                <button onClick={() => setEditMode((v) => !v)} className={`w-10 h-6 rounded-full ${editMode ? 'bg-green-500' : 'bg-gray-300'} flex items-center transition-colors duration-300`}>
+                  <span className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300 ${editMode ? 'translate-x-4' : ''}`}></span>
+                </button>
+              </div>
+            </div>
+            <form
+              className="flex flex-col gap-4"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const { id, sNo, ...updateData } = selectedEmployee;
+                await updateEmployee(selectedEmployee.id, updateData);
+                setShowEmployeeModal(false);
+                setEditMode(false);
+                setNotification({ show: true, message: "Employee updated successfully!", color: "green" });
+                setTimeout(() => setNotification({ show: false, message: "", color: "green" }), 2000);
+              }}
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">First Name</label>
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.firstName || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, firstName: e.target.value })} required disabled={!editMode} />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Last Name</label>
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.lastName || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, lastName: e.target.value })} required disabled={!editMode} />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Email</label>
+                  <input type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.email || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, email: e.target.value })} required disabled={!editMode} />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Phone</label>
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.phone || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, phone: e.target.value })} required disabled={!editMode} />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Department</label>
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.department || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, department: e.target.value })} required disabled={!editMode} />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Role</label>
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.role || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, role: e.target.value })} required disabled={!editMode} />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Date Joined</label>
+                  <input type="date" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.dateJoined || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, dateJoined: e.target.value })} required disabled={!editMode} />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Address</label>
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.address || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, address: e.target.value })} required disabled={!editMode} />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">City</label>
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.city || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, city: e.target.value })} required disabled={!editMode} />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">State</label>
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.state || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, state: e.target.value })} required disabled={!editMode} />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Country</label>
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.country || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, country: e.target.value })} required disabled={!editMode} />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">ZIP Code</label>
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.zip || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, zip: e.target.value })} required disabled={!editMode} />
+                </div>
+              </div>
+              {/* Documents Section */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Documents</label>
+                {(selectedEmployee.documents || []).length === 0 && <div className="text-xs text-gray-400">No documents uploaded.</div>}
+                <ul className="list-disc pl-5">
+                  {(selectedEmployee.documents || []).map((doc, idx) => (
+                    <li key={idx} className="mb-1">
+                      <a href={doc.data} download={doc.name} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-sm">{doc.name}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              {/* Status Pills - only in edit mode, small size, before custom questions */}
+              {editMode ? (
+                <div className="mt-2 mb-2">
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Status</label>
+                  <div className="flex gap-2 mt-1">
+                    {["Active", "Inactive", "Pending", "Terminated", "Employment Cancelled"].map(option => (
+                      <button
+                        key={option}
+                        type="button"
+                        className={`px-2 py-1 rounded-full text-xs font-semibold focus:outline-none transition-colors duration-200 ${selectedEmployee.status === option ? 'bg-purple-500 text-white' : 'bg-gray-200 text-gray-700'} cursor-pointer`}
+                        style={{ minWidth: 0, height: '28px', fontSize: '0.85rem' }}
+                        onClick={() => setSelectedEmployee({ ...selectedEmployee, status: option })}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-2 mb-2">
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Status</label>
+                  <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${selectedEmployee.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'}`}>{selectedEmployee.status || 'Active'}</span>
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Custom Q&A</label>
+                {(selectedEmployee.customQA || []).map((qa, idx) => (
+                  <div key={idx} className="flex flex-col md:flex-row gap-2 mb-2">
+                    <input type="text" placeholder="Question" value={qa.question} onChange={e => { if (!editMode) return; const updatedQA = [...selectedEmployee.customQA]; updatedQA[idx].question = e.target.value; setSelectedEmployee({ ...selectedEmployee, customQA: updatedQA }); }} className="flex-1 border rounded px-3 py-2 placeholder-gray-500 text-gray-800" disabled={!editMode} />
+                    <input type="text" placeholder="Answer" value={qa.answer} onChange={e => { if (!editMode) return; const updatedQA = [...selectedEmployee.customQA]; updatedQA[idx].answer = e.target.value; setSelectedEmployee({ ...selectedEmployee, customQA: updatedQA }); }} className="flex-1 border rounded px-3 py-2 placeholder-gray-500 text-gray-800" disabled={!editMode} />
+                  </div>
+                ))}
+                {editMode && (
+                  <button type="button" onClick={() => setSelectedEmployee({ ...selectedEmployee, customQA: [...(selectedEmployee.customQA || []), { question: '', answer: '' }] })} className="mt-2 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">+ Add Custom Q&A</button>
+                )}
+              </div>
+              {editMode && (
+                <div className="flex gap-2 mt-6 justify-end">
+                  <button type="button" className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={() => { setShowEmployeeModal(false); setEditMode(false); }}>Cancel</button>
+                  <button type="submit" className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200">Save Changes</button>
+                </div>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
+          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-4 text-red-600 flex items-center gap-2">
+              <Trash2 className="w-6 h-6 text-red-600" />
+              Confirm Delete
+            </h2>
+            <p className="mb-6 text-gray-700">Are you sure you want to delete this employee? This action cannot be undone.</p>
+            <div className="flex justify-end gap-3">
+              <button className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold" onClick={() => { setShowDeleteConfirm(false); setDeleteEmpId(null); }}>Cancel</button>
+              <button className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white font-semibold" onClick={() => handleDeleteEmployee(deleteEmpId)}>Delete</button>
+            </div>
           </div>
         </div>
       )}
@@ -313,15 +487,24 @@ function EmployeesContent() {
                   type="text"
                   placeholder="Search employees by name, email, or ID..."
                   className="flex-1 border text-gray-600 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 placeholder-gray-500"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
                 />
-                <select className="border border-gray-300 text-gray-500 rounded-lg px-3 py-2 focus:outline-none">
+                <select
+                  className="border border-gray-300 text-gray-500 rounded-lg px-3 py-2 focus:outline-none"
+                  value={statusFilter}
+                  onChange={e => setStatusFilter(e.target.value)}
+                >
                   <option value="">All Status</option>
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Terminated">Terminated</option>
+                  <option value="Employment Cancelled">Employment Cancelled</option>
                 </select>
                 <button
                   className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg shadow flex items-center gap-2"
-                  onClick={() => setShowRegisterModal(true)}
+                  onClick={() => router.push(`/register-employee?cid=${ci}`)}
                 >
                   <svg
                     className="w-5 h-5"
@@ -346,193 +529,86 @@ function EmployeesContent() {
                 <table className="min-w-full divide-y divide-gray-200 hidden sm:table">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Employee ID
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Name
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Email
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Role
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Date Joined
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S. No.</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profile</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee ID</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Joined</th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {employees.map((emp, idx) => (
-                      <tr key={emp.id}>
-                        <td className="px-6 py-4 whitespace-nowrap font-semibold text-blue-700">
-                          {emp.id}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                          <div className="font-bold">{emp.name}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                          {emp.email}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                          {emp.role}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {emp.status === "Active" ? (
-                            <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
-                              Active
-                            </span>
-                          ) : (
-                            <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
-                              Inactive
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                          {emp.dateJoined}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center flex items-center justify-center gap-3">
-                          {/* Edit Icon */}
-                          <button
-                            className="text-purple-500 hover:text-purple-700"
-                            title="Edit Employee"
-                          >
-                            <svg
-                              className="w-5 h-5"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M15.232 5.232l3.536 3.536M9 13l6-6 3 3-6 6H9v-3z"
-                              />
-                            </svg>
-                          </button>
-                          {/* Delete Icon */}
-                          <button
-                            className="text-red-500 hover:text-red-700"
-                            title="Delete Employee"
-                            onClick={() =>
-                              setEmployees(
-                                employees.filter((_, i) => i !== idx)
-                              )
-                            }
-                          >
-                            <svg
-                              className="w-5 h-5"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </button>
-                        </td>
+                    {filteredEmployees.length === 0 ? (
+                      <tr>
+                        <td colSpan={9} className="text-center py-6 text-gray-400">No employees found.</td>
                       </tr>
-                    ))}
+                    ) : (
+                      filteredEmployees.map((emp, idx) => (
+                        <tr key={emp.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => handleViewEmployee(emp)}>
+                          <td className="px-6 py-4 whitespace-nowrap text-gray-500">{emp.sNo}</td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {emp.photo ? (
+                              <img src={emp.photo} alt="Profile" className="w-9 h-9 rounded-full object-cover border" />
+                            ) : (
+                              <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 border">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap font-semibold text-blue-700">{emp.employeeId || emp.id}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-gray-500"><div className="font-bold">{emp.firstName} {emp.lastName}</div></td>
+                          <td className="px-6 py-4 whitespace-nowrap text-gray-500">{emp.email}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-gray-500">{emp.role}</td>
+                          <td className="px-6 py-4 whitespace-nowrap">{emp.status === "Active" ? (<span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Active</span>) : (<span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">{emp.status || 'Inactive'}</span>)}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-gray-500">{emp.dateJoined}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-center flex items-center justify-center gap-3" onClick={e => e.stopPropagation()}>
+                            <button className="text-purple-500 hover:text-purple-700" title="Edit Employee" onClick={() => handleEditEmployee(emp)}>
+                              <Pen className="w-5 h-5" />
+                            </button>
+                            <button className="text-red-500 hover:text-red-700" title="Delete Employee" onClick={() => { setDeleteEmpId(emp.id); setShowDeleteConfirm(true); }}>
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
                 {/* Mobile Cards */}
                 <div className="sm:hidden">
-                  {employees.map((emp, idx) => (
-                    <div
-                      key={emp.id}
-                      className="border-b border-gray-200 px-4 py-4 flex flex-col gap-2"
-                    >
-                      <div className="flex justify-between items-center">
-                        <span className="font-semibold text-blue-700">
-                          {emp.id}
-                        </span>
-                        <div className="flex gap-3">
-                          {/* Edit Icon */}
-                          <button
-                            className="text-purple-500 hover:text-purple-700"
-                            title="Edit Employee"
-                          >
-                            <svg
-                              className="w-5 h-5"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M15.232 5.232l3.536 3.536M9 13l6-6 3 3-6 6H9v-3z"
-                              />
-                            </svg>
-                          </button>
-                          {/* Delete Icon */}
-                          <button
-                            className="text-red-500 hover:text-red-700"
-                            title="Delete Employee"
-                            onClick={() =>
-                              setEmployees(
-                                employees.filter((_, i) => i !== idx)
-                              )
-                            }
-                          >
-                            <svg
-                              className="w-5 h-5"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </button>
+                  {filteredEmployees.length === 0 ? (
+                    <div className="text-center text-gray-400 py-6">No employees found.</div>
+                  ) : (
+                    filteredEmployees.map((emp, idx) => (
+                      <div key={emp.id} className="border-b border-gray-200 px-4 py-4 flex flex-col gap-2 cursor-pointer hover:bg-gray-50" onClick={() => handleViewEmployee(emp)}>
+                        <div className="flex justify-between items-center">
+                          <span className="font-semibold text-blue-700 flex items-center gap-2">
+                            {emp.sNo}.
+                            {emp.photo ? (
+                              <img src={emp.photo} alt="Profile" className="w-8 h-8 rounded-full object-cover border" />
+                            ) : (
+                              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 border">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                              </div>
+                            )}
+                            {emp.employeeId || emp.id}
+                          </span>
+                          <div className="flex gap-3 self-end" onClick={e => e.stopPropagation()}>
+                            <button className="text-purple-500 hover:text-purple-700" title="Edit Employee" onClick={() => handleEditEmployee(emp)}><Pen className="w-5 h-5" /></button>
+                            <button className="text-red-500 hover:text-red-700" title="Delete Employee" onClick={() => { setDeleteEmpId(emp.id); setShowDeleteConfirm(true); }}><Trash2 className="w-5 h-5" /></button>
+                          </div>
                         </div>
+                        <div className="text-gray-500"><span className="font-semibold">Name: </span>{emp.firstName} {emp.lastName}</div>
+                        <div className="text-gray-500"><span className="font-semibold">Email: </span>{emp.email}</div>
+                        <div className="text-gray-500"><span className="font-semibold">Role: </span>{emp.role}</div>
+                        <div>{emp.status === "Active" ? (<span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Active</span>) : (<span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">{emp.status || 'Inactive'}</span>)}</div>
+                        <div className="text-gray-500"><span className="font-semibold">Date Joined: </span>{emp.dateJoined}</div>
                       </div>
-                      <div className="text-gray-500">
-                        <span className="font-semibold">Name: </span>
-                        {emp.name}
-                      </div>
-                      <div className="text-gray-500">
-                        <span className="font-semibold">Email: </span>
-                        {emp.email}
-                      </div>
-                      <div className="text-gray-500">
-                        <span className="font-semibold">Role: </span>
-                        {emp.role}
-                      </div>
-                      <div>
-                        {emp.status === "Active" ? (
-                          <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
-                            Active
-                          </span>
-                        ) : (
-                          <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
-                            Inactive
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-gray-500">
-                        <span className="font-semibold">Date Joined: </span>
-                        {emp.dateJoined}
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
             </div>
