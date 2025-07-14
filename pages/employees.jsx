@@ -76,6 +76,15 @@ function EmployeesContent() {
     setTimeout(() => setNotification({ show: false, message: "", color: "red" }), 2000);
   };
 
+  // Add handler for copy employee ID
+  const handleCopyEmployeeId = (id) => {
+    if (navigator && navigator.clipboard) {
+      navigator.clipboard.writeText(id);
+      setNotification({ show: true, message: `Employee ID copied!`, color: "green" });
+      setTimeout(() => setNotification({ show: false, message: "", color: "green" }), 1200);
+    }
+  };
+
   useEffect(() => {
     if (router.isReady && (!ci || !aid)) {
       router.replace("/auth/login");
@@ -558,7 +567,13 @@ function EmployeesContent() {
                               </div>
                             )}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap font-semibold text-blue-700">{emp.employeeId || emp.id}</td>
+                          <td className="px-6 py-4 whitespace-nowrap font-semibold text-blue-700 cursor-pointer group relative"
+                              onClick={e => { e.stopPropagation(); handleCopyEmployeeId(emp.employeeId || emp.id); }}
+                              title="Click to copy Employee ID"
+                          >
+                            {emp.employeeId || emp.id}
+                            <span className="absolute left-1/2 -translate-x-1/2 top-full mt-1 text-xs text-green-600 bg-white px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">Copy</span>
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap text-gray-500"><div className="font-bold">{emp.firstName} {emp.lastName}</div></td>
                           <td className="px-6 py-4 whitespace-nowrap text-gray-500">{emp.email}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-gray-500">{emp.role}</td>
@@ -594,7 +609,14 @@ function EmployeesContent() {
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                               </div>
                             )}
-                            {emp.employeeId || emp.id}
+                            <span
+                              className="cursor-pointer underline text-blue-700 relative group"
+                              onClick={e => { e.stopPropagation(); handleCopyEmployeeId(emp.employeeId || emp.id); }}
+                              title="Click to copy Employee ID"
+                            >
+                              {emp.employeeId || emp.id}
+                              <span className="absolute left-1/2 -translate-x-1/2 top-full mt-1 text-xs text-green-600 bg-white px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">Copy</span>
+                            </span>
                           </span>
                           <div className="flex gap-3 self-end" onClick={e => e.stopPropagation()}>
                             <button className="text-purple-500 hover:text-purple-700" title="Edit Employee" onClick={() => handleEditEmployee(emp)}><Pen className="w-5 h-5" /></button>
