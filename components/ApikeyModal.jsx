@@ -1,0 +1,456 @@
+import { Lock, Eye, EyeOff, Key } from "lucide-react";
+import React from "react"; // Added missing import for React
+
+/**
+ * Encryption Modal
+ * @param {Object} props
+ * @param {boolean} props.open
+ * @param {function} props.onClose
+ * @param {function} props.onSubmit
+ * @param {string} props.encryptionPassword
+ * @param {function} props.setEncryptionPassword
+ * @param {boolean} props.showEncryptionPassword
+ * @param {function} props.setShowEncryptionPassword
+ * @param {boolean} props.isProcessing
+ */
+export function EncryptModal({ open, onClose, onSubmit, encryptionPassword, setEncryptionPassword, showEncryptionPassword, setShowEncryptionPassword, isProcessing }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center pointer-events-none p-4">
+      <div className="relative w-full max-w-lg mx-auto bg-white rounded-2xl shadow-2xl p-8 pointer-events-auto">
+        <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={onClose}>&#8592; Back</button>
+        <div className="border-2 border-purple-500 rounded-xl p-6">
+          <h2 className="text-2xl font-bold mb-6 text-black">Encrypt API Key</h2>
+          <form className="flex flex-col gap-6" onSubmit={onSubmit}>
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-3">Encryption Password</label>
+              <div className="relative">
+                <input type={showEncryptionPassword ? "text" : "password"} className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-base text-black" value={encryptionPassword} onChange={e => setEncryptionPassword(e.target.value)} placeholder="Enter encryption password..." required disabled={isProcessing} />
+                <button type="button" onClick={() => setShowEncryptionPassword(!showEncryptionPassword)} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                  {showEncryptionPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </div>
+            <button type="submit" disabled={isProcessing} className="bg-[#a259f7] hover:bg-[#7c3aed] disabled:bg-gray-400 text-white font-semibold rounded-lg px-6 py-3 mt-4 transition-colors duration-200 flex items-center justify-center gap-3 text-base">
+              {isProcessing ? (<><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>Encrypting...</>) : (<><Lock size={20} />Encrypt Key</>)}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Decryption Modal
+ * @param {Object} props
+ * @param {boolean} props.open
+ * @param {function} props.onClose
+ * @param {function} props.onSubmit
+ * @param {string} props.decryptionPassword
+ * @param {function} props.setDecryptionPassword
+ * @param {boolean} props.showDecryptionPassword
+ * @param {function} props.setShowDecryptionPassword
+ * @param {boolean} props.isProcessing
+ */
+export function DecryptModal({ open, onClose, onSubmit, decryptionPassword, setDecryptionPassword, showDecryptionPassword, setShowDecryptionPassword, isProcessing }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/10 backdrop-blur pointer-events-none p-4">
+      <div className="relative w-full max-w-lg mx-auto bg-white rounded-2xl shadow-2xl p-8 pointer-events-auto">
+        <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={onClose}>&#8592; Back</button>
+        <div className="border-2 border-purple-500 rounded-xl p-6">
+          <h2 className="text-2xl font-bold mb-6 text-black">Decrypt API Key</h2>
+          <form className="flex flex-col gap-6" onSubmit={onSubmit}>
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-3">Decryption Password</label>
+              <div className="relative">
+                <input type={showDecryptionPassword ? "text" : "password"} className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-base text-black" value={decryptionPassword} onChange={e => setDecryptionPassword(e.target.value)} placeholder="Enter decryption password..." required disabled={isProcessing} />
+                <button type="button" onClick={() => setShowDecryptionPassword(!showDecryptionPassword)} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                  {showDecryptionPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </div>
+            <button type="submit" disabled={isProcessing} className="bg-[#a259f7] hover:bg-[#7c3aed] disabled:bg-gray-400 text-white font-semibold rounded-lg px-6 py-3 mt-4 transition-colors duration-200 flex items-center justify-center gap-3 text-base">
+              {isProcessing ? (<><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>Decrypting...</>) : (<><Key size={20} />Decrypt Key</>)}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Add Key Modal
+ * @param {Object} props
+ * @param {boolean} props.open
+ * @param {function} props.onClose
+ * @param {function} props.onSubmit
+ * @param {string} props.newKeyName
+ * @param {function} props.setNewKeyName
+ * @param {string} props.newKeyStatus
+ * @param {function} props.setNewKeyStatus
+ * @param {string} props.customKey
+ * @param {function} props.setCustomKey
+ * @param {boolean} props.showApiKey
+ * @param {function} props.setShowApiKey
+ * @param {string} props.environment
+ * @param {function} props.setEnvironment
+ * @param {string} props.platform
+ * @param {function} props.handlePlatformChange
+ * @param {boolean} props.showCustomPlatform
+ * @param {string} props.customPlatform
+ * @param {function} props.setCustomPlatform
+ * @param {string} props.linkedProject
+ * @param {function} props.setLinkedProject
+ * @param {string} props.usageLimit
+ * @param {function} props.setUsageLimit
+ * @param {string} props.expiryDate
+ * @param {function} props.setExpiryDate
+ * @param {string} props.description
+ * @param {function} props.setDescription
+ * @param {Array} props.customQA
+ * @param {function} props.handleCustomQAChange
+ * @param {function} props.addCustomQA
+ * @param {string} props.addKeyError
+ */
+export function AddKeyModal({ open, onClose, onSubmit, newKeyName, setNewKeyName, newKeyStatus, setNewKeyStatus, customKey, setCustomKey, showApiKey, setShowApiKey, environment, setEnvironment, platform, handlePlatformChange, showCustomPlatform, customPlatform, setCustomPlatform, linkedProject, setLinkedProject, usageLimit, setUsageLimit, expiryDate, setExpiryDate, description, setDescription, customQA, handleCustomQAChange, addCustomQA, addKeyError }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/10 backdrop-blur pointer-events-none p-4">
+      <div className="relative w-full max-w-3xl mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] pointer-events-auto">
+        <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={onClose}>&#8592; Back</button>
+        <div className="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow space-y-4 text-gray-800 border-2 border-purple-500">
+          <h2 className="text-2xl font-bold mb-4 text-purple-600">Add API Key</h2>
+          <form className="flex flex-col gap-6" onSubmit={onSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Key Name <span className="text-red-600">*</span></label>
+                <input type="text" className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={newKeyName} onChange={e => setNewKeyName(e.target.value)} placeholder="Enter key name..." required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Status</label>
+                <select className="w-full border rounded px-3 py-2 text-gray-800" value={newKeyStatus} onChange={e => setNewKeyStatus(e.target.value)} required>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">API Key <span className="text-red-600">*</span></label>
+              <div className="relative">
+                <input type={showApiKey ? "text" : "password"} className="w-full border rounded px-3 py-2 pr-12 placeholder-gray-500 text-gray-800" value={customKey} onChange={e => setCustomKey(e.target.value)} placeholder="Enter your API key..." required />
+                <button type="button" onClick={() => setShowApiKey(!showApiKey)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">{showApiKey ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+              </div>
+            </div>
+            {/* New Fields Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Environment</label>
+                <select className="w-full border rounded px-3 py-2 text-gray-800" value={environment} onChange={e => setEnvironment(e.target.value)}>
+                  <option value="development">Development</option>
+                  <option value="staging">Staging</option>
+                  <option value="production">Production</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Platform</label>
+                <select className="w-full border rounded px-3 py-2 text-gray-800" value={platform} onChange={handlePlatformChange}>
+                  <option value="github">GitHub</option>
+                  <option value="stripe">Stripe</option>
+                  <option value="aws">AWS</option>
+                  <option value="custom">Custom Service</option>
+                </select>
+              </div>
+            </div>
+            {showCustomPlatform && (
+              <div>
+                <label className="block text-sm font-medium mb-1">Custom Platform Name</label>
+                <input type="text" className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={customPlatform} onChange={e => setCustomPlatform(e.target.value)} placeholder="Enter custom platform name" />
+              </div>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Linked Project</label>
+                <input type="text" className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={linkedProject} onChange={e => setLinkedProject(e.target.value)} placeholder="e.g. Project Alpha" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Usage Limit</label>
+                <input type="number" className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={usageLimit} onChange={e => setUsageLimit(e.target.value)} placeholder="e.g. 1000" min="0" />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Expiry Date</label>
+              <input type="date" className="w-full border rounded px-3 py-2 text-gray-800" value={expiryDate} onChange={e => setExpiryDate(e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Description</label>
+              <textarea className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={description} onChange={e => setDescription(e.target.value)} placeholder="Enter detailed description..." rows={3} />
+            </div>
+            {/* Custom QA Section */}
+            <div>
+              <h3 className="font-semibold mb-2">Custom Questions & Answers</h3>
+              {customQA.map((qa, idx) => (
+                <div key={idx} className="flex flex-col md:flex-row gap-2 mb-2">
+                  <input type="text" placeholder="Question" value={qa.question} onChange={e => handleCustomQAChange(idx, "question", e.target.value)} className="flex-1 border rounded px-3 py-2 placeholder-gray-500 text-gray-800" />
+                  <input type="text" placeholder="Answer" value={qa.answer} onChange={e => handleCustomQAChange(idx, "answer", e.target.value)} className="flex-1 border rounded px-3 py-2 placeholder-gray-500 text-gray-800" />
+                </div>
+              ))}
+              <button type="button" onClick={addCustomQA} className="mt-2 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">+ Add Custom Q&A</button>
+            </div>
+            {addKeyError && <div className="text-red-600 text-sm font-semibold mt-2">{addKeyError}</div>}
+            <button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl mt-4" disabled={!(newKeyName.trim() && customKey.trim())}>Add Key</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Add Key Encrypt Modal
+ * @param {Object} props
+ * @param {boolean} props.open
+ * @param {function} props.onClose
+ * @param {function} props.onSubmit
+ * @param {string} props.addKeyVaultKey
+ * @param {function} props.setAddKeyVaultKey
+ * @param {boolean} props.showAddKeyVaultKey
+ * @param {function} props.setShowAddKeyVaultKey
+ * @param {string} props.addKeyError
+ * @param {boolean} props.isAddingKey
+ */
+export function AddKeyEncryptModal({ open, onClose, onSubmit, addKeyVaultKey, setAddKeyVaultKey, showAddKeyVaultKey, setShowAddKeyVaultKey, addKeyError, isAddingKey }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[210] flex items-center justify-center pointer-events-none p-4">
+      <div className="relative w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl p-8 pointer-events-auto">
+        <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={onClose}>&#8592; Back</button>
+        <div className="border-2 border-purple-500 rounded-xl p-6">
+          <h2 className="text-2xl font-bold mb-6 text-black">Enter Vault Key to Encrypt</h2>
+          <form className="flex flex-col gap-6" onSubmit={onSubmit}>
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-3">Vault Key</label>
+              <div className="relative">
+                <input type={showAddKeyVaultKey ? "text" : "password"} className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-base text-black" value={addKeyVaultKey} onChange={e => setAddKeyVaultKey(e.target.value)} placeholder="Enter vault key..." required />
+                <button type="button" onClick={() => setShowAddKeyVaultKey(!showAddKeyVaultKey)} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">{showAddKeyVaultKey ? <EyeOff size={20} /> : <Eye size={20} />}</button>
+              </div>
+            </div>
+            {addKeyError && <div className="text-red-600 text-sm font-semibold mt-2">{addKeyError}</div>}
+            <button type="submit" disabled={isAddingKey} className="bg-[#a259f7] hover:bg-[#7c3aed] disabled:bg-gray-400 text-white font-semibold rounded-lg px-6 py-3 mt-4 transition-colors duration-200 flex items-center justify-center gap-3 text-base">{isAddingKey ? (<><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>Adding Key...</>) : ("Encrypt & Add Key")}</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Vault Verification Modal for Key Details
+ * @param {Object} props
+ * @param {boolean} props.open
+ * @param {function} props.onClose
+ * @param {function} props.onSubmit
+ * @param {string} props.keyDetailVaultKey
+ * @param {function} props.setKeyDetailVaultKey
+ * @param {boolean} props.showKeyDetailVaultKey
+ * @param {function} props.setShowKeyDetailVaultKey
+ */
+export function KeyDetailVaultModal({ open, onClose, onSubmit, keyDetailVaultKey, setKeyDetailVaultKey, showKeyDetailVaultKey, setShowKeyDetailVaultKey }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/10 backdrop-blur pointer-events-none p-4">
+      <div className="relative w-full max-w-md mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] pointer-events-auto">
+        <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={onClose}>&#8592; Back</button>
+        <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow space-y-4 text-gray-800 border-2 border-purple-500">
+          <h2 className="text-2xl font-bold mb-4 text-purple-600">Verify Access</h2>
+          <p className="text-gray-600 mb-4">Enter vault key to view API key details</p>
+          <form onSubmit={onSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Vault Key <span className="text-red-600">*</span></label>
+              <div className="relative">
+                <input type={showKeyDetailVaultKey ? "text" : "password"} className="w-full border rounded px-3 py-2 pr-12 placeholder-gray-500 text-gray-800" value={keyDetailVaultKey} onChange={e => setKeyDetailVaultKey(e.target.value)} placeholder="Enter vault key..." required />
+                <button type="button" onClick={() => setShowKeyDetailVaultKey(!showKeyDetailVaultKey)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">{showKeyDetailVaultKey ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+              </div>
+            </div>
+            <button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl mt-4">Verify & View Details</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * API Key Detail Modal
+ * @param {Object} props
+ * @param {boolean} props.open
+ * @param {function} props.onClose
+ * @param {Object} props.selectedKey
+ * @param {function} props.handleEncrypt
+ * @param {function} props.handleDecrypt
+ * @param {function} props.onDelete
+ * @param {function} props.updateKeyEncryption
+ * @param {string} props.vaultKey
+ */
+export function KeyDetailModal({ open, onClose, selectedKey, handleEncrypt, handleDecrypt, onDelete, updateKeyEncryption, vaultKey }) {
+  const [wasDecrypted, setWasDecrypted] = React.useState(false);
+  const [reencrypting, setReencrypting] = React.useState(false);
+  const [reencryptError, setReencryptError] = React.useState("");
+
+  // Set wasDecrypted to true when user decrypts
+  const handleDecryptWithFlag = (id) => {
+    setWasDecrypted(true);
+    handleDecrypt(id, onClose); // Close this modal before opening decrypt modal
+  };
+
+  // On modal close, re-encrypt if needed
+  const handleClose = async () => {
+    setReencryptError("");
+    if (wasDecrypted && selectedKey && !selectedKey.isEncrypted && selectedKey.key) {
+      setReencrypting(true);
+      try {
+        await updateKeyEncryption(selectedKey.id, selectedKey.key, vaultKey);
+      } catch (err) {
+        setReencryptError(err.message || "Failed to re-encrypt key");
+      } finally {
+        setReencrypting(false);
+        setWasDecrypted(false);
+        onClose();
+      }
+    } else {
+      setWasDecrypted(false);
+      onClose();
+    }
+  };
+
+  if (!open || !selectedKey) return null;
+  // Extract customQA from selectedKey.custom if present
+  const customQA = selectedKey.custom && Array.isArray(selectedKey.custom.customQA)
+    ? selectedKey.custom.customQA
+    : (selectedKey.customQA || []);
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/10 backdrop-blur pointer-events-none p-4">
+      <div className="relative w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-6 pointer-events-auto">
+        <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={handleClose} disabled={reencrypting}>&#8592; Back</button>
+        <div className="border-2 border-purple-500 rounded-xl p-6">
+          <h2 className="text-xl font-bold mb-4 text-black">API Key Details</h2>
+          <div className="mb-2"><span className="font-semibold text-gray-700">Key Name:</span><span className="ml-2 text-gray-900">{selectedKey.keyName}</span></div>
+          <div className="mb-2"><span className="font-semibold text-gray-700">Store Date:</span><span className="ml-2 text-gray-900">{selectedKey.storeDate}</span></div>
+          <div className="mb-2"><span className="font-semibold text-gray-700">Stored By:</span><span className="ml-2 text-gray-900">{selectedKey.storedBy}</span></div>
+          <div className="mb-2 flex items-center">
+            <span className="font-semibold text-gray-700">Key:</span>
+            <span className="ml-2 font-mono text-base bg-gray-50 px-3 py-2 rounded break-all flex-1 border border-gray-300 text-black select-all" style={{wordBreak: 'break-all', fontSize: '1.1rem', letterSpacing: '0.03em'}}>
+              {selectedKey.isEncrypted ? selectedKey.encryptedKey : selectedKey.key}
+            </span>
+          </div>
+          <div className="mb-2"><span className="font-semibold text-gray-700">Status:</span><span className={"ml-2 font-bold px-3 py-1 rounded-full text-sm " + (selectedKey.status === "Active" ? "bg-green-100 text-green-600" : "bg-gray-200 text-gray-600")}>{selectedKey.status || "Active"}</span></div>
+          <div className="mb-2"><span className="font-semibold text-gray-700">Encryption:</span><span className={"ml-2 font-bold px-3 py-1 rounded-full text-sm " + (selectedKey.isEncrypted ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600")}>{selectedKey.isEncrypted ? "Encrypted" : "Decrypted"}</span></div>
+          {selectedKey.environment && (<div className="mb-2"><span className="font-semibold text-gray-700">Environment:</span><span className="ml-2 text-gray-900 capitalize">{selectedKey.environment}</span></div>)}
+          {selectedKey.platform && (<div className="mb-2"><span className="font-semibold text-gray-700">Platform:</span><span className="ml-2 text-gray-900 capitalize">{selectedKey.platform}</span></div>)}
+          {selectedKey.linkedProject && (<div className="mb-2"><span className="font-semibold text-gray-700">Linked Project:</span><span className="ml-2 text-gray-900">{selectedKey.linkedProject}</span></div>)}
+          {selectedKey.usageLimit && (<div className="mb-2"><span className="font-semibold text-gray-700">Usage Limit:</span><span className="ml-2 text-gray-900">{selectedKey.usageLimit}</span></div>)}
+          {selectedKey.expiryDate && (<div className="mb-2"><span className="font-semibold text-gray-700">Expiry Date:</span><span className="ml-2 text-gray-900">{selectedKey.expiryDate}</span></div>)}
+          {selectedKey.description && (<div className="mb-2"><span className="font-semibold text-gray-700">Description:</span><div className="mt-1"><span className="text-gray-900 text-sm">{selectedKey.description}</span></div></div>)}
+          {/* Show custom questions and answers if present */}
+          {customQA && customQA.length > 0 && (
+            <div className="mb-2">
+              <span className="font-semibold text-gray-700">Custom Q&A:</span>
+              <ul className="mt-1 ml-4 list-disc text-gray-900 text-sm">
+                {customQA.map((qa, idx) => (
+                  <li key={idx} className="mb-1">
+                    <span className="font-semibold">Q:</span> {qa.question} <br />
+                    <span className="font-semibold">A:</span> {qa.answer}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {/* Show any other fields not already shown */}
+          {Object.entries(selectedKey).map(([key, value]) => {
+            const shown = [
+              "serialNo","keyName","storeDate","storedBy","key","encryptedKey","isEncrypted","isDecrypted","status","environment","platform","linkedProject","usageLimit","expiryDate","description","custom","customQA"
+            ];
+            if (shown.includes(key)) return null;
+            if (typeof value === "object" && value !== null) return null;
+            return (
+              <div className="mb-2" key={key}>
+                <span className="font-semibold text-gray-700">{key}:</span>
+                <span className="ml-2 text-gray-900">{String(value)}</span>
+              </div>
+            );
+          })}
+          <div className="flex gap-2 mt-4">
+            <button className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={onDelete} disabled={reencrypting}>Delete</button>
+            {selectedKey.isEncrypted ? (
+              <button className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={() => handleDecryptWithFlag(selectedKey.id)} disabled={reencrypting}>Decrypt</button>
+            ) : (
+              <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={() => handleEncrypt(selectedKey.id, onClose)} disabled={reencrypting}>Encrypt</button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Delete Key Modal
+ * @param {Object} props
+ * @param {boolean} props.open
+ * @param {function} props.onClose
+ * @param {function} props.onConfirm
+ * @param {string} props.storedBy
+ * @param {string} props.keyName
+ * @param {string} props.error
+ * @param {boolean} props.loading
+ */
+export function DeleteKeyModal({ open, onClose, onConfirm, storedBy, keyName, error, loading }) {
+  const [vaultKey, setVaultKey] = React.useState("");
+  const [confirmText, setConfirmText] = React.useState("");
+  const [inputUsername, setInputUsername] = React.useState("");
+  const [inputKeyName, setInputKeyName] = React.useState("");
+  React.useEffect(() => {
+    if (!open) {
+      setVaultKey("");
+      setConfirmText("");
+      setInputUsername("");
+      setInputKeyName("");
+    }
+  }, [open]);
+  return !open ? null : (
+    <div className="fixed inset-0 z-[210] flex items-center justify-center bg-black/20 backdrop-blur-sm pointer-events-none">
+      <div className="relative w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl p-8 pointer-events-auto">
+        <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={onClose}>&#8592; Back</button>
+        <div className="border-2 border-red-500 rounded-xl p-6">
+          <h2 className="text-xl font-bold mb-4 text-red-600">Confirm Delete API Key</h2>
+          <div className="mb-3">
+            <label className="block text-sm font-medium mb-1 text-black">Username (Stored By)</label>
+            <input className="w-full border-2 border-blue-500 rounded px-3 py-2 bg-white text-black" value={inputUsername} onChange={e => setInputUsername(e.target.value)} placeholder="Enter username who stored the key" />
+          </div>
+          <div className="mb-3">
+            <label className="block text-sm font-medium mb-1 text-black">Key Name</label>
+            <input className="w-full border-2 border-blue-500 rounded px-3 py-2 bg-white text-black" value={inputKeyName} onChange={e => setInputKeyName(e.target.value)} placeholder="Enter key name" />
+          </div>
+          <div className="mb-3">
+            <label className="block text-sm font-medium mb-1 text-black">Vault Key</label>
+            <input className="w-full border-2 border-blue-500 rounded px-3 py-2 bg-white text-black" type="password" value={vaultKey} onChange={e => setVaultKey(e.target.value)} placeholder="Enter vault key..." />
+          </div>
+          <div className="mb-3">
+            <label className="block text-sm font-medium mb-1 text-black">Type <span className="font-bold">confirm</span> to proceed</label>
+            <input className="w-full border-2 border-blue-500 rounded px-3 py-2 bg-white text-black" value={confirmText} onChange={e => setConfirmText(e.target.value)} placeholder="Type 'confirm' to enable delete" />
+          </div>
+          {error && <div className="text-red-600 text-sm font-semibold mb-2">{error}</div>}
+          <button
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl mt-2 disabled:bg-gray-300 disabled:text-gray-400"
+            disabled={loading || !vaultKey || !inputUsername || !inputKeyName || confirmText !== "confirm"}
+            onClick={() => onConfirm({ vaultKey, confirmText, inputUsername, inputKeyName })}
+          >
+            {loading ? "Deleting..." : "Confirm Delete"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
