@@ -167,9 +167,25 @@ export default function RegisterEmployeeForm({ onSubmit, initialData }) {
           Employee registered successfully!
         </div>
       )}
+      {/* Timeline/Progress Indicator */}
+      <div className="flex items-center justify-center mb-8">
+        {/* Step 1 */}
+        <div className="flex flex-col items-center">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-lg border-2 ${slide === 1 ? 'bg-purple-500 text-white border-purple-500 shadow-lg' : 'bg-white text-purple-500 border-purple-300'}`}>1</div>
+          <span className={`mt-2 text-sm font-semibold ${slide === 1 ? 'text-purple-600' : 'text-gray-400'}`}>Employee Details</span>
+        </div>
+        {/* Line */}
+        <div className={`w-16 h-1 mx-2 md:mx-4 rounded-full ${slide === 2 ? 'bg-purple-500' : 'bg-gray-300'}`}></div>
+        {/* Step 2 */}
+        <div className="flex flex-col items-center">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-lg border-2 ${slide === 2 ? 'bg-purple-500 text-white border-purple-500 shadow-lg' : 'bg-white text-purple-500 border-purple-300'}`}>2</div>
+          <span className={`mt-2 text-sm font-semibold ${slide === 2 ? 'text-purple-600' : 'text-gray-400'}`}>Upload Documents</span>
+        </div>
+      </div>
       {slide === 1 && (
         <form className="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow space-y-4 text-gray-800 border-2 border-purple-500" onSubmit={handleFirstFormSubmit} autoComplete="off" aria-autocomplete="none">
-          <h2 className="text-2xl font-bold mb-4 text-purple-600">Register Employee</h2>
+          <h1 className="text-3xl md:text-5xl font-bold text-purple-500 mb-6 text-center">Register Employee</h1>
+          <p className="text-center text-gray-500 text-base md:text-lg mb-8">Fill in the details below to register a new employee.</p>
           {formError && (
             <div className="mb-4 text-red-600 font-semibold text-center">{formError}</div>
           )}
@@ -236,7 +252,36 @@ export default function RegisterEmployeeForm({ onSubmit, initialData }) {
               <input name="role" value={form.role} onChange={handleChange} className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" required placeholder="Role" autoComplete="nope-role" spellCheck={false} aria-autocomplete="none" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Employee ID</label>
+              <label className="block text-sm font-medium mb-1 flex items-center gap-1">
+                Employee ID <span className='text-red-600'>*</span>
+                <span className="relative group">
+                  <button type="button" className=" focus:outline-none">
+                    {/* Modern info icon: purple circle with white bold 'i', drop shadow */}
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" fill="#a259f7" filter="url(#shadow)" />
+                      <text x="12" y="17" textAnchor="middle" fontSize="16" fill="white" fontFamily="Arial" fontWeight="bold">i</text>
+                      <defs>
+                        <filter id="shadow" x="0" y="0" width="24" height="24">
+                          <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/>
+                        </filter>
+                      </defs>
+                    </svg>
+                  </button>
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 min-w-[260px] max-w-xs bg-black text-white text-xs rounded-xl px-4 py-3 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 pointer-events-none space-y-2 border border-gray-700">
+                    <div className="font-semibold text-base text-blue-200 mb-1">How Employee ID is generated</div>
+                    <div><span className="font-semibold">Format:</span> CCDEFFLLYYMMDDRR</div>
+                    <ul className="list-disc list-inside space-y-1 pl-2">
+                      <li><b>CC</b>: First 2 letters of company name</li>
+                      <li><b>DE</b>: First 2 letters of department</li>
+                      <li><b>FF</b>: First 2 letters of first name</li>
+                      <li><b>LL</b>: First 2 letters of last name</li>
+                      <li><b>YYMMDD</b>: Date joined (year, month, day)</li>
+                      <li><b>RR</b>: Random 2-digit number</li>
+                    </ul>
+                    <div className="mt-2"><span className="font-semibold">Example:</span> <span className="font-mono bg-gray-800 px-2 py-1 rounded">ABDEJODO24060112</span></div>
+                  </div>
+                </span>
+              </label>
               {form.employeeId && (
                 <div className="mb-1 flex items-center gap-2">
                   <span className="text-red-600 font-bold">{form.employeeId}</span>

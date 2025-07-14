@@ -7,6 +7,7 @@ import {
   updateDoc,
   deleteDoc,
   onSnapshot,
+  serverTimestamp, // Add this import
 } from 'firebase/firestore';
 
 const useStoreEmployees = (cid) => {
@@ -55,7 +56,12 @@ const useStoreEmployees = (cid) => {
     try {
       const employeesRef = collection(db, 'users', cid, 'employees');
       const empId = employeeData.employeeId;
-      const dataToSave = { ...employeeData, status: employeeData.status || 'Active' };
+      // Ensure all fields from RegisterEmployeeForm are saved
+      const dataToSave = {
+        ...employeeData,
+        status: employeeData.status || 'Active',
+        dateRegistered: serverTimestamp(), // Add registration timestamp
+      };
       await setDoc(doc(employeesRef, empId), dataToSave);
       setLoading(false);
     } catch (err) {

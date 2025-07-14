@@ -46,6 +46,7 @@ function EmployeesContent() {
   const { employees, loading: empLoading, addEmployee, updateEmployee, deleteEmployee, error: empError } = useStoreEmployees(ci);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [copiedEmployeeId, setCopiedEmployeeId] = useState(null);
 
   // Add handler for form submit
   const handleAddEmployee = async (form, customQA) => {
@@ -80,8 +81,12 @@ function EmployeesContent() {
   const handleCopyEmployeeId = (id) => {
     if (navigator && navigator.clipboard) {
       navigator.clipboard.writeText(id);
+      setCopiedEmployeeId(id);
       setNotification({ show: true, message: `Employee ID copied!`, color: "green" });
-      setTimeout(() => setNotification({ show: false, message: "", color: "green" }), 1200);
+      setTimeout(() => {
+        setNotification({ show: false, message: "", color: "green" });
+        setCopiedEmployeeId(null);
+      }, 1000);
     }
   };
 
@@ -171,6 +176,21 @@ function EmployeesContent() {
     );
   }
 
+  // Helper to format Firestore Timestamp, string, or Date
+  function formatTimestamp(ts) {
+    if (!ts) return 'N/A';
+    if (typeof ts === 'object' && ts.seconds) {
+      // Firestore Timestamp
+      return new Date(ts.seconds * 1000).toLocaleString();
+    }
+    if (typeof ts === 'string' || typeof ts === 'number') {
+      const d = new Date(ts);
+      if (!isNaN(d.getTime())) return d.toLocaleString();
+    }
+    if (ts instanceof Date) return ts.toLocaleString();
+    return 'N/A';
+  }
+
   return (
     <>
       <Head>
@@ -183,9 +203,16 @@ function EmployeesContent() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-white">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            // Red tick for delete success
+            notification.message === 'Employee deleted successfully!' ? (
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-red-200">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-white">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            )
           )}
           {notification.message}
         </div>
@@ -207,24 +234,120 @@ function EmployeesContent() {
       {/* Employee Detail Modal (View/Edit) */}
       {showEmployeeModal && selectedEmployee && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur">
-          <div className="relative w-full max-w-xl mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] border-2 border-purple-500">
+          <div className="relative w-full max-w-2xl md:max-w-4xl mx-auto bg-gradient-to-br from-purple-50 via-white to-blue-50 rounded-2xl shadow-2xl p-10 overflow-y-auto max-h-[90vh] border border-purple-200 ring-1 ring-purple-100 text-[1.15rem] md:text-xl">
+            {/* Colored top border accent */}
+            <div className="absolute top-0 left-0 w-full h-2 rounded-t-2xl bg-gradient-to-r from-purple-500 via-pink-400 to-blue-400" />
+            {/* Back Button */}
             <button
-              className="absolute top-1 right-3 text-gray-400 hover:text-black text-4xl"
+              className="absolute top-4 left-4 flex items-center gap-2 px-4 py-2 hover:bg-purple-300 rounded text-purple-700 font-semibold text-lg md:text-xl z-20"
               onClick={() => { setShowEmployeeModal(false); setEditMode(false); }}
-              aria-label="Close"
             >
-              &times;
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
             </button>
             {/* Profile Picture at the top (moved inside the border) */}
-            <div className="flex flex-col items-center mb-4 mt-2">
+            <div className="flex flex-col items-center mb-10 mt-6 relative z-10">
               {selectedEmployee.photo ? (
-                <img src={selectedEmployee.photo} alt="Profile" className="w-24 h-24 rounded-full object-cover border mb-2" />
+                <img src={selectedEmployee.photo} alt="Profile" className="w-32 h-32 rounded-full object-cover border-4 border-purple-200 shadow-lg mb-2" />
               ) : (
-                <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 border mb-2">
-                  <svg className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 border-4 border-purple-200 shadow-lg mb-2">
+                  <svg className="w-16 h-16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 </div>
               )}
+              {/* Registration date below profile picture */}
+              <div className="text-sm text-gray-500 text-center mt-2 bg-white/80 px-4 py-1 rounded-full shadow-sm border border-gray-200">
+                Registered on: <span className="font-semibold text-gray-700">{formatTimestamp(selectedEmployee.dateRegistered)}</span>
+              </div>
             </div>
+            {/* Employee Details Section */}
+            <div className="mb-10 bg-white/90 rounded-2xl p-7 border border-purple-100 shadow flex flex-col gap-6">
+              <div className="flex items-center gap-2 mb-4">
+                <svg className="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm0 2c-2.67 0-8 1.337-8 4v2h16v-2c0-2.663-5.33-4-8-4z" /></svg>
+                <h2 className="text-2xl md:text-3xl font-bold text-purple-400 tracking-tight">Employee Details</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
+                <div><span className="text-xs text-purple-400 font-bold uppercase">Employee ID</span><br/>
+                  <span className="text-xl md:text-2xl text-gray-800 flex items-center gap-2 font-bold">
+                    {selectedEmployee.employeeId || selectedEmployee.id || '-'}
+                    {(selectedEmployee.employeeId || selectedEmployee.id) && (
+                      <button
+                        type="button"
+                        className="ml-1 px-2 py-1 bg-gray-200 hover:bg-purple-200 rounded text-xs text-gray-700 flex items-center gap-1"
+                        title="Copy Employee ID"
+                        onClick={() => {
+                          handleCopyEmployeeId(selectedEmployee.employeeId || selectedEmployee.id);
+                        }}
+                      >
+                        {copiedEmployeeId === (selectedEmployee.employeeId || selectedEmployee.id) ? (
+                          // Tick icon
+                          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        ) : (
+                          // Copy icon
+                          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="2" fill="none"/>
+                            <rect x="3" y="3" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="2" fill="none"/>
+                          </svg>
+                        )}
+                      </button>
+                    )}
+                  </span>
+                </div>
+                <div><span className="text-xs text-purple-400 font-bold uppercase">Name</span><br/><span className="text-xl md:text-2xl text-gray-800 font-semibold">{selectedEmployee.firstName} {selectedEmployee.lastName}</span></div>
+                <div><span className="text-xs text-purple-400 font-bold uppercase">Email</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.email}</span></div>
+                <div><span className="text-xs text-purple-400 font-bold uppercase">Phone</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.phone}</span></div>
+                <div><span className="text-xs text-purple-400 font-bold uppercase">DOB</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.dob}</span></div>
+                <div><span className="text-xs text-purple-400 font-bold uppercase">Gender</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.gender}</span></div>
+                <div><span className="text-xs text-purple-400 font-bold uppercase">Department</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.department}</span></div>
+                <div><span className="text-xs text-purple-400 font-bold uppercase">Role</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.role}</span></div>
+                <div><span className="text-xs text-purple-400 font-bold uppercase">Status</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.status || 'Active'}</span></div>
+                <div><span className="text-xs text-purple-400 font-bold uppercase">Date Joined</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.dateJoined}</span></div>
+                <div><span className="text-xs text-purple-400 font-bold uppercase">Address</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.address}</span></div>
+                <div><span className="text-xs text-purple-400 font-bold uppercase">City</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.city}</span></div>
+                <div><span className="text-xs text-purple-400 font-bold uppercase">State</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.state}</span></div>
+                <div><span className="text-xs text-purple-400 font-bold uppercase">Country</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.country}</span></div>
+                <div><span className="text-xs text-purple-400 font-bold uppercase">ZIP Code</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.zip}</span></div>
+                <div><span className="text-xs text-purple-400 font-bold uppercase">Company</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.company}</span></div>
+              </div>
+            </div>
+            <div className="my-8 border-t border-purple-100" />
+            {/* Custom Q&A Section */}
+            <div className="mb-10">
+              <div className="flex items-center gap-2 mb-3">
+                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 8.25v-1.5A2.25 2.25 0 0014.25 4.5h-4.5A2.25 2.25 0 007.5 6.75v1.5m9 0v8.25A2.25 2.25 0 0114.25 18H9.75A2.25 2.25 0 017.5 16.5V8.25m9 0H7.5" /></svg>
+                <h3 className="text-xl md:text-2xl font-bold text-blue-400 tracking-tight">Custom Q&A</h3>
+              </div>
+              {(selectedEmployee.customQA || []).length === 0 && <div className="text-base text-gray-400">No custom questions.</div>}
+              <div className="space-y-4">
+                {(selectedEmployee.customQA || []).map((qa, idx) => (
+                  <div key={idx} className="bg-white border border-blue-100 rounded-xl px-6 py-4 flex flex-col md:flex-row md:items-center gap-3 shadow">
+                    <div className="flex-1">
+                      <span className="font-bold text-black text-lg md:text-xl">Q:</span> <span className="font-semibold text-black text-lg md:text-xl">{qa.question}</span>
+                    </div>
+                    <div className="flex-1 border-t md:border-t-0 md:border-l border-blue-100 md:pl-6 pt-3 md:pt-0 mt-3 md:mt-0">
+                      <span className="font-bold text-black text-lg md:text-xl">A:</span> <span className="font-semibold text-black text-lg md:text-xl">{qa.answer}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="my-8 border-t border-purple-100" />
+            {/* Documents Section */}
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-3">
+                <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2a2 2 0 012-2h2a2 2 0 012 2v2m-6 4h6a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                <h3 className="text-xl md:text-2xl font-bold text-green-400 tracking-tight">Documents</h3>
+              </div>
+              {(selectedEmployee.documents || []).length === 0 && <div className="text-base text-gray-400">No documents uploaded.</div>}
+              <ul className="list-disc pl-6">
+                {(selectedEmployee.documents || []).map((doc, idx) => (
+                  <li key={idx} className="mb-2">
+                    <a href={doc.data} download={doc.name} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-lg md:text-xl">{doc.name}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {/* Status Pills, Edit Form, etc. remain unchanged */}
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold text-purple-700">Employee Details</h2>
               <div className="flex items-center gap-2">
