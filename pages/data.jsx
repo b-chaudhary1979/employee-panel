@@ -8,6 +8,11 @@ import { useSidebar } from "../context/SidebarContext";
 import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
 import Head from "next/head";
+import ImagesSection from "../components/ImagesSection";
+import VideosSection from "../components/VideosSection";
+import MusicSection from "../components/MusicSection";
+import LinksSection from "../components/LinksSection";
+import FavouriteSection from "../components/FavouriteSection";
 
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
 function decryptToken(token) {
@@ -21,20 +26,6 @@ function decryptToken(token) {
   }
 }
 
-// Placeholder components
-function ImagesSection() {
-  return <div className="p-6 text-center text-lg text-[#7c3aed] font-semibold">Images content goes here (fetch from Firebase).</div>;
-}
-function SoundsSection() {
-  return <div className="p-6 text-center text-lg text-blue-500 font-semibold">Sounds content goes here.</div>;
-}
-function MusicSection() {
-  return <div className="p-6 text-center text-lg text-green-500 font-semibold">Music content goes here.</div>;
-}
-function LinksSection() {
-  return <div className="p-6 text-center text-lg text-pink-500 font-semibold">Links content goes here.</div>;
-}
-
 function DataContent() {
   const router = useRouter();
   const { token } = router.query;
@@ -44,8 +35,77 @@ function DataContent() {
   const headerRef = useRef(null);
   const [headerHeight, setHeaderHeight] = useState(0);
   const { user, loading, error } = useUserInfo();
-  const [notification, setNotification] = useState({ show: false, message: "" });
+  const [notification, setNotification] = useState({ show: false, message: "", color: "green" });
   const [activeTab, setActiveTab] = useState("images");
+  // Favourites state
+  const [favImages, setFavImages] = useState([]);
+  const [favVideos, setFavVideos] = useState([]);
+  const [favMusic, setFavMusic] = useState([]);
+
+  // Handlers for adding/removing favourites
+  const handleFavourite = (item, isFav, type) => {
+    if (type === "image") {
+      setFavImages(favs => {
+        if (isFav) {
+          if (favs.some(i => i.id === item.id)) return favs;
+          setNotification({ show: true, message: 'Added to Favourites', color: 'green' });
+          setTimeout(() => setNotification({ show: false, message: '', color: 'green' }), 1500);
+          return [...favs, item];
+        } else {
+          return favs.filter(i => i.id !== item.id);
+        }
+      });
+    } else if (type === "video") {
+      setFavVideos(favs => {
+        if (isFav) {
+          if (favs.some(i => i.id === item.id)) return favs;
+          setNotification({ show: true, message: 'Added to Favourites', color: 'green' });
+          setTimeout(() => setNotification({ show: false, message: '', color: 'green' }), 1500);
+          return [...favs, item];
+        } else {
+          return favs.filter(i => i.id !== item.id);
+        }
+      });
+    } else if (type === "music") {
+      setFavMusic(favs => {
+        if (isFav) {
+          if (favs.some(i => i.id === item.id)) return favs;
+          setNotification({ show: true, message: 'Added to Favourites', color: 'green' });
+          setTimeout(() => setNotification({ show: false, message: '', color: 'green' }), 1500);
+          return [...favs, item];
+        } else {
+          return favs.filter(i => i.id !== item.id);
+        }
+      });
+    }
+  };
+
+  const handleRemoveFavourite = (item) => {
+    if (item.type === "image") setFavImages(favs => {
+      const updated = favs.filter(i => i.id !== item.id);
+      if (favs.length !== updated.length) {
+        setNotification({ show: true, message: 'Removed from Favourites', color: 'red' });
+        setTimeout(() => setNotification({ show: false, message: '', color: 'red' }), 1500);
+      }
+      return updated;
+    });
+    if (item.type === "video") setFavVideos(favs => {
+      const updated = favs.filter(i => i.id !== item.id);
+      if (favs.length !== updated.length) {
+        setNotification({ show: true, message: 'Removed from Favourites', color: 'red' });
+        setTimeout(() => setNotification({ show: false, message: '', color: 'red' }), 1500);
+      }
+      return updated;
+    });
+    if (item.type === "music") setFavMusic(favs => {
+      const updated = favs.filter(i => i.id !== item.id);
+      if (favs.length !== updated.length) {
+        setNotification({ show: true, message: 'Removed from Favourites', color: 'red' });
+        setTimeout(() => setNotification({ show: false, message: '', color: 'red' }), 1500);
+      }
+      return updated;
+    });
+  };
 
   useEffect(() => {
     if (router.isReady && (!ci || !aid)) {
@@ -103,9 +163,9 @@ function DataContent() {
       </Head>
       {notification.show && (
         <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300">
-          <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown">
+          <div className={`bg-gradient-to-r ${notification.color === 'green' ? 'from-green-500 to-green-400' : 'from-red-500 to-pink-500'} text-white px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown`}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-white">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
             {notification.message}
           </div>
@@ -141,9 +201,10 @@ function DataContent() {
               <div className="flex gap-4 mb-8 border-b border-gray-200">
                 {[
                   { key: "images", label: "Images" },
-                  { key: "sounds", label: "Sounds" },
+                  { key: "videos", label: "Videos" },
                   { key: "music", label: "Music" },
                   { key: "links", label: "Links" },
+                  { key: "favourites", label: "Favourites" },
                 ].map((tab) => (
                   <button
                     key={tab.key}
@@ -161,10 +222,18 @@ function DataContent() {
               </div>
               {/* Tab content */}
               <div className="bg-white rounded-2xl shadow border border-gray-100 p-8">
-                {activeTab === "images" && <ImagesSection />}
-                {activeTab === "sounds" && <SoundsSection />}
-                {activeTab === "music" && <MusicSection />}
+                {activeTab === "images" && <ImagesSection onFavourite={(item, isFav) => handleFavourite(item, isFav, "image")} />}
+                {activeTab === "videos" && <VideosSection onFavourite={(item, isFav) => handleFavourite(item, isFav, "video")} />}
+                {activeTab === "music" && <MusicSection onFavourite={(item, isFav) => handleFavourite(item, isFav, "music")} />}
                 {activeTab === "links" && <LinksSection />}
+                {activeTab === "favourites" && (
+                  <FavouriteSection
+                    images={favImages}
+                    videos={favVideos}
+                    music={favMusic}
+                    onRemoveFavourite={handleRemoveFavourite}
+                  />
+                )}
               </div>
             </div>
           </main>

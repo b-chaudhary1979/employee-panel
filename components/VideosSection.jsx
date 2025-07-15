@@ -1,38 +1,36 @@
 import React, { useState } from "react";
 import { useRef } from "react";
 import BgAnimation from "./bg-animation";
-import { UserIcon, EyeIcon, ArrowDownTrayIcon, ChatBubbleLeftRightIcon, XMarkIcon } from '@heroicons/react/24/solid';
+import { XMarkIcon, UserIcon, ChatBubbleLeftRightIcon, EyeIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
-const mockImages = [
-  { id: 1, url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80", title: "Mountain", date: "2024-06-01", employee: "Alice" },
-  { id: 2, url: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80", title: "Forest", date: "2024-06-01", employee: "Bob" },
-  { id: 3, url: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80", title: "Beach", date: "2024-06-02", employee: "Charlie" },
-  { id: 4, url: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80", title: "Desert", date: "2024-06-03", employee: "Alice" },
+const mockVideos = [
+  { id: 1, url: "https://www.w3schools.com/html/mov_bbb.mp4", title: "Big Buck Bunny", date: "2024-06-01", employee: "Alice" },
+  { id: 2, url: "https://www.w3schools.com/html/movie.mp4", title: "Bear Video", date: "2024-06-02", employee: "Bob" },
 ];
 
-export default function ImagesSection({ onFavourite }) {
+export default function VideosSection({ onFavourite }) {
   const [search, setSearch] = useState("");
-  const [modal, setModal] = useState(null); // {image, feedback}
+  const [modal, setModal] = useState(null); // {video, feedback}
   const [favourites, setFavourites] = useState([]);
-  const [notification, setNotification] = useState("");
   const inputRef = useRef();
+  const [notification, setNotification] = useState("");
 
   // Filtered data
-  const filteredImages = mockImages.filter(img => {
+  const filteredVideos = mockVideos.filter(vid => {
     const q = search.toLowerCase();
     return (
-      img.title.toLowerCase().includes(q) ||
-      img.date.toLowerCase().includes(q) ||
-      img.employee.toLowerCase().includes(q)
+      vid.title.toLowerCase().includes(q) ||
+      vid.date.toLowerCase().includes(q) ||
+      vid.employee.toLowerCase().includes(q)
     );
   });
 
   const isFavourited = (id) => favourites.includes(id);
-  const toggleFavourite = (img) => {
+  const toggleFavourite = (vid) => {
     setFavourites(favs => {
-      const updated = favs.includes(img.id) ? favs.filter(f => f !== img.id) : [...favs, img.id];
-      if (onFavourite) onFavourite(img, !favs.includes(img.id));
-      if (!favs.includes(img.id)) {
+      const updated = favs.includes(vid.id) ? favs.filter(f => f !== vid.id) : [...favs, vid.id];
+      if (onFavourite) onFavourite(vid, !favs.includes(vid.id));
+      if (!favs.includes(vid.id)) {
         setNotification("Added to Favourites");
         setTimeout(() => setNotification("") , 1500);
       }
@@ -40,32 +38,26 @@ export default function ImagesSection({ onFavourite }) {
     });
   };
 
-  const handleDownload = (img) => {
+  const handleDownload = (vid) => {
     const link = document.createElement('a');
-    link.href = img.url;
-    link.download = img.title + '.jpg';
+    link.href = vid.url;
+    link.download = vid.title + '.mp4';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  // Feedback submit handler
   const handleFeedbackSubmit = () => {
-    if (modal && modal.feedback && modal.feedback.trim() !== "") {
-      setNotification("Feedback submitted successfully!");
-      setTimeout(() => setNotification("") , 1500);
-      // Optionally clear feedback: setModal(m => ({ ...m, feedback: "" }))
-    } else {
-      setNotification("Please enter feedback before submitting.");
-      setTimeout(() => setNotification("") , 1500);
-    }
+    setNotification("Feedback submitted!");
+    setTimeout(() => setNotification("") , 2000);
+    setModal(null);
   };
 
   return (
     <div>
       <div className="mb-6 text-left">
-        <h2 className="text-2xl font-bold text-[#7c3aed]">Images</h2>
-        <p className="text-gray-500 text-base mt-1">Browse and manage your uploaded images.</p>
+        <h2 className="text-2xl font-bold text-[#7c3aed]">Videos</h2>
+        <p className="text-gray-500 text-base mt-1">Watch and organize your video files.</p>
       </div>
       {/* Search Bar */}
       <div className="flex justify-between items-center mb-4 flex-col sm:flex-row gap-2">
@@ -84,32 +76,32 @@ export default function ImagesSection({ onFavourite }) {
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {filteredImages.length === 0 ? (
-          <div className="col-span-full text-center py-6 text-gray-400">No images found.</div>
-        ) : filteredImages.map((img) => (
-          <div key={img.id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden flex flex-col items-stretch relative group cursor-pointer" onClick={() => setModal({ image: img, feedback: "" })}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {filteredVideos.length === 0 ? (
+          <div className="col-span-full text-center py-6 text-gray-400">No videos found.</div>
+        ) : filteredVideos.map((vid) => (
+          <div key={vid.id} className="bg-white rounded-lg shadow hover:shadow-lg transition p-4 flex flex-col items-stretch relative group cursor-pointer" onClick={() => setModal({ video: vid, feedback: "" })}>
             {/* Star icon */}
             <button
-              className={`absolute top-2 right-2 z-10 p-0.5 bg-[#7c3aed] rounded-full shadow-md hover:bg-[#5b21b6] transition ${isFavourited(img.id) ? 'animate-pulse' : ''}`}
-              onClick={e => { e.stopPropagation(); toggleFavourite(img); }}
-              aria-label={isFavourited(img.id) ? "Remove from Premium Favourites" : "Add to Premium Favourites"}
-              title={isFavourited(img.id) ? "Remove from Premium Favourites" : "Add to Premium Favourites"}
+              className={`absolute top-2 right-2 z-10 p-0.5 bg-[#7c3aed] rounded-full shadow-md hover:bg-[#5b21b6] transition ${isFavourited(vid.id) ? 'animate-pulse' : ''}`}
+              onClick={e => { e.stopPropagation(); toggleFavourite(vid); }}
+              aria-label={isFavourited(vid.id) ? "Remove from Premium Favourites" : "Add to Premium Favourites"}
+              title={isFavourited(vid.id) ? "Remove from Premium Favourites" : "Add to Premium Favourites"}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill={isFavourited(img.id) ? "#fff" : "none"} stroke="#fff" strokeWidth="2" viewBox="0 0 24 24" className="w-4 h-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill={isFavourited(vid.id) ? "#fff" : "none"} stroke="#fff" strokeWidth="2" viewBox="0 0 24 24" className="w-4 h-4">
                 <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
               </svg>
             </button>
-            <img
-              src={img.url}
-              alt={img.title}
-              className="w-full h-32 object-cover"
+            <video
+              src={vid.url}
+              controls
+              className="w-full h-48 object-cover rounded mb-2"
             />
-            <div className="flex justify-between items-center p-2 w-full">
-              <span className="text-gray-700 font-medium text-xs">{img.employee}</span>
-              <span className="text-[#7c3aed] font-semibold text-sm">{img.title}</span>
+            <div className="flex justify-between items-center w-full">
+              <span className="text-gray-700 font-medium text-xs">{vid.employee}</span>
+              <span className="text-[#7c3aed] font-semibold text-sm">{vid.title}</span>
             </div>
-            <div className="px-2 pb-2 text-gray-500 text-xs">{img.date}</div>
+            <div className="text-gray-500 text-xs mt-1">{vid.date}</div>
           </div>
         ))}
       </div>
@@ -138,26 +130,26 @@ export default function ImagesSection({ onFavourite }) {
               <XMarkIcon className="w-6 h-6" />
             </button>
             {/* Info Row: Employee/Date left */}
-            <div className="flex w-full justify-between items-center mb-4">
-              <div className="flex items-center gap-3 pl-6 pt-6">
+            <div className="flex w-full justify-between items-center mb-4 p-6 pb-0">
+              <div className="flex items-center gap-3">
                 <UserIcon className="w-5 h-5 text-purple-400" />
-                <span className="text-gray-700 font-bold text-base">{modal.image.employee}</span>
-                <span className="text-gray-700 text-sm">{modal.image.date}</span>
+                <span className="text-gray-700 font-bold text-base">{modal.video.employee}</span>
+                <span className="text-gray-700 text-sm">{modal.video.date}</span>
               </div>
             </div>
-            {/* Image */}
+            {/* Video */}
             <div className="flex justify-center w-full mb-4 px-6">
-              <img
-                src={modal.image.url}
-                alt={modal.image.title}
+              <video
+                src={modal.video.url}
+                controls
                 className="rounded-xl shadow max-w-full max-h-64 object-contain border border-purple-100"
                 style={{ background: '#fff' }}
               />
             </div>
             {/* Title */}
-            <div className="text-gray-700 font-bold text-lg mb-2 text-center w-full px-6">{modal.image.title}</div>
+            <div className="text-gray-700 font-bold text-lg mb-2 text-center w-full px-6">{modal.video.title}</div>
             {/* Work Link Section */}
-            <WorkLinkSection url={modal.image.url} />
+            <WorkLinkSection url={modal.video.url} />
             {/* Feedback */}
             <div className="w-full flex flex-col items-center mb-4 px-6">
               <label className="flex items-center gap-2 text-gray-700 font-semibold mb-2 self-start">
@@ -183,7 +175,7 @@ export default function ImagesSection({ onFavourite }) {
                 Submit Feedback
               </button>
               <a
-                href={modal.image.url}
+                href={modal.video.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 flex items-center justify-center gap-2 bg-white border border-purple-400 text-gray-700 rounded-full px-5 py-2 font-bold shadow hover:bg-purple-50 active:scale-95 transition-all text-center"
@@ -192,8 +184,8 @@ export default function ImagesSection({ onFavourite }) {
                 Preview
               </a>
               <a
-                href={modal.image.url}
-                download={modal.image.title + '.jpg'}
+                href={modal.video.url}
+                download={modal.video.title + '.mp4'}
                 className="flex-1 flex items-center justify-center gap-2 bg-white border border-purple-400 text-gray-700 rounded-full px-5 py-2 font-bold shadow hover:bg-purple-50 active:scale-95 transition-all text-center"
               >
                 <ArrowDownTrayIcon className="w-5 h-5 text-purple-400" />
@@ -207,7 +199,6 @@ export default function ImagesSection({ onFavourite }) {
   );
 }
 
-// Add WorkLinkSection component at the bottom of the file
 function WorkLinkSection({ url }) {
   const [copied, setCopied] = React.useState(false);
   return (
