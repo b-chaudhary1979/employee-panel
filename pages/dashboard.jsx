@@ -8,6 +8,11 @@ import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
 import CryptoJS from "crypto-js";
 import Support from "../components/support";
+import useStoreEmployees from "../hooks/useStoreEmployees";
+import useStorePassword from "../hooks/useStorePassword";
+import useNotesTasks from "../hooks/useNotesTasks";
+import useAnnouncements from "../hooks/useAnnouncements";
+import { totalMedia } from "./data";
 
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
 function decryptToken(token) {
@@ -35,6 +40,34 @@ function DashboardContent() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const { user, loading, error } = useUserInfo();
   const [notification, setNotification] = useState({ show: false, message: "" });
+
+  // Fetch data from hooks
+  const employeesHook = useStoreEmployees(ci);
+  const passwordsHook = useStorePassword(ci);
+  const tasksHook = useNotesTasks(ci);
+  const announcementsHook = useAnnouncements(ci);
+
+  // Loading and error states
+  const isAnyLoading = loading || employeesHook.loading || passwordsHook.loading || tasksHook.loading || announcementsHook.loading;
+  const anyError = error || employeesHook.error || passwordsHook.error || tasksHook.error || announcementsHook.error;
+
+  // Real counts
+  const totalEmployees = employeesHook.employees?.length || 0;
+  const totalPasswords = passwordsHook.passwords?.length || 0;
+  const totalTasks = tasksHook.tasks?.length || 0;
+  const totalAnnouncements = announcementsHook.announcements?.length || 0;
+
+  // Mock data for products, users, media
+  // Use the real totalMedia from the Data page
+  // (If you want to fetch from Firestore in the future, update both places)
+  const totalProducts = 89; // TODO: Replace with real data if available
+  const totalUsers = 2345;  // TODO: Replace with real data if available
+  // const totalMedia = 42;    // TODO: Replace with real data if available
+
+  // Recent activity (latest 3)
+  const recentEmployees = (employeesHook.employees || []).slice(-3).reverse();
+  const recentTasks = (tasksHook.tasks || []).slice(0, 3);
+  const recentAnnouncements = (announcementsHook.announcements || []).slice(0, 3);
 
   useEffect(() => {
     if (router.isReady && (!ci || !aid)) {
@@ -90,8 +123,11 @@ function DashboardContent() {
 
   // Only return after all hooks
   if (!ci || !aid) return null;
-  if (loading) {
+  if (isAnyLoading) {
     return <div className="flex items-center justify-center min-h-screen w-full"><Loader /></div>;
+  }
+  if (anyError) {
+    return <div className="flex items-center justify-center min-h-screen w-full"><Loader />Error: {anyError}</div>;
   }
 
   return (
@@ -101,6 +137,14 @@ function DashboardContent() {
           <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-white"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
             {notification.message}
+          </div>
+        </div>
+      )}
+      {anyError && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300">
+          <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-white"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            {anyError}
           </div>
         </div>
       )}
@@ -173,7 +217,7 @@ function DashboardContent() {
                     <div className="flex items-center justify-between w-full">
                       <div>
                         <span className="text-gray-900 font-semibold text-xl block">Total Employees</span>
-                        <div className="text-3xl font-extrabold mt-2 text-purple-600">1,234</div>
+                        <div className="text-3xl font-extrabold mt-2 text-purple-600">{totalEmployees}</div>
                         <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
                           <span>Click to view</span>
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -203,7 +247,7 @@ function DashboardContent() {
                     <div className="flex items-center justify-between w-full">
                       <div>
                         <span className="text-gray-900 font-semibold text-xl block">Total Passwords</span>
-                        <div className="text-3xl font-extrabold mt-2 text-purple-600">567</div>
+                        <div className="text-3xl font-extrabold mt-2 text-purple-600">{totalPasswords}</div>
                         <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
                           <span>Click to view</span>
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -231,7 +275,7 @@ function DashboardContent() {
                     <div className="flex items-center justify-between w-full">
                       <div>
                         <span className="text-gray-900 font-semibold text-xl block">Total Products</span>
-                        <div className="text-3xl font-extrabold mt-2 text-purple-600">89</div>
+                        <div className="text-3xl font-extrabold mt-2 text-purple-600">{totalProducts}</div>
                         <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
                           <span>Click to view</span>
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -259,7 +303,7 @@ function DashboardContent() {
                     <div className="flex items-center justify-between w-full">
                       <div>
                         <span className="text-gray-900 font-semibold text-xl block">Total Users</span>
-                        <div className="text-3xl font-extrabold mt-2 text-purple-600">2,345</div>
+                        <div className="text-3xl font-extrabold mt-2 text-purple-600">{totalUsers}</div>
                         <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
                           <span>Click to view</span>
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -289,7 +333,7 @@ function DashboardContent() {
                     <div className="flex items-center justify-between w-full">
                       <div>
                         <span className="text-gray-900 font-semibold text-xl block">Total Tasks</span>
-                        <div className="text-3xl font-extrabold mt-2 text-purple-600">120</div>
+                        <div className="text-3xl font-extrabold mt-2 text-purple-600">{totalTasks}</div>
                         <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
                           <span>Click to view</span>
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -319,7 +363,7 @@ function DashboardContent() {
                     <div className="flex items-center justify-between w-full">
                       <div>
                         <span className="text-gray-900 font-semibold text-xl block">Total Announcements</span>
-                        <div className="text-3xl font-extrabold mt-2 text-purple-600">15</div>
+                        <div className="text-3xl font-extrabold mt-2 text-purple-600">{totalAnnouncements}</div>
                         <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
                           <span>Click to view</span>
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -347,7 +391,7 @@ function DashboardContent() {
                     <div className="flex items-center justify-between w-full">
                       <div>
                         <span className="text-gray-900 font-semibold text-xl block">Total Media</span>
-                        <div className="text-3xl font-extrabold mt-2 text-purple-600">42</div>
+                        <div className="text-3xl font-extrabold mt-2 text-purple-600">{totalMedia}</div>
                         <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
                           <span>Click to view</span>
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -361,6 +405,152 @@ function DashboardContent() {
                         </span>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </div>
+              <h1 className="text-3xl md:text-4xl  font-extrabold text-[#7c3aed] mt-5 mb-2">Recent Activity</h1>
+              <p className="text-gray-500 text-xl">A quick overview of your most recent actions</p>
+                       
+              {/* Recent Activity Section */}
+              <div className="w-full flex flex-col gap-8 mt-5">
+                  
+                {/* Recent Employees Table */}
+                <div className="rounded-xl bg-white border border-gray-100 shadow-md p-4 sm:p-8">
+                  <h3 className="text-xl sm:text-2xl font-bold text-blue-600 mb-3 sm:mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-7 sm:w-7 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                    New Employees
+                  </h3>
+                  {/* Table for lg+ */}
+                  <div className="hidden lg:block overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200 text-sm">
+                      <thead>
+                        <tr className="bg-blue-50">
+                          <th className="px-4 py-2 text-left font-semibold text-blue-700 whitespace-nowrap">Name</th>
+                          <th className="px-4 py-2 text-left font-semibold text-blue-700 whitespace-nowrap">Email</th>
+                          <th className="px-4 py-2 text-left font-semibold text-blue-700 whitespace-nowrap">Department</th>
+                          <th className="px-4 py-2 text-left font-semibold text-blue-700 whitespace-nowrap">Role</th>
+                          <th className="px-4 py-2 text-left font-semibold text-blue-700 whitespace-nowrap">Date Joined</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {recentEmployees.length === 0 ? (
+                          <tr><td colSpan={5} className="text-center text-gray-400 py-4">No recent employees</td></tr>
+                        ) : recentEmployees.map(emp => (
+                          <tr key={emp.id} className="hover:bg-blue-50 transition">
+                            <td className="px-4 py-2 font-semibold text-gray-700 whitespace-nowrap">{emp.firstName} {emp.lastName}</td>
+                            <td className="px-4 py-2 text-gray-600 whitespace-nowrap">{emp.email}</td>
+                            <td className="px-4 py-2 text-gray-600 whitespace-nowrap">{emp.department}</td>
+                            <td className="px-4 py-2 text-gray-600 whitespace-nowrap">{emp.role}</td>
+                            <td className="px-4 py-2 text-gray-600 whitespace-nowrap">{emp.dateJoined ? new Date(emp.dateJoined).toLocaleDateString() : '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {/* Cards for mobile */}
+                  <div className="flex flex-col gap-3 lg:hidden">
+                    {recentEmployees.length === 0 ? (
+                      <div className="text-center text-gray-400 py-4">No recent employees</div>
+                    ) : recentEmployees.map(emp => (
+                      <div key={emp.id} className="border border-blue-100 rounded-lg p-3 sm:p-4 md:p-5 shadow-sm bg-blue-50">
+                        <div className="font-semibold text-blue-700 text-base sm:text-lg md:text-xl mb-1">{emp.firstName} {emp.lastName}</div>
+                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Email:</span> {emp.email}</div>
+                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Department:</span> {emp.department}</div>
+                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Role:</span> {emp.role}</div>
+                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Date Joined:</span> {emp.dateJoined ? new Date(emp.dateJoined).toLocaleDateString() : '-'}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* Recent Tasks Table */}
+                <div className="rounded-xl bg-white border border-gray-100 shadow-md p-4 sm:p-8">
+                  <h3 className="text-xl sm:text-2xl font-bold text-green-600 mb-3 sm:mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-7 sm:w-7 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2l4-4m5 2a9 9 0 11-18 0a9 9 0 0118 0z" /></svg>
+                    Recent Tasks
+                  </h3>
+                  {/* Table for lg+ */}
+                  <div className="hidden lg:block overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200 text-sm">
+                      <thead>
+                        <tr className="bg-green-50">
+                          <th className="px-4 py-2 text-left font-semibold text-green-700 whitespace-nowrap">Task</th>
+                          <th className="px-4 py-2 text-left font-semibold text-green-700 whitespace-nowrap">Priority</th>
+                          <th className="px-4 py-2 text-left font-semibold text-green-700 whitespace-nowrap">Created At</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {recentTasks.length === 0 ? (
+                          <tr><td colSpan={3} className="text-center text-gray-400 py-4">No recent tasks</td></tr>
+                        ) : recentTasks.map(task => (
+                          <tr key={task.id} className="hover:bg-green-50 transition">
+                            <td className="px-4 py-2 font-semibold text-gray-700 whitespace-nowrap">{task.task}</td>
+                            <td className="px-4 py-2 text-gray-600 whitespace-nowrap">{task.priority}</td>
+                            <td className="px-4 py-2 text-gray-600 whitespace-nowrap">{task.createdAt ? new Date(task.createdAt.seconds ? task.createdAt.seconds * 1000 : task.createdAt).toLocaleDateString() : '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {/* Cards for mobile */}
+                  <div className="flex flex-col gap-3 lg:hidden">
+                    {recentTasks.length === 0 ? (
+                      <div className="text-center text-gray-400 py-4">No recent tasks</div>
+                    ) : recentTasks.map(task => (
+                      <div key={task.id} className="border border-green-100 rounded-lg p-3 sm:p-4 md:p-5 shadow-sm bg-green-50">
+                        <div className="font-semibold text-green-700 text-base sm:text-lg md:text-xl mb-1">{task.task}</div>
+                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Priority:</span> {task.priority}</div>
+                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Created At:</span> {task.createdAt ? new Date(task.createdAt.seconds ? task.createdAt.seconds * 1000 : task.createdAt).toLocaleDateString() : '-'}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* Recent Announcements Table */}
+                <div className="rounded-xl bg-white border border-gray-100 shadow-md p-4 sm:p-8">
+                  <h3 className="text-xl sm:text-2xl font-bold text-purple-600 mb-3 sm:mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-7 sm:w-7 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 13V7a2 2 0 00-2-2H7a2 2 0 00-2 2v6m14 0a2 2 0 01-2 2H7a2 2 0 01-2-2m14 0v6a2 2 0 01-2 2H7a2 2 0 01-2-2v-6" /></svg>
+                    Latest Announcements
+                  </h3>
+                  {/* Table for lg+ */}
+                  <div className="hidden lg:block overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200 text-sm">
+                      <thead>
+                        <tr className="bg-purple-50">
+                          <th className="px-4 py-2 text-left font-semibold text-purple-700 whitespace-nowrap">Title</th>
+                          <th className="px-4 py-2 text-left font-semibold text-purple-700 whitespace-nowrap">Type</th>
+                          <th className="px-4 py-2 text-left font-semibold text-purple-700 whitespace-nowrap">Created At</th>
+                          <th className="px-4 py-2 text-left font-semibold text-purple-700 whitespace-nowrap">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {recentAnnouncements.length === 0 ? (
+                          <tr><td colSpan={4} className="text-center text-gray-400 py-4">No recent announcements</td></tr>
+                        ) : recentAnnouncements.map(ann => (
+                          <tr key={ann.id} className="hover:bg-purple-50 transition">
+                            <td className="px-4 py-2 font-semibold text-gray-700 whitespace-nowrap">{ann.title}</td>
+                            <td className="px-4 py-2 text-gray-600 capitalize whitespace-nowrap">{ann.type}</td>
+                            <td className="px-4 py-2 text-gray-600 whitespace-nowrap">{ann.createdAt ? (ann.createdAt.seconds ? new Date(ann.createdAt.seconds * 1000).toLocaleDateString() : new Date(ann.createdAt).toLocaleDateString()) : '-'}</td>
+                            <td className="px-4 py-2 whitespace-nowrap">
+                              <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${ann.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                                {ann.status === 'published' ? 'Published' : 'Not Published'}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {/* Cards for mobile */}
+                  <div className="flex flex-col gap-3 lg:hidden">
+                    {recentAnnouncements.length === 0 ? (
+                      <div className="text-center text-gray-400 py-4">No recent announcements</div>
+                    ) : recentAnnouncements.map(ann => (
+                      <div key={ann.id} className="border border-purple-100 rounded-lg p-3 sm:p-4 md:p-5 shadow-sm bg-purple-50">
+                        <div className="font-semibold text-purple-700 text-base sm:text-lg md:text-xl mb-1">{ann.title}</div>
+                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Type:</span> {ann.type}</div>
+                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Created At:</span> {ann.createdAt ? (ann.createdAt.seconds ? new Date(ann.createdAt.seconds * 1000).toLocaleDateString() : new Date(ann.createdAt).toLocaleDateString()) : '-'}</div>
+                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Status:</span> <span className={`font-semibold ${ann.status === 'published' ? 'text-green-700' : 'text-gray-700'}`}>{ann.status === 'published' ? 'Published' : 'Not Published'}</span></div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
