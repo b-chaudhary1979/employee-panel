@@ -26,6 +26,24 @@ function decryptToken(token) {
   }
 }
 
+// Import mock arrays from the components (since they are not exported, redefine here for now)
+const mockImages = [
+  { id: 1, url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80", title: "Mountain", date: "2024-06-01", employee: "Alice" },
+  { id: 2, url: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80", title: "Forest", date: "2024-06-01", employee: "Bob" },
+  { id: 3, url: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80", title: "Beach", date: "2024-06-02", employee: "Charlie" },
+  { id: 4, url: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80", title: "Desert", date: "2024-06-03", employee: "Alice" },
+];
+const mockVideos = [
+  { id: 1, url: "https://www.w3schools.com/html/mov_bbb.mp4", title: "Big Buck Bunny", date: "2024-06-01", employee: "Alice" },
+  { id: 2, url: "https://www.w3schools.com/html/movie.mp4", title: "Bear Video", date: "2024-06-02", employee: "Bob" },
+];
+const mockMusic = [
+  { id: 1, url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", title: "SoundHelix Song 1", date: "2024-06-01", employee: "Alice" },
+  { id: 2, url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", title: "SoundHelix Song 2", date: "2024-06-02", employee: "Bob" },
+];
+
+const totalMedia = mockImages.length + mockVideos.length + mockMusic.length;
+
 function DataContent() {
   const router = useRouter();
   const { token } = router.query;
@@ -195,6 +213,19 @@ function DataContent() {
                 <div>
                   <h1 className="text-3xl font-extrabold text-[#7c3aed] mb-1">Data Management</h1>
                   <p className="text-gray-500 text-lg">Manage your data and view analytics here.</p>
+                  {/* Total Media Card UI */}
+                  <div className="w-64 bg-white rounded-2xl shadow border border-gray-100 p-6 flex items-center gap-4 mt-4">
+                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-blue-100">
+                      {/* Media icon (play button) */}
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-6.518-3.759A1 1 0 007 8.118v7.764a1 1 0 001.234.97l6.518-1.757A1 1 0 0016 14.882V9.118a1 1 0 00-1.248-.95z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="text-gray-500 text-lg font-medium">Total Media</div>
+                      <div className="text-3xl font-bold text-gray-700">{totalMedia}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
               {/* Horizontal options bar */}
@@ -222,9 +253,9 @@ function DataContent() {
               </div>
               {/* Tab content */}
               <div className="bg-white rounded-2xl shadow border border-gray-100 p-8">
-                {activeTab === "images" && <ImagesSection onFavourite={(item, isFav) => handleFavourite(item, isFav, "image")} />}
-                {activeTab === "videos" && <VideosSection onFavourite={(item, isFav) => handleFavourite(item, isFav, "video")} />}
-                {activeTab === "music" && <MusicSection onFavourite={(item, isFav) => handleFavourite(item, isFav, "music")} />}
+                {activeTab === "images" && <ImagesSection images={mockImages} onFavourite={(item, isFav) => handleFavourite(item, isFav, "image")} />}
+                {activeTab === "videos" && <VideosSection videos={mockVideos} onFavourite={(item, isFav) => handleFavourite(item, isFav, "video")} />}
+                {activeTab === "music" && <MusicSection music={mockMusic} onFavourite={(item, isFav) => handleFavourite(item, isFav, "music")} />}
                 {activeTab === "links" && <LinksSection />}
                 {activeTab === "favourites" && (
                   <FavouriteSection
@@ -242,6 +273,9 @@ function DataContent() {
     </>
   );
 }
+
+// Export totalMedia for dashboard usage
+export { totalMedia };
 
 export default function Data() {
   return (

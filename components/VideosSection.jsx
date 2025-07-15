@@ -8,15 +8,17 @@ const mockVideos = [
   { id: 2, url: "https://www.w3schools.com/html/movie.mp4", title: "Bear Video", date: "2024-06-02", employee: "Bob" },
 ];
 
-export default function VideosSection({ onFavourite }) {
+export default function VideosSection({ videos, onFavourite }) {
   const [search, setSearch] = useState("");
   const [modal, setModal] = useState(null); // {video, feedback}
   const [favourites, setFavourites] = useState([]);
   const inputRef = useRef();
   const [notification, setNotification] = useState("");
 
+  // Use provided videos or fallback to mockVideos
+  const allVideos = videos && Array.isArray(videos) ? videos : mockVideos;
   // Filtered data
-  const filteredVideos = mockVideos.filter(vid => {
+  const filteredVideos = allVideos.filter(vid => {
     const q = search.toLowerCase();
     return (
       vid.title.toLowerCase().includes(q) ||
@@ -58,6 +60,7 @@ export default function VideosSection({ onFavourite }) {
       <div className="mb-6 text-left">
         <h2 className="text-2xl font-bold text-[#7c3aed]">Videos</h2>
         <p className="text-gray-500 text-base mt-1">Watch and organize your video files.</p>
+        <div className="mt-2 text-purple-700 font-semibold">Total Videos: {allVideos.length}</div>
       </div>
       {/* Search Bar */}
       <div className="flex justify-between items-center mb-4 flex-col sm:flex-row gap-2">

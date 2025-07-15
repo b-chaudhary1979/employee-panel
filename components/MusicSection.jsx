@@ -8,15 +8,17 @@ const mockMusic = [
   { id: 2, url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", title: "SoundHelix Song 2", date: "2024-06-02", employee: "Bob" },
 ];
 
-export default function MusicSection({ onFavourite }) {
+export default function MusicSection({ music, onFavourite }) {
   const [search, setSearch] = useState("");
   const [modal, setModal] = useState(null); // {music, feedback}
   const [favourites, setFavourites] = useState([]);
   const [notification, setNotification] = useState("");
   const inputRef = useRef();
 
+  // Use provided music or fallback to mockMusic
+  const allMusic = music && Array.isArray(music) ? music : mockMusic;
   // Filtered data
-  const filteredMusic = mockMusic.filter(music => {
+  const filteredMusic = allMusic.filter(music => {
     const q = search.toLowerCase();
     return (
       music.title.toLowerCase().includes(q) ||
@@ -60,6 +62,7 @@ export default function MusicSection({ onFavourite }) {
       <div className="mb-6 text-left">
         <h2 className="text-2xl font-bold text-[#7c3aed]">Music</h2>
         <p className="text-gray-500 text-base mt-1">Listen and manage your music tracks.</p>
+        <div className="mt-2 text-purple-700 font-semibold">Total Music: {allMusic.length}</div>
       </div>
       {/* Search Bar */}
       <div className="flex justify-between items-center mb-4 flex-col sm:flex-row gap-2">
