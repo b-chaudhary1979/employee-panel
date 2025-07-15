@@ -114,8 +114,10 @@ export function DecryptModal({ open, onClose, onSubmit, decryptionPassword, setD
  * @param {function} props.handleCustomQAChange
  * @param {function} props.addCustomQA
  * @param {string} props.addKeyError
+ * @param {string} props.apiCost
+ * @param {function} props.setApiCost
  */
-export function AddKeyModal({ open, onClose, onSubmit, newKeyName, setNewKeyName, newKeyStatus, setNewKeyStatus, customKey, setCustomKey, showApiKey, setShowApiKey, environment, setEnvironment, platform, handlePlatformChange, showCustomPlatform, customPlatform, setCustomPlatform, linkedProject, setLinkedProject, usageLimit, setUsageLimit, expiryDate, setExpiryDate, description, setDescription, customQA, handleCustomQAChange, addCustomQA, addKeyError }) {
+export function AddKeyModal({ open, onClose, onSubmit, newKeyName, setNewKeyName, newKeyStatus, setNewKeyStatus, customKey, setCustomKey, showApiKey, setShowApiKey, environment, setEnvironment, platform, handlePlatformChange, showCustomPlatform, customPlatform, setCustomPlatform, linkedProject, setLinkedProject, usageLimit, setUsageLimit, expiryDate, setExpiryDate, description, setDescription, customQA, handleCustomQAChange, addCustomQA, addKeyError, apiCost, setApiCost }) {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/10 backdrop-blur pointer-events-none p-4">
@@ -147,46 +149,40 @@ export function AddKeyModal({ open, onClose, onSubmit, newKeyName, setNewKeyName
             {/* New Fields Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Environment</label>
-                <select className="w-full border rounded px-3 py-2 text-gray-800" value={environment} onChange={e => setEnvironment(e.target.value)}>
+                <label className="block text-sm font-medium mb-1">Environment <span className="text-red-600">*</span></label>
+                <select className="w-full border rounded px-3 py-2 text-gray-800" value={environment} onChange={e => setEnvironment(e.target.value)} required>
                   <option value="development">Development</option>
                   <option value="staging">Staging</option>
                   <option value="production">Production</option>
+                  <option value="testing">Testing</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Platform</label>
-                <select className="w-full border rounded px-3 py-2 text-gray-800" value={platform} onChange={handlePlatformChange}>
-                  <option value="github">GitHub</option>
-                  <option value="stripe">Stripe</option>
-                  <option value="aws">AWS</option>
-                  <option value="custom">Custom Service</option>
-                </select>
+                <label className="block text-sm font-medium mb-1">Platform <span className="text-red-600">*</span></label>
+                <input type="text" className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={platform} onChange={handlePlatformChange} placeholder="github" required />
               </div>
             </div>
-            {showCustomPlatform && (
-              <div>
-                <label className="block text-sm font-medium mb-1">Custom Platform Name</label>
-                <input type="text" className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={customPlatform} onChange={e => setCustomPlatform(e.target.value)} placeholder="Enter custom platform name" />
-              </div>
-            )}
+            <div>
+              <label className="block text-sm font-medium mb-1">Api cost (per month) <span className="text-red-600">*</span></label>
+              <input type="number" className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={apiCost} onChange={e => setApiCost(e.target.value)} placeholder="e.g. 49.99" min="0" step="0.01" required />
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Linked Project</label>
-                <input type="text" className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={linkedProject} onChange={e => setLinkedProject(e.target.value)} placeholder="e.g. Project Alpha" />
+                <label className="block text-sm font-medium mb-1">Linked Project <span className="text-red-600">*</span></label>
+                <input type="text" className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={linkedProject} onChange={e => setLinkedProject(e.target.value)} placeholder="e.g. Project Alpha" required />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Usage Limit</label>
-                <input type="number" className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={usageLimit} onChange={e => setUsageLimit(e.target.value)} placeholder="e.g. 1000" min="0" />
+                <label className="block text-sm font-medium mb-1">Api Limit <span className="text-red-600">*</span></label>
+                <input type="number" className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={usageLimit} onChange={e => setUsageLimit(e.target.value)} placeholder="e.g. 1000" min="0" required />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Expiry Date</label>
-              <input type="date" className="w-full border rounded px-3 py-2 text-gray-800" value={expiryDate} onChange={e => setExpiryDate(e.target.value)} />
+              <label className="block text-sm font-medium mb-1">Renew Date <span className="text-red-600">*</span></label>
+              <input type="date" className="w-full border rounded px-3 py-2 text-gray-800" value={expiryDate} onChange={e => setExpiryDate(e.target.value)} required />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Description</label>
-              <textarea className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={description} onChange={e => setDescription(e.target.value)} placeholder="Enter detailed description..." rows={3} />
+              <label className="block text-sm font-medium mb-1">Purpose <span className="text-red-600">*</span></label>
+              <textarea className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={description} onChange={e => setDescription(e.target.value)} placeholder="Enter detailed description..." rows={3} required />
             </div>
             {/* Custom QA Section */}
             <div>

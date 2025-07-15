@@ -44,6 +44,7 @@ function APIKeysContent() {
   const [newKeyName, setNewKeyName] = useState("");
   const [newKeyStatus, setNewKeyStatus] = useState("Active");
   const [customKey, setCustomKey] = useState("");
+  const [apiCost, setApiCost] = useState("");
 
   // Use the API keys hook
   const {
@@ -151,7 +152,7 @@ function APIKeysContent() {
 
   // Calculate totals
   const totalKeys = apiKeys.length;
-  const activeKeys = apiKeys.filter((key) => !key.isEncrypted).length;
+  const activeKeys = apiKeys.filter((key) => key.status === "Active").length;
   const inactiveKeys = apiKeys.filter((key) => key.status !== "Active").length;
 
   // Handle platform change
@@ -206,6 +207,7 @@ function APIKeysContent() {
       usageLimit: usageLimit ? parseInt(usageLimit) : null,
       environment: environment,
       platform: platform === "custom" ? customPlatform.trim() : platform,
+      apiCost: apiCost ? parseFloat(apiCost) : null,
     });
     setShowAddKeyEncryptModal(true);
   };
@@ -234,6 +236,7 @@ function APIKeysContent() {
         expiryDate: pendingAddKey.expiryDate,
         linkedProject: pendingAddKey.linkedProject,
         usageLimit: pendingAddKey.usageLimit,
+        apiCost: pendingAddKey.apiCost,
         vaultKey: addKeyVaultKey, // <-- pass vaultKey
         custom: {
           vaultKey: addKeyVaultKey,
@@ -262,6 +265,7 @@ function APIKeysContent() {
       setShowCustomPlatform(false);
       setNotification({ show: true, message: "API key added and encrypted!" });
       setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+      setApiCost("");
     } catch (error) {
       setAddKeyError(error.message || "Failed to add key");
       setNotification({
@@ -337,6 +341,7 @@ function APIKeysContent() {
         expiryDate: key.expiryDate || "",
         linkedProject: key.linkedProject || "",
         usageLimit: key.usageLimit || null,
+        apiCost: key.apiCost || null,
         custom: key.custom || {},
       }));
       setApiKeys(transformedKeys);
@@ -594,21 +599,23 @@ function APIKeysContent() {
       </Head>
       {notification.show && (
         <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-[100] transition-all duration-300">
-          <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-6 h-6 text-white"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+          <div className={`px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown ${notification.message.toLowerCase().includes('error') ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white' : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'}`}>
+            {notification.message.toLowerCase().includes('error') && (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="w-6 h-6 text-white"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            )}
             {notification.message}
           </div>
         </div>
@@ -671,6 +678,8 @@ function APIKeysContent() {
         handleCustomQAChange={handleCustomQAChange}
         addCustomQA={addCustomQA}
         addKeyError={addKeyError}
+        apiCost={apiCost}
+        setApiCost={setApiCost}
       />
       {/* Add Key Encrypt Modal */}
       <AddKeyEncryptModal

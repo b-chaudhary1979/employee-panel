@@ -394,7 +394,7 @@ function SecurityContent() {
                 <span className="ml-1 font-medium">{selectedPassword.username}</span>
               </div>
               {/* Password */}
-              <div className="flex items-center gap-2 bg-purple-100 sm:gap-3 bg-purple-100 rounded-xl px-3 sm:px-4 py-2 shadow-md border border-purple-100">
+              <div className="flex items-center gap-2 sm:gap-3 bg-purple-100 rounded-xl px-3 sm:px-4 py-2 shadow-md border border-purple-100">
                 <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="6" y="10" width="12" height="8" rx="2" className="stroke-current"/><path d="M8 10V7a4 4 0 118 0v3" className="stroke-current"/><circle cx="12" cy="15" r="1" className="fill-current text-purple-500"/></svg>
                 <span className="font-semibold text-gray-900">Password:</span>
                 <span className="ml-1 font-mono bg-white px-2 py-1 rounded text-gray-800 text-base tracking-wider select-all">
