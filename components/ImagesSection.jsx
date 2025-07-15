@@ -10,15 +10,17 @@ const mockImages = [
   { id: 4, url: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80", title: "Desert", date: "2024-06-03", employee: "Alice" },
 ];
 
-export default function ImagesSection({ onFavourite }) {
+export default function ImagesSection({ images, onFavourite }) {
   const [search, setSearch] = useState("");
   const [modal, setModal] = useState(null); // {image, feedback}
   const [favourites, setFavourites] = useState([]);
   const [notification, setNotification] = useState("");
   const inputRef = useRef();
 
+  // Use provided images or fallback to mockImages
+  const allImages = images && Array.isArray(images) ? images : mockImages;
   // Filtered data
-  const filteredImages = mockImages.filter(img => {
+  const filteredImages = allImages.filter(img => {
     const q = search.toLowerCase();
     return (
       img.title.toLowerCase().includes(q) ||
@@ -66,6 +68,7 @@ export default function ImagesSection({ onFavourite }) {
       <div className="mb-6 text-left">
         <h2 className="text-2xl font-bold text-[#7c3aed]">Images</h2>
         <p className="text-gray-500 text-base mt-1">Browse and manage your uploaded images.</p>
+        <div className="mt-2 text-purple-700 font-semibold">Total Images: {allImages.length}</div>
       </div>
       {/* Search Bar */}
       <div className="flex justify-between items-center mb-4 flex-col sm:flex-row gap-2">
