@@ -14,9 +14,18 @@ import React from "react"; // Added missing import for React
  * @param {boolean} props.isProcessing
  */
 export function EncryptModal({ open, onClose, onSubmit, encryptionPassword, setEncryptionPassword, showEncryptionPassword, setShowEncryptionPassword, isProcessing }) {
+  React.useEffect(() => {
+    if (open) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => document.body.classList.remove('overflow-hidden');
+  }, [open]);
+
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center pointer-events-none p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/40 backdrop-blur-md pointer-events-none p-4">
       <div className="relative w-full max-w-lg mx-auto bg-white rounded-2xl shadow-2xl p-8 pointer-events-auto">
         <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={onClose}>&#8592; Back</button>
         <div className="border-2 border-purple-500 rounded-xl p-6">
@@ -54,9 +63,18 @@ export function EncryptModal({ open, onClose, onSubmit, encryptionPassword, setE
  * @param {boolean} props.isProcessing
  */
 export function DecryptModal({ open, onClose, onSubmit, decryptionPassword, setDecryptionPassword, showDecryptionPassword, setShowDecryptionPassword, isProcessing }) {
+  React.useEffect(() => {
+    if (open) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => document.body.classList.remove('overflow-hidden');
+  }, [open]);
+
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/10 backdrop-blur pointer-events-none p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/40 backdrop-blur-md pointer-events-none p-4">
       <div className="relative w-full max-w-lg mx-auto bg-white rounded-2xl shadow-2xl p-8 pointer-events-auto">
         <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={onClose}>&#8592; Back</button>
         <div className="border-2 border-purple-500 rounded-xl p-6">
@@ -118,9 +136,18 @@ export function DecryptModal({ open, onClose, onSubmit, decryptionPassword, setD
  * @param {function} props.setApiCost
  */
 export function AddKeyModal({ open, onClose, onSubmit, newKeyName, setNewKeyName, newKeyStatus, setNewKeyStatus, customKey, setCustomKey, showApiKey, setShowApiKey, environment, setEnvironment, platform, handlePlatformChange, showCustomPlatform, customPlatform, setCustomPlatform, linkedProject, setLinkedProject, usageLimit, setUsageLimit, expiryDate, setExpiryDate, description, setDescription, customQA, handleCustomQAChange, addCustomQA, addKeyError, apiCost, setApiCost }) {
+  React.useEffect(() => {
+    if (open) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => document.body.classList.remove('overflow-hidden');
+  }, [open]);
+
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/10 backdrop-blur pointer-events-none p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/40 backdrop-blur-md pointer-events-none p-4">
       <div className="relative w-full max-w-3xl mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] pointer-events-auto">
         <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={onClose}>&#8592; Back</button>
         <div className="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow space-y-4 text-gray-800 border-2 border-purple-500">
@@ -218,9 +245,18 @@ export function AddKeyModal({ open, onClose, onSubmit, newKeyName, setNewKeyName
  * @param {boolean} props.isAddingKey
  */
 export function AddKeyEncryptModal({ open, onClose, onSubmit, addKeyVaultKey, setAddKeyVaultKey, showAddKeyVaultKey, setShowAddKeyVaultKey, addKeyError, isAddingKey }) {
+  React.useEffect(() => {
+    if (open) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => document.body.classList.remove('overflow-hidden');
+  }, [open]);
+
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[210] flex items-center justify-center pointer-events-none p-4">
+    <div className="fixed inset-0 z-[210] flex items-center justify-center bg-white/40 backdrop-blur-md pointer-events-none p-4">
       <div className="relative w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl p-8 pointer-events-auto">
         <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={onClose}>&#8592; Back</button>
         <div className="border-2 border-purple-500 rounded-xl p-6">
@@ -254,9 +290,18 @@ export function AddKeyEncryptModal({ open, onClose, onSubmit, addKeyVaultKey, se
  * @param {function} props.setShowKeyDetailVaultKey
  */
 export function KeyDetailVaultModal({ open, onClose, onSubmit, keyDetailVaultKey, setKeyDetailVaultKey, showKeyDetailVaultKey, setShowKeyDetailVaultKey }) {
+  React.useEffect(() => {
+    if (open) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => document.body.classList.remove('overflow-hidden');
+  }, [open]);
+
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/10 backdrop-blur pointer-events-none p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/40 backdrop-blur-md pointer-events-none p-4">
       <div className="relative w-full max-w-md mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] pointer-events-auto">
         <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={onClose}>&#8592; Back</button>
         <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow space-y-4 text-gray-800 border-2 border-purple-500">
@@ -291,6 +336,15 @@ export function KeyDetailVaultModal({ open, onClose, onSubmit, keyDetailVaultKey
  * @param {string} props.vaultKey
  */
 export function KeyDetailModal({ open, onClose, selectedKey, handleEncrypt, handleDecrypt, onDelete, updateKeyEncryption, vaultKey }) {
+  React.useEffect(() => {
+    if (open) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => document.body.classList.remove('overflow-hidden');
+  }, [open]);
+
   const [wasDecrypted, setWasDecrypted] = React.useState(false);
   const [reencrypting, setReencrypting] = React.useState(false);
   const [reencryptError, setReencryptError] = React.useState("");
@@ -322,12 +376,11 @@ export function KeyDetailModal({ open, onClose, selectedKey, handleEncrypt, hand
   };
 
   if (!open || !selectedKey) return null;
-  // Extract customQA from selectedKey.custom if present
-  const customQA = selectedKey.custom && Array.isArray(selectedKey.custom.customQA)
-    ? selectedKey.custom.customQA
-    : (selectedKey.customQA || []);
+  const customQA = Array.isArray(selectedKey.customQA)
+    ? selectedKey.customQA
+    : (selectedKey.custom && Array.isArray(selectedKey.custom.customQA) ? selectedKey.custom.customQA : []);
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/10 backdrop-blur pointer-events-none p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/40 backdrop-blur-md pointer-events-none p-4">
       <div className="relative w-full max-w-[850px] mx-auto p-6 pointer-events-auto max-h-[640px]">
         <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={handleClose} disabled={reencrypting}>&#8592; Back</button>
         <div className="bg-white border-2 border-purple-500 rounded-xl p-6 overflow-y-auto max-h-[500px]">
@@ -340,8 +393,10 @@ export function KeyDetailModal({ open, onClose, selectedKey, handleEncrypt, hand
             <div className="mb-2 md:col-span-2"><span className="block font-semibold text-gray-700 mb-1">API Key:</span><span className="block font-mono text-base bg-gray-50 px-3 py-2 rounded border border-gray-300 text-black select-all" style={{wordBreak: 'break-all', fontSize: '1.1rem', letterSpacing: '0.03em'}}>{selectedKey.isEncrypted ? selectedKey.encryptedKey : selectedKey.key}</span></div>
             {selectedKey.environment && (<div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Environment:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900 capitalize">{selectedKey.environment}</span></div>)}
             {selectedKey.platform && (<div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Platform:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900 capitalize">{selectedKey.platform}</span></div>)}
-            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Api cost (per month):</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.apiCost != null && selectedKey.apiCost !== '' ? selectedKey.apiCost : 'N/A'}</span></div>
-            {selectedKey.linkedProject && (<div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Linked Project:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.linkedProject}</span></div>)}
+            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Api cost (per month):</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.apiCost !== '' && selectedKey.apiCost !== undefined && selectedKey.apiCost !== null ? selectedKey.apiCost : 'N/A'}</span></div>
+            {selectedKey.linkedProject && selectedKey.linkedProject !== selectedKey.keyName && (
+              <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Linked Project:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.linkedProject}</span></div>
+            )}
             {selectedKey.usageLimit && (<div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Api Limit:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.usageLimit}</span></div>)}
             <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Renew Date:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.expiryDate}</span></div>
             <div className="mb-2 md:col-span-2"><span className="block font-semibold text-gray-700 mb-1">Purpose:</span><div className="mt-1"><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900 text-sm">{selectedKey.description}</span></div></div>
@@ -377,9 +432,9 @@ export function KeyDetailModal({ open, onClose, selectedKey, handleEncrypt, hand
           <div className="flex gap-2 mt-4">
             <button className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={onDelete} disabled={reencrypting}>Delete</button>
             {selectedKey.isEncrypted ? (
-              <button className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={() => handleDecryptWithFlag(selectedKey.id)} disabled={reencrypting}>Decrypt</button>
+              <button className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={handleDecrypt} disabled={reencrypting}>Decrypt</button>
             ) : (
-              <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={() => handleEncrypt(selectedKey.id, onClose)} disabled={reencrypting}>Encrypt</button>
+              <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={handleEncrypt} disabled={reencrypting}>Encrypt</button>
             )}
           </div>
         </div>
@@ -398,37 +453,45 @@ export function KeyDetailModal({ open, onClose, selectedKey, handleEncrypt, hand
  * @param {string} props.keyName
  * @param {string} props.error
  * @param {boolean} props.loading
+ * @param {string} props.vaultKey
+ * @param {function} props.setVaultKey
+ * @param {string} props.confirmText
+ * @param {function} props.setConfirmText
+ * @param {string} props.inputUsername
+ * @param {function} props.setInputUsername
+ * @param {string} props.inputKeyName
+ * @param {function} props.setInputKeyName
  */
-export function DeleteKeyModal({ open, onClose, onConfirm, storedBy, keyName, error, loading }) {
-  const [vaultKey, setVaultKey] = React.useState("");
-  const [confirmText, setConfirmText] = React.useState("");
-  const [inputUsername, setInputUsername] = React.useState("");
-  const [inputKeyName, setInputKeyName] = React.useState("");
+export function DeleteKeyModal({ open, onClose, onConfirm, storedBy, keyName, error, loading, vaultKey, setVaultKey, confirmText, setConfirmText, inputKeyName, setInputKeyName }) {
   React.useEffect(() => {
-    if (!open) {
-      setVaultKey("");
-      setConfirmText("");
-      setInputUsername("");
-      setInputKeyName("");
+    if (open) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
     }
+    return () => document.body.classList.remove('overflow-hidden');
   }, [open]);
+
+  const [showDeleteVaultKey, setShowDeleteVaultKey] = React.useState(false);
+
   return !open ? null : (
-    <div className="fixed inset-0 z-[210] flex items-center justify-center bg-black/20 backdrop-blur-sm pointer-events-none">
+    <div className="fixed inset-0 z-[210] flex items-center justify-center bg-black/40 backdrop-blur-md pointer-events-none">
       <div className="relative w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl p-8 pointer-events-auto">
         <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={onClose}>&#8592; Back</button>
         <div className="border-2 border-red-500 rounded-xl p-6">
           <h2 className="text-xl font-bold mb-4 text-red-600">Confirm Delete API Key</h2>
-          <div className="mb-3">
-            <label className="block text-sm font-medium mb-1 text-black">Username (Stored By)</label>
-            <input className="w-full border-2 border-blue-500 rounded px-3 py-2 bg-white text-black" value={inputUsername} onChange={e => setInputUsername(e.target.value)} placeholder="Enter username who stored the key" />
-          </div>
           <div className="mb-3">
             <label className="block text-sm font-medium mb-1 text-black">Key Name</label>
             <input className="w-full border-2 border-blue-500 rounded px-3 py-2 bg-white text-black" value={inputKeyName} onChange={e => setInputKeyName(e.target.value)} placeholder="Enter key name" />
           </div>
           <div className="mb-3">
             <label className="block text-sm font-medium mb-1 text-black">Vault Key</label>
-            <input className="w-full border-2 border-blue-500 rounded px-3 py-2 bg-white text-black" type="password" value={vaultKey} onChange={e => setVaultKey(e.target.value)} placeholder="Enter vault key..." />
+            <div className="relative">
+              <input className="w-full border-2 border-blue-500 rounded px-3 py-2 bg-white text-black pr-12" type={showDeleteVaultKey ? "text" : "password"} value={vaultKey} onChange={e => setVaultKey(e.target.value)} placeholder="Enter vault key..." />
+              <button type="button" onClick={() => setShowDeleteVaultKey(v => !v)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                {showDeleteVaultKey ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
           <div className="mb-3">
             <label className="block text-sm font-medium mb-1 text-black">Type <span className="font-bold">confirm</span> to proceed</label>
@@ -437,8 +500,8 @@ export function DeleteKeyModal({ open, onClose, onConfirm, storedBy, keyName, er
           {error && <div className="text-red-600 text-sm font-semibold mb-2">{error}</div>}
           <button
             className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl mt-2 disabled:bg-gray-300 disabled:text-gray-400"
-            disabled={loading || !vaultKey || !inputUsername || !inputKeyName || confirmText !== "confirm"}
-            onClick={() => onConfirm({ vaultKey, confirmText, inputUsername, inputKeyName })}
+            disabled={loading || !vaultKey || !inputKeyName || confirmText !== "confirm"}
+            onClick={() => onConfirm({ vaultKey, confirmText, inputKeyName })}
           >
             {loading ? "Deleting..." : "Confirm Delete"}
           </button>

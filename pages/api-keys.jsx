@@ -151,6 +151,11 @@ function APIKeysContent() {
   const [deleteError, setDeleteError] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  // Add these state variables at the top of APIKeysContent:
+  const [deleteVaultKey, setDeleteVaultKey] = useState("");
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleteInputKeyName, setDeleteInputKeyName] = useState("");
+
   // Calculate totals
   const totalKeys = apiKeys.length;
   const activeKeys = apiKeys.filter((key) => key.status === "Active").length;
@@ -340,10 +345,13 @@ function APIKeysContent() {
         platform: key.platform || "github",
         description: key.description || "",
         expiryDate: key.expiryDate || "",
-        linkedProject: key.linkedProject || "",
+        linkedProject: key.linkedProject !== undefined && key.linkedProject !== null ? key.linkedProject : '',
         usageLimit: key.usageLimit || null,
-        apiCost: key.apiCost || null,
+        apiCost: key.apiCost !== undefined && key.apiCost !== null
+          ? key.apiCost
+          : (key.custom?.apiCost !== undefined && key.custom?.apiCost !== null ? key.custom.apiCost : ''),
         custom: key.custom || {},
+        customQA: key.custom?.customQA || [],
       }));
       setApiKeys(transformedKeys);
     } else if (dbKeys && dbKeys.length === 0) {
@@ -555,16 +563,11 @@ function APIKeysContent() {
     setShowDeleteModal(true);
   };
   // Handler for confirm delete in DeleteKeyModal
-  const handleConfirmDelete = async ({ vaultKey, confirmText, inputUsername, inputKeyName }) => {
+  const handleConfirmDelete = async ({ vaultKey, confirmText, inputKeyName }) => {
     setDeleteError("");
     setDeleteLoading(true);
     try {
       if (!selectedKey) throw new Error("No key selected");
-      if (inputUsername !== selectedKey.storedBy) {
-        setDeleteError("Incorrect username (stored by). Please enter the correct username.");
-        setDeleteLoading(false);
-        return;
-      }
       if (inputKeyName !== selectedKey.keyName) {
         setDeleteError("Incorrect key name. Please enter the correct key name.");
         setDeleteLoading(false);
@@ -586,11 +589,41 @@ function APIKeysContent() {
       setShowKeyDetailModal(false);
       setNotification({ show: true, message: `API key '${selectedKey.keyName}' deleted.`, type: "delete" });
       setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+      // Reset fields after successful delete
+      setDeleteVaultKey("");
+      setDeleteConfirmText("");
+      setDeleteInputKeyName("");
     } catch (err) {
       setDeleteError(err.message || "Failed to delete key");
     } finally {
       setDeleteLoading(false);
     }
+  };
+
+  const handleDetailEncrypt = () => {
+    if (!selectedKey || !selectedKey.key) return;
+    const encryptedKey = encryptKey(selectedKey.key, ci);
+    setSelectedKey({
+      ...selectedKey,
+      encryptedKey,
+      isEncrypted: true,
+      isDecrypted: false,
+    });
+    setNotification({ show: true, message: 'API key encrypted successfully!' });
+    setTimeout(() => setNotification({ show: false, message: '' }), 2000);
+  };
+
+  const handleDetailDecrypt = () => {
+    if (!selectedKey || !selectedKey.encryptedKey) return;
+    const decryptedKey = require('../utils/apiKeys').decryptKey(selectedKey.encryptedKey, ci);
+    setSelectedKey({
+      ...selectedKey,
+      key: decryptedKey,
+      isEncrypted: false,
+      isDecrypted: true,
+    });
+    setNotification({ show: true, message: 'API key decrypted successfully!' });
+    setTimeout(() => setNotification({ show: false, message: '' }), 2000);
   };
 
   return (
@@ -722,8 +755,8 @@ function APIKeysContent() {
         open={showKeyDetailModal && !!selectedKey}
         onClose={() => setShowKeyDetailModal(false)}
         selectedKey={selectedKey}
-        handleEncrypt={handleEncrypt}
-        handleDecrypt={handleDecrypt}
+        handleEncrypt={handleDetailEncrypt}
+        handleDecrypt={handleDetailDecrypt}
         onDelete={handleDeleteClick}
         updateKeyEncryption={updateKeyEncryption}
         vaultKey={ci}
@@ -731,12 +764,24 @@ function APIKeysContent() {
       {/* Delete Key Modal */}
       <DeleteKeyModal
         open={showDeleteModal && !!selectedKey}
-        onClose={() => setShowDeleteModal(false)}
+        onClose={() => {
+          setShowDeleteModal(false);
+          // Optionally reset fields on cancel/close:
+          setDeleteVaultKey("");
+          setDeleteConfirmText("");
+          setDeleteInputKeyName("");
+        }}
         onConfirm={handleConfirmDelete}
         storedBy={selectedKey?.storedBy || ""}
         keyName={selectedKey?.keyName || ""}
         error={deleteError}
         loading={deleteLoading}
+        vaultKey={deleteVaultKey}
+        setVaultKey={setDeleteVaultKey}
+        confirmText={deleteConfirmText}
+        setConfirmText={setDeleteConfirmText}
+        inputKeyName={deleteInputKeyName}
+        setInputKeyName={setDeleteInputKeyName}
       />
       <div className="bg-[#fbf9f4] min-h-screen flex relative">
         {/* Sidebar for desktop */}
@@ -907,7 +952,7 @@ function APIKeysContent() {
                   )}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0 mb-4 sm:mb-6">
                     <div>
-                      <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-1">
+                      <h1 className="text-2xl sm:text-3xl font-extrabold text-[#7c3aed] mb-1">
                         API Keys
                       </h1>
                       <p className="text-gray-500 text-base sm:text-lg">
