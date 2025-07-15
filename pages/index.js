@@ -65,7 +65,7 @@ export default function Home() {
           : Infinity,
       }));
 
-      // Find the section closest to the top (but not above)
+      // Find the section closest to the top ( but not above)
       const active = sectionOffsets.reduce((closest, section) => {
         if (
           section.top < window.innerHeight / 2 &&
