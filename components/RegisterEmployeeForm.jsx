@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import UploadDocuments from "./uploaddocuments";
+import { useRouter } from "next/router";
 
 function CustomLoader() {
   return (
@@ -10,6 +11,7 @@ function CustomLoader() {
 }
 
 export default function RegisterEmployeeForm({ onSubmit, initialData }) {
+  const router = useRouter();
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -364,7 +366,7 @@ export default function RegisterEmployeeForm({ onSubmit, initialData }) {
             <button type="button" onClick={addCustomQA} className="mt-2 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">+ Add Custom Q&A</button>
           </div>
           <div className="flex justify-between mt-6">
-            <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl" onClick={() => { setForm({ firstName: "", lastName: "", email: "", phone: "", dob: "", gender: "", address: "", city: "", state: "", country: "", zip: "", department: "", role: "", employeeId: "", dateJoined: "", photo: null, company: "" }); setCustomQA([{ question: "", answer: "" }]); setFormError(""); }}>Cancel</button>
+            <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl" onClick={() => router.back()}>Cancel</button>
             <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-xl">
               Next
             </button>
@@ -386,7 +388,7 @@ export default function RegisterEmployeeForm({ onSubmit, initialData }) {
             loading={loading}
           />
           <div className="flex justify-between mt-6">
-            <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl" onClick={() => setSlide(1)}>
+            <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl" onClick={() => router.back()}>
               Back
             </button>
             <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl" onClick={() => { setForm({ firstName: "", lastName: "", email: "", phone: "", dob: "", gender: "", address: "", city: "", state: "", country: "", zip: "", department: "", role: "", employeeId: "", dateJoined: "", photo: null, company: "" }); setCustomQA([{ question: "", answer: "" }]); setSlide(1); setFormError(""); }}>Cancel</button>
