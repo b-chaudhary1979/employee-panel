@@ -323,7 +323,7 @@ export default function Home() {
               </nav>
 
               {/* CTA Buttons */}
-              <div className="flex space-x-3">
+              <div className="flex space-x-3 hidden md:flex">
                 <button
                   onClick={() =>
                     document
@@ -344,9 +344,9 @@ export default function Home() {
             </div>
 
             {/* Mobile Layout - Card Design */}
-            <div className="md:hidden py-4">
+            <div className="md:hidden py-1">
               {/* Logo and Title */}
-              <div className="flex items-center justify-center mb-4">
+              <div className="flex items-center justify-center mb-4 mt-8">
                 <div className="flex items-center group cursor-pointer hover:scale-105 transition-transform duration-300">
                   <div className="relative">
                     <Image
@@ -365,7 +365,7 @@ export default function Home() {
               </div>
 
               {/* CTA Buttons */}
-              <div className="flex justify-center space-x-3 mt-6 -mb-4">
+              <div className="flex justify-center space-x-3 mt-6 -mb-4 hidden">
                 <button
                   onClick={() =>
                     document
