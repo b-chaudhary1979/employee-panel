@@ -173,6 +173,42 @@ export default async function handler(req, res) {
       console.error("API Key decryption error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
+  } else if (req.method === "PATCH") {
+    // Re-encrypt a specific key
+    try {
+      const { keyId, rawKey, vaultKey } = req.body;
+      if (!keyId || !rawKey || !vaultKey) {
+        return res.status(400).json({ error: "keyId, rawKey, and vaultKey are required" });
+      }
+      // Use vaultKey for encryption
+      const encryptedKey = encrypt(rawKey, vaultKey);
+      const keysColRef = collection(doc(db, "apiKeys", companyId), "keys");
+      await setDoc(doc(keysColRef, keyId), { encryptedKey }, { merge: true });
+      res.status(200).json({ success: true, keyId });
+    } catch (error) {
+      console.error("API Key re-encrypt error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  } else if (req.method === "DELETE") {
+    // Delete a specific key
+    try {
+      const { keyId, vaultKey } = req.body;
+      if (!keyId || !vaultKey) {
+        return res.status(400).json({ error: "keyId and vaultKey are required" });
+      }
+      // For now, use companyId as the vault key check (can be improved)
+      if (vaultKey !== companyId) {
+        return res.status(403).json({ error: "Invalid vault key." });
+      }
+      const keysColRef = collection(doc(db, "apiKeys", companyId), "keys");
+      // Delete by keyName (which is used as doc ID)
+      await setDoc(doc(keysColRef, keyId), {}, { merge: false }); // Overwrite with empty object
+      await (await import("firebase/firestore")).deleteDoc(doc(keysColRef, keyId));
+      res.status(200).json({ success: true, deleted: keyId });
+    } catch (error) {
+      console.error("API Key delete error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   } else {
     return res.status(405).json({ error: "Method not allowed" });
   }
