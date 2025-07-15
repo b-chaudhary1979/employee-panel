@@ -230,7 +230,7 @@ function SecurityContent() {
     setNotification({
       show: true,
       message: "Password deleted.",
-      type: "success",
+      type: "error", // Make notification red
     });
     setShowDeleteModal(false);
     setPendingDelete(null);
@@ -501,7 +501,8 @@ function SecurityContent() {
                   setShowPasswordDetailModal(false);
                 }}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6 6M3 17v4h4l10.293-10.293a1 1 0 00-1.414-1.414L3 17z" /></svg>
+                {/* Modern pen icon */}
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M16.862 3.487a2.25 2.25 0 113.182 3.182L7.5 19.213l-4 1 1-4 12.362-12.726z" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 Edit
               </button>
               <button
@@ -567,13 +568,7 @@ function SecurityContent() {
             <svg className="w-12 h-12 text-red-500 mb-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" /><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
             <h3 className="text-lg font-bold text-gray-900 mb-2">Delete Password?</h3>
             <p className="text-gray-600 mb-4 text-center">Are you sure you want to delete this password? This action cannot be undone.</p>
-            <div className="w-full mb-4 flex flex-col items-center">
-              <label htmlFor="usageTag" className="text-gray-700 font-semibold mb-1">Usage Tag:</label>
-              <select id="usageTag" className="border rounded px-2 py-1 w-40" value={deleteUsageTag} onChange={e => setDeleteUsageTag(e.target.value)}>
-                <option value="In Use">In Use</option>
-                <option value="Not In Use">Not In Use</option>
-              </select>
-            </div>
+            {/* Usage tag dropdown removed */}
             <div className="flex gap-3 w-full justify-center">
               <button className="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-xl transition" onClick={() => handleDelete(pendingDelete)}>Delete</button>
               <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-4 py-2 rounded-xl transition" onClick={() => { setShowDeleteModal(false); setPendingDelete(null); setDeleteUsageTag('In Use'); }}>Cancel</button>
@@ -1054,7 +1049,7 @@ function SecurityContent() {
                         {/* Duplicate: hide on mobile, show on sm+ */}
                         <td className="px-3 py-2 whitespace-nowrap hidden sm:table-cell align-top">{getDuplicateCount(p.password) > 0 ? (<span className="text-red-600 font-bold">{getDuplicateCount(p.password)}</span>) : (<span className="text-gray-400">0</span>)}</td>
                         {/* Usage: hide on mobile, show on sm+ */}
-                        <td className="px-3 py-2 whitespace-nowrap hidden sm:table-cell align-top text-xs md:text-sm">
+                        <td className="px-3 py-2 whitespace-nowrap hidden sm:table-cell align-top text-xs md:text-xs">
                           <span className={`px-2 py-0.5 rounded font-semibold
                             ${p.usageTag === 'Expired' ? 'bg-red-100 text-red-700' :
                               p.usageTag === 'Not In Use' ? 'bg-yellow-100 text-yellow-700' :
@@ -1066,7 +1061,10 @@ function SecurityContent() {
                         {/* Actions: always visible */}
                         <td className="px-3 py-2 whitespace-nowrap text-center align-middle">
                           <div className="flex gap-2 items-center justify-center">
-                            <button className="text-blue-500 hover:text-blue-700 px-1" onClick={(e) => { e.stopPropagation(); setEditPassword(p); setShowEditModal(true); }} title="Edit Password" aria-label="Edit password"><svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6 6M3 17v4h4l10.293-10.293a1 1 0 00-1.414-1.414L3 17z" /></svg></button>
+                            <button className="text-blue-500 hover:text-blue-700 px-1" onClick={(e) => { e.stopPropagation(); setEditPassword(p); setShowEditModal(true); }} title="Edit Password" aria-label="Edit password">
+                              {/* Modern pen icon */}
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M16.862 3.487a2.25 2.25 0 113.182 3.182L7.5 19.213l-4 1 1-4 12.362-12.726z" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                            </button>
                             <button className="text-red-500 hover:text-red-700 px-1" onClick={(e) => { e.stopPropagation(); setPendingDelete(p.id); setShowDeleteModal(true); }} title="Delete Password" aria-label="Delete password"><svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
                           </div>
                         </td>

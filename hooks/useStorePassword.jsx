@@ -86,7 +86,7 @@ export default function useStorePassword(ci) {
     async (id, data) => {
       try {
         setError(null);
-        const ref = doc(db, "companies", ci, "passwords", id);
+        const ref = doc(db, "users", ci, "passwords", id); // FIXED: was 'companies', should be 'users'
         const encrypted = {
           ...data,
           password: encrypt(data.password),
@@ -103,7 +103,7 @@ export default function useStorePassword(ci) {
   const deletePassword = useCallback(async (id) => {
     try {
       setError(null);
-      await deleteDoc(doc(db, "companies", ci, "passwords", id));
+      await deleteDoc(doc(db, "users", ci, "passwords", id)); // FIXED: was 'companies', should be 'users'
     } catch (err) {
       setError(err.message);
     }
