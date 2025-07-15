@@ -55,6 +55,7 @@ function APIKeysContent() {
     decryptKey: serverDecryptKey,
     deleteKey, // <-- use deleteKey
     updateKeyEncryption, // <-- add this line
+    updateKeyStatus, // <-- add this line
     keys: dbKeys,
     error: apiKeysError,
     fetchingKeys,
@@ -139,7 +140,7 @@ function APIKeysContent() {
   const [linkedProject, setLinkedProject] = useState("");
   const [usageLimit, setUsageLimit] = useState("");
   const [environment, setEnvironment] = useState("development");
-  const [platform, setPlatform] = useState("github");
+  const [platform, setPlatform] = useState("");
   const [customPlatform, setCustomPlatform] = useState("");
   const [showCustomPlatform, setShowCustomPlatform] = useState(false);
 
@@ -155,6 +156,9 @@ function APIKeysContent() {
   const [deleteVaultKey, setDeleteVaultKey] = useState("");
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deleteInputKeyName, setDeleteInputKeyName] = useState("");
+
+  // Add state for status update loading
+  const [statusUpdating, setStatusUpdating] = useState(false);
 
   // Calculate totals
   const totalKeys = apiKeys.length;
@@ -191,7 +195,7 @@ function APIKeysContent() {
   };
 
   // Open vault key modal before adding key
-  const handleAddKey = (e) => {
+  const handleAddKey = async (e) => {
     e.preventDefault();
     setAddKeyError("");
     if (!newKeyName.trim() || !customKey.trim()) return;
@@ -203,73 +207,40 @@ function APIKeysContent() {
       setAddKeyError("A key with this name already exists.");
       return;
     }
-    setPendingAddKey({
-      keyName: newKeyName.trim(),
-      status: newKeyStatus,
-      key: customKey,
-      description: description.trim(),
-      expiryDate: expiryDate,
-      linkedProject: linkedProject.trim(),
-      usageLimit: usageLimit ? parseInt(usageLimit) : null,
-      environment: environment,
-      platform: platform === "custom" ? customPlatform.trim() : platform,
-      apiCost: apiCost ? parseFloat(apiCost) : null,
-    });
-    setShowAddKeyEncryptModal(true);
-  };
-
-  // Actually add the key after vault key is provided and validated
-  const handleAddKeyEncrypt = async (e) => {
-    e.preventDefault();
-    setAddKeyError("");
-    if (!addKeyVaultKey.trim() || !pendingAddKey) return;
-    // Validate vault key
-    if (addKeyVaultKey !== ci) {
-      setAddKeyError("Incorrect vault key. Please try again.");
-      return;
-    }
-
     setIsAddingKey(true);
     try {
-      // Use the hook to add the key, passing vaultKey
       await addKey({
-        keyName: pendingAddKey.keyName,
-        rawKey: pendingAddKey.key,
-        status: pendingAddKey.status,
-        environment: pendingAddKey.environment || "development",
-        platform: pendingAddKey.platform,
-        description: pendingAddKey.description,
-        expiryDate: pendingAddKey.expiryDate,
-        linkedProject: pendingAddKey.linkedProject,
-        usageLimit: pendingAddKey.usageLimit,
-        apiCost: pendingAddKey.apiCost,
-        vaultKey: addKeyVaultKey, // <-- pass vaultKey
+        keyName: newKeyName.trim(),
+        rawKey: customKey,
+        status: newKeyStatus,
+        environment: environment || "development",
+        platform: platform === "custom" ? customPlatform.trim() : platform,
+        description: description.trim(),
+        expiryDate: expiryDate,
+        linkedProject: linkedProject.trim(),
+        usageLimit: usageLimit ? parseInt(usageLimit) : null,
+        apiCost: apiCost ? parseFloat(apiCost) : null,
+        customQA: customQA.filter((qa) => qa.question && qa.answer),
         custom: {
-          vaultKey: addKeyVaultKey,
           customQA: customQA.filter((qa) => qa.question && qa.answer),
         },
       });
-
       setShowAddKeyModal(false);
-      setShowAddKeyEncryptModal(false);
       setNewKeyName("");
       setNewKeyStatus("Active");
       setCustomKey("");
       setShowApiKey(false);
       setCustomQA([{ question: "", answer: "" }]);
-      setAddKeyVaultKey("");
-      setPendingAddKey(null);
       setAddKeyError("");
-      // Reset new fields
       setDescription("");
       setExpiryDate("");
       setLinkedProject("");
       setUsageLimit("");
       setEnvironment("development");
-      setPlatform("github");
+      setPlatform("");
       setCustomPlatform("");
       setShowCustomPlatform(false);
-      setNotification({ show: true, message: "API key added and encrypted!", type: "add" });
+      setNotification({ show: true, message: "API key added!", type: "add" });
       setTimeout(() => setNotification({ show: false, message: "" }), 3000);
       setApiCost("");
     } catch (error) {
@@ -473,11 +444,6 @@ function APIKeysContent() {
     setShowEncryptModal(false);
     setEncryptionPassword("");
     setIsProcessing(false);
-    setNotification({
-      show: true,
-      message: "API key encrypted successfully!",
-    });
-    setTimeout(() => setNotification({ show: false, message: "" }), 3000);
   };
 
   // Decryption Modal submit handler
@@ -529,11 +495,6 @@ function APIKeysContent() {
       setShowDecryptModal(false);
       setDecryptionPassword("");
       setIsProcessing(false);
-      setNotification({
-        show: true,
-        message: "API key decrypted successfully!",
-      });
-      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
     } catch (error) {
       setNotification({
         show: true,
@@ -566,25 +527,29 @@ function APIKeysContent() {
   const handleConfirmDelete = async ({ vaultKey, confirmText, inputKeyName }) => {
     setDeleteError("");
     setDeleteLoading(true);
+    // Trim whitespace from all inputs
+    const trimmedVaultKey = vaultKey.trim();
+    const trimmedConfirmText = confirmText.trim();
+    const trimmedInputKeyName = inputKeyName.trim();
     try {
       if (!selectedKey) throw new Error("No key selected");
-      if (inputKeyName !== selectedKey.keyName) {
+      if (trimmedInputKeyName !== selectedKey.keyName) {
         setDeleteError("Incorrect key name. Please enter the correct key name.");
         setDeleteLoading(false);
         return;
       }
-      if (vaultKey !== ci) {
+      if (trimmedVaultKey !== ci) {
         setDeleteError("Incorrect vault key.");
         setDeleteLoading(false);
         return;
       }
-      if (confirmText !== "confirm") {
+      if (trimmedConfirmText !== "confirm") {
         setDeleteError("You must type 'confirm' to proceed.");
         setDeleteLoading(false);
         return;
       }
       // Call deleteKey from hook
-      await deleteKey(selectedKey.id, vaultKey);
+      await deleteKey(selectedKey.id, trimmedVaultKey);
       setShowDeleteModal(false);
       setShowKeyDetailModal(false);
       setNotification({ show: true, message: `API key '${selectedKey.keyName}' deleted.`, type: "delete" });
@@ -609,8 +574,6 @@ function APIKeysContent() {
       isEncrypted: true,
       isDecrypted: false,
     });
-    setNotification({ show: true, message: 'API key encrypted successfully!' });
-    setTimeout(() => setNotification({ show: false, message: '' }), 2000);
   };
 
   const handleDetailDecrypt = () => {
@@ -622,8 +585,22 @@ function APIKeysContent() {
       isEncrypted: false,
       isDecrypted: true,
     });
-    setNotification({ show: true, message: 'API key decrypted successfully!' });
-    setTimeout(() => setNotification({ show: false, message: '' }), 2000);
+  };
+
+  // Handler for status change in KeyDetailModal
+  const handleStatusChange = async (newStatus) => {
+    if (!selectedKey || selectedKey.status === newStatus) return;
+    setStatusUpdating(true);
+    try {
+      await updateKeyStatus(selectedKey.id, newStatus);
+      setSelectedKey((prev) => prev ? { ...prev, status: newStatus } : prev);
+      setApiKeys((prev) => prev.map((k) => k.id === selectedKey.id ? { ...k, status: newStatus } : k));
+    } catch (err) {
+      setNotification({ show: true, message: `Failed to update status: ${err.message}`, type: "error" });
+      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+    } finally {
+      setStatusUpdating(false);
+    }
   };
 
   return (
@@ -639,22 +616,7 @@ function APIKeysContent() {
               : notification.message.toLowerCase().includes('error') ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white'
               : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'}
           `}>
-            {(notification.type === 'delete' || notification.message.toLowerCase().includes('error')) && (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="w-6 h-6 text-white"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            )}
+            {/* Remove the cross (X) icon for delete and error notifications */}
             {notification.message}
           </div>
         </div>
@@ -720,21 +682,6 @@ function APIKeysContent() {
         apiCost={apiCost}
         setApiCost={setApiCost}
       />
-      {/* Add Key Encrypt Modal */}
-      <AddKeyEncryptModal
-        open={showAddKeyEncryptModal}
-        onClose={() => {
-          setShowAddKeyEncryptModal(false);
-          setAddKeyError("");
-        }}
-        onSubmit={handleAddKeyEncrypt}
-        addKeyVaultKey={addKeyVaultKey}
-        setAddKeyVaultKey={setAddKeyVaultKey}
-        showAddKeyVaultKey={showAddKeyVaultKey}
-        setShowAddKeyVaultKey={setShowAddKeyVaultKey}
-        addKeyError={addKeyError}
-        isAddingKey={isAddingKey}
-      />
       {/* Vault Verification Modal for Key Details */}
       <KeyDetailVaultModal
         open={showKeyDetailVaultModal && !!selectedKey}
@@ -760,6 +707,8 @@ function APIKeysContent() {
         onDelete={handleDeleteClick}
         updateKeyEncryption={updateKeyEncryption}
         vaultKey={ci}
+        onStatusChange={handleStatusChange}
+        statusUpdating={statusUpdating}
       />
       {/* Delete Key Modal */}
       <DeleteKeyModal

@@ -334,8 +334,10 @@ export function KeyDetailVaultModal({ open, onClose, onSubmit, keyDetailVaultKey
  * @param {function} props.onDelete
  * @param {function} props.updateKeyEncryption
  * @param {string} props.vaultKey
+ * @param {function} props.onStatusChange
+ * @param {boolean} props.statusUpdating
  */
-export function KeyDetailModal({ open, onClose, selectedKey, handleEncrypt, handleDecrypt, onDelete, updateKeyEncryption, vaultKey }) {
+export function KeyDetailModal({ open, onClose, selectedKey, handleEncrypt, handleDecrypt, onDelete, updateKeyEncryption, vaultKey, onStatusChange, statusUpdating }) {
   React.useEffect(() => {
     if (open) {
       document.body.classList.add('overflow-hidden');
@@ -386,20 +388,32 @@ export function KeyDetailModal({ open, onClose, selectedKey, handleEncrypt, hand
         <div className="bg-white border-2 border-purple-500 rounded-xl p-6 overflow-y-auto max-h-[500px]">
           <h2 className="text-xl font-bold mb-4 text-black">API Key Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-[15px] mb-4">
-            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Stored By:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.storedBy || '-'}</span></div>
-            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Stored Date:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.storeDate || '-'}</span></div>
-            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Key Name:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.keyName}</span></div>
-            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Status:</span><span className={"block border border-gray-300 rounded px-3 py-2 bg-gray-50 font-bold text-sm " + (selectedKey.status === "Active" ? "bg-green-100 text-green-600" : "bg-gray-200 text-gray-600")}>{selectedKey.status || "Active"}</span></div>
-            <div className="mb-2 md:col-span-2"><span className="block font-semibold text-gray-700 mb-1">API Key:</span><span className="block font-mono text-base bg-gray-50 px-3 py-2 rounded border border-gray-300 text-black select-all" style={{wordBreak: 'break-all', fontSize: '1.1rem', letterSpacing: '0.03em'}}>{selectedKey.isEncrypted ? selectedKey.encryptedKey : selectedKey.key}</span></div>
-            {selectedKey.environment && (<div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Environment:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900 capitalize">{selectedKey.environment}</span></div>)}
-            {selectedKey.platform && (<div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Platform:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900 capitalize">{selectedKey.platform}</span></div>)}
-            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Api cost (per month):</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.apiCost !== '' && selectedKey.apiCost !== undefined && selectedKey.apiCost !== null ? selectedKey.apiCost : 'N/A'}</span></div>
+            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Stored By</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.storedBy || '-'}</span></div>
+            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Stored Date</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.storeDate || '-'}</span></div>
+            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Key Name</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.keyName}</span></div>
+            <div className="mb-2">
+              <span className="block font-semibold text-gray-700 mb-1">Status</span>
+              <select
+                className={"block border border-gray-300 rounded px-3 py-2 bg-gray-50 font-bold text-sm w-full " + (selectedKey.status === "Active" ? "bg-green-100 text-green-600" : "bg-gray-200 text-gray-600")}
+                value={selectedKey.status || "Active"}
+                onChange={e => onStatusChange(e.target.value)}
+                disabled={statusUpdating}
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+              {statusUpdating && <span className="text-xs text-gray-500 ml-2">Updating...</span>}
+            </div>
+            <div className="mb-2 md:col-span-2"><span className="block font-semibold text-gray-700 mb-1">API Key</span><span className="block font-mono text-base bg-gray-50 px-3 py-2 rounded border border-gray-300 text-black select-all" style={{wordBreak: 'break-all', fontSize: '1.1rem', letterSpacing: '0.03em'}}>{selectedKey.isEncrypted ? selectedKey.encryptedKey : selectedKey.key}</span></div>
+            {selectedKey.environment && (<div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Environment</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900 capitalize">{selectedKey.environment}</span></div>)}
+            {selectedKey.platform && (<div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Platform</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900 capitalize">{selectedKey.platform}</span></div>)}
+            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Api cost (per month)</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.apiCost !== '' && selectedKey.apiCost !== undefined && selectedKey.apiCost !== null ? selectedKey.apiCost : 'N/A'}</span></div>
             {selectedKey.linkedProject && selectedKey.linkedProject !== selectedKey.keyName && (
-              <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Linked Project:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.linkedProject}</span></div>
+              <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Linked Project</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.linkedProject}</span></div>
             )}
-            {selectedKey.usageLimit && (<div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Api Limit:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.usageLimit}</span></div>)}
-            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Renew Date:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.expiryDate}</span></div>
-            <div className="mb-2 md:col-span-2"><span className="block font-semibold text-gray-700 mb-1">Purpose:</span><div className="mt-1"><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900 text-sm">{selectedKey.description}</span></div></div>
+            {selectedKey.usageLimit && (<div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Api Limit</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.usageLimit}</span></div>)}
+            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Renew Date</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.expiryDate}</span></div>
+            <div className="mb-2 md:col-span-2"><span className="block font-semibold text-gray-700 mb-1">Purpose</span><div className="mt-1"><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900 text-sm">{selectedKey.description}</span></div></div>
             {/* Show any other fields not already shown */}
             {Object.entries(selectedKey).map(([key, value]) => {
               const shown = [
@@ -409,26 +423,25 @@ export function KeyDetailModal({ open, onClose, selectedKey, handleEncrypt, hand
               if (typeof value === "object" && value !== null) return null;
               return (
                 <div className="mb-2" key={key}>
-                  <span className="block font-semibold text-gray-700 mb-1">{key}:</span>
+                  <span className="block font-semibold text-gray-700 mb-1">{key.replace(/:$/, "")}</span>
                   <span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{String(value)}</span>
                 </div>
               );
             })}
+            {/* Custom Q&A in two-column format */}
+            {customQA && customQA.length > 0 && customQA.map((qa, idx) => (
+              <React.Fragment key={idx}>
+                <div className="mb-2">
+                  <span className="block font-semibold text-gray-700 mb-1">Custom Q{customQA.length > 1 ? `${idx + 1}` : ''}</span>
+                  <span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{qa.question}</span>
+                </div>
+                <div className="mb-2">
+                  <span className="block font-semibold text-gray-700 mb-1">Custom A{customQA.length > 1 ? `${idx + 1}` : ''}</span>
+                  <span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{qa.answer}</span>
+                </div>
+              </React.Fragment>
+            ))}
           </div>
-          {/* Show custom questions and answers if present */}
-          {customQA && customQA.length > 0 && (
-            <div className="mb-2">
-              <span className="font-semibold text-gray-700">Custom Q&A:</span>
-              <ul className="mt-1 ml-4 list-disc text-gray-900 text-sm">
-                {customQA.map((qa, idx) => (
-                  <li key={idx} className="mb-1">
-                    <span className="font-semibold">Q:</span> {qa.question} <br />
-                    <span className="font-semibold">A:</span> {qa.answer}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
           <div className="flex gap-2 mt-4">
             <button className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={onDelete} disabled={reencrypting}>Delete</button>
             {selectedKey.isEncrypted ? (

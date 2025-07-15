@@ -247,6 +247,36 @@ export default function useStoreApiKeys(companyId, currentUser) {
     [companyId, fetchKeys]
   );
 
+  /* ---------- update key status ---------- */
+  const updateKeyStatus = useCallback(
+    async (keyId, newStatus) => {
+      if (!companyId || !keyId || !newStatus) {
+        throw new Error("Company ID, key ID, and new status are required");
+      }
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(`/api/keys/${companyId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ keyId, status: newStatus }),
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to update key status");
+        }
+        await fetchKeys();
+        return true;
+      } catch (err) {
+        setError(err);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [companyId, fetchKeys]
+  );
+
   return {
     addKey,
     importFromFile,
@@ -254,6 +284,7 @@ export default function useStoreApiKeys(companyId, currentUser) {
     decryptKey,
     deleteKey, // <-- export deleteKey
     updateKeyEncryption, // <-- export updateKeyEncryption
+    updateKeyStatus, // <-- export updateKeyStatus
     keys,
     loading,
     error,
