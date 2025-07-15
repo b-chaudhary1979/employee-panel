@@ -1,7 +1,6 @@
 // /hooks/useStoreApiKeys.js
 import { useCallback, useState } from "react";
 import Papa from "papaparse";
-import ExcelJS from "exceljs";
 
 /**
  * Converts a File (CSV, JSON, or Excel) to an array of key objects
@@ -9,44 +8,6 @@ import ExcelJS from "exceljs";
  */
 const fileToKeyArray = async (file) => {
   try {
-    // Excel (xlsx, xls, xlsm)
-    if (
-      file.type ===
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
-      file.type === "application/vnd.ms-excel" ||
-      file.name.endsWith(".xlsx") ||
-      file.name.endsWith(".xls") ||
-      file.name.endsWith(".xlsm")
-    ) {
-      const buffer = await file.arrayBuffer();
-      const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.load(buffer);
-      const worksheet = workbook.worksheets[0];
-      if (!worksheet) throw new Error("No worksheet found in Excel file");
-      // Get headers from the first row
-      const headerRow = worksheet.getRow(1);
-      const headers = headerRow.values.slice(1); // skip first empty value
-      const data = [];
-      worksheet.eachRow((row, rowNumber) => {
-        if (rowNumber === 1) return; // skip header
-        const rowObj = {};
-        row.values.slice(1).forEach((cell, idx) => {
-          rowObj[headers[idx]] = cell;
-        });
-        // Only push if at least one value is present
-        if (Object.values(rowObj).some((v) => v !== undefined && v !== null && v !== "")) {
-          data.push(rowObj);
-        }
-      });
-      return data;
-    }
-
-    // JSON
-    if (file.type === "application/json" || file.name.endsWith(".json")) {
-      const text = await file.text();
-      return JSON.parse(text);
-    }
-
     // CSV
     const text = await file.text();
     const { data, errors } = Papa.parse(text, {

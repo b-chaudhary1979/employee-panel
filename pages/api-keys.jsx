@@ -17,8 +17,8 @@ import {
   decryptToken,
   encryptKey,
 } from "../utils/apiKeys";
-import useVault from "../hooks/useVault";
-import useApiKeyModals from "../hooks/useApiKeyModals";
+import useVault from "../hooks/useVault.jsx";
+import useApiKeyModals from "../hooks/useApiKeyModals.jsx";
 import { useRouter } from "next/router";
 import { useSidebar } from "../context/SidebarContext";
 import { useUserInfo } from "../context/UserInfoContext";
@@ -38,6 +38,7 @@ function APIKeysContent() {
   const [notification, setNotification] = useState({
     show: false,
     message: "",
+    type: "", // 'add', 'delete', 'error', etc.
   });
 
   // Add state for Add Key modal fields
@@ -229,7 +230,7 @@ function APIKeysContent() {
       await addKey({
         keyName: pendingAddKey.keyName,
         rawKey: pendingAddKey.key,
-        status: pendingAddKey.status.toLowerCase(),
+        status: pendingAddKey.status,
         environment: pendingAddKey.environment || "development",
         platform: pendingAddKey.platform,
         description: pendingAddKey.description,
@@ -263,7 +264,7 @@ function APIKeysContent() {
       setPlatform("github");
       setCustomPlatform("");
       setShowCustomPlatform(false);
-      setNotification({ show: true, message: "API key added and encrypted!" });
+      setNotification({ show: true, message: "API key added and encrypted!", type: "add" });
       setTimeout(() => setNotification({ show: false, message: "" }), 3000);
       setApiCost("");
     } catch (error) {
@@ -583,7 +584,7 @@ function APIKeysContent() {
       await deleteKey(selectedKey.id, vaultKey);
       setShowDeleteModal(false);
       setShowKeyDetailModal(false);
-      setNotification({ show: true, message: `API key '${selectedKey.keyName}' deleted.` });
+      setNotification({ show: true, message: `API key '${selectedKey.keyName}' deleted.`, type: "delete" });
       setTimeout(() => setNotification({ show: false, message: "" }), 3000);
     } catch (err) {
       setDeleteError(err.message || "Failed to delete key");
@@ -599,8 +600,13 @@ function APIKeysContent() {
       </Head>
       {notification.show && (
         <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-[100] transition-all duration-300">
-          <div className={`px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown ${notification.message.toLowerCase().includes('error') ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white' : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'}`}>
-            {notification.message.toLowerCase().includes('error') && (
+          <div className={`px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown
+            ${notification.type === 'delete' ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white'
+              : notification.type === 'add' ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
+              : notification.message.toLowerCase().includes('error') ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white'
+              : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'}
+          `}>
+            {(notification.type === 'delete' || notification.message.toLowerCase().includes('error')) && (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -1060,18 +1066,18 @@ function APIKeysContent() {
               Import API Keys from File
             </h2>
             <div className="text-gray-700 mb-4 text-center">
-              Upload a CSV, JSON, or Excel file with your API keys.
+              Upload a CSV file with your API keys.
               <br />
               <span className="text-sm text-gray-500">
                 Supported columns: keyName, rawKey, environment, status<br/>
-                Supported formats: CSV, JSON, XLSX, XLS, XLSM
+                Supported format: CSV only
               </span>
             </div>
             <div className="space-y-4">
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                 <input
                   type="file"
-                  accept=".csv,.json,.xlsx,.xls,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                  accept=".csv,text/csv"
                   onChange={(e) => {
                     const file = e.target.files[0];
                     if (file) {
@@ -1088,7 +1094,7 @@ function APIKeysContent() {
                   Choose File
                 </label>
                 <p className="text-sm text-gray-500 mt-2">
-                  Supported formats: CSV, JSON, XLSX, XLS, XLSM
+                  Supported format: CSV only
                 </p>
               </div>
               <div className="flex justify-center gap-2">

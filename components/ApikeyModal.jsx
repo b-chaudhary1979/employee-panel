@@ -328,27 +328,38 @@ export function KeyDetailModal({ open, onClose, selectedKey, handleEncrypt, hand
     : (selectedKey.customQA || []);
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/10 backdrop-blur pointer-events-none p-4">
-      <div className="relative w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-6 pointer-events-auto">
+      <div className="relative w-full max-w-[850px] mx-auto p-6 pointer-events-auto max-h-[640px]">
         <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={handleClose} disabled={reencrypting}>&#8592; Back</button>
-        <div className="border-2 border-purple-500 rounded-xl p-6">
+        <div className="bg-white border-2 border-purple-500 rounded-xl p-6 overflow-y-auto max-h-[500px]">
           <h2 className="text-xl font-bold mb-4 text-black">API Key Details</h2>
-          <div className="mb-2"><span className="font-semibold text-gray-700">Key Name:</span><span className="ml-2 text-gray-900">{selectedKey.keyName}</span></div>
-          <div className="mb-2"><span className="font-semibold text-gray-700">Store Date:</span><span className="ml-2 text-gray-900">{selectedKey.storeDate}</span></div>
-          <div className="mb-2"><span className="font-semibold text-gray-700">Stored By:</span><span className="ml-2 text-gray-900">{selectedKey.storedBy}</span></div>
-          <div className="mb-2 flex items-center">
-            <span className="font-semibold text-gray-700">Key:</span>
-            <span className="ml-2 font-mono text-base bg-gray-50 px-3 py-2 rounded break-all flex-1 border border-gray-300 text-black select-all" style={{wordBreak: 'break-all', fontSize: '1.1rem', letterSpacing: '0.03em'}}>
-              {selectedKey.isEncrypted ? selectedKey.encryptedKey : selectedKey.key}
-            </span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-[15px] mb-4">
+            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Stored By:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.storedBy || '-'}</span></div>
+            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Stored Date:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.storeDate || '-'}</span></div>
+            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Key Name:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.keyName}</span></div>
+            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Status:</span><span className={"block border border-gray-300 rounded px-3 py-2 bg-gray-50 font-bold text-sm " + (selectedKey.status === "Active" ? "bg-green-100 text-green-600" : "bg-gray-200 text-gray-600")}>{selectedKey.status || "Active"}</span></div>
+            <div className="mb-2 md:col-span-2"><span className="block font-semibold text-gray-700 mb-1">API Key:</span><span className="block font-mono text-base bg-gray-50 px-3 py-2 rounded border border-gray-300 text-black select-all" style={{wordBreak: 'break-all', fontSize: '1.1rem', letterSpacing: '0.03em'}}>{selectedKey.isEncrypted ? selectedKey.encryptedKey : selectedKey.key}</span></div>
+            {selectedKey.environment && (<div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Environment:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900 capitalize">{selectedKey.environment}</span></div>)}
+            {selectedKey.platform && (<div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Platform:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900 capitalize">{selectedKey.platform}</span></div>)}
+            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Api cost (per month):</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.apiCost != null && selectedKey.apiCost !== '' ? selectedKey.apiCost : 'N/A'}</span></div>
+            {selectedKey.linkedProject && (<div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Linked Project:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.linkedProject}</span></div>)}
+            {selectedKey.usageLimit && (<div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Api Limit:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.usageLimit}</span></div>)}
+            <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Renew Date:</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.expiryDate}</span></div>
+            <div className="mb-2 md:col-span-2"><span className="block font-semibold text-gray-700 mb-1">Purpose:</span><div className="mt-1"><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900 text-sm">{selectedKey.description}</span></div></div>
+            {/* Show any other fields not already shown */}
+            {Object.entries(selectedKey).map(([key, value]) => {
+              const shown = [
+                "id","serialNo","keyName","storeDate","storedBy","key","encryptedKey","isEncrypted","isDecrypted","status","environment","platform","linkedProject","usageLimit","expiryDate","description","custom","customQA","apiCost"
+              ];
+              if (shown.includes(key)) return null;
+              if (typeof value === "object" && value !== null) return null;
+              return (
+                <div className="mb-2" key={key}>
+                  <span className="block font-semibold text-gray-700 mb-1">{key}:</span>
+                  <span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{String(value)}</span>
+                </div>
+              );
+            })}
           </div>
-          <div className="mb-2"><span className="font-semibold text-gray-700">Status:</span><span className={"ml-2 font-bold px-3 py-1 rounded-full text-sm " + (selectedKey.status === "Active" ? "bg-green-100 text-green-600" : "bg-gray-200 text-gray-600")}>{selectedKey.status || "Active"}</span></div>
-          <div className="mb-2"><span className="font-semibold text-gray-700">Encryption:</span><span className={"ml-2 font-bold px-3 py-1 rounded-full text-sm " + (selectedKey.isEncrypted ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600")}>{selectedKey.isEncrypted ? "Encrypted" : "Decrypted"}</span></div>
-          {selectedKey.environment && (<div className="mb-2"><span className="font-semibold text-gray-700">Environment:</span><span className="ml-2 text-gray-900 capitalize">{selectedKey.environment}</span></div>)}
-          {selectedKey.platform && (<div className="mb-2"><span className="font-semibold text-gray-700">Platform:</span><span className="ml-2 text-gray-900 capitalize">{selectedKey.platform}</span></div>)}
-          {selectedKey.linkedProject && (<div className="mb-2"><span className="font-semibold text-gray-700">Linked Project:</span><span className="ml-2 text-gray-900">{selectedKey.linkedProject}</span></div>)}
-          {selectedKey.usageLimit && (<div className="mb-2"><span className="font-semibold text-gray-700">Usage Limit:</span><span className="ml-2 text-gray-900">{selectedKey.usageLimit}</span></div>)}
-          {selectedKey.expiryDate && (<div className="mb-2"><span className="font-semibold text-gray-700">Expiry Date:</span><span className="ml-2 text-gray-900">{selectedKey.expiryDate}</span></div>)}
-          {selectedKey.description && (<div className="mb-2"><span className="font-semibold text-gray-700">Description:</span><div className="mt-1"><span className="text-gray-900 text-sm">{selectedKey.description}</span></div></div>)}
           {/* Show custom questions and answers if present */}
           {customQA && customQA.length > 0 && (
             <div className="mb-2">
@@ -363,20 +374,6 @@ export function KeyDetailModal({ open, onClose, selectedKey, handleEncrypt, hand
               </ul>
             </div>
           )}
-          {/* Show any other fields not already shown */}
-          {Object.entries(selectedKey).map(([key, value]) => {
-            const shown = [
-              "serialNo","keyName","storeDate","storedBy","key","encryptedKey","isEncrypted","isDecrypted","status","environment","platform","linkedProject","usageLimit","expiryDate","description","custom","customQA"
-            ];
-            if (shown.includes(key)) return null;
-            if (typeof value === "object" && value !== null) return null;
-            return (
-              <div className="mb-2" key={key}>
-                <span className="font-semibold text-gray-700">{key}:</span>
-                <span className="ml-2 text-gray-900">{String(value)}</span>
-              </div>
-            );
-          })}
           <div className="flex gap-2 mt-4">
             <button className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={onDelete} disabled={reencrypting}>Delete</button>
             {selectedKey.isEncrypted ? (
