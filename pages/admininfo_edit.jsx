@@ -185,7 +185,7 @@ const AdminInfoEdit = () => {
         </div>
         {/* Instruction Card Section */}
         <div className="hidden md:flex md:flex-col md:justify-center md:items-center w-full max-w-sm ml-0 md:mr-12 mt-10 md:mt-10">
-          <div className="rounded-3xl shadow-xl p-10 border-4 border-[#a259f7]/50 flex flex-col items-center w-full transition-all duration-300">
+          <div className="rounded-3xl shadow-xl p-10 border-4 border-[#7c3aed]/50 flex flex-col items-center w-full transition-all duration-300">
             <h3 className="text-3xl font-extrabold text-[#a259f7] mb-6 tracking-tight text-center">How to Edit</h3>
             <ul className="list-disc pl-6 text-gray-700 text-lg mb-8 w-full space-y-3">
               <li>Click the <span className="inline-block align-middle"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="#a259f7" className="w-6 h-6 inline"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 3.487a2.25 2.25 0 1 1 3.182 3.182L7.5 19.213l-4 1 1-4 13.362-13.726z" /></svg></span> edit icon next to a field to enable editing.</li>
