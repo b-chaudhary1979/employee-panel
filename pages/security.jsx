@@ -744,32 +744,6 @@ function SecurityContent() {
                   </svg>
                   Add Password
                 </button>
-                <button
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-4 py-1.5 rounded flex items-center gap-2 border border-gray-200 transition w-full sm:w-auto text-sm"
-                  onClick={() =>
-                    setNotification({
-                      show: true,
-                      message: "Export feature coming soon!",
-                      type: "success",
-                    })
-                  }
-                  aria-label="Export Passwords"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                  Export
-                </button>
                 <div className="flex-1 flex flex-col sm:flex-row gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                   <div className="relative flex-1">
                     <input
@@ -963,7 +937,7 @@ function SecurityContent() {
                           Employee:{" "}
                         </span>
                         <span className="text-xs text-gray-700">
-                          {p.employee}
+                          {Array.isArray(p.employee) ? p.employee.filter(Boolean).join(", ") : p.employee}
                         </span>
                       </div>
                       <div className="flex flex-col gap-1">
@@ -1043,7 +1017,7 @@ function SecurityContent() {
                         {/* Username always visible */}
                         <td className="px-3 py-2 whitespace-nowrap align-top text-xs md:text-sm hidden xs:table-cell">{p.username}</td>
                         {/* Employee/User */}
-                        <td className="px-3 py-2 whitespace-nowrap align-top text-xs md:text-sm hidden md:table-cell">{p.employee}</td>
+                        <td className="px-3 py-2 whitespace-nowrap align-top text-xs md:text-sm hidden md:table-cell">{Array.isArray(p.employee) ? p.employee.filter(Boolean).join(", ") : p.employee}</td>
                         {/* Strength: hide on mobile, show on sm+ */}
                         <td className="px-3 py-2 whitespace-nowrap hidden sm:table-cell align-top"><span className={getPasswordStrength(p.password) === "Strong" ? "text-green-600 font-semibold" : getPasswordStrength(p.password) === "Medium" ? "text-yellow-600 font-semibold" : "text-red-600 font-semibold"}>{getPasswordStrength(p.password)}</span></td>
                         {/* Duplicate: hide on mobile, show on sm+ */}

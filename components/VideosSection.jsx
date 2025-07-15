@@ -3,36 +3,36 @@ import { useRef } from "react";
 import BgAnimation from "./bg-animation";
 import { XMarkIcon, UserIcon, ChatBubbleLeftRightIcon, EyeIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
-const mockMusic = [
-  { id: 1, url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", title: "SoundHelix Song 1", date: "2024-06-01", employee: "Alice" },
-  { id: 2, url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", title: "SoundHelix Song 2", date: "2024-06-02", employee: "Bob" },
+const mockVideos = [
+  { id: 1, url: "https://www.w3schools.com/html/mov_bbb.mp4", title: "Big Buck Bunny", date: "2024-06-01", employee: "Alice" },
+  { id: 2, url: "https://www.w3schools.com/html/movie.mp4", title: "Bear Video", date: "2024-06-02", employee: "Bob" },
 ];
 
-export default function MusicSection({ music, onFavourite }) {
+export default function VideosSection({ videos, onFavourite }) {
   const [search, setSearch] = useState("");
-  const [modal, setModal] = useState(null); // {music, feedback}
+  const [modal, setModal] = useState(null); // {video, feedback}
   const [favourites, setFavourites] = useState([]);
-  const [notification, setNotification] = useState("");
   const inputRef = useRef();
+  const [notification, setNotification] = useState("");
 
-  // Use provided music or fallback to mockMusic
-  const allMusic = music && Array.isArray(music) ? music : mockMusic;
+  // Use provided videos or fallback to mockVideos
+  const allVideos = videos && Array.isArray(videos) ? videos : mockVideos;
   // Filtered data
-  const filteredMusic = allMusic.filter(music => {
+  const filteredVideos = allVideos.filter(vid => {
     const q = search.toLowerCase();
     return (
-      music.title.toLowerCase().includes(q) ||
-      music.date.toLowerCase().includes(q) ||
-      music.employee.toLowerCase().includes(q)
+      vid.title.toLowerCase().includes(q) ||
+      vid.date.toLowerCase().includes(q) ||
+      vid.employee.toLowerCase().includes(q)
     );
   });
 
   const isFavourited = (id) => favourites.includes(id);
-  const toggleFavourite = (music) => {
+  const toggleFavourite = (vid) => {
     setFavourites(favs => {
-      const updated = favs.includes(music.id) ? favs.filter(f => f !== music.id) : [...favs, music.id];
-      if (onFavourite) onFavourite(music, !favs.includes(music.id));
-      if (!favs.includes(music.id)) {
+      const updated = favs.includes(vid.id) ? favs.filter(f => f !== vid.id) : [...favs, vid.id];
+      if (onFavourite) onFavourite(vid, !favs.includes(vid.id));
+      if (!favs.includes(vid.id)) {
         setNotification("Added to Favourites");
         setTimeout(() => setNotification("") , 1500);
       }
@@ -40,29 +40,27 @@ export default function MusicSection({ music, onFavourite }) {
     });
   };
 
-  const handleDownload = (music) => {
+  const handleDownload = (vid) => {
     const link = document.createElement('a');
-    link.href = music.url;
-    link.download = music.title + '.mp3';
+    link.href = vid.url;
+    link.download = vid.title + '.mp4';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
   const handleFeedbackSubmit = () => {
-    // This function is not fully implemented in the new_code,
-    // so it will just close the modal for now.
-    setModal(null);
     setNotification("Feedback submitted!");
-    setTimeout(() => setNotification("") , 1500);
+    setTimeout(() => setNotification("") , 2000);
+    setModal(null);
   };
 
   return (
     <div>
       <div className="mb-6 text-left">
-        <h2 className="text-2xl font-bold text-[#7c3aed]">Music</h2>
-        <p className="text-gray-500 text-base mt-1">Listen and manage your music tracks.</p>
-        <div className="mt-2 text-purple-700 font-semibold">Total Music: {allMusic.length}</div>
+        <h2 className="text-2xl font-bold text-[#7c3aed]">Videos</h2>
+        <p className="text-gray-500 text-base mt-1">Watch and organize your video files.</p>
+        <div className="mt-2 text-purple-700 font-semibold">Total Videos: {allVideos.length}</div>
       </div>
       {/* Search Bar */}
       <div className="flex justify-between items-center mb-4 flex-col sm:flex-row gap-2">
@@ -82,31 +80,31 @@ export default function MusicSection({ music, onFavourite }) {
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {filteredMusic.length === 0 ? (
-          <div className="col-span-full text-center py-6 text-gray-400">No music found.</div>
-        ) : filteredMusic.map((music) => (
-          <div key={music.id} className="bg-white rounded-lg shadow hover:shadow-lg transition p-4 flex flex-col items-stretch relative group cursor-pointer" onClick={() => setModal({ music, feedback: "" })}>
+        {filteredVideos.length === 0 ? (
+          <div className="col-span-full text-center py-6 text-gray-400">No videos found.</div>
+        ) : filteredVideos.map((vid) => (
+          <div key={vid.id} className="bg-white rounded-lg shadow hover:shadow-lg transition p-4 flex flex-col items-stretch relative group cursor-pointer" onClick={() => setModal({ video: vid, feedback: "" })}>
             {/* Star icon */}
             <button
-              className={`absolute top-2 right-2 z-10 p-0.5 bg-[#7c3aed] rounded-full shadow-md hover:bg-[#5b21b6] transition ${isFavourited(music.id) ? 'animate-pulse' : ''}`}
-              onClick={e => { e.stopPropagation(); toggleFavourite(music); }}
-              aria-label={isFavourited(music.id) ? "Remove from Premium Favourites" : "Add to Premium Favourites"}
-              title={isFavourited(music.id) ? "Remove from Premium Favourites" : "Add to Premium Favourites"}
+              className={`absolute top-2 right-2 z-10 p-0.5 bg-[#7c3aed] rounded-full shadow-md hover:bg-[#5b21b6] transition ${isFavourited(vid.id) ? 'animate-pulse' : ''}`}
+              onClick={e => { e.stopPropagation(); toggleFavourite(vid); }}
+              aria-label={isFavourited(vid.id) ? "Remove from Premium Favourites" : "Add to Premium Favourites"}
+              title={isFavourited(vid.id) ? "Remove from Premium Favourites" : "Add to Premium Favourites"}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill={isFavourited(music.id) ? "#fff" : "none"} stroke="#fff" strokeWidth="2" viewBox="0 0 24 24" className="w-4 h-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill={isFavourited(vid.id) ? "#fff" : "none"} stroke="#fff" strokeWidth="2" viewBox="0 0 24 24" className="w-4 h-4">
                 <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
               </svg>
             </button>
-            <audio
-              src={music.url}
+            <video
+              src={vid.url}
               controls
-              className="w-full mb-2"
+              className="w-full h-48 object-cover rounded mb-2"
             />
             <div className="flex justify-between items-center w-full">
-              <span className="text-gray-700 font-medium text-xs">{music.employee}</span>
-              <span className="text-[#7c3aed] font-semibold text-sm">{music.title}</span>
+              <span className="text-gray-700 font-medium text-xs">{vid.employee}</span>
+              <span className="text-[#7c3aed] font-semibold text-sm">{vid.title}</span>
             </div>
-            <div className="text-gray-500 text-xs mt-1">{music.date}</div>
+            <div className="text-gray-500 text-xs mt-1">{vid.date}</div>
           </div>
         ))}
       </div>
@@ -138,23 +136,23 @@ export default function MusicSection({ music, onFavourite }) {
             <div className="flex w-full justify-between items-center mb-4 p-6 pb-0">
               <div className="flex items-center gap-3">
                 <UserIcon className="w-5 h-5 text-purple-400" />
-                <span className="text-gray-700 font-bold text-base">{modal.music.employee}</span>
-                <span className="text-gray-700 text-sm">{modal.music.date}</span>
+                <span className="text-gray-700 font-bold text-base">{modal.video.employee}</span>
+                <span className="text-gray-700 text-sm">{modal.video.date}</span>
               </div>
             </div>
-            {/* Audio */}
+            {/* Video */}
             <div className="flex justify-center w-full mb-4 px-6">
-              <audio
-                src={modal.music.url}
+              <video
+                src={modal.video.url}
                 controls
-                className="w-full rounded-xl shadow border border-purple-100"
+                className="rounded-xl shadow max-w-full max-h-64 object-contain border border-purple-100"
                 style={{ background: '#fff' }}
               />
             </div>
             {/* Title */}
-            <div className="text-gray-700 font-bold text-lg mb-2 text-center w-full px-6">{modal.music.title}</div>
+            <div className="text-gray-700 font-bold text-lg mb-2 text-center w-full px-6">{modal.video.title}</div>
             {/* Work Link Section */}
-            <WorkLinkSection url={modal.music.url} />
+            <WorkLinkSection url={modal.video.url} />
             {/* Feedback */}
             <div className="w-full flex flex-col items-center mb-4 px-6">
               <label className="flex items-center gap-2 text-gray-700 font-semibold mb-2 self-start">
@@ -180,7 +178,7 @@ export default function MusicSection({ music, onFavourite }) {
                 Submit Feedback
               </button>
               <a
-                href={modal.music.url}
+                href={modal.video.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 flex items-center justify-center gap-2 bg-white border border-purple-400 text-gray-700 rounded-full px-5 py-2 font-bold shadow hover:bg-purple-50 active:scale-95 transition-all text-center"
@@ -189,8 +187,8 @@ export default function MusicSection({ music, onFavourite }) {
                 Preview
               </a>
               <a
-                href={modal.music.url}
-                download={modal.music.title + '.mp3'}
+                href={modal.video.url}
+                download={modal.video.title + '.mp4'}
                 className="flex-1 flex items-center justify-center gap-2 bg-white border border-purple-400 text-gray-700 rounded-full px-5 py-2 font-bold shadow hover:bg-purple-50 active:scale-95 transition-all text-center"
               >
                 <ArrowDownTrayIcon className="w-5 h-5 text-purple-400" />

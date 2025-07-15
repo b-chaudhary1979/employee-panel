@@ -51,25 +51,50 @@ const AdminInfoEdit = () => {
     setEditing((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
+  const NON_EDITABLE_FIELDS = [
+    'id', 'uniqueId', 'companyId', 'companyName', 'plan', 'status', 'profilePhoto', 'updatedAt'
+  ];
+
   const renderFields = () => {
     if (!editFields) return null;
     return Object.entries(editFields)
-      .filter(([key]) => key !== "id" && key !== "profilePhoto" && key !== "updatedAt")
+      .filter(([key]) => key !== 'profilePhoto' && key !== 'updatedAt')
       .map(([key, value]) => {
-        // Make 'plan' and 'companyName' non-editable
-        const isNonEditable = key === 'plan' || key === 'companyName';
+        const isNonEditable = NON_EDITABLE_FIELDS.includes(key);
         return (
           <div key={key} className="mb-6 w-full max-w-2xl">
             <label className="block text-black font-semibold mb-1 text-base capitalize tracking-wide">{key.replace(/([A-Z])/g, ' $1')}</label>
             <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={value || ""}
-                disabled
-                placeholder={`Enter ${key}`}
-                className="w-full py-2 px-3 rounded-lg border border-[#a259f7] bg-[#f8f9fa] text-black text-base outline-none cursor-not-allowed shadow-sm"
-                style={{ color: 'black' }}
-              />
+              {isNonEditable ? (
+                <input
+                  type="text"
+                  value={value || ""}
+                  disabled
+                  placeholder={`Enter ${key}`}
+                  className="w-full py-2 px-3 rounded-lg border border-[#a259f7] bg-[#f8f9fa] text-black text-base outline-none cursor-not-allowed shadow-sm"
+                  style={{ color: 'black' }}
+                />
+              ) : editing[key] ? (
+                <input
+                  type="text"
+                  value={value || ""}
+                  onChange={e => handleFieldChange(key, e.target.value)}
+                  placeholder={`Enter ${key}`}
+                  className="w-full py-2 px-3 rounded-lg border border-[#a259f7] bg-white text-black text-base outline-none shadow-sm"
+                  style={{ color: 'black' }}
+                  autoFocus
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={value || ""}
+                  disabled
+                  placeholder={`Enter ${key}`}
+                  className="w-full py-2 px-3 rounded-lg border border-[#a259f7] bg-[#f8f9fa] text-black text-base outline-none cursor-pointer shadow-sm"
+                  style={{ color: 'black' }}
+                  onClick={() => handleEditToggle(key)}
+                />
+              )}
               {!isNonEditable && (
                 <span onClick={() => handleEditToggle(key)} className="cursor-pointer ml-1">
                   {editing[key] ? (
@@ -143,18 +168,41 @@ const AdminInfoEdit = () => {
           </div>
         </div>
       )}
-      <div className="flex flex-col items-center w-full min-h-[70vh] pt-24 pb-12 px-4 animate-fadeIn">
-        <h2 className="text-4xl font-extrabold text-[#a259f7] mb-10 tracking-tight w-full text-left max-w-6xl">Admin Info</h2>
-        <form className="w-full max-w-6xl flex flex-col gap-6">
-          {renderFields()}
-          <button
-            type="button"
-            onClick={handleSaveAll}
-            className="w-full py-3 rounded-lg bg-gradient-to-r from-purple-600 to-violet-600 text-white font-bold text-xl hover:from-purple-700 hover:to-violet-700 transition-colors duration-200 mt-4 shadow-lg"
-          >
-            Save Changes
-          </button>
-        </form>
+      <div className="flex flex-col items-center w-full min-h-[70vh] pt-24 pb-12 px-4 animate-fadeIn md:flex-row md:items-start md:justify-center md:gap-8">
+        {/* Main Form Section */}
+        <div className="w-full max-w-4xl">
+          <h2 className="text-4xl font-extrabold text-[#a259f7] mb-10 tracking-tight w-full text-left max-w-6xl">Admin Info</h2>
+          <form className="w-full max-w-6xl flex flex-col gap-6">
+            {renderFields()}
+            <button
+              type="button"
+              onClick={handleSaveAll}
+              className="w-full py-3 rounded-lg bg-gradient-to-r from-purple-600 to-violet-600 text-white font-bold text-xl hover:from-purple-700 hover:to-violet-700 transition-colors duration-200 mt-4 shadow-lg"
+            >
+              Save Changes
+            </button>
+          </form>
+        </div>
+        {/* Instruction Card Section */}
+        <div className="hidden md:flex md:flex-col md:justify-center md:items-center w-full max-w-sm ml-0 md:mr-12 mt-10 md:mt-10">
+          <div className="rounded-3xl shadow-xl p-10 border-4 border-[#7c3aed]/50 flex flex-col items-center w-full transition-all duration-300">
+            <h3 className="text-3xl font-extrabold text-[#a259f7] mb-6 tracking-tight text-center">How to Edit</h3>
+            <ul className="list-disc pl-6 text-gray-700 text-lg mb-8 w-full space-y-3">
+              <li>Click the <span className="inline-block align-middle"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="#a259f7" className="w-6 h-6 inline"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 3.487a2.25 2.25 0 1 1 3.182 3.182L7.5 19.213l-4 1 1-4 13.362-13.726z" /></svg></span> edit icon next to a field to enable editing.</li>
+              <li>Type the new value in the input box.</li>
+              <li>Click the <span className="inline-block align-middle"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="#a259f7" className="w-6 h-6 inline"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg></span> tick icon to save the change.</li>
+              <li>Click <span className="font-bold">Save Changes</span> at the bottom to save all edits.</li>
+            </ul>
+            <h4 className="text-xl font-semibold text-[#a259f7] mb-4 mt-2 text-center">Non-editable Sections</h4>
+            <ul className="list-none w-full text-gray-700 text-lg space-y-3">
+              <li className="flex items-center gap-3"><span className="inline-block"><svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' strokeWidth={2.5} stroke='#a259f7' className='w-6 h-6'><circle cx='12' cy='12' r='10' /></svg></span>ID</li>
+              <li className="flex items-center gap-3"><span className="inline-block"><svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' strokeWidth={2.5} stroke='#a259f7' className='w-6 h-6'><circle cx='12' cy='12' r='10' /></svg></span>PLAN</li>
+              <li className="flex items-center gap-3"><span className="inline-block"><svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' strokeWidth={2.5} stroke='#a259f7' className='w-6 h-6'><circle cx='12' cy='12' r='10' /></svg></span>COMPANY ID</li>
+              <li className="flex items-center gap-3"><span className="inline-block"><svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' strokeWidth={2.5} stroke='#a259f7' className='w-6 h-6'><circle cx='12' cy='12' r='10' /></svg></span>UNIQUE ID</li>
+              <li className="flex items-center gap-3"><span className="inline-block"><svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' strokeWidth={2.5} stroke='#a259f7' className='w-6 h-6'><circle cx='12' cy='12' r='10' /></svg></span>STATUS</li>
+            </ul>
+          </div>
+        </div>
       </div>
       <style jsx global>{`
         @keyframes fadeIn {
