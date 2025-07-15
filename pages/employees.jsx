@@ -47,6 +47,7 @@ function EmployeesContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [copiedEmployeeId, setCopiedEmployeeId] = useState(null);
+  const [allowEmployeeToEdit, setAllowEmployeeToEdit] = useState(false);
 
   // Add handler for form submit
   const handleAddEmployee = async (form, customQA) => {
@@ -67,6 +68,7 @@ function EmployeesContent() {
     setSelectedEmployee(emp);
     setEditMode(false);
     setShowEmployeeModal(true);
+    setAllowEmployeeToEdit(emp.allowEmployeeToEdit || false);
   };
   // Add handler for delete
   const handleDeleteEmployee = async (id) => {
@@ -237,6 +239,26 @@ function EmployeesContent() {
           <div className="relative w-full max-w-2xl md:max-w-4xl mx-auto bg-gradient-to-br from-purple-50 via-white to-blue-50 rounded-2xl shadow-2xl p-10 overflow-y-auto max-h-[90vh] border border-purple-200 ring-1 ring-purple-100 text-[1.15rem] md:text-xl">
             {/* Colored top border accent */}
             <div className="absolute top-0 left-0 w-full h-2 rounded-t-2xl bg-gradient-to-r from-purple-500 via-pink-400 to-blue-400" />
+            {/* Allow Employee To Edit Toggle */}
+            <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+              <span className="text-sm font-semibold text-gray-500">Allow Employee to Edit</span>
+              <button
+                onClick={async () => {
+                  const newValue = !allowEmployeeToEdit;
+                  setAllowEmployeeToEdit(newValue);
+                  // Update in selectedEmployee state
+                  setSelectedEmployee({ ...selectedEmployee, allowEmployeeToEdit: newValue });
+                  // Persist to backend
+                  await updateEmployee(selectedEmployee.id, { ...selectedEmployee, allowEmployeeToEdit: newValue });
+                  setNotification({ show: true, message: `Allow Employee to Edit: ${newValue ? 'Enabled' : 'Disabled'}`, color: 'green' });
+                  setTimeout(() => setNotification({ show: false, message: '', color: 'green' }), 1000);
+                }}
+                className={`w-10 h-6 rounded-full ${allowEmployeeToEdit ? 'bg-green-500' : 'bg-gray-300'} flex items-center transition-colors duration-300`}
+                type="button"
+              >
+                <span className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300 ${allowEmployeeToEdit ? 'translate-x-4' : ''}`}></span>
+              </button>
+            </div>
             {/* Back Button */}
             <button
               className="absolute top-4 left-4 flex items-center gap-2 px-4 py-2 hover:bg-purple-300 rounded text-purple-700 font-semibold text-lg md:text-xl z-20"
