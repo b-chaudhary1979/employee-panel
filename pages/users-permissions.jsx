@@ -3,6 +3,7 @@ import Header from "../components/header";
 import { useState, useEffect, useRef } from "react";
 import { SidebarProvider } from "../context/SidebarContext";
 import CryptoJS from "crypto-js";
+import Head from "next/head";
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
 function decryptToken(token) {
   try {
@@ -160,6 +161,9 @@ function UsersPermissionsContent() {
 
   return (
     <>
+       <Head>
+        <style>{`html,body{background-color:#fbf9f4 !important;}`}</style>
+      </Head>
       {notification.show && (
         <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300">
           <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown">
@@ -203,10 +207,12 @@ function UsersPermissionsContent() {
               </div>
               {/* Search and filter bar */}
               <div className="flex flex-col md:flex-row gap-3 mb-4 items-center bg-white p-3 rounded-xl shadow border border-gray-100">
-                <input type="text" placeholder="Search users by name, email, or ID..." className="flex-1 px-3 py-2 rounded-lg border text-gray-500 border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-base" />
-                <select className="px-3 py-2 text-gray-500 rounded-lg border border-gray-200 text-base"><option>All Roles</option></select>
-                <select className="px-3 py-2 text-gray-500 rounded-lg border border-gray-200 text-base"><option>All Status</option></select>
-                <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-base text-gray-700 hover:bg-gray-50"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" stroke="#a259f7" strokeWidth="2" strokeLinecap="round"/></svg>Filter</button>
+                <input type="text" placeholder="Search users by name, email, or ID..." className="w-full md:flex-1 px-3 py-2 rounded-lg border text-gray-500 border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-base mb-2 md:mb-0" />
+                <div className="flex flex-row w-full md:w-auto gap-2">
+                  <select className="flex-1 px-3 py-2 text-gray-500 rounded-lg border border-gray-200 text-base"><option>All Roles</option></select>
+                  <select className="flex-1 px-3 py-2 text-gray-500 rounded-lg border border-gray-200 text-base"><option>All Status</option></select>
+                  <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-base text-gray-700 hover:bg-gray-50 whitespace-nowrap"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" stroke="#a259f7" strokeWidth="2" strokeLinecap="round"/></svg>Filter</button>
+                </div>
               </div>
               {/* User table */}
               <div className="bg-white rounded-xl shadow border border-gray-100 overflow-x-auto">

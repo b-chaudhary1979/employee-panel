@@ -26,9 +26,8 @@ export function EncryptModal({ open, onClose, onSubmit, encryptionPassword, setE
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/40 backdrop-blur-md pointer-events-none p-4">
-      <div className="relative w-full max-w-lg mx-auto bg-white rounded-2xl shadow-2xl p-8 pointer-events-auto">
-        <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={onClose}>&#8592; Back</button>
-        <div className="border-2 border-purple-500 rounded-xl p-6">
+      <div className="relative w-full max-w-lg mx-auto p-6 pointer-events-auto">
+        <div className="bg-white border-2 border-blue-500 rounded-xl p-6">
           <h2 className="text-2xl font-bold mb-6 text-black">Encrypt API Key</h2>
           <form className="flex flex-col gap-6" onSubmit={onSubmit}>
             <div>
@@ -40,9 +39,12 @@ export function EncryptModal({ open, onClose, onSubmit, encryptionPassword, setE
                 </button>
               </div>
             </div>
-            <button type="submit" disabled={isProcessing} className="bg-[#a259f7] hover:bg-[#7c3aed] disabled:bg-gray-400 text-white font-semibold rounded-lg px-6 py-3 mt-4 transition-colors duration-200 flex items-center justify-center gap-3 text-base">
-              {isProcessing ? (<><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>Encrypting...</>) : (<><Lock size={20} />Encrypt Key</>)}
-            </button>
+            <div className="flex justify-between mt-6 w-full">
+              <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl" onClick={onClose} disabled={isProcessing}>Close</button>
+              <button type="submit" disabled={isProcessing} className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-xl flex items-center gap-2">
+                {isProcessing ? (<><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>Encrypting...</>) : (<><Lock size={20} />Encrypt Key</>)}
+              </button>
+            </div>
           </form>
         </div>
       </div>
@@ -75,9 +77,8 @@ export function DecryptModal({ open, onClose, onSubmit, decryptionPassword, setD
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/40 backdrop-blur-md pointer-events-none p-4">
-      <div className="relative w-full max-w-lg mx-auto bg-white rounded-2xl shadow-2xl p-8 pointer-events-auto">
-        <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={onClose}>&#8592; Back</button>
-        <div className="border-2 border-purple-500 rounded-xl p-6">
+      <div className="relative w-full max-w-lg mx-auto p-6 pointer-events-auto">
+        <div className="bg-white border-2 border-blue-500 rounded-xl p-6">
           <h2 className="text-2xl font-bold mb-6 text-black">Decrypt API Key</h2>
           <form className="flex flex-col gap-6" onSubmit={onSubmit}>
             <div>
@@ -89,9 +90,12 @@ export function DecryptModal({ open, onClose, onSubmit, decryptionPassword, setD
                 </button>
               </div>
             </div>
-            <button type="submit" disabled={isProcessing} className="bg-[#a259f7] hover:bg-[#7c3aed] disabled:bg-gray-400 text-white font-semibold rounded-lg px-6 py-3 mt-4 transition-colors duration-200 flex items-center justify-center gap-3 text-base">
-              {isProcessing ? (<><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>Decrypting...</>) : (<><Key size={20} />Decrypt Key</>)}
-            </button>
+            <div className="flex justify-between mt-6 w-full">
+              <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl" onClick={onClose} disabled={isProcessing}>Close</button>
+              <button type="submit" disabled={isProcessing} className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-xl flex items-center gap-2">
+                {isProcessing ? (<><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>Decrypting...</>) : (<><Key size={20} />Decrypt Key</>)}
+              </button>
+            </div>
           </form>
         </div>
       </div>
@@ -148,18 +152,17 @@ export function AddKeyModal({ open, onClose, onSubmit, newKeyName, setNewKeyName
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/40 backdrop-blur-md pointer-events-none p-4">
-      <div className="relative w-full max-w-3xl mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] pointer-events-auto">
-        <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={onClose}>&#8592; Back</button>
-        <div className="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow space-y-4 text-gray-800 border-2 border-purple-500">
+      <div className="relative w-full max-w-3xl mx-auto p-6 pointer-events-auto max-h-[90vh] overflow-y-auto">
+        <div className="bg-white border-2 border-purple-500 rounded-xl p-6">
           <h2 className="text-2xl font-bold mb-4 text-purple-600">Add API Key</h2>
           <form className="flex flex-col gap-6" onSubmit={onSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Key Name <span className="text-red-600">*</span></label>
+                <label className="block text-sm font-semibold text-gray-900 mb-1">Key Name <span className="text-red-600">*</span></label>
                 <input type="text" className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={newKeyName} onChange={e => setNewKeyName(e.target.value)} placeholder="Enter key name..." required />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Status</label>
+                <label className="block text-sm font-semibold text-gray-900 mb-1">Status</label>
                 <select className="w-full border rounded px-3 py-2 text-gray-800" value={newKeyStatus} onChange={e => setNewKeyStatus(e.target.value)} required>
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
@@ -167,7 +170,7 @@ export function AddKeyModal({ open, onClose, onSubmit, newKeyName, setNewKeyName
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">API Key <span className="text-red-600">*</span></label>
+              <label className="block text-sm font-semibold text-gray-900 mb-1">API Key <span className="text-red-600">*</span></label>
               <div className="relative">
                 <input type={showApiKey ? "text" : "password"} className="w-full border rounded px-3 py-2 pr-12 placeholder-gray-500 text-gray-800" value={customKey} onChange={e => setCustomKey(e.target.value)} placeholder="Enter your API key..." required />
                 <button type="button" onClick={() => setShowApiKey(!showApiKey)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">{showApiKey ? <EyeOff size={18} /> : <Eye size={18} />}</button>
@@ -176,7 +179,7 @@ export function AddKeyModal({ open, onClose, onSubmit, newKeyName, setNewKeyName
             {/* New Fields Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Environment <span className="text-red-600">*</span></label>
+                <label className="block text-sm font-semibold text-gray-900 mb-1">Environment <span className="text-red-600">*</span></label>
                 <select className="w-full border rounded px-3 py-2 text-gray-800" value={environment} onChange={e => setEnvironment(e.target.value)} required>
                   <option value="development">Development</option>
                   <option value="staging">Staging</option>
@@ -185,35 +188,35 @@ export function AddKeyModal({ open, onClose, onSubmit, newKeyName, setNewKeyName
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Platform <span className="text-red-600">*</span></label>
-                <input type="text" className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={platform} onChange={handlePlatformChange} placeholder="github" required />
+                <label className="block text-sm font-semibold text-gray-900 mb-1">Platform <span className="text-red-600">*</span></label>
+                <input type="text" className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={platform} onChange={handlePlatformChange} placeholder="e.g. github" required />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Api cost (per month) <span className="text-red-600">*</span></label>
+              <label className="block text-sm font-semibold text-gray-900 mb-1">Api cost (per month) <span className="text-red-600">*</span></label>
               <input type="number" className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={apiCost} onChange={e => setApiCost(e.target.value)} placeholder="e.g. 49.99" min="0" step="0.01" required />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Linked Project <span className="text-red-600">*</span></label>
+                <label className="block text-sm font-semibold text-gray-900 mb-1">Linked Project <span className="text-red-600">*</span></label>
                 <input type="text" className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={linkedProject} onChange={e => setLinkedProject(e.target.value)} placeholder="e.g. Project Alpha" required />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Api Limit <span className="text-red-600">*</span></label>
+                <label className="block text-sm font-semibold text-gray-900 mb-1">Api Limit <span className="text-red-600">*</span></label>
                 <input type="number" className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={usageLimit} onChange={e => setUsageLimit(e.target.value)} placeholder="e.g. 1000" min="0" required />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Renew Date <span className="text-red-600">*</span></label>
+              <label className="block text-sm font-semibold text-gray-900 mb-1">Renew Date <span className="text-red-600">*</span></label>
               <input type="date" className="w-full border rounded px-3 py-2 text-gray-800" value={expiryDate} onChange={e => setExpiryDate(e.target.value)} required />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Purpose <span className="text-red-600">*</span></label>
+              <label className="block text-sm font-semibold text-gray-900 mb-1">Purpose <span className="text-red-600">*</span></label>
               <textarea className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" value={description} onChange={e => setDescription(e.target.value)} placeholder="Enter detailed description..." rows={3} required />
             </div>
             {/* Custom QA Section */}
             <div>
-              <h3 className="font-semibold mb-2">Custom Questions & Answers</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">Custom Questions & Answers</h3>
               {customQA.map((qa, idx) => (
                 <div key={idx} className="flex flex-col md:flex-row gap-2 mb-2">
                   <input type="text" placeholder="Question" value={qa.question} onChange={e => handleCustomQAChange(idx, "question", e.target.value)} className="flex-1 border rounded px-3 py-2 placeholder-gray-500 text-gray-800" />
@@ -223,7 +226,12 @@ export function AddKeyModal({ open, onClose, onSubmit, newKeyName, setNewKeyName
               <button type="button" onClick={addCustomQA} className="mt-2 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">+ Add Custom Q&A</button>
             </div>
             {addKeyError && <div className="text-red-600 text-sm font-semibold mt-2">{addKeyError}</div>}
-            <button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl mt-4" disabled={!(newKeyName.trim() && customKey.trim())}>Add Key</button>
+            <div className="flex justify-between items-center mt-4">
+              <div className="flex justify-between mt-6 w-full">
+                <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl" onClick={onClose}>Close</button>
+                <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-xl" disabled={!(newKeyName.trim() && customKey.trim())}>Add Key</button>
+              </div>
+            </div>
           </form>
         </div>
       </div>
@@ -302,20 +310,22 @@ export function KeyDetailVaultModal({ open, onClose, onSubmit, keyDetailVaultKey
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/40 backdrop-blur-md pointer-events-none p-4">
-      <div className="relative w-full max-w-md mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] pointer-events-auto">
-        <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={onClose}>&#8592; Back</button>
-        <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow space-y-4 text-gray-800 border-2 border-purple-500">
+      <div className="relative w-full max-w-md mx-auto p-6 pointer-events-auto">
+        <div className="bg-white border-2 border-blue-500 rounded-xl p-6">
           <h2 className="text-2xl font-bold mb-4 text-purple-600">Verify Access</h2>
           <p className="text-gray-600 mb-4">Enter vault key to view API key details</p>
           <form onSubmit={onSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Vault Key <span className="text-red-600">*</span></label>
+              <label className="block text-sm font-semibold text-gray-900 mb-1">Vault Key <span className="text-red-600">*</span></label>
               <div className="relative">
                 <input type={showKeyDetailVaultKey ? "text" : "password"} className="w-full border rounded px-3 py-2 pr-12 placeholder-gray-500 text-gray-800" value={keyDetailVaultKey} onChange={e => setKeyDetailVaultKey(e.target.value)} placeholder="Enter vault key..." required />
                 <button type="button" onClick={() => setShowKeyDetailVaultKey(!showKeyDetailVaultKey)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">{showKeyDetailVaultKey ? <EyeOff size={18} /> : <Eye size={18} />}</button>
               </div>
             </div>
-            <button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl mt-4">Verify & View Details</button>
+            <div className="flex justify-between mt-6 w-full">
+              <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl" onClick={onClose}>Close</button>
+              <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-xl">Details</button>
+            </div>
           </form>
         </div>
       </div>
@@ -384,7 +394,7 @@ export function KeyDetailModal({ open, onClose, selectedKey, handleEncrypt, hand
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/40 backdrop-blur-md pointer-events-none p-4">
       <div className="relative w-full max-w-[850px] mx-auto p-6 pointer-events-auto max-h-[640px]">
-        <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={handleClose} disabled={reencrypting}>&#8592; Back</button>
+
         <div className="bg-white border-2 border-purple-500 rounded-xl p-6 overflow-y-auto max-h-[500px]">
           <h2 className="text-xl font-bold mb-4 text-black">API Key Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-[15px] mb-4">
@@ -442,13 +452,16 @@ export function KeyDetailModal({ open, onClose, selectedKey, handleEncrypt, hand
               </React.Fragment>
             ))}
           </div>
-          <div className="flex gap-2 mt-4">
-            <button className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={onDelete} disabled={reencrypting}>Delete</button>
-            {selectedKey.isEncrypted ? (
-              <button className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={handleDecrypt} disabled={reencrypting}>Decrypt</button>
-            ) : (
-              <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={handleEncrypt} disabled={reencrypting}>Encrypt</button>
-            )}
+          <div className="flex justify-between items-center mt-4">
+            <button className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl" onClick={handleClose} disabled={reencrypting}>Close</button>
+            <div className="flex gap-2">
+              <button className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={onDelete} disabled={reencrypting}>Delete</button>
+              {selectedKey.isEncrypted ? (
+                <button className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={handleDecrypt} disabled={reencrypting}>Decrypt</button>
+              ) : (
+                <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={handleEncrypt} disabled={reencrypting}>Encrypt</button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -489,9 +502,8 @@ export function DeleteKeyModal({ open, onClose, onConfirm, storedBy, keyName, er
 
   return !open ? null : (
     <div className="fixed inset-0 z-[210] flex items-center justify-center bg-black/40 backdrop-blur-md pointer-events-none">
-      <div className="relative w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl p-8 pointer-events-auto">
-        <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={onClose}>&#8592; Back</button>
-        <div className="border-2 border-red-500 rounded-xl p-6">
+      <div className="relative w-full max-w-md mx-auto p-8 pointer-events-auto">
+        <div className="bg-white border-2 border-red-500 rounded-xl p-6">
           <h2 className="text-xl font-bold mb-4 text-red-600">Confirm Delete API Key</h2>
           <div className="mb-3">
             <label className="block text-sm font-medium mb-1 text-black">Key Name</label>
@@ -511,13 +523,16 @@ export function DeleteKeyModal({ open, onClose, onConfirm, storedBy, keyName, er
             <input className="w-full border-2 border-blue-500 rounded px-3 py-2 bg-white text-black" value={confirmText} onChange={e => setConfirmText(e.target.value)} placeholder="Type 'confirm' to enable delete" />
           </div>
           {error && <div className="text-red-600 text-sm font-semibold mb-2">{error}</div>}
-          <button
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl mt-2 disabled:bg-gray-300 disabled:text-gray-400"
-            disabled={loading || !vaultKey || !inputKeyName || confirmText !== "confirm"}
-            onClick={() => onConfirm({ vaultKey, confirmText, inputKeyName })}
-          >
-            {loading ? "Deleting..." : "Confirm Delete"}
-          </button>
+          <div className="flex justify-between mt-6">
+            <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl" onClick={onClose} disabled={loading}>Close</button>
+            <button
+              className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-xl disabled:bg-gray-300 disabled:text-gray-400"
+              disabled={loading || !vaultKey || !inputKeyName || confirmText !== "confirm"}
+              onClick={() => onConfirm({ vaultKey, confirmText, inputKeyName })}
+            >
+              {loading ? "Deleting..." : "Delete"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
