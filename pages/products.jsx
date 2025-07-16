@@ -287,29 +287,31 @@ function ProductsContent() {
                 </button>
               </div>
               {/* Search and Filters */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-4 items-center bg-white p-3 rounded-xl shadow border border-gray-100">
+              <div className="flex flex-col md:flex-row gap-3 mb-4 items-center bg-white p-3 rounded-xl shadow border border-gray-100">
                 <input
                   type="text"
                   placeholder="Search products, brands, categories..."
-                  className="flex-1 px-3 py-2 rounded-lg border text-gray-500 border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-base"
+                  className="w-full md:flex-1 px-3 py-2 rounded-lg border text-gray-500 border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-base mb-2 md:mb-0"
                 />
-                <select className="px-3 py-2 text-gray-500 rounded-lg border border-gray-200 text-base">
-                  <option>All Categories</option>
-                </select>
-                <select className="px-3 py-2 text-gray-500 rounded-lg border border-gray-200 text-base">
-                  <option>All Status</option>
-                </select>
-                <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-base text-gray-700 hover:bg-gray-50">
-                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                    <path
-                      d="M3 6h18M3 12h18M3 18h18"
-                      stroke="#a259f7"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  Filter
-                </button>
+                <div className="flex flex-row w-full md:w-auto gap-2">
+                  <select className="flex-1 px-3 py-2 text-gray-500 rounded-lg border border-gray-200 text-base">
+                    <option>All Categories</option>
+                  </select>
+                  <select className="flex-1 px-3 py-2 text-gray-500 rounded-lg border border-gray-200 text-base">
+                    <option>All Status</option>
+                  </select>
+                  <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-base text-gray-700 hover:bg-gray-50 whitespace-nowrap">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                      <path
+                        d="M3 6h18M3 12h18M3 18h18"
+                        stroke="#a259f7"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    Filter
+                  </button>
+                </div>
               </div>
               {/* Product Table */}
               <div className="bg-white rounded-xl shadow border border-gray-100 overflow-x-auto">
