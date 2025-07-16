@@ -44,7 +44,7 @@ function SecurityContent() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { isOpen, isMobile, isHydrated } = useSidebar();
   const headerRef = useRef(null);
-  const [headerHeight, setHeaderHeight] = useState(0);
+  const [headerHeight, setHeaderHeight] = useState(72);
   const { user, loading: userLoading, error } = useUserInfo();
   const [notification, setNotification] = useState({
     show: false,
