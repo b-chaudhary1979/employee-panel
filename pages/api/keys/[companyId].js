@@ -174,19 +174,24 @@ export default async function handler(req, res) {
       res.status(500).json({ error: "Internal server error" });
     }
   } else if (req.method === "PATCH") {
-    // Re-encrypt a specific key
+    // Update key status or re-encrypt a specific key
     try {
-      const { keyId, rawKey, vaultKey } = req.body;
+      const { keyId, rawKey, vaultKey, status } = req.body;
+      const keysColRef = collection(doc(db, "apiKeys", companyId), "keys");
+      if (status && keyId) {
+        // Update only the status field
+        await setDoc(doc(keysColRef, keyId), { status }, { merge: true });
+        return res.status(200).json({ success: true, keyId, status });
+      }
       if (!keyId || !rawKey || !vaultKey) {
         return res.status(400).json({ error: "keyId, rawKey, and vaultKey are required" });
       }
       // Use vaultKey for encryption
       const encryptedKey = encrypt(rawKey, vaultKey);
-      const keysColRef = collection(doc(db, "apiKeys", companyId), "keys");
       await setDoc(doc(keysColRef, keyId), { encryptedKey }, { merge: true });
       res.status(200).json({ success: true, keyId });
     } catch (error) {
-      console.error("API Key re-encrypt error:", error);
+      console.error("API Key patch error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   } else if (req.method === "DELETE") {

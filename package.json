@@ -12,7 +12,6 @@
     "@heroicons/react": "^2.2.0",
     "country-list": "^2.3.0",
     "crypto-js": "^4.2.0",
-    "exceljs": "^4.4.0",
     "firebase": "^11.10.0",
     "formidable": "^3.5.4",
     "heroicons": "^2.2.0",

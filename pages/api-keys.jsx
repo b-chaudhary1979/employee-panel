@@ -17,8 +17,8 @@ import {
   decryptToken,
   encryptKey,
 } from "../utils/apiKeys";
-import useVault from "../hooks/useVault";
-import useApiKeyModals from "../hooks/useApiKeyModals";
+import useVault from "../hooks/useVault.jsx";
+import useApiKeyModals from "../hooks/useApiKeyModals.jsx";
 import { useRouter } from "next/router";
 import { useSidebar } from "../context/SidebarContext";
 import { useUserInfo } from "../context/UserInfoContext";
@@ -38,12 +38,14 @@ function APIKeysContent() {
   const [notification, setNotification] = useState({
     show: false,
     message: "",
+    type: "", // 'add', 'delete', 'error', etc.
   });
 
   // Add state for Add Key modal fields
   const [newKeyName, setNewKeyName] = useState("");
   const [newKeyStatus, setNewKeyStatus] = useState("Active");
   const [customKey, setCustomKey] = useState("");
+  const [apiCost, setApiCost] = useState("");
 
   // Use the API keys hook
   const {
@@ -53,6 +55,7 @@ function APIKeysContent() {
     decryptKey: serverDecryptKey,
     deleteKey, // <-- use deleteKey
     updateKeyEncryption, // <-- add this line
+    updateKeyStatus, // <-- add this line
     keys: dbKeys,
     error: apiKeysError,
     fetchingKeys,
@@ -137,7 +140,7 @@ function APIKeysContent() {
   const [linkedProject, setLinkedProject] = useState("");
   const [usageLimit, setUsageLimit] = useState("");
   const [environment, setEnvironment] = useState("development");
-  const [platform, setPlatform] = useState("github");
+  const [platform, setPlatform] = useState("");
   const [customPlatform, setCustomPlatform] = useState("");
   const [showCustomPlatform, setShowCustomPlatform] = useState(false);
 
@@ -149,9 +152,17 @@ function APIKeysContent() {
   const [deleteError, setDeleteError] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  // Add these state variables at the top of APIKeysContent:
+  const [deleteVaultKey, setDeleteVaultKey] = useState("");
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleteInputKeyName, setDeleteInputKeyName] = useState("");
+
+  // Add state for status update loading
+  const [statusUpdating, setStatusUpdating] = useState(false);
+
   // Calculate totals
   const totalKeys = apiKeys.length;
-  const activeKeys = apiKeys.filter((key) => !key.isEncrypted).length;
+  const activeKeys = apiKeys.filter((key) => key.status === "Active").length;
   const inactiveKeys = apiKeys.filter((key) => key.status !== "Active").length;
 
   // Handle platform change
@@ -184,7 +195,7 @@ function APIKeysContent() {
   };
 
   // Open vault key modal before adding key
-  const handleAddKey = (e) => {
+  const handleAddKey = async (e) => {
     e.preventDefault();
     setAddKeyError("");
     if (!newKeyName.trim() || !customKey.trim()) return;
@@ -196,72 +207,42 @@ function APIKeysContent() {
       setAddKeyError("A key with this name already exists.");
       return;
     }
-    setPendingAddKey({
-      keyName: newKeyName.trim(),
-      status: newKeyStatus,
-      key: customKey,
-      description: description.trim(),
-      expiryDate: expiryDate,
-      linkedProject: linkedProject.trim(),
-      usageLimit: usageLimit ? parseInt(usageLimit) : null,
-      environment: environment,
-      platform: platform === "custom" ? customPlatform.trim() : platform,
-    });
-    setShowAddKeyEncryptModal(true);
-  };
-
-  // Actually add the key after vault key is provided and validated
-  const handleAddKeyEncrypt = async (e) => {
-    e.preventDefault();
-    setAddKeyError("");
-    if (!addKeyVaultKey.trim() || !pendingAddKey) return;
-    // Validate vault key
-    if (addKeyVaultKey !== ci) {
-      setAddKeyError("Incorrect vault key. Please try again.");
-      return;
-    }
-
     setIsAddingKey(true);
     try {
-      // Use the hook to add the key, passing vaultKey
       await addKey({
-        keyName: pendingAddKey.keyName,
-        rawKey: pendingAddKey.key,
-        status: pendingAddKey.status.toLowerCase(),
-        environment: pendingAddKey.environment || "development",
-        platform: pendingAddKey.platform,
-        description: pendingAddKey.description,
-        expiryDate: pendingAddKey.expiryDate,
-        linkedProject: pendingAddKey.linkedProject,
-        usageLimit: pendingAddKey.usageLimit,
-        vaultKey: addKeyVaultKey, // <-- pass vaultKey
+        keyName: newKeyName.trim(),
+        rawKey: customKey,
+        status: newKeyStatus,
+        environment: environment || "development",
+        platform: platform === "custom" ? customPlatform.trim() : platform,
+        description: description.trim(),
+        expiryDate: expiryDate,
+        linkedProject: linkedProject.trim(),
+        usageLimit: usageLimit ? parseInt(usageLimit) : null,
+        apiCost: apiCost ? parseFloat(apiCost) : null,
+        customQA: customQA.filter((qa) => qa.question && qa.answer),
         custom: {
-          vaultKey: addKeyVaultKey,
           customQA: customQA.filter((qa) => qa.question && qa.answer),
         },
       });
-
       setShowAddKeyModal(false);
-      setShowAddKeyEncryptModal(false);
       setNewKeyName("");
       setNewKeyStatus("Active");
       setCustomKey("");
       setShowApiKey(false);
       setCustomQA([{ question: "", answer: "" }]);
-      setAddKeyVaultKey("");
-      setPendingAddKey(null);
       setAddKeyError("");
-      // Reset new fields
       setDescription("");
       setExpiryDate("");
       setLinkedProject("");
       setUsageLimit("");
       setEnvironment("development");
-      setPlatform("github");
+      setPlatform("");
       setCustomPlatform("");
       setShowCustomPlatform(false);
-      setNotification({ show: true, message: "API key added and encrypted!" });
+      setNotification({ show: true, message: "API key added!", type: "add" });
       setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+      setApiCost("");
     } catch (error) {
       setAddKeyError(error.message || "Failed to add key");
       setNotification({
@@ -335,9 +316,13 @@ function APIKeysContent() {
         platform: key.platform || "github",
         description: key.description || "",
         expiryDate: key.expiryDate || "",
-        linkedProject: key.linkedProject || "",
+        linkedProject: key.linkedProject !== undefined && key.linkedProject !== null ? key.linkedProject : '',
         usageLimit: key.usageLimit || null,
+        apiCost: key.apiCost !== undefined && key.apiCost !== null
+          ? key.apiCost
+          : (key.custom?.apiCost !== undefined && key.custom?.apiCost !== null ? key.custom.apiCost : ''),
         custom: key.custom || {},
+        customQA: key.custom?.customQA || [],
       }));
       setApiKeys(transformedKeys);
     } else if (dbKeys && dbKeys.length === 0) {
@@ -459,11 +444,6 @@ function APIKeysContent() {
     setShowEncryptModal(false);
     setEncryptionPassword("");
     setIsProcessing(false);
-    setNotification({
-      show: true,
-      message: "API key encrypted successfully!",
-    });
-    setTimeout(() => setNotification({ show: false, message: "" }), 3000);
   };
 
   // Decryption Modal submit handler
@@ -515,11 +495,6 @@ function APIKeysContent() {
       setShowDecryptModal(false);
       setDecryptionPassword("");
       setIsProcessing(false);
-      setNotification({
-        show: true,
-        message: "API key decrypted successfully!",
-      });
-      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
     } catch (error) {
       setNotification({
         show: true,
@@ -549,41 +524,82 @@ function APIKeysContent() {
     setShowDeleteModal(true);
   };
   // Handler for confirm delete in DeleteKeyModal
-  const handleConfirmDelete = async ({ vaultKey, confirmText, inputUsername, inputKeyName }) => {
+  const handleConfirmDelete = async ({ vaultKey, confirmText, inputKeyName }) => {
     setDeleteError("");
     setDeleteLoading(true);
+    // Trim whitespace from all inputs
+    const trimmedVaultKey = vaultKey.trim();
+    const trimmedConfirmText = confirmText.trim();
+    const trimmedInputKeyName = inputKeyName.trim();
     try {
       if (!selectedKey) throw new Error("No key selected");
-      if (inputUsername !== selectedKey.storedBy) {
-        setDeleteError("Incorrect username (stored by). Please enter the correct username.");
-        setDeleteLoading(false);
-        return;
-      }
-      if (inputKeyName !== selectedKey.keyName) {
+      if (trimmedInputKeyName !== selectedKey.keyName) {
         setDeleteError("Incorrect key name. Please enter the correct key name.");
         setDeleteLoading(false);
         return;
       }
-      if (vaultKey !== ci) {
+      if (trimmedVaultKey !== ci) {
         setDeleteError("Incorrect vault key.");
         setDeleteLoading(false);
         return;
       }
-      if (confirmText !== "confirm") {
+      if (trimmedConfirmText !== "confirm") {
         setDeleteError("You must type 'confirm' to proceed.");
         setDeleteLoading(false);
         return;
       }
       // Call deleteKey from hook
-      await deleteKey(selectedKey.id, vaultKey);
+      await deleteKey(selectedKey.id, trimmedVaultKey);
       setShowDeleteModal(false);
       setShowKeyDetailModal(false);
-      setNotification({ show: true, message: `API key '${selectedKey.keyName}' deleted.` });
+      setNotification({ show: true, message: `API key '${selectedKey.keyName}' deleted.`, type: "delete" });
       setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+      // Reset fields after successful delete
+      setDeleteVaultKey("");
+      setDeleteConfirmText("");
+      setDeleteInputKeyName("");
     } catch (err) {
       setDeleteError(err.message || "Failed to delete key");
     } finally {
       setDeleteLoading(false);
+    }
+  };
+
+  const handleDetailEncrypt = () => {
+    if (!selectedKey || !selectedKey.key) return;
+    const encryptedKey = encryptKey(selectedKey.key, ci);
+    setSelectedKey({
+      ...selectedKey,
+      encryptedKey,
+      isEncrypted: true,
+      isDecrypted: false,
+    });
+  };
+
+  const handleDetailDecrypt = () => {
+    if (!selectedKey || !selectedKey.encryptedKey) return;
+    const decryptedKey = require('../utils/apiKeys').decryptKey(selectedKey.encryptedKey, ci);
+    setSelectedKey({
+      ...selectedKey,
+      key: decryptedKey,
+      isEncrypted: false,
+      isDecrypted: true,
+    });
+  };
+
+  // Handler for status change in KeyDetailModal
+  const handleStatusChange = async (newStatus) => {
+    if (!selectedKey || selectedKey.status === newStatus) return;
+    setStatusUpdating(true);
+    try {
+      await updateKeyStatus(selectedKey.id, newStatus);
+      setSelectedKey((prev) => prev ? { ...prev, status: newStatus } : prev);
+      setApiKeys((prev) => prev.map((k) => k.id === selectedKey.id ? { ...k, status: newStatus } : k));
+    } catch (err) {
+      setNotification({ show: true, message: `Failed to update status: ${err.message}`, type: "error" });
+      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+    } finally {
+      setStatusUpdating(false);
     }
   };
 
@@ -594,21 +610,13 @@ function APIKeysContent() {
       </Head>
       {notification.show && (
         <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-[100] transition-all duration-300">
-          <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-6 h-6 text-white"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+          <div className={`px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown
+            ${notification.type === 'delete' ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white'
+              : notification.type === 'add' ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
+              : notification.message.toLowerCase().includes('error') ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white'
+              : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'}
+          `}>
+            {/* Remove the cross (X) icon for delete and error notifications */}
             {notification.message}
           </div>
         </div>
@@ -671,21 +679,8 @@ function APIKeysContent() {
         handleCustomQAChange={handleCustomQAChange}
         addCustomQA={addCustomQA}
         addKeyError={addKeyError}
-      />
-      {/* Add Key Encrypt Modal */}
-      <AddKeyEncryptModal
-        open={showAddKeyEncryptModal}
-        onClose={() => {
-          setShowAddKeyEncryptModal(false);
-          setAddKeyError("");
-        }}
-        onSubmit={handleAddKeyEncrypt}
-        addKeyVaultKey={addKeyVaultKey}
-        setAddKeyVaultKey={setAddKeyVaultKey}
-        showAddKeyVaultKey={showAddKeyVaultKey}
-        setShowAddKeyVaultKey={setShowAddKeyVaultKey}
-        addKeyError={addKeyError}
-        isAddingKey={isAddingKey}
+        apiCost={apiCost}
+        setApiCost={setApiCost}
       />
       {/* Vault Verification Modal for Key Details */}
       <KeyDetailVaultModal
@@ -707,21 +702,35 @@ function APIKeysContent() {
         open={showKeyDetailModal && !!selectedKey}
         onClose={() => setShowKeyDetailModal(false)}
         selectedKey={selectedKey}
-        handleEncrypt={handleEncrypt}
-        handleDecrypt={handleDecrypt}
+        handleEncrypt={handleDetailEncrypt}
+        handleDecrypt={handleDetailDecrypt}
         onDelete={handleDeleteClick}
         updateKeyEncryption={updateKeyEncryption}
         vaultKey={ci}
+        onStatusChange={handleStatusChange}
+        statusUpdating={statusUpdating}
       />
       {/* Delete Key Modal */}
       <DeleteKeyModal
         open={showDeleteModal && !!selectedKey}
-        onClose={() => setShowDeleteModal(false)}
+        onClose={() => {
+          setShowDeleteModal(false);
+          // Optionally reset fields on cancel/close:
+          setDeleteVaultKey("");
+          setDeleteConfirmText("");
+          setDeleteInputKeyName("");
+        }}
         onConfirm={handleConfirmDelete}
         storedBy={selectedKey?.storedBy || ""}
         keyName={selectedKey?.keyName || ""}
         error={deleteError}
         loading={deleteLoading}
+        vaultKey={deleteVaultKey}
+        setVaultKey={setDeleteVaultKey}
+        confirmText={deleteConfirmText}
+        setConfirmText={setDeleteConfirmText}
+        inputKeyName={deleteInputKeyName}
+        setInputKeyName={setDeleteInputKeyName}
       />
       <div className="bg-[#fbf9f4] min-h-screen flex relative">
         {/* Sidebar for desktop */}
@@ -892,7 +901,7 @@ function APIKeysContent() {
                   )}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0 mb-4 sm:mb-6">
                     <div>
-                      <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-1">
+                      <h1 className="text-2xl sm:text-3xl font-extrabold text-[#7c3aed] mb-1">
                         API Keys
                       </h1>
                       <p className="text-gray-500 text-base sm:text-lg">
@@ -1051,18 +1060,18 @@ function APIKeysContent() {
               Import API Keys from File
             </h2>
             <div className="text-gray-700 mb-4 text-center">
-              Upload a CSV, JSON, or Excel file with your API keys.
+              Upload a CSV file with your API keys.
               <br />
               <span className="text-sm text-gray-500">
                 Supported columns: keyName, rawKey, environment, status<br/>
-                Supported formats: CSV, JSON, XLSX, XLS, XLSM
+                Supported format: CSV only
               </span>
             </div>
             <div className="space-y-4">
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                 <input
                   type="file"
-                  accept=".csv,.json,.xlsx,.xls,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                  accept=".csv,text/csv"
                   onChange={(e) => {
                     const file = e.target.files[0];
                     if (file) {
@@ -1079,7 +1088,7 @@ function APIKeysContent() {
                   Choose File
                 </label>
                 <p className="text-sm text-gray-500 mt-2">
-                  Supported formats: CSV, JSON, XLSX, XLS, XLSM
+                  Supported format: CSV only
                 </p>
               </div>
               <div className="flex justify-center gap-2">
