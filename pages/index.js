@@ -31,6 +31,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [activeSection, setActiveSection] = useState("home");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Section refs
   const homeRef = React.useRef(null);
@@ -65,7 +66,7 @@ export default function Home() {
           : Infinity,
       }));
 
-      // Find the section closest to the top (but not above)
+      // Find the section closest to the top ( but not above)
       const active = sectionOffsets.reduce((closest, section) => {
         if (
           section.top < window.innerHeight / 2 &&
@@ -323,7 +324,7 @@ export default function Home() {
               </nav>
 
               {/* CTA Buttons */}
-              <div className="flex space-x-3">
+              <div className="flex space-x-3 hidden md:flex">
                 <button
                   onClick={() =>
                     document
@@ -343,47 +344,122 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Mobile Layout - Card Design */}
-            <div className="md:hidden py-4">
+            {/* Mobile Layout - Hamburger and Menu */}
+            <div className="md:hidden flex items-center justify-between h-20">
               {/* Logo and Title */}
-              <div className="flex items-center justify-center mb-4">
-                <div className="flex items-center group cursor-pointer hover:scale-105 transition-transform duration-300">
-                  <div className="relative">
-                    <Image
-                      src="/logo cyber clipper.png"
-                      alt="Cyber Clipper Logo"
-                      width={48}
-                      height={48}
-                      className="object-contain drop-shadow-sm"
-                    />
-                    <div className="absolute inset-0 bg-[#a259f7] rounded-full opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+              <div className="flex items-center group cursor-pointer hover:scale-105 transition-transform duration-300">
+                <div className="relative">
+                  <Image
+                    src="/logo cyber clipper.png"
+                    alt="Cyber Clipper Logo"
+                    width={48}
+                    height={48}
+                    className="object-contain drop-shadow-sm"
+                  />
+                  <div className="absolute inset-0 bg-[#a259f7] rounded-full opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                </div>
+                <span className="ml-4 font-bold text-2xl text-gray-900 bg-gradient-to-r from-gray-900 to-[#a259f7] bg-clip-text">
+                  Cyber Clipper
+                </span>
+              </div>
+              {/* Hamburger Button */}
+              <button
+                aria-label="Open menu"
+                aria-controls="mobile-menu"
+                aria-expanded={isMobileMenuOpen}
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a259f7]"
+              >
+                <svg className="w-7 h-7 text-[#a259f7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            </div>
+            {/* Mobile Menu Overlay */}
+            {isMobileMenuOpen && (
+              <div
+                id="mobile-menu"
+                className="fixed inset-0 z-[9999] flex justify-end bg-gray-100 bg-opacity-95"
+                aria-modal="true"
+                role="dialog"
+              >
+                <div className="w-full max-w-full h-full shadow-lg p-0 flex flex-col transform transition-transform duration-300 translate-x-0 bg-gray-100 bg-opacity-95 backdrop-blur-md">
+                  <div className="flex items-center justify-between px-6 py-5 border-b border-[#a259f7]/10 mb-4">
+                    <div className="flex items-center">
+                      <Image
+                        src="/logo cyber clipper.png"
+                        alt="Cyber Clipper Logo"
+                        width={40}
+                        height={40}
+                        className="object-contain drop-shadow-sm"
+                      />
+                      <span className="ml-3 font-bold text-xl text-gray-900 bg-gradient-to-r from-gray-900 to-[#a259f7] bg-clip-text">
+                        Cyber Clipper
+                      </span>
+                    </div>
+                    <button
+                      aria-label="Close menu"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a259f7] hover:bg-[#a259f7]/10 transition-colors"
+                    >
+                      <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
                   </div>
-                  <span className="ml-4 font-bold text-2xl text-gray-900 bg-gradient-to-r from-gray-900 to-[#a259f7] bg-clip-text">
-                    Cyber Clipper
-                  </span>
+                  <nav className="flex flex-col space-y-2 mb-8 bg-gray-100 rounded-lg px-4 py-4 shadow">
+                    <a
+                      href="#home"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setIsMobileMenuOpen(false);
+                        setTimeout(() => homeRef.current.scrollIntoView({ behavior: "smooth" }), 100);
+                        setActiveSection("home");
+                      }}
+                      className={`px-4 py-3 rounded-lg font-medium transition-all duration-200 ${activeSection === "home" ? "bg-[#a259f7]/10 text-[#a259f7] font-bold" : "text-gray-700 hover:bg-[#a259f7]/5 hover:text-[#a259f7]"}`}
+                    >
+                      Home
+                    </a>
+                    <a
+                      href="#about"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setIsMobileMenuOpen(false);
+                        setTimeout(() => aboutRef.current.scrollIntoView({ behavior: "smooth" }), 100);
+                        setActiveSection("about");
+                      }}
+                      className={`px-4 py-3 rounded-lg font-medium transition-all duration-200 ${activeSection === "about" ? "bg-[#a259f7]/10 text-[#a259f7] font-bold" : "text-gray-700 hover:bg-[#a259f7]/5 hover:text-[#a259f7]"}`}
+                    >
+                      About Us
+                    </a>
+                    <a
+                      href="#pricing"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setIsMobileMenuOpen(false);
+                        setTimeout(() => pricingRef.current.scrollIntoView({ behavior: "smooth" }), 100);
+                        setActiveSection("pricing");
+                      }}
+                      className={`px-4 py-3 rounded-lg font-medium transition-all duration-200 ${activeSection === "pricing" ? "bg-[#a259f7]/10 text-[#a259f7] font-bold" : "text-gray-700 hover:bg-[#a259f7]/5 hover:text-[#a259f7]"}`}
+                    >
+                      Pricing
+                    </a>
+                    <a
+                      href="#contact"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setIsMobileMenuOpen(false);
+                        setTimeout(() => contactRef.current.scrollIntoView({ behavior: "smooth" }), 100);
+                        setActiveSection("contact");
+                      }}
+                      className={`px-4 py-3 rounded-lg font-medium transition-all duration-200 ${activeSection === "contact" ? "bg-[#a259f7]/10 text-[#a259f7] font-bold" : "text-gray-700 hover:bg-[#a259f7]/5 hover:text-[#a259f7]"}`}
+                    >
+                      Contact Us
+                    </a>
+                  </nav>
                 </div>
               </div>
-
-              {/* CTA Buttons */}
-              <div className="flex justify-center space-x-3 mt-6 -mb-4">
-                <button
-                  onClick={() =>
-                    document
-                      .getElementById("demo-form")
-                      .scrollIntoView({ behavior: "smooth" })
-                  }
-                  className="bg-gradient-to-r from-[#a259f7] to-[#8b4fd8] text-white px-6 py-0.5 rounded-xl font-semibold hover:shadow-lg hover:shadow-[#a259f7]/25 transition-all duration-300 transform hover:scale-105 shadow-md hover:from-[#8b4fd8] hover:to-[#7a3fc7]"
-                >
-                  Request Demo
-                </button>
-                <button
-                  onClick={() => router.push("/auth/login")}
-                  className="border-2 border-[#a259f7] text-[#a259f7] px-6 py-0.5 rounded-xl font-semibold hover:bg-[#a259f7] hover:text-white transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-[#a259f7]/25"
-                >
-                  Get Started
-                </button>
-              </div>
-            </div>
+            )}
           </div>
         </header>
 
