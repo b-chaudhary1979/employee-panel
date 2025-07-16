@@ -37,7 +37,7 @@ function DashboardContent() {
   const { token } = router.query;
   const { ci, aid } = decryptToken(token);
   const headerRef = useRef(null);
-  const [headerHeight, setHeaderHeight] = useState(0);
+  const [headerHeight, setHeaderHeight] = useState(72);
   const { user, loading, error } = useUserInfo();
   const [notification, setNotification] = useState({ show: false, message: "" });
 

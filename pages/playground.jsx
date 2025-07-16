@@ -38,7 +38,7 @@ function PlaygroundContent() {
   const { token } = router.query;
   const { ci, aid } = decryptToken(token);
   const headerRef = useRef(null);
-  const [headerHeight, setHeaderHeight] = useState(0);
+  const [headerHeight, setHeaderHeight] = useState(72);
 
   // Fetch user info from Firestore
   const {
