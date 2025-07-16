@@ -879,7 +879,7 @@ function NotesTasksContent() {
               </div>
               {/* Task Summary Box */}
               <div className="mt-6 mb-8">
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 gap-3">
                   {/* Total Tasks */}
                   <div className="flex-1 min-w-[140px] max-w-[180px] bg-white rounded-xl shadow border border-gray-100 hover:bg-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 px-3 py-3 flex items-stretch w-full cursor-pointer">
                     <div className="flex flex-col justify-center w-full">
