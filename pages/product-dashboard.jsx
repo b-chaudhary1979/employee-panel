@@ -28,6 +28,7 @@ function ProductDashboardContent() {
   const { ci, aid } = decryptToken(token);
   const { isOpen, isMobile, isHydrated } = useSidebar();
   const [activeTab, setActiveTab] = useState("auto");
+  const [headerHeight, setHeaderHeight] = useState(72);
   const { user, loading, error } = useUserInfo();
 
   useEffect(() => {
