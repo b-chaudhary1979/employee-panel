@@ -478,7 +478,7 @@ function AnnouncementsContent() {
 
               {/* Summary Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-                <div className="bg-white rounded-xl shadow flex items-center gap-4 px-6 py-5">
+                <div className="bg-white rounded-xl shadow flex items-center gap-4 px-6 py-5 min-w-0">
                   <div className="bg-purple-100 p-3 rounded-full">
                     <svg
                       className="w-7 h-7 text-purple-500"
@@ -494,8 +494,8 @@ function AnnouncementsContent() {
                       />
                     </svg>
                   </div>
-                  <div>
-                    <div className="text-gray-500 text-sm">
+                  <div className="min-w-0">
+                    <div className="text-gray-500 text-sm truncate whitespace-nowrap font-medium">
                       Total Announcements
                     </div>
                     <div className="text-2xl text-gray-600 font-bold">
@@ -503,7 +503,7 @@ function AnnouncementsContent() {
                     </div>
                   </div>
                 </div>
-                <div className="bg-white rounded-xl shadow flex items-center gap-4 px-6 py-5">
+                <div className="bg-white rounded-xl shadow flex items-center gap-4 px-6 py-5 min-w-0">
                   <div className="bg-green-100 p-3 rounded-full">
                     <svg
                       className="w-7 h-7 text-green-500"
@@ -519,14 +519,16 @@ function AnnouncementsContent() {
                       />
                     </svg>
                   </div>
-                  <div>
-                    <div className="text-gray-500 text-sm">Active</div>
+                  <div className="min-w-0">
+                    <div className="text-gray-500 text-sm truncate whitespace-nowrap font-medium">
+                      Active
+                    </div>
                     <div className="text-2xl text-gray-600 font-bold">
                       {activeAnnouncements}
                     </div>
                   </div>
                 </div>
-                <div className="bg-white rounded-xl shadow flex items-center gap-4 px-6 py-5">
+                <div className="bg-white rounded-xl shadow flex items-center gap-4 px-6 py-5 min-w-0">
                   <div className="bg-blue-100 p-3 rounded-full">
                     <svg
                       className="w-7 h-7 text-blue-500"
@@ -547,8 +549,10 @@ function AnnouncementsContent() {
                       />
                     </svg>
                   </div>
-                  <div>
-                    <div className="text-gray-500 text-sm">Total Views</div>
+                  <div className="min-w-0">
+                    <div className="text-gray-500 text-sm truncate whitespace-nowrap font-medium">
+                      Total Views
+                    </div>
                     <div className="text-2xl text-gray-600 font-bold">
                       {totalViews}
                     </div>
