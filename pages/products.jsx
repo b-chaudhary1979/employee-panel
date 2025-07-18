@@ -12,6 +12,7 @@ import Loader from "../loader/Loader";
 import Head from "next/head";
 import ProductDetailModal from "../components/ProductDetailModal";
 import useStoreProducts from "../hooks/useStoreProducts";
+import { Pen, Trash2 } from "lucide-react";
 
 // Utility to decrypt token into ci and aid
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
@@ -45,7 +46,9 @@ function ProductsContent() {
   const [showManualPopup, setShowManualPopup] = useState(false);
   const [showProductDetailModal, setShowProductDetailModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const { products, loading: productsLoading, error: productsError } = useStoreProducts(ci);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteProductId, setDeleteProductId] = useState(null);
+  const { products, loading: productsLoading, error: productsError, deleteProduct, updateProduct } = useStoreProducts(ci);
 
   useEffect(() => {
     if (router.isReady && (!ci || !aid)) {
@@ -66,6 +69,25 @@ function ProductsContent() {
       return () => clearTimeout(timer);
     }
   }, [error]);
+
+  // Handler for delete
+  const handleDeleteProduct = async (id) => {
+    await deleteProduct(id);
+    setShowDeleteConfirm(false);
+    setDeleteProductId(null);
+    setNotification({ show: true, message: "Product deleted successfully!", color: "red" });
+    setTimeout(() => setNotification({ show: false, message: "", color: "red" }), 2000);
+  };
+
+  // Handler for product update from modal
+  const handleUpdateProduct = async (updatedProduct) => {
+    const id = updatedProduct.id || updatedProduct.productId;
+    await updateProduct(id, updatedProduct);
+    setSelectedProduct(updatedProduct); // Update modal with new data
+    setShowProductDetailModal(false);
+    setNotification({ show: true, message: "Product Updated Successfully", color: "green" });
+    setTimeout(() => setNotification({ show: false, message: "", color: "green" }), 2000);
+  };
 
   // Responsive marginLeft for content (matches header)
   const getContentMarginLeft = () => {
@@ -129,21 +151,7 @@ function ProductsContent() {
       </Head>
       {notification.show && (
         <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300">
-          <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-6 h-6 text-white"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+          <div className={`bg-gradient-to-r ${notification.color === 'green' ? 'from-green-500 to-green-400' : 'from-red-500 to-pink-500'} text-white px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown`}>
             {notification.message}
           </div>
         </div>
@@ -213,6 +221,22 @@ function ProductsContent() {
           <div className="w-full h-full flex items-center justify-center">
             <div className="w-full h-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-8 overflow-auto flex flex-col">
               <ManualProductIntegration />
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
+          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-4 text-red-600 flex items-center gap-2">
+              <Trash2 className="w-6 h-6 text-red-600" />
+              Confirm Delete
+            </h2>
+            <p className="mb-6 text-gray-700">Are you sure you want to delete this product? This action cannot be undone.</p>
+            <div className="flex justify-end gap-3">
+              <button className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold" onClick={() => { setShowDeleteConfirm(false); setDeleteProductId(null); }}>Cancel</button>
+              <button className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white font-semibold" onClick={() => handleDeleteProduct(deleteProductId)}>Delete</button>
             </div>
           </div>
         </div>
@@ -302,29 +326,29 @@ function ProductsContent() {
               </div>
               {/* Product Table */}
               <div className="bg-white rounded-xl shadow border border-gray-100 overflow-x-auto">
-                <table className="min-w-full text-left text-sm">
-                  <thead>
-                    <tr className="text-gray-500 font-semibold border-b text-xs">
-                      <th className="py-3 px-4">PRODUCT</th>
-                      <th className="py-3 px-4">BRAND</th>
-                      <th className="py-3 px-4">PRICE</th>
-                      <th className="py-3 px-4">STOCK</th>
-                      <th className="py-3 px-4">CATEGORY</th>
-                      <th className="py-3 px-4">STATUS</th>
-                      <th className="py-3 px-4">ACTIONS</th>
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PRODUCT</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">BRAND</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PRICE</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STOCK</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CATEGORY</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS</th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ACTIONS</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="bg-white divide-y divide-gray-200">
                     {products.map((product) => (
                       <tr
                         key={product.id || product.productId}
-                        className="border-b hover:bg-gray-50 transition cursor-pointer"
+                        className="hover:bg-gray-50 cursor-pointer"
                         onClick={() => {
                           setSelectedProduct(product);
                           setShowProductDetailModal(true);
                         }}
                       >
-                        <td className="py-3 px-4 flex items-center gap-3">
+                        <td className="px-6 py-4 whitespace-nowrap flex items-center gap-3">
                           <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center">
                             {/* Placeholder for image */}
                             <svg
@@ -351,76 +375,45 @@ function ProductsContent() {
                             </div>
                           </div>
                         </td>
-                        <td className="py-3 px-4 text-gray-700 font-medium">
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-700 font-medium">
                           {product.brand || product.companyName || "-"}
                         </td>
-                        <td className="py-3 px-4 font-bold text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap font-bold text-gray-900">
                           ${product.price ? Number(product.price).toFixed(2) : "-"}
                         </td>
-                        <td
-                          className={`py-3 px-4 font-semibold text-green-600`}
-                        >
+                        <td className="px-6 py-4 whitespace-nowrap font-semibold text-green-600">
                           {product.stock ? `${product.stock} units` : "-"}
                         </td>
-                        <td className="py-3 px-4 text-gray-700">
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                           {product.category || "-"}
                         </td>
-                        <td className="py-3 px-4">
-                          <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${product.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                             {product.status || "Active"}
                           </span>
                         </td>
-                        <td className="py-3 px-4 flex gap-2 items-center">
-                          <button
-                            className="text-[#a259f7] hover:text-[#7c3aed]"
-                            title="View"
-                          >
-                            <svg
-                              width="16"
-                              height="16"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                d="M12 5c-7 0-9 7-9 7s2 7 9 7 9-7 9-7-2-7-9-7zm0 10a3 3 0 100-6 3 3 0 000 6z"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                              />
-                            </svg>
-                          </button>
+                        <td className="px-6 py-4 whitespace-nowrap text-center flex items-center justify-center gap-3" onClick={e => e.stopPropagation()}>
                           <button
                             className="text-[#a259f7] hover:text-[#7c3aed]"
                             title="Edit"
+                            onClick={e => {
+                              e.stopPropagation();
+                              setSelectedProduct(product);
+                              setShowProductDetailModal(true);
+                            }}
                           >
-                            <svg
-                              width="20"
-                              height="20"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a4 4 0 01-1.414.828l-4.243 1.414 1.414-4.243a4 4 0 01.828-1.414z"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                              />
-                            </svg>
+                            <Pen className="w-5 h-5" />
                           </button>
                           <button
                             className="text-red-500 hover:text-red-700"
                             title="Delete"
+                            onClick={e => {
+                              e.stopPropagation();
+                              setDeleteProductId(product.id || product.productId);
+                              setShowDeleteConfirm(true);
+                            }}
                           >
-                            <svg
-                              width="20"
-                              height="20"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                d="M6 7h12M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3m2 0v12a2 2 0 01-2 2H8a2 2 0 01-2-2V7h12z"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                              />
-                            </svg>
+                            <Trash2 className="w-5 h-5" />
                           </button>
                         </td>
                       </tr>
@@ -437,6 +430,7 @@ function ProductsContent() {
         open={showProductDetailModal}
         onClose={() => setShowProductDetailModal(false)}
         product={selectedProduct}
+        onSave={handleUpdateProduct}
       />
     </>
   );

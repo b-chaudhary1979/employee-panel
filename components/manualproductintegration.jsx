@@ -21,6 +21,8 @@ const ManualProductIntegration = ({ cid }) => {
     website: "",
     supportHours: "",
     address: "",
+    stock: "", // NEW FIELD
+    brand: "", // NEW FIELD
   });
   const [customQuestions, setCustomQuestions] = useState([]);
   const [submitted, setSubmitted] = useState(false);
@@ -87,6 +89,8 @@ const ManualProductIntegration = ({ cid }) => {
         website: "",
         supportHours: "",
         address: "",
+        stock: "", // NEW FIELD
+        brand: "", // NEW FIELD
       });
       setCustomQuestions([]);
     } catch (err) {
@@ -259,6 +263,30 @@ const ManualProductIntegration = ({ cid }) => {
             onChange={handleChange}
             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
             placeholder="e.g. 9am - 5pm, Mon-Fri"
+          />
+        </div>
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Stock</label>
+          <input
+            type="number"
+            name="stock"
+            value={form.stock}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+            placeholder="Enter available stock"
+            min="0"
+            step="1"
+          />
+        </div>
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Brand</label>
+          <input
+            type="text"
+            name="brand"
+            value={form.brand}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+            placeholder="Enter brand name"
           />
         </div>
         <div className="col-span-1 sm:col-span-2">
