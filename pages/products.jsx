@@ -9,8 +9,9 @@ import AutoIntegration from "../components/autointegration";
 import ManualProductIntegration from "../components/manualproductintegration";
 import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
-import { Fragment } from "react";
 import Head from "next/head";
+import ProductDetailModal from "../components/ProductDetailModal";
+import useStoreProducts from "../hooks/useStoreProducts";
 
 // Utility to decrypt token into ci and aid
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
@@ -42,30 +43,9 @@ function ProductsContent() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showAutoPopup, setShowAutoPopup] = useState(false);
   const [showManualPopup, setShowManualPopup] = useState(false);
-
-  // Placeholder product data
-  const products = [
-    {
-      id: 1,
-      name: "Ray-Ban Aviator Classic",
-      brand: "Ray-Ban",
-      price: 129.99,
-      stock: 45,
-      category: "Sunglasses",
-      status: "Active",
-      image: "",
-    },
-    {
-      id: 2,
-      name: "Oakley Holbrook",
-      brand: "Oakley",
-      price: 89.99,
-      stock: 12,
-      category: "Sunglasses",
-      status: "Active",
-      image: "",
-    },
-  ];
+  const [showProductDetailModal, setShowProductDetailModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const { products, loading: productsLoading, error: productsError } = useStoreProducts(ci);
 
   useEffect(() => {
     if (router.isReady && (!ci || !aid)) {
@@ -127,10 +107,17 @@ function ProductsContent() {
 
   // Only return after all hooks
   if (!ci || !aid) return null;
-  if (loading) {
+  if (loading || productsLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen w-full">
         <Loader />
+      </div>
+    );
+  }
+  if (productsError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen w-full text-red-600 font-bold">
+        Error loading products: {productsError}
       </div>
     );
   }
@@ -330,8 +317,12 @@ function ProductsContent() {
                   <tbody>
                     {products.map((product) => (
                       <tr
-                        key={product.id}
-                        className="border-b hover:bg-gray-50 transition"
+                        key={product.id || product.productId}
+                        className="border-b hover:bg-gray-50 transition cursor-pointer"
+                        onClick={() => {
+                          setSelectedProduct(product);
+                          setShowProductDetailModal(true);
+                        }}
                       >
                         <td className="py-3 px-4 flex items-center gap-3">
                           <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -356,31 +347,27 @@ function ProductsContent() {
                               {product.name}
                             </div>
                             <div className="text-gray-400 text-xs">
-                              ID: #{product.id}
+                              ID: #{product.id || product.productId}
                             </div>
                           </div>
                         </td>
                         <td className="py-3 px-4 text-gray-700 font-medium">
-                          {product.brand}
+                          {product.brand || product.companyName || "-"}
                         </td>
                         <td className="py-3 px-4 font-bold text-gray-900">
-                          ${product.price.toFixed(2)}
+                          ${product.price ? Number(product.price).toFixed(2) : "-"}
                         </td>
                         <td
-                          className={`py-3 px-4 font-semibold ${
-                            product.stock > 20
-                              ? "text-green-600"
-                              : "text-orange-500"
-                          }`}
+                          className={`py-3 px-4 font-semibold text-green-600`}
                         >
-                          {product.stock} units
+                          {product.stock ? `${product.stock} units` : "-"}
                         </td>
                         <td className="py-3 px-4 text-gray-700">
-                          {product.category}
+                          {product.category || "-"}
                         </td>
                         <td className="py-3 px-4">
                           <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                            {product.status}
+                            {product.status || "Active"}
                           </span>
                         </td>
                         <td className="py-3 px-4 flex gap-2 items-center">
@@ -445,6 +432,12 @@ function ProductsContent() {
           </main>
         </div>
       </div>
+      {/* Product Detail Modal */}
+      <ProductDetailModal
+        open={showProductDetailModal}
+        onClose={() => setShowProductDetailModal(false)}
+        product={selectedProduct}
+      />
     </>
   );
 }

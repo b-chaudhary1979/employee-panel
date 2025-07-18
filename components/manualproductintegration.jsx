@@ -1,6 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import useStoreProducts from "../hooks/useStoreProducts";
 
-const ManualProductIntegration = () => {
+const generateProductId = () =>
+  Date.now().toString(36) + Math.random().toString(36).slice(2);
+
+const ManualProductIntegration = ({ cid }) => {
   const [form, setForm] = useState({
     name: "",
     url: "",
@@ -20,6 +24,16 @@ const ManualProductIntegration = () => {
   });
   const [customQuestions, setCustomQuestions] = useState([]);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+  const { addProduct, loading, error: hookError } = useStoreProducts(cid);
+
+  useEffect(() => {
+    console.log("ManualProductIntegration: cid=", cid);
+    if (hookError) {
+      setError(hookError);
+      console.error("Firestore error:", hookError);
+    }
+  }, [cid, hookError]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,10 +52,46 @@ const ManualProductIntegration = () => {
     setCustomQuestions((prev) => [...prev, { question: "", answer: "" }]);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    // Here you could add logic to send data to a backend
+    setError("");
+    setSubmitted(false);
+    if (!cid) {
+      setError("Company ID is missing. Please reload the page or contact support.");
+      return;
+    }
+    if (!form.name) {
+      setError("Product name is required.");
+      return;
+    }
+    try {
+      await addProduct({
+        ...form,
+        customQuestions,
+        productId: generateProductId(),
+      });
+      setSubmitted(true);
+      setForm({
+        name: "",
+        url: "",
+        screenshot: "",
+        description: "",
+        category: "",
+        price: "",
+        email: "",
+        tags: "",
+        contactNumber: "",
+        launchDate: "",
+        companyName: "",
+        version: "",
+        website: "",
+        supportHours: "",
+        address: "",
+      });
+      setCustomQuestions([]);
+    } catch (err) {
+      setError("Failed to submit product. Please try again.");
+    }
   };
 
   return (
@@ -260,6 +310,9 @@ const ManualProductIntegration = () => {
         </div>
         {submitted && (
           <div className="col-span-1 sm:col-span-2 mt-4 text-green-600 font-semibold text-center">Product submitted successfully!</div>
+        )}
+        {error && (
+          <div className="col-span-1 sm:col-span-2 mt-4 text-red-600 font-semibold text-center">{error}</div>
         )}
       </form>
     </div>
