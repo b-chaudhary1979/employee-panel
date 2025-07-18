@@ -23,6 +23,7 @@ const ManualProductIntegration = ({ cid }) => {
     address: "",
     stock: "", // NEW FIELD
     brand: "", // NEW FIELD
+    status: "Active", // NEW FIELD
   });
   const [customQuestions, setCustomQuestions] = useState([]);
   const [submitted, setSubmitted] = useState(false);
@@ -91,6 +92,7 @@ const ManualProductIntegration = ({ cid }) => {
         address: "",
         stock: "", // NEW FIELD
         brand: "", // NEW FIELD
+        status: "Active", // NEW FIELD
       });
       setCustomQuestions([]);
     } catch (err) {
@@ -288,6 +290,19 @@ const ManualProductIntegration = ({ cid }) => {
             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
             placeholder="Enter brand name"
           />
+        </div>
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Status</label>
+          <select
+            name="status"
+            value={form.status}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-gray-900"
+          >
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Pending">Pending</option>
+          </select>
         </div>
         <div className="col-span-1 sm:col-span-2">
           <label className="block text-gray-700 font-medium mb-1">Address/Location</label>
