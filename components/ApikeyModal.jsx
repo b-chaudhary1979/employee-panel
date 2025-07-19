@@ -452,14 +452,14 @@ export function KeyDetailModal({ open, onClose, selectedKey, handleEncrypt, hand
               </React.Fragment>
             ))}
           </div>
-          <div className="flex justify-between items-center mt-4">
-            <button className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl" onClick={handleClose} disabled={reencrypting}>Close</button>
-            <div className="flex gap-2">
-              <button className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={onDelete} disabled={reencrypting}>Delete</button>
+          <div className="flex flex-col gap-2 mt-4 sm:flex-row sm:justify-between sm:items-center">
+            <button className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl w-full sm:w-auto" onClick={handleClose} disabled={reencrypting}>Close</button>
+            <div className="flex flex-col gap-2 w-full sm:flex-row sm:gap-2 sm:w-auto">
+              <button className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200 w-full sm:w-auto" onClick={onDelete} disabled={reencrypting}>Delete</button>
               {selectedKey.isEncrypted ? (
-                <button className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={handleDecrypt} disabled={reencrypting}>Decrypt</button>
+                <button className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200 w-full sm:w-auto" onClick={handleDecrypt} disabled={reencrypting}>Decrypt</button>
               ) : (
-                <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={handleEncrypt} disabled={reencrypting}>Encrypt</button>
+                <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200 w-full sm:w-auto" onClick={handleEncrypt} disabled={reencrypting}>Encrypt</button>
               )}
             </div>
           </div>

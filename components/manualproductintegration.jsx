@@ -1,6 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import useStoreProducts from "../hooks/useStoreProducts";
 
-const ManualProductIntegration = () => {
+const generateProductId = () =>
+  Date.now().toString(36) + Math.random().toString(36).slice(2);
+
+const ManualProductIntegration = ({ cid }) => {
   const [form, setForm] = useState({
     name: "",
     url: "",
@@ -17,9 +21,22 @@ const ManualProductIntegration = () => {
     website: "",
     supportHours: "",
     address: "",
+    stock: "", // NEW FIELD
+    brand: "", // NEW FIELD
+    status: "Active", // NEW FIELD
   });
   const [customQuestions, setCustomQuestions] = useState([]);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+  const { addProduct, loading, error: hookError } = useStoreProducts(cid);
+
+  useEffect(() => {
+    console.log("ManualProductIntegration: cid=", cid);
+    if (hookError) {
+      setError(hookError);
+      console.error("Firestore error:", hookError);
+    }
+  }, [cid, hookError]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,10 +55,49 @@ const ManualProductIntegration = () => {
     setCustomQuestions((prev) => [...prev, { question: "", answer: "" }]);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    // Here you could add logic to send data to a backend
+    setError("");
+    setSubmitted(false);
+    if (!cid) {
+      setError("Company ID is missing. Please reload the page or contact support.");
+      return;
+    }
+    if (!form.name) {
+      setError("Product name is required.");
+      return;
+    }
+    try {
+      await addProduct({
+        ...form,
+        customQuestions,
+        productId: generateProductId(),
+      });
+      setSubmitted(true);
+      setForm({
+        name: "",
+        url: "",
+        screenshot: "",
+        description: "",
+        category: "",
+        price: "",
+        email: "",
+        tags: "",
+        contactNumber: "",
+        launchDate: "",
+        companyName: "",
+        version: "",
+        website: "",
+        supportHours: "",
+        address: "",
+        stock: "", // NEW FIELD
+        brand: "", // NEW FIELD
+        status: "Active", // NEW FIELD
+      });
+      setCustomQuestions([]);
+    } catch (err) {
+      setError("Failed to submit product. Please try again.");
+    }
   };
 
   return (
@@ -211,6 +267,43 @@ const ManualProductIntegration = () => {
             placeholder="e.g. 9am - 5pm, Mon-Fri"
           />
         </div>
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Stock</label>
+          <input
+            type="number"
+            name="stock"
+            value={form.stock}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+            placeholder="Enter available stock"
+            min="0"
+            step="1"
+          />
+        </div>
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Brand</label>
+          <input
+            type="text"
+            name="brand"
+            value={form.brand}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+            placeholder="Enter brand name"
+          />
+        </div>
+        <div className="col-span-1">
+          <label className="block text-gray-700 font-medium mb-1">Status</label>
+          <select
+            name="status"
+            value={form.status}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-gray-900"
+          >
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Pending">Pending</option>
+          </select>
+        </div>
         <div className="col-span-1 sm:col-span-2">
           <label className="block text-gray-700 font-medium mb-1">Address/Location</label>
           <input
@@ -260,6 +353,9 @@ const ManualProductIntegration = () => {
         </div>
         {submitted && (
           <div className="col-span-1 sm:col-span-2 mt-4 text-green-600 font-semibold text-center">Product submitted successfully!</div>
+        )}
+        {error && (
+          <div className="col-span-1 sm:col-span-2 mt-4 text-red-600 font-semibold text-center">{error}</div>
         )}
       </form>
     </div>

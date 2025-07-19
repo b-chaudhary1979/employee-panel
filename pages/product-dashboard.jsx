@@ -87,7 +87,7 @@ function ProductDashboardContent() {
             </div>
             {/* Integration component below options, full width, no card */}
             <div className="w-full mt-2">
-              {activeTab === "auto" ? <AutoIntegration /> : <ManualProductIntegration />}
+              {activeTab === "auto" ? <AutoIntegration /> : <ManualProductIntegration cid={ci} />}
             </div>
           </div>
         </main>
