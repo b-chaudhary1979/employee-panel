@@ -114,7 +114,7 @@ const INTEGRATION_SCRIPT = `<script>(function () {
 })();<\/script>`;
 
 
-const AutoIntegration = () => {
+const AutoIntegration = ({ sharedFormData, updateSharedFormData, clearFormData }) => {
   const [showPreview, setShowPreview] = useState(false);
   const ACCESS_KEY = 'DEMO-ACCESS-KEY';
   const [input, setInput] = useState("");
