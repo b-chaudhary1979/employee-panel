@@ -55,6 +55,13 @@ const useStoreProducts = (cid) => {
     try {
       const productsRef = collection(db, 'users', cid, 'products');
       const prodId = productData.productId;
+      
+      // Check if product with this ID already exists
+      const existingProduct = products.find(product => product.productId === prodId);
+      if (existingProduct) {
+        throw new Error("Product with this Id already exist");
+      }
+      
       const dataToSave = {
         ...productData,
         status: productData.status || 'Active',
@@ -65,6 +72,7 @@ const useStoreProducts = (cid) => {
     } catch (err) {
       setError(err.message);
       setLoading(false);
+      throw err; // Re-throw the error so the form component can catch it
     }
   };
 

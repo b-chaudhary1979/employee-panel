@@ -12,9 +12,19 @@ export default function ProductDetailModal({ open, onClose, product, onSave }) {
   const [editMode, setEditMode] = useState(false);
   const [editedProduct, setEditedProduct] = useState(product || {});
   const [customQuestions, setCustomQuestions] = useState((product && (product.customQuestions || product.customQA)) || []);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("error"); // "error" or "success"
 
   React.useEffect(() => {
-    setEditedProduct(product || {});
+    // Prepare editedProduct with proper category field for editing
+    const preparedProduct = { ...product };
+    if (product && product.categories && Array.isArray(product.categories)) {
+      // If product has categories array, set category field to joined string for editing
+      preparedProduct.category = product.categories.join(", ");
+    }
+    
+    setEditedProduct(preparedProduct || {});
     setCustomQuestions((product && (product.customQuestions || product.customQA)) || []);
   }, [product]);
 
@@ -53,14 +63,110 @@ export default function ProductDetailModal({ open, onClose, product, onSave }) {
   // Handle save (calls parent onSave)
   const handleSave = (e) => {
     e.preventDefault();
+    
+    // Define required fields
+    const requiredFields = [
+      'name', 'brand', 'price', 'stock', 'category', 'status', 'companyName', 
+      'version', 'website', 'supportHours', 'address', 'email', 'contactNumber', 
+      'launchDate', 'tags', 'description'
+    ];
+    
+    // Check for empty required fields
+    const emptyFields = requiredFields.filter(field => {
+      const value = editedProduct[field];
+      return !value || (typeof value === 'string' && value.trim() === '');
+    });
+    
+    if (emptyFields.length > 0) {
+      const message = `Please fill in all required fields: ${emptyFields.join(', ')}`;
+      // Use custom alert for small screens, browser alert for large screens
+      if (window.innerWidth < 768) {
+        setAlertMessage(message);
+        setAlertType("error");
+        setShowAlert(true);
+      } else {
+        alert(message);
+      }
+      return;
+    }
+    
+    // Validate categories specifically
+    if (!editedProduct.category || editedProduct.category.trim() === '') {
+      const message = 'Please enter at least one category.';
+      // Use custom alert for small screens, browser alert for large screens
+      if (window.innerWidth < 768) {
+        setAlertMessage(message);
+        setAlertType("error");
+        setShowAlert(true);
+      } else {
+        alert(message);
+      }
+      return;
+    }
+    
+    // Process categories from comma-separated string to array
+    let processedProduct = { ...editedProduct };
+    if (editedProduct.category) {
+      const categories = editedProduct.category
+        .split(',')
+        .map(cat => cat.trim())
+        .filter(cat => cat.length > 0) // Remove empty categories
+        .map(cat => cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase()) // Title case
+        .filter((cat, index, arr) => arr.indexOf(cat) === index); // Remove duplicates
+      
+      if (categories.length === 0) {
+        const message = 'Please enter at least one valid category.';
+        // Use custom alert for small screens, browser alert for large screens
+        if (window.innerWidth < 768) {
+          setAlertMessage(message);
+          setAlertType("error");
+          setShowAlert(true);
+        } else {
+          alert(message);
+        }
+        return;
+      }
+      
+      processedProduct.categories = categories;
+      processedProduct.category = categories[0] || ''; // Keep first category for compatibility
+    }
+    
     if (onSave) {
-      onSave({ ...editedProduct, customQuestions });
+      onSave({ ...processedProduct, customQuestions });
     }
     setEditMode(false);
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/40 backdrop-blur-md p-2 sm:p-4">
+    <>
+      {/* Custom Alert Modal - Only for small screens */}
+      {showAlert && window.innerWidth < 768 && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full mx-4 border-2 border-red-200">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Validation Error</h3>
+              </div>
+              <p className="text-gray-700 mb-6 leading-relaxed">{alertMessage}</p>
+              <div className="flex justify-end">
+                <button
+                  onClick={() => setShowAlert(false)}
+                  className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-200"
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/40 backdrop-blur-md p-2 sm:p-4">
       <div className="relative w-[95vw] max-w-[95vw] sm:w-full sm:max-w-[900px] mx-auto p-0 sm:p-6 pointer-events-auto max-h-[90vh] flex items-center justify-center">
         <div className="bg-white border-2 border-purple-400 rounded-2xl p-0 sm:p-0 overflow-y-auto w-full max-h-[85vh] flex flex-col shadow-2xl">
           {/* Top Card */}
@@ -79,13 +185,17 @@ export default function ProductDetailModal({ open, onClose, product, onSave }) {
 
           {/* Product Details Section */}
           <div className="px-6 py-8 bg-white/90 rounded-2xl m-6 mt-6 border border-purple-100 shadow flex flex-col gap-6">
-            <div className="flex items-center gap-2 mb-4">
-              <svg className="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="2" stroke="currentColor" strokeWidth="2" fill="none"/><path d="M16 3v4M8 3v4" stroke="currentColor" strokeWidth="2"/></svg>
-              <h3 className="text-2xl font-bold text-purple-400 tracking-tight">Product Information</h3>
-              <span className="text-sm font-semibold text-gray-500 ml-auto">Edit</span>
-              <button onClick={() => setEditMode((v) => !v)} className={`w-10 h-6 rounded-full ${editMode ? 'bg-green-500' : 'bg-gray-300'} flex items-center transition-colors duration-300`} title="Edit">
-                <span className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300 ${editMode ? 'translate-x-4' : ''}`}></span>
-              </button>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
+              <div className="flex items-center gap-2">
+                <svg className="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="2" stroke="currentColor" strokeWidth="2" fill="none"/><path d="M16 3v4M8 3v4" stroke="currentColor" strokeWidth="2"/></svg>
+                <h3 className="text-2xl font-bold text-purple-400 tracking-tight">Product Information</h3>
+              </div>
+              <div className="flex items-center gap-2 sm:ml-auto">
+                <span className="text-sm font-semibold text-gray-500">Edit</span>
+                <button onClick={() => setEditMode((v) => !v)} className={`w-10 h-6 rounded-full ${editMode ? 'bg-green-500' : 'bg-gray-300'} flex items-center transition-colors duration-300`} title="Edit">
+                  <span className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300 ${editMode ? 'translate-x-4' : ''}`}></span>
+                </button>
+              </div>
             </div>
             {!editMode ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
@@ -93,7 +203,7 @@ export default function ProductDetailModal({ open, onClose, product, onSave }) {
                 <div><span className="text-xs text-purple-400 font-bold uppercase">Brand</span><br/><span className="text-xl text-gray-800">{product.brand}</span></div>
                 <div><span className="text-xs text-purple-400 font-bold uppercase">Price</span><br/><span className="text-xl text-gray-800">{product.price ? `$${Number(product.price).toFixed(2)}` : '-'}</span></div>
                 <div><span className="text-xs text-purple-400 font-bold uppercase">Stock</span><br/><span className="text-xl text-gray-800">{product.stock ? `${product.stock} units` : '-'}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Category</span><br/><span className="text-xl text-gray-800">{product.category}</span></div>
+                <div><span className="text-xs text-purple-400 font-bold uppercase">Category</span><br/><span className="text-xl text-gray-800">{product.categories ? product.categories.join(", ") : product.category}</span></div>
                 <div><span className="text-xs text-purple-400 font-bold uppercase">Status</span><br/><span className="text-xl text-green-700 font-semibold">{product.status || 'Active'}</span></div>
                 <div><span className="text-xs text-purple-400 font-bold uppercase">Company</span><br/><span className="text-xl text-gray-800">{product.companyName}</span></div>
                 <div><span className="text-xs text-purple-400 font-bold uppercase">Version</span><br/><span className="text-xl text-gray-800">{product.version}</span></div>
@@ -127,13 +237,12 @@ export default function ProductDetailModal({ open, onClose, product, onSave }) {
                 {/* Status Pills */}
                 <div className="md:col-span-2 mt-2 mb-2">
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Status</label>
-                  <div className="flex gap-2 mt-1">
-                    {['Active', 'Inactive', 'Pending'].map(option => (
+                  <div className="flex flex-col sm:flex-row gap-2 mt-1">
+                    {['Active', 'Inactive', 'Pending', 'Coming Soon', 'Maintenance'].map(option => (
                       <button
                         key={option}
                         type="button"
-                        className={`px-2 py-1 rounded-full text-xs font-semibold focus:outline-none transition-colors duration-200 ${editedProduct.status === option ? 'bg-purple-500 text-white' : 'bg-gray-200 text-gray-700'} cursor-pointer`}
-                        style={{ minWidth: 0, height: '28px', fontSize: '0.85rem' }}
+                        className={`px-4 py-2 rounded-full text-sm font-semibold focus:outline-none transition-colors duration-200 ${editedProduct.status === option ? 'bg-purple-500 text-white' : 'bg-gray-200 text-gray-700'} cursor-pointer hover:bg-purple-100 hover:text-purple-700 w-full sm:w-auto`}
                         onClick={() => handleStatusChange(option)}
                       >
                         {option}
@@ -197,13 +306,14 @@ export default function ProductDetailModal({ open, onClose, product, onSave }) {
 
           {/* Save/Cancel in edit mode at bottom of modal */}
           {editMode && (
-            <div className="flex justify-end gap-4 px-8 pb-8">
-              <button type="button" className="bg-gray-300 text-gray-800 px-6 py-2 rounded hover:bg-gray-400 transition font-semibold" onClick={() => { setEditMode(false); setEditedProduct(product); setCustomQuestions(product.customQuestions || product.customQA || []); }}>Cancel</button>
+            <div className="flex flex-col sm:flex-row sm:justify-end gap-3 px-8 pb-8">
               <button type="button" className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 transition font-semibold" onClick={handleSave}>Save Changes</button>
+              <button type="button" className="bg-gray-300 text-gray-800 px-6 py-2 rounded hover:bg-gray-400 transition font-semibold" onClick={() => { setEditMode(false); setEditedProduct(product); setCustomQuestions(product.customQuestions || product.customQA || []); }}>Cancel</button>
             </div>
           )}
         </div>
       </div>
     </div>
+    </>
   );
 } 

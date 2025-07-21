@@ -31,6 +31,68 @@ function ProductDashboardContent() {
   const [headerHeight, setHeaderHeight] = useState(72);
   const { user, loading, error } = useUserInfo();
 
+  // Shared form state for both tabs
+  const [sharedFormData, setSharedFormData] = useState({
+    productId: "",
+    name: "",
+    url: "",
+    screenshot: "",
+    description: "",
+    category: "",
+    price: "",
+    email: "",
+    tags: "",
+    contactNumber: "",
+    launchDate: "",
+    companyName: "",
+    version: "",
+    website: "",
+    supportHours: "",
+    address: "",
+    stock: "",
+    brand: "",
+    status: "Active",
+    customStatus: "",
+  });
+  const [sharedCustomQuestions, setSharedCustomQuestions] = useState([]);
+
+  // Function to update shared form data
+  const updateSharedFormData = (newData) => {
+    setSharedFormData(prev => ({ ...prev, ...newData }));
+  };
+
+  // Function to update shared custom questions
+  const updateSharedCustomQuestions = (questions) => {
+    setSharedCustomQuestions(questions);
+  };
+
+  // Function to clear form data (called after successful submission)
+  const clearFormData = () => {
+    setSharedFormData({
+      productId: "",
+      name: "",
+      url: "",
+      screenshot: "",
+      description: "",
+      category: "",
+      price: "",
+      email: "",
+      tags: "",
+      contactNumber: "",
+      launchDate: "",
+      companyName: "",
+      version: "",
+      website: "",
+      supportHours: "",
+      address: "",
+      stock: "",
+      brand: "",
+      status: "Active",
+      customStatus: "",
+    });
+    setSharedCustomQuestions([]);
+  };
+
   useEffect(() => {
     if (router.isReady && (!ci || !aid)) {
       router.replace("/auth/login");
@@ -87,7 +149,22 @@ function ProductDashboardContent() {
             </div>
             {/* Integration component below options, full width, no card */}
             <div className="w-full mt-2">
-              {activeTab === "auto" ? <AutoIntegration /> : <ManualProductIntegration cid={ci} />}
+              {activeTab === "auto" ? (
+                <AutoIntegration 
+                  sharedFormData={sharedFormData}
+                  updateSharedFormData={updateSharedFormData}
+                  clearFormData={clearFormData}
+                />
+              ) : (
+                <ManualProductIntegration 
+                  cid={ci} 
+                  sharedFormData={sharedFormData}
+                  updateSharedFormData={updateSharedFormData}
+                  sharedCustomQuestions={sharedCustomQuestions}
+                  updateSharedCustomQuestions={updateSharedCustomQuestions}
+                  clearFormData={clearFormData}
+                />
+              )}
             </div>
           </div>
         </main>

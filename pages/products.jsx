@@ -48,13 +48,86 @@ function ProductsContent() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteProductId, setDeleteProductId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [selectedStatus, setSelectedStatus] = useState("All Status");
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const { products, loading: productsLoading, error: productsError, deleteProduct, updateProduct } = useStoreProducts(ci);
+
+  // Get all unique statuses from products (including custom statuses)
+  const allStatuses = [...new Set(products.map(p => p.status).filter(Boolean))];
+  
+  // Get all unique categories from products
+  const allCategories = [...new Set(
+    products.flatMap(product => {
+      if (product.categories && Array.isArray(product.categories)) {
+        return product.categories; // New array format
+      }
+      if (product.category && typeof product.category === 'string') {
+        return [product.category]; // Fallback for old format
+      }
+      return [];
+    }).filter(Boolean)
+  )];
+  
+  // Predefined status options from the form
+  const predefinedStatuses = [
+    "Active",
+    "Inactive", 
+    "Pending",
+    "Coming Soon",
+    "Maintenance"
+  ];
+
+  // Filter products based on search query, category, and status
+  const filteredProducts = products.filter(product => {
+    // Search filter
+    if (searchQuery.trim()) {
+      const productName = (product.name || "").toLowerCase();
+      const query = searchQuery.toLowerCase();
+      if (!productName.startsWith(query)) return false;
+    }
+
+    // Category filter
+    if (selectedCategory !== "All Categories") {
+      const hasCategory = product.categories?.includes(selectedCategory) || 
+                         product.category === selectedCategory;
+      if (!hasCategory) {
+        return false;
+      }
+    }
+
+    // Status filter
+    if (selectedStatus !== "All Status" && product.status !== selectedStatus) {
+      return false;
+    }
+
+    return true;
+  });
 
   useEffect(() => {
     if (router.isReady && (!ci || !aid)) {
       router.replace("/auth/login");
     }
   }, [router.isReady, ci, aid]);
+
+  // Handle clicking outside dropdowns to close them
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showStatusDropdown && !event.target.closest('.status-dropdown-container')) {
+        setShowStatusDropdown(false);
+      }
+      if (showCategoryDropdown && !event.target.closest('.category-dropdown-container')) {
+        setShowCategoryDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showStatusDropdown, showCategoryDropdown]);
 
   useEffect(() => {
     if (error) {
@@ -276,59 +349,280 @@ function ProductsContent() {
             companyName={user?.company || "company name"}
           />
           <main
-            className="transition-all duration-300 px-2 mt-6 sm:px-8 py-12 md:py-6"
-            style={{ marginLeft: 0, paddingTop: headerHeight + 16 }}
+            className="transition-all duration-300 pl-0 pr-2 sm:pl-2 sm:pr-8 py-12 md:py-6"
+            style={{
+              marginLeft: 0,
+              paddingTop: Math.max(headerHeight, 72) + 16,
+            }}
           >
-            <div className="max-w-6xl mx-auto">
-              <div className="flex items-center justify-between mb-4">
+            <div className="pl-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div>
-                  <h1 className="text-3xl font-extrabold text-[#7c3aed]  mb-1">Product Management</h1>
-                  <p className="text-gray-500 text-lg">Manage your eyewear inventory and product catalog</p>
+                  <h1 className="text-3xl text-[#7c3aed] font-bold">
+                    Product Management
+                  </h1>
+                  <p className="text-gray-500 mb-6">
+                    Manage your eyewear inventory and product catalog
+                  </p>
                 </div>
                 <button
-                  className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold py-2 px-4 rounded-lg shadow text-base flex items-center gap-2"
-                  onClick={() =>
-                    router.push({
-                      pathname: "/product-dashboard",
-                      query: { token },
-                    })
-                  }
+                  className="w-full sm:w-auto bg-[#7c3aed] hover:bg-[#a259f7] text-white font-semibold px-5 py-2 rounded-lg shadow flex items-center justify-center gap-2"
+                  aria-label="Add Product"
+                  onClick={() => router.push(`/product-dashboard?token=${encodeURIComponent(CryptoJS.AES.encrypt(JSON.stringify({ ci, aid }), ENCRYPTION_KEY).toString())}`)}
                 >
-                  <span className="text-xl font-bold">+</span> Add Product
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  Add Product
                 </button>
               </div>
-              {/* Search and Filters */}
-              <div className="flex flex-col md:flex-row gap-3 mb-4 items-center bg-white p-3 rounded-xl shadow border border-gray-100">
-                <input
-                  type="text"
-                  placeholder="Search products, brands, categories..."
-                  className="w-full md:flex-1 px-3 py-2 rounded-lg border text-gray-500 border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-base mb-2 md:mb-0"
-                />
-                <div className="flex flex-row w-full md:w-auto gap-2">
-                  <select className="flex-1 px-3 py-2 text-gray-500 rounded-lg border border-gray-200 text-base">
-                    <option>All Categories</option>
-                  </select>
-                  <select className="flex-1 px-3 py-2 text-gray-500 rounded-lg border border-gray-200 text-base">
-                    <option>All Status</option>
-                  </select>
-                  <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-base text-gray-700 hover:bg-gray-50 whitespace-nowrap">
-                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                      <path
-                        d="M3 6h18M3 12h18M3 18h18"
-                        stroke="#a259f7"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      />
+              
+              {/* Mobile Search and Filter Card */}
+              <div className="sm:hidden mt-8 mb-8 bg-white rounded-xl shadow border border-gray-100 p-6 flex flex-col gap-4">
+                {/* Search Bar - First Row */}
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
-                    Filter
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value.trim())}
+                    className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-gray-900 placeholder:text-gray-400"
+                  />
+                </div>
+                
+                {/* Categories - Second Row */}
+                <div className="relative category-dropdown-container">
+                  <button
+                    onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-gray-900 bg-white text-left flex items-center justify-between"
+                  >
+                    <span>{selectedCategory}</span>
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
                   </button>
+                  {showCategoryDropdown && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                      <button
+                        onClick={() => {
+                          setSelectedCategory("All Categories");
+                          setShowCategoryDropdown(false);
+                        }}
+                        className="w-full px-4 py-3 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                      >
+                        All Categories
+                      </button>
+                      
+                      {allCategories.map((category) => (
+                        <button
+                          key={category}
+                          onClick={() => {
+                            setSelectedCategory(category);
+                            setShowCategoryDropdown(false);
+                          }}
+                          className="w-full px-4 py-3 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                        >
+                          {category}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Status - Third Row */}
+                <div className="relative status-dropdown-container">
+                  <button
+                    onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-gray-900 bg-white text-left flex items-center justify-between"
+                  >
+                    <span>{selectedStatus}</span>
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {showStatusDropdown && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                      <button
+                        onClick={() => {
+                          setSelectedStatus("All Status");
+                          setShowStatusDropdown(false);
+                        }}
+                        className="w-full px-4 py-3 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                      >
+                        All Status
+                      </button>
+                      
+                      {/* Predefined Statuses */}
+                      {predefinedStatuses.map((status) => (
+                        <button
+                          key={status}
+                          onClick={() => {
+                            setSelectedStatus(status);
+                            setShowStatusDropdown(false);
+                          }}
+                          className="w-full px-4 py-3 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                        >
+                          {status}
+                        </button>
+                      ))}
+                      
+                      {/* Custom Statuses (if any) */}
+                      {allStatuses.filter(status => !predefinedStatuses.includes(status)).length > 0 && (
+                        <>
+                          <div className="px-4 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider border-t border-b bg-gray-50">
+                            Custom Statuses
+                          </div>
+                          {allStatuses
+                            .filter(status => !predefinedStatuses.includes(status))
+                            .map((status) => (
+                              <button
+                                key={status}
+                                onClick={() => {
+                                  setSelectedStatus(status);
+                                  setShowStatusDropdown(false);
+                                }}
+                                className="w-full px-4 py-3 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                              >
+                                {status}
+                              </button>
+                            ))}
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
-              {/* Product Table */}
-              <div className="bg-white rounded-xl shadow border border-gray-100 overflow-x-auto">
+              
+              {/* Desktop Search and Filter Bar */}
+              <div className="hidden sm:flex flex-col sm:flex-row items-center gap-3 mb-6">
+                <input
+                  type="text"
+                  placeholder="Search products by name..."
+                  className="flex-1 border text-gray-600 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 placeholder-gray-500"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                />
+                <div className="relative category-dropdown-container">
+                  <button
+                    onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                    className="flex items-center gap-2 border border-gray-300 text-gray-500 rounded-lg px-3 py-2 focus:outline-none hover:bg-gray-50"
+                  >
+                    {selectedCategory}
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {showCategoryDropdown && (
+                    <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-48 w-auto">
+                      <button
+                        onClick={() => {
+                          setSelectedCategory("All Categories");
+                          setShowCategoryDropdown(false);
+                        }}
+                        className="w-full px-3 py-2 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                      >
+                        All Categories
+                      </button>
+                      
+                      {allCategories.map((category) => (
+                        <button
+                          key={category}
+                          onClick={() => {
+                            setSelectedCategory(category);
+                            setShowCategoryDropdown(false);
+                          }}
+                          className="w-full px-3 py-2 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                        >
+                          {category}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="relative status-dropdown-container">
+                  <button
+                    onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+                    className="flex items-center gap-2 border border-gray-300 text-gray-500 rounded-lg px-3 py-2 focus:outline-none hover:bg-gray-50"
+                  >
+                    {selectedStatus}
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {showStatusDropdown && (
+                    <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-48 w-auto">
+                      <button
+                        onClick={() => {
+                          setSelectedStatus("All Status");
+                          setShowStatusDropdown(false);
+                        }}
+                        className="w-full px-3 py-2 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                      >
+                        All Status
+                      </button>
+                      
+                      {/* Predefined Statuses */}
+                      {predefinedStatuses.map((status) => (
+                        <button
+                          key={status}
+                          onClick={() => {
+                            setSelectedStatus(status);
+                            setShowStatusDropdown(false);
+                          }}
+                          className="w-full px-3 py-2 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                        >
+                          {status}
+                        </button>
+                      ))}
+                      
+                      {/* Custom Statuses (if any) */}
+                      {allStatuses.filter(status => !predefinedStatuses.includes(status)).length > 0 && (
+                        <>
+                          <div className="px-3 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider border-t border-b bg-gray-50">
+                            Custom Statuses
+                          </div>
+                          {allStatuses
+                            .filter(status => !predefinedStatuses.includes(status))
+                            .map((status) => (
+                              <button
+                                key={status}
+                                onClick={() => {
+                                  setSelectedStatus(status);
+                                  setShowStatusDropdown(false);
+                                }}
+                                className="w-full px-3 py-2 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                              >
+                                {status}
+                              </button>
+                            ))}
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Product Table (Desktop/Tablet) */}
+              <div className="hidden sm:block bg-white rounded-xl shadow border border-gray-100 overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S.NO</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PRODUCT</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">BRAND</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PRICE</th>
@@ -339,7 +633,7 @@ function ProductsContent() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {products.map((product) => (
+                    {filteredProducts.map((product, index) => (
                       <tr
                         key={product.id || product.productId}
                         className="hover:bg-gray-50 cursor-pointer"
@@ -348,24 +642,10 @@ function ProductsContent() {
                           setShowProductDetailModal(true);
                         }}
                       >
-                        <td className="px-6 py-4 whitespace-nowrap flex items-center gap-3">
-                          <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center">
-                            {/* Placeholder for image */}
-                            <svg
-                              width="18"
-                              height="18"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <circle
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="#e5e7eb"
-                                strokeWidth="2"
-                              />
-                            </svg>
-                          </div>
+                        <td className="px-6 py-4 whitespace-nowrap text-center text-gray-500 font-medium">
+                          {index + 1}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
                           <div>
                             <div className="font-bold text-base text-gray-900">
                               {product.name}
@@ -385,7 +665,14 @@ function ProductsContent() {
                           {product.stock ? `${product.stock} units` : "-"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-gray-700">
-                          {product.category || "-"}
+                          {(() => {
+                            const categories = product.categories || [product.category];
+                            if (categories.length === 0) return "-";
+                            if (categories.length <= 2) {
+                              return categories.join(", ");
+                            }
+                            return `${categories.slice(0, 2).join(", ")}, ...`;
+                          })()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${product.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
@@ -420,6 +707,95 @@ function ProductsContent() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+              
+              {/* Card-based Product List (Mobile) */}
+              <div className="sm:hidden mt-8">
+                {filteredProducts.length === 0 ? (
+                  <div className="text-center text-gray-500 text-lg">
+                    No products found.
+                  </div>
+                ) : (
+                  filteredProducts.map((product, idx) => (
+                    <div
+                      key={product.id || product.productId}
+                      className="bg-white rounded-xl shadow border border-gray-100 p-6 mb-6 flex flex-col cursor-pointer hover:bg-gray-50 transition-colors"
+                      onClick={() => {
+                        setSelectedProduct(product);
+                        setShowProductDetailModal(true);
+                      }}
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex-1">
+                          <div className="font-bold text-black text-lg mb-1">
+                            {product.name}
+                          </div>
+                          <div className="text-gray-500 text-sm">
+                            ID: #{product.id || product.productId}
+                          </div>
+                        </div>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ml-2 ${
+                            product.status === 'Active' 
+                              ? 'bg-green-100 text-green-700' 
+                              : product.status === 'Inactive'
+                              ? 'bg-red-100 text-red-700'
+                              : product.status === 'Pending'
+                              ? 'bg-yellow-100 text-yellow-700'
+                              : product.status === 'Coming Soon'
+                              ? 'bg-blue-100 text-blue-700'
+                              : product.status === 'Maintenance'
+                              ? 'bg-orange-100 text-orange-700'
+                              : 'bg-gray-100 text-gray-700'
+                          }`}
+                        >
+                          {product.status || "Active"}
+                        </span>
+                      </div>
+                      <div className="flex gap-3 self-end">
+                        <button
+                          className="text-[#a259f7] hover:text-[#7c3aed]"
+                          title="View Product"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedProduct(product);
+                            setShowProductDetailModal(true);
+                          }}
+                        >
+                          <svg
+                            className="w-7 h-7"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            />
+                          </svg>
+                        </button>
+                        <button
+                          className="text-red-500 hover:text-red-700"
+                          title="Delete Product"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteProductId(product.id || product.productId);
+                            setShowDeleteConfirm(true);
+                          }}
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </main>
