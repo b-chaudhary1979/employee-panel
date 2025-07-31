@@ -142,13 +142,13 @@ export default function Home() {
     setSelectedPlan(planName);
     setNotification({
       show: true,
-      message: `${planName} plan selected! Redirecting to signup...`,
+      message: `${planName} plan selected! Please contact your administrator for access.`,
       type: "success",
     });
 
-    // Redirect to signup after a short delay
+    // No redirect to signup
     setTimeout(() => {
-      router.push("/auth/signup");
+      setNotification({ show: false, message: "", type: "" });
     }, 2000);
   };
 

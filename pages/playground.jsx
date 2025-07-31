@@ -207,15 +207,7 @@ function PlaygroundContent() {
                         logging in
                       </span>{" "}
                       or{" "}
-                      <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
-                        onClick={() => router.push("/auth/signup")}
-                      >
-                        registering
-                      </span>{" "}
-                      a new account. Registration is a multi-step process
-                      collecting your personal, company, and usage details, and
-                      lets you select a plan. After signup, you'll receive a{" "}
+                      contacting your administrator for access. Once granted access, you'll receive a{" "}
                       <span className="text-[#a259f7]">Unique ID</span> and{" "}
                       <span className="text-[#a259f7]">Company ID</span> for
                       secure access.
@@ -380,8 +372,8 @@ function PlaygroundContent() {
                       >
                         Pricing
                       </span>{" "}
-                      section from the homepage, login, or signup to compare plans
-                      and features. Choose the plan that fits your needs.
+                      section from the homepage or login page to compare plans
+                      and features. Contact your administrator to choose the plan that fits your needs.
                     </span>
                   </li>
                   <li>
