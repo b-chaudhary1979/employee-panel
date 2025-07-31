@@ -100,6 +100,7 @@ const menuItems = [
   {
     label: "Data",
     route: "/data",
+/*************  ✨ Windsurf Command 🌟  *************/
     icon: (isActive) => (
       <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
         <rect x="3" y="7" width="18" height="10" rx="2" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" fill="none" />
@@ -110,37 +111,38 @@ const menuItems = [
     ),
   },
   {
-    label: "Employees",
-    route: "/employees",
+    label: "Interns",
+    route: "/intern-management-system",
     icon: (isActive) => (
-      <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
-        <path
-          d="M17 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"
-          stroke={isActive ? "#a259f7" : "#222"}
-          strokeWidth="2"
-        />
-        <circle
-          cx="9"
-          cy="7"
-          r="4"
-          stroke={isActive ? "#a259f7" : "#222"}
-          strokeWidth="2"
-        />
-        <path
-          d="M23 20v-2a4 4 0 0 0-3-3.87"
-          stroke={isActive ? "#a259f7" : "#222"}
-          strokeWidth="2"
-        />
-        <circle
-          cx="17"
-          cy="7"
-          r="4"
-          stroke={isActive ? "#a259f7" : "#222"}
-          strokeWidth="2"
-        />
-      </svg>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+  <rect x="2" y="3" width="20" height="18" rx="2" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" />
+  <circle cx="8" cy="9" r="2" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" />
+  <circle cx="16" cy="9" r="2" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" />
+  <path d="M6 17c0-2 4-3 4-3s4 1 4 3" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" strokeLinecap="round" />
+  <path d="M14 17c0-1.5 4-2.5 4-2.5s2 0.5 2 2.5" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" strokeLinecap="round" />
+</svg>
+
     ),
+/*******  e34fd138-9904-443b-a691-237cc1146e8b  *******/
   },
+    {
+    label: "Assign Tasks",
+    route: "/assign-tasks",
+    icon: (isActive) => (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+  <rect x="4" y="3" width="16" height="18" rx="2" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2"/>
+  <path d="M9 3V5H15V3" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2"/>
+  <path d="M8 9h8" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" strokeLinecap="round"/>
+  <path d="M8 13h5" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" strokeLinecap="round"/>
+  <path d="M8 17h3" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" strokeLinecap="round"/>
+  <path d="M16 12l2 2l4 -4" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+</svg>
+
+
+    ),
+/*******  e34fd138-9904-443b-a691-237cc1146e8b  *******/
+  },
+
   {
     label: "Users",
     route: "/users-permissions",
@@ -376,7 +378,7 @@ export default function SideMenu({ mobileOverlay = false }) {
                   }
                 }}
               >
-                ADMIN &nbsp;PANEL
+                EMPLOYEE &nbsp;PANEL
                 <span
                   className="absolute left-0 -bottom-1 h-1 rounded-full bg-[#a259f7]"
                   style={{
