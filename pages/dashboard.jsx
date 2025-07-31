@@ -40,6 +40,7 @@ function DashboardContent() {
   const [headerHeight, setHeaderHeight] = useState(72);
   const { user, loading, error } = useUserInfo();
   const [notification, setNotification] = useState({ show: false, message: "" });
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   // Fetch data from hooks
   const employeesHook = useStoreEmployees(ci);
@@ -56,6 +57,11 @@ function DashboardContent() {
   const totalPasswords = passwordsHook.passwords?.length || 0;
   const totalTasks = tasksHook.tasks?.length || 0;
   const totalAnnouncements = announcementsHook.announcements?.length || 0;
+
+  // Additional employee-specific stats
+  const completedTasks = (tasksHook.tasks || []).filter(t => t.status === 'completed').length;
+  const pendingTasks = (tasksHook.tasks || []).filter(t => t.status !== 'completed').length;
+  const department = user?.department || 'N/A';
 
   // Mock data for products, users, media
   // Use the real totalMedia from the Data page
@@ -148,6 +154,37 @@ function DashboardContent() {
           </div>
         </div>
       )}
+      {/* Profile Preview Modal */}
+      {profileModalOpen && user && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative border-2 border-purple-300 animate-fadeIn">
+            <button
+              className="absolute top-4 right-4 text-gray-400 hover:text-purple-500 text-2xl transition-colors rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white/70 shadow-md hover:bg-purple-100"
+              onClick={() => setProfileModalOpen(false)}
+              aria-label="Close"
+              style={{ lineHeight: 1 }}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" stroke="currentColor" strokeWidth="2" fill="none" /><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <div className="flex flex-col items-center mb-6">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-200 via-pink-200 to-blue-200 flex items-center justify-center shadow-lg mb-2">
+                <svg className="w-12 h-12 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              </div>
+              <h2 className="text-2xl font-extrabold text-purple-600 mb-1">Your Profile</h2>
+              <span className="text-gray-500 text-base font-medium">Employee Details</span>
+            </div>
+            <div className="space-y-3">
+              <div><span className="text-xs text-purple-400 font-bold uppercase">Name</span><br/><span className="text-lg text-gray-800 font-bold">{user.name || '-'}</span></div>
+              <div><span className="text-xs text-purple-400 font-bold uppercase">Email</span><br/><span className="text-lg text-gray-800">{user.email || '-'}</span></div>
+              <div><span className="text-xs text-purple-400 font-bold uppercase">Department</span><br/><span className="text-lg text-gray-800">{user.department || '-'}</span></div>
+              <div><span className="text-xs text-purple-400 font-bold uppercase">Role</span><br/><span className="text-lg text-gray-800">{user.role || '-'}</span></div>
+              <div><span className="text-xs text-purple-400 font-bold uppercase">Phone</span><br/><span className="text-lg text-gray-800">{user.phone || '-'}</span></div>
+              {user.address && (<div><span className="text-xs text-purple-400 font-bold uppercase">Address</span><br/><span className="text-lg text-gray-800">{user.address}</span></div>)}
+              {user.joinedAt && (<div><span className="text-xs text-purple-400 font-bold uppercase">Joined At</span><br/><span className="text-lg text-gray-800">{new Date(user.joinedAt.seconds ? user.joinedAt.seconds * 1000 : user.joinedAt).toLocaleDateString()}</span></div>)}
+            </div>
+          </div>
+        </div>
+      )}
       <div className="bg-[#fbf9f4] min-h-screen flex relative">
         {/* Sidebar for desktop */}
         <div
@@ -179,16 +216,16 @@ function DashboardContent() {
             ref={headerRef}
             onMobileSidebarToggle={handleMobileSidebarToggle}
             mobileSidebarOpen={mobileSidebarOpen}
-            username={user?.name || "admin"}
-            companyName={user?.company || "company name"}
+            username={user?.name || "Employee"}
+            companyName={user?.department || "Department"}
           />
           <main
             className="transition-all duration-300 px-2 sm:px-8 py-12 md:py-6"
             style={{ marginLeft: 0, paddingTop: headerHeight + 16 }}
           >
             <div className="max-w-6xl mx-auto">
-              <h1 className="text-4xl font-extrabold text-[#7c3aed] mt-8">Dashboard</h1>
-              <p className="mt-2 text-gray-500 text-lg">Welcome back! Here's what's happening with your company today.</p>
+              <h1 className="text-4xl font-extrabold text-[#7c3aed] mt-8">Employee Panel</h1>
+              <p className="mt-2 text-gray-500 text-lg">Welcome back! Here’s what’s new for you today.</p>
               {/* Stat Cards Section */}
               <div
                 className="w-full"
@@ -204,141 +241,16 @@ function DashboardContent() {
                     minWidth: 0,
                   }}
                 >
-                  {/* Total Employees */}
+                  {/* Your Tasks */}
                   <div 
-                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 cursor-pointer group"
-                    onClick={() => {
-                      if (ci && aid) {
-                        const newToken = encryptToken(ci, aid);
-                        router.push(`/employees?token=${encodeURIComponent(newToken)}`);
-                      }
-                    }}
+                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 group"
                   >
                     <div className="flex items-center justify-between w-full">
                       <div>
-                        <span className="text-gray-900 font-semibold text-xl block">Total Employees</span>
-                        <div className="text-3xl font-extrabold mt-2 text-purple-600">{totalEmployees}</div>
-                        <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                          <span>Click to view</span>
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </div>
-                      </div>
-                      <div className="ml-4 flex-shrink-0">
-                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-blue-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Total Passwords */}
-                  <div 
-                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 cursor-pointer group"
-                    onClick={() => {
-                      if (ci && aid) {
-                        const newToken = encryptToken(ci, aid);
-                        router.push(`/security?token=${encodeURIComponent(newToken)}`);
-                      }
-                    }}
-                  >
-                    <div className="flex items-center justify-between w-full">
-                      <div>
-                        <span className="text-gray-900 font-semibold text-xl block">Total Passwords</span>
-                        <div className="text-3xl font-extrabold mt-2 text-purple-600">{totalPasswords}</div>
-                        <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                          <span>Click to view</span>
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </div>
-                      </div>
-                      <div className="ml-4 flex-shrink-0">
-                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-pink-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
-                          <svg xmlns='http://www.w3.org/2000/svg' className='h-7 w-7 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 11c0-1.104.896-2 2-2s2 .896 2 2v1h-4v-1zm6 1v-1a6 6 0 10-12 0v1a2 2 0 00-2 2v5a2 2 0 002 2h12a2 2 0 002-2v-5a2 2 0 00-2-2z' /></svg>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Total Products */}
-                  <div 
-                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 cursor-pointer group"
-                    onClick={() => {
-                      if (ci && aid) {
-                        const newToken = encryptToken(ci, aid);
-                        router.push(`/products?token=${encodeURIComponent(newToken)}`);
-                      }
-                    }}
-                  >
-                    <div className="flex items-center justify-between w-full">
-                      <div>
-                        <span className="text-gray-900 font-semibold text-xl block">Total Products</span>
-                        <div className="text-3xl font-extrabold mt-2 text-purple-600">{totalProducts}</div>
-                        <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                          <span>Click to view</span>
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </div>
-                      </div>
-                      <div className="ml-4 flex-shrink-0">
-                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-yellow-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
-                          <svg xmlns='http://www.w3.org/2000/svg' className='h-7 w-7 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M3 7h18M3 12h18M3 17h18' /></svg>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Total Users */}
-                  <div 
-                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 cursor-pointer group"
-                    onClick={() => {
-                      if (ci && aid) {
-                        const newToken = encryptToken(ci, aid);
-                        router.push(`/users-permissions?token=${encodeURIComponent(newToken)}`);
-                      }
-                    }}
-                  >
-                    <div className="flex items-center justify-between w-full">
-                      <div>
-                        <span className="text-gray-900 font-semibold text-xl block">Total Users</span>
-                        <div className="text-3xl font-extrabold mt-2 text-purple-600">{totalUsers}</div>
-                        <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                          <span>Click to view</span>
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </div>
-                      </div>
-                      <div className="ml-4 flex-shrink-0">
-                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-purple-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                          </svg>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Total Tasks */}
-                  <div 
-                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 cursor-pointer group"
-                    onClick={() => {
-                      if (ci && aid) {
-                        const newToken = encryptToken(ci, aid);
-                        router.push(`/notes-tasks?token=${encodeURIComponent(newToken)}`);
-                      }
-                    }}
-                  >
-                    <div className="flex items-center justify-between w-full">
-                      <div>
-                        <span className="text-gray-900 font-semibold text-xl block">Total Tasks</span>
+                        <span className="text-gray-900 font-semibold text-xl block">Your Tasks</span>
                         <div className="text-3xl font-extrabold mt-2 text-purple-600">{totalTasks}</div>
                         <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                          <span>Click to view</span>
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
+                          <span>Tasks assigned to you</span>
                         </div>
                       </div>
                       <div className="ml-4 flex-shrink-0">
@@ -350,58 +262,101 @@ function DashboardContent() {
                       </div>
                     </div>
                   </div>
-                  {/* Total Announcements */}
-                  <div 
-                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 cursor-pointer group"
-                    onClick={() => {
-                      if (ci && aid) {
-                        const newToken = encryptToken(ci, aid);
-                        router.push(`/announcements?token=${encodeURIComponent(newToken)}`);
-                      }
-                    }}
-                  >
+                  {/* Your Department */}
+                  <div className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 group">
                     <div className="flex items-center justify-between w-full">
                       <div>
-                        <span className="text-gray-900 font-semibold text-xl block">Total Announcements</span>
-                        <div className="text-3xl font-extrabold mt-2 text-purple-600">{totalAnnouncements}</div>
+                        <span className="text-gray-900 font-semibold text-xl block">Your Department</span>
+                        <div className="text-3xl font-extrabold mt-2 text-blue-600">{department}</div>
                         <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                          <span>Click to view</span>
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
+                          <span>Department you belong to</span>
                         </div>
                       </div>
                       <div className="ml-4 flex-shrink-0">
-                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-red-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
-                          <svg xmlns='http://www.w3.org/2000/svg' className='h-7 w-7 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 13V7a2 2 0 00-2-2H7a2 2 0 00-2 2v6m14 0a2 2 0 01-2 2H7a2 2 0 01-2-2m14 0v6a2 2 0 01-2 2H7a2 2 0 01-2-2v-6' /></svg>
+                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-blue-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
                         </span>
                       </div>
                     </div>
                   </div>
-                  {/* Total Media */}
-                  <div 
-                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 cursor-pointer group"
-                    onClick={() => {
-                      if (ci && aid) {
-                        const newToken = encryptToken(ci, aid);
-                        router.push(`/data?token=${encodeURIComponent(newToken)}`);
-                      }
-                    }}
+                  {/* Your Profile */}
+                  <div className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 group cursor-pointer"
+                    onClick={() => setProfileModalOpen(true)}
                   >
                     <div className="flex items-center justify-between w-full">
                       <div>
-                        <span className="text-gray-900 font-semibold text-xl block">Total Media</span>
-                        <div className="text-3xl font-extrabold mt-2 text-purple-600">{totalMedia}</div>
+                        <span className="text-gray-900 font-semibold text-xl block">Your Profile</span>
+                        <div className="text-3xl font-extrabold mt-2 text-pink-600">View</div>
                         <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                          <span>Click to view</span>
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
+                          <span>See your profile details</span>
                         </div>
                       </div>
                       <div className="ml-4 flex-shrink-0">
-                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-indigo-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
-                          <svg xmlns='http://www.w3.org/2000/svg' className='h-7 w-7 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 10l4.553-2.276A2 2 0 0021 6.382V17.618a2 2 0 01-1.447 1.894L15 17.618M9 10l-4.553-2.276A2 2 0 003 6.382V17.618a2 2 0 001.447 1.894L9 17.618' /></svg>
+                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-pink-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Your Completed Tasks */}
+                  <div className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 group">
+                    <div className="flex items-center justify-between w-full">
+                      <div>
+                        <span className="text-gray-900 font-semibold text-xl block">Your Completed Tasks</span>
+                        <div className="text-3xl font-extrabold mt-2 text-green-600">{completedTasks}</div>
+                        <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <span>Tasks you have finished</span>
+                        </div>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-green-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Pending Tasks */}
+                  <div className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 group">
+                    <div className="flex items-center justify-between w-full">
+                      <div>
+                        <span className="text-gray-900 font-semibold text-xl block">Pending Tasks</span>
+                        <div className="text-3xl font-extrabold mt-2 text-yellow-600">{pendingTasks}</div>
+                        <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <span>Tasks yet to be completed</span>
+                        </div>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-yellow-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3" />
+                          </svg>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Company Announcements */}
+                  <div 
+                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 group"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div>
+                        <span className="text-gray-900 font-semibold text-xl block">Company Announcements</span>
+                        <div className="text-3xl font-extrabold mt-2 text-purple-600">{totalAnnouncements}</div>
+                        <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <span>Latest company news</span>
+                        </div>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-purple-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 13V7a2 2 0 00-2-2H7a2 2 0 00-2 2v6m14 0a2 2 0 01-2 2H7a2 2 0 01-2-2m14 0v6a2 2 0 01-2 2H7a2 2 0 01-2-2v-6" />
+                          </svg>
                         </span>
                       </div>
                     </div>
@@ -409,64 +364,14 @@ function DashboardContent() {
                 </div>
               </div>
               <h1 className="text-3xl md:text-4xl  font-extrabold text-[#7c3aed] mt-5 mb-2">Recent Activity</h1>
-              <p className="text-gray-500 text-xl">A quick overview of your most recent actions</p>
-                       
+              <p className="text-gray-500 text-xl">A quick overview of your recent actions</p>
               {/* Recent Activity Section */}
               <div className="w-full flex flex-col gap-8 mt-5">
-                  
-                {/* Recent Employees Table */}
-                <div className="rounded-xl bg-white border border-gray-100 shadow-md p-4 sm:p-8">
-                  <h3 className="text-xl sm:text-2xl font-bold text-blue-600 mb-3 sm:mb-4 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-7 sm:w-7 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                    New Employees
-                  </h3>
-                  {/* Table for lg+ */}
-                  <div className="hidden lg:block overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200 text-sm">
-                      <thead>
-                        <tr className="bg-blue-50">
-                          <th className="px-4 py-2 text-left font-semibold text-blue-700 whitespace-nowrap">Name</th>
-                          <th className="px-4 py-2 text-left font-semibold text-blue-700 whitespace-nowrap">Email</th>
-                          <th className="px-4 py-2 text-left font-semibold text-blue-700 whitespace-nowrap">Department</th>
-                          <th className="px-4 py-2 text-left font-semibold text-blue-700 whitespace-nowrap">Role</th>
-                          <th className="px-4 py-2 text-left font-semibold text-blue-700 whitespace-nowrap">Date Joined</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {recentEmployees.length === 0 ? (
-                          <tr><td colSpan={5} className="text-center text-gray-400 py-4">No recent employees</td></tr>
-                        ) : recentEmployees.map(emp => (
-                          <tr key={emp.id} className="hover:bg-blue-50 transition">
-                            <td className="px-4 py-2 font-semibold text-gray-700 whitespace-nowrap">{emp.firstName} {emp.lastName}</td>
-                            <td className="px-4 py-2 text-gray-600 whitespace-nowrap">{emp.email}</td>
-                            <td className="px-4 py-2 text-gray-600 whitespace-nowrap">{emp.department}</td>
-                            <td className="px-4 py-2 text-gray-600 whitespace-nowrap">{emp.role}</td>
-                            <td className="px-4 py-2 text-gray-600 whitespace-nowrap">{emp.dateJoined ? new Date(emp.dateJoined).toLocaleDateString() : '-'}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  {/* Cards for mobile */}
-                  <div className="flex flex-col gap-3 lg:hidden">
-                    {recentEmployees.length === 0 ? (
-                      <div className="text-center text-gray-400 py-4">No recent employees</div>
-                    ) : recentEmployees.map(emp => (
-                      <div key={emp.id} className="border border-blue-100 rounded-lg p-3 sm:p-4 md:p-5 shadow-sm bg-blue-50">
-                        <div className="font-semibold text-blue-700 text-base sm:text-lg md:text-xl mb-1">{emp.firstName} {emp.lastName}</div>
-                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Email:</span> {emp.email}</div>
-                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Department:</span> {emp.department}</div>
-                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Role:</span> {emp.role}</div>
-                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Date Joined:</span> {emp.dateJoined ? new Date(emp.dateJoined).toLocaleDateString() : '-'}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
                 {/* Recent Tasks Table */}
                 <div className="rounded-xl bg-white border border-gray-100 shadow-md p-4 sm:p-8">
                   <h3 className="text-xl sm:text-2xl font-bold text-green-600 mb-3 sm:mb-4 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-7 sm:w-7 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2l4-4m5 2a9 9 0 11-18 0a9 9 0 0118 0z" /></svg>
-                    Recent Tasks
+                    Your Recent Tasks
                   </h3>
                   {/* Table for lg+ */}
                   <div className="hidden lg:block overflow-x-auto">
@@ -508,7 +413,7 @@ function DashboardContent() {
                 <div className="rounded-xl bg-white border border-gray-100 shadow-md p-4 sm:p-8">
                   <h3 className="text-xl sm:text-2xl font-bold text-purple-600 mb-3 sm:mb-4 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-7 sm:w-7 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 13V7a2 2 0 00-2-2H7a2 2 0 00-2 2v6m14 0a2 2 0 01-2 2H7a2 2 0 01-2-2m14 0v6a2 2 0 01-2 2H7a2 2 0 01-2-2v-6" /></svg>
-                    Latest Announcements
+                    Latest Company Announcements
                   </h3>
                   {/* Table for lg+ */}
                   <div className="hidden lg:block overflow-x-auto">
@@ -554,12 +459,11 @@ function DashboardContent() {
                   </div>
                 </div>
               </div>
-
               {/* Learn How to Use Section */}
               <div className="w-full rounded-xl bg-gradient-to-r from-[#a259f7] to-[#b78aeb] shadow-md p-8 mt-10 flex flex-col items-center text-center">
-                <h2 className="text-2xl font-bold text-white mb-2">Learn How to Use the Admin Panel</h2>
+                <h2 className="text-2xl font-bold text-white mb-2">Learn How to Use the Employee Panel</h2>
                 <p className="text-white/90 mb-5 max-w-2xl">
-                  Explore the features and capabilities of your admin panel in a safe, interactive environment. Try out different options, see how things work, and become a pro at managing your company!
+                  Explore the features and capabilities of your employee panel in a safe, interactive environment. Try out different options, see how things work, and become a pro at working at your company!
                 </p>
                 <button
                   className="px-6 py-2 rounded-full font-semibold text-[#a259f7] bg-white hover:bg-gray-100 shadow transition-colors text-lg"
@@ -568,12 +472,11 @@ function DashboardContent() {
                   Learn More
                 </button>
               </div>
-
               {/* Terms & Privacy Section */}
               <div className="w-full rounded-xl bg-white border border-gray-100 shadow-md p-8 mt-8 flex flex-col items-center text-center">
                 <h2 className="text-2xl font-bold mb-2" style={{ color: '#a259f7' }}>Terms & Privacy</h2>
                 <p className="text-gray-700 mb-2 max-w-2xl">
-                  We value your trust and are committed to protecting your data. Please take a moment to review our Terms of Service and Privacy Policy to understand your rights and responsibilities as an admin panel user.
+                  We value your trust and are committed to protecting your data. Please take a moment to review our Terms of Service and Privacy Policy to understand your rights and responsibilities as an employee panel user.
                 </p>
                 <p className="text-gray-700 mb-6 max-w-2xl">
                   Staying informed helps you make the most of our platform while ensuring your information is handled with care. Your privacy and security are our top priorities.
@@ -593,7 +496,6 @@ function DashboardContent() {
                   </button>
                 </div>
               </div>
-
               {/* Support Component */}
               <Support />
             </div>
