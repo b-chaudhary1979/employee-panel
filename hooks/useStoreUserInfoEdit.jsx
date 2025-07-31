@@ -1,8 +1,6 @@
 import { useState, useCallback } from 'react';
 import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
-import app from '../firebase';
-
-const db = getFirestore(app);
+import { app, db } from '../firebase';
 
 export default function useStoreUserInfoEdit(cid) {
   const [user, setUser] = useState(null);
@@ -55,4 +53,4 @@ export default function useStoreUserInfoEdit(cid) {
     fetchUser,
     updateAllFields,
   };
-} 
+}
