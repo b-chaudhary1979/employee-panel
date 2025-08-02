@@ -1,35 +1,22 @@
 import { useState } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
 
-/**
- * usefetchCredentials - Hook to authenticate user by companyId and uniqueId
- *
- * Usage:
- *   const { authenticate, loading, error, user } = usefetchCredentials();
- *   await authenticate(companyId, uniqueId);
- */
 export default function usefetchCredentials() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
 
-  // Authenticate user by companyId and uniqueId
   const authenticate = async (companyId, uniqueId) => {
     setLoading(true);
     setError(null);
     setUser(null);
     try {
-      const usersRef = collection(db, 'users');
-      const q = query(
-        usersRef,
-        where('companyId', '==', companyId),
-        where('uniqueId', '==', uniqueId)
-      );
-      const querySnapshot = await getDocs(q);
-      if (!querySnapshot.empty) {
-        setUser({ id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() });
-        return { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() };
+      const employeeRef = doc(db, 'users', companyId, 'employees', uniqueId);
+      const employeeSnap = await getDoc(employeeRef);
+      if (employeeSnap.exists()) {
+        setUser({ id: employeeSnap.id, ...employeeSnap.data() });
+        return { id: employeeSnap.id, ...employeeSnap.data() };
       } else {
         setError('Invalid credentials');
         return null;
@@ -43,4 +30,4 @@ export default function usefetchCredentials() {
   };
 
   return { authenticate, loading, error, user };
-} 
+}

@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 
 // Refactor Header to use forwardRef
 const Header = forwardRef(function Header(
-  { username = "admin", companyName = "Cyber LMS Solutions", onMobileSidebarToggle, mobileSidebarOpen },
+  { username = "Employee", companyName = "Department", onMobileSidebarToggle, mobileSidebarOpen },
   ref
 ) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);

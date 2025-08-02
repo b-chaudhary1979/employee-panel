@@ -127,7 +127,7 @@ export default function RegisterEmployeeForm({ onSubmit, initialData }) {
     }
     const random = Math.floor(10 + Math.random() * 90).toString();
     let base = `${company}${dept}${first}${last}${doj}${random}`;
-    const id = base.slice(0, 12);
+    const id = `EID-${base}`;
     setForm((prev) => ({ ...prev, employeeId: id }));
     setEmployeeIdEditable(false);
   };
@@ -254,7 +254,7 @@ export default function RegisterEmployeeForm({ onSubmit, initialData }) {
               <input name="role" value={form.role} onChange={handleChange} className="w-full border rounded px-3 py-2 placeholder-gray-500 text-gray-800" required placeholder="Role" autoComplete="nope-role" spellCheck={false} aria-autocomplete="none" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 flex items-center gap-1">
+              <label className="text-sm font-medium mb-1 flex items-center gap-1">
                 Employee ID <span className='text-red-600'>*</span>
                 <span className="relative group">
                   <button type="button" className=" focus:outline-none">
@@ -269,19 +269,20 @@ export default function RegisterEmployeeForm({ onSubmit, initialData }) {
                       </defs>
                     </svg>
                   </button>
-                  <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 min-w-[260px] max-w-xs bg-black text-white text-xs rounded-xl px-4 py-3 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 pointer-events-none space-y-2 border border-gray-700">
-                    <div className="font-semibold text-base text-blue-200 mb-1">How Employee ID is generated</div>
-                    <div><span className="font-semibold">Format:</span> CCDEFFLLYYMMDDRR</div>
-                    <ul className="list-disc list-inside space-y-1 pl-2">
-                      <li><b>CC</b>: First 2 letters of company name</li>
-                      <li><b>DE</b>: First 2 letters of department</li>
-                      <li><b>FF</b>: First 2 letters of first name</li>
-                      <li><b>LL</b>: First 2 letters of last name</li>
-                      <li><b>YYMMDD</b>: Date joined (year, month, day)</li>
-                      <li><b>RR</b>: Random 2-digit number</li>
-                    </ul>
-                    <div className="mt-2"><span className="font-semibold">Example:</span> <span className="font-mono bg-gray-800 px-2 py-1 rounded">ABDEJODO24060112</span></div>
-                  </div>
+                                     <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 min-w-[280px] max-w-xs bg-black text-white text-xs rounded-xl px-4 py-3 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 pointer-events-none space-y-2 border border-gray-700">
+                     <div className="font-semibold text-base text-blue-200 mb-1">How Employee ID is generated</div>
+                     <div><span className="font-semibold">Format:</span> EID-CCDEFFLLYYMMDDRR</div>
+                     <ul className="list-disc list-inside space-y-1 pl-2">
+                       <li><b>EID-</b>: Employee ID prefix</li>
+                       <li><b>CC</b>: First 2 letters of company name</li>
+                       <li><b>DE</b>: First 2 letters of department</li>
+                       <li><b>FF</b>: First 2 letters of first name</li>
+                       <li><b>LL</b>: First 2 letters of last name</li>
+                       <li><b>YYMMDD</b>: Date joined (year, month, day)</li>
+                       <li><b>RR</b>: Random 2-digit number</li>
+                     </ul>
+                     <div className="mt-2"><span className="font-semibold">Example:</span> <span className="font-mono bg-gray-800 px-2 py-1 rounded">EID-CYDEMOSI24060112</span></div>
+                   </div>
                 </span>
               </label>
               {form.employeeId && (

@@ -167,18 +167,28 @@ function DashboardContent() {
               <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" stroke="currentColor" strokeWidth="2" fill="none" /><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
             <div className="flex flex-col items-center mb-6">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-200 via-pink-200 to-blue-200 flex items-center justify-center shadow-lg mb-2">
-                <svg className="w-12 h-12 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-200 via-pink-200 to-blue-200 flex items-center justify-center shadow-lg mb-2 overflow-hidden">
+                {user.photo ? (
+                  <img 
+                    src={user.photo} 
+                    alt="Profile Photo" 
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <svg className={`w-12 h-12 text-purple-500 ${user.photo ? 'hidden' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
               </div>
               <h2 className="text-2xl font-extrabold text-purple-600 mb-1">Your Profile</h2>
               <span className="text-gray-500 text-base font-medium">Employee Details</span>
             </div>
             <div className="space-y-3">
-              <div><span className="text-xs text-purple-400 font-bold uppercase">Name</span><br/><span className="text-lg text-gray-800 font-bold">{user.name || '-'}</span></div>
+              <div><span className="text-xs text-purple-400 font-bold uppercase">Name</span><br/><span className="text-lg text-gray-800 font-bold">{`${user?.firstName || ''} ${user?.lastName || ''}`|| '-'}</span></div>
               <div><span className="text-xs text-purple-400 font-bold uppercase">Email</span><br/><span className="text-lg text-gray-800">{user.email || '-'}</span></div>
               <div><span className="text-xs text-purple-400 font-bold uppercase">Department</span><br/><span className="text-lg text-gray-800">{user.department || '-'}</span></div>
-              <div><span className="text-xs text-purple-400 font-bold uppercase">Role</span><br/><span className="text-lg text-gray-800">{user.role || '-'}</span></div>
-              <div><span className="text-xs text-purple-400 font-bold uppercase">Phone</span><br/><span className="text-lg text-gray-800">{user.phone || '-'}</span></div>
+              <div><span className="text-xs text-purple-400 font-bold uppercase">Designation</span><br/><span className="text-lg text-gray-800">{user.role || '-'}</span></div>              <div><span className="text-xs text-purple-400 font-bold uppercase">Phone</span><br/><span className="text-lg text-gray-800">{user.phone || '-'}</span></div>
               {user.address && (<div><span className="text-xs text-purple-400 font-bold uppercase">Address</span><br/><span className="text-lg text-gray-800">{user.address}</span></div>)}
               {user.joinedAt && (<div><span className="text-xs text-purple-400 font-bold uppercase">Joined At</span><br/><span className="text-lg text-gray-800">{new Date(user.joinedAt.seconds ? user.joinedAt.seconds * 1000 : user.joinedAt).toLocaleDateString()}</span></div>)}
             </div>
@@ -216,15 +226,15 @@ function DashboardContent() {
             ref={headerRef}
             onMobileSidebarToggle={handleMobileSidebarToggle}
             mobileSidebarOpen={mobileSidebarOpen}
-            username={user?.name || "Employee"}
-            companyName={user?.department || "Department"}
+            username={`${user?.firstName || ''} ${user?.lastName || ''}`|| "Employee"}
+            companyName={user?.company || "Department"}
           />
           <main
             className="transition-all duration-300 px-2 sm:px-8 py-12 md:py-6"
             style={{ marginLeft: 0, paddingTop: headerHeight + 16 }}
           >
             <div className="max-w-6xl mx-auto">
-              <h1 className="text-4xl font-extrabold text-[#7c3aed] mt-8">Employee Panel</h1>
+              <h1 className="text-4xl font-extrabold text-[#7c3aed] mt-8">Employee Dashboard</h1>
               <p className="mt-2 text-gray-500 text-lg">Welcome back! Here’s what’s new for you today.</p>
               {/* Stat Cards Section */}
               <div
@@ -243,14 +253,15 @@ function DashboardContent() {
                 >
                   {/* Your Tasks */}
                   <div 
-                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 group"
+                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 group cursor-pointer"
+                    onClick={() => router.push(`/notes-tasks${token ? `?token=${encodeURIComponent(token)}` : ''}`)}
                   >
                     <div className="flex items-center justify-between w-full">
                       <div>
                         <span className="text-gray-900 font-semibold text-xl block">Your Tasks</span>
                         <div className="text-3xl font-extrabold mt-2 text-purple-600">{totalTasks}</div>
                         <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                          <span>Tasks assigned to you</span>
+                          <span>Click to view all tasks</span>
                         </div>
                       </div>
                       <div className="ml-4 flex-shrink-0">
@@ -262,6 +273,7 @@ function DashboardContent() {
                       </div>
                     </div>
                   </div>
+                  
                   {/* Your Department */}
                   <div className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 group">
                     <div className="flex items-center justify-between w-full">
@@ -269,18 +281,19 @@ function DashboardContent() {
                         <span className="text-gray-900 font-semibold text-xl block">Your Department</span>
                         <div className="text-3xl font-extrabold mt-2 text-blue-600">{department}</div>
                         <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                          <span>Department you belong to</span>
+                          <span>{user?.role || "Team Member"}</span>
                         </div>
                       </div>
                       <div className="ml-4 flex-shrink-0">
                         <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-blue-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                           </svg>
                         </span>
                       </div>
                     </div>
                   </div>
+                  
                   {/* Your Profile */}
                   <div className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 group cursor-pointer"
                     onClick={() => setProfileModalOpen(true)}
@@ -302,54 +315,42 @@ function DashboardContent() {
                       </div>
                     </div>
                   </div>
-                  {/* Your Completed Tasks */}
+                  
+                  {/* Task Status Summary */}
                   <div className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 group">
                     <div className="flex items-center justify-between w-full">
                       <div>
-                        <span className="text-gray-900 font-semibold text-xl block">Your Completed Tasks</span>
-                        <div className="text-3xl font-extrabold mt-2 text-green-600">{completedTasks}</div>
+                        <span className="text-gray-900 font-semibold text-xl block">Task Status</span>
+                        <div className="flex items-center gap-2 mt-2">
+                          <div className="text-2xl font-extrabold text-green-600">{completedTasks}</div>
+                          <span className="text-gray-400">/</span>
+                          <div className="text-2xl font-extrabold text-yellow-600">{pendingTasks}</div>
+                        </div>
                         <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                          <span>Tasks you have finished</span>
+                          <span>Completed / Pending</span>
                         </div>
                       </div>
                       <div className="ml-4 flex-shrink-0">
-                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-green-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-purple-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                           </svg>
                         </span>
                       </div>
                     </div>
                   </div>
-                  {/* Pending Tasks */}
-                  <div className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 group">
-                    <div className="flex items-center justify-between w-full">
-                      <div>
-                        <span className="text-gray-900 font-semibold text-xl block">Pending Tasks</span>
-                        <div className="text-3xl font-extrabold mt-2 text-yellow-600">{pendingTasks}</div>
-                        <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                          <span>Tasks yet to be completed</span>
-                        </div>
-                      </div>
-                      <div className="ml-4 flex-shrink-0">
-                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-yellow-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3" />
-                          </svg>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                  
                   {/* Company Announcements */}
                   <div 
-                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 group"
+                    className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 group cursor-pointer"
+                    onClick={() => router.push(`/announcements${token ? `?token=${encodeURIComponent(token)}` : ''}`)}
                   >
                     <div className="flex items-center justify-between w-full">
                       <div>
-                        <span className="text-gray-900 font-semibold text-xl block">Company Announcements</span>
+                        <span className="text-gray-900 font-semibold text-xl block">Announcements</span>
                         <div className="text-3xl font-extrabold mt-2 text-purple-600">{totalAnnouncements}</div>
                         <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                          <span>Latest company news</span>
+                          <span>Click to view all</span>
                         </div>
                       </div>
                       <div className="ml-4 flex-shrink-0">
@@ -361,18 +362,49 @@ function DashboardContent() {
                       </div>
                     </div>
                   </div>
+                  
+                  {/* Work Calendar */}
+                  <div className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 group cursor-pointer">
+                    <div className="flex items-center justify-between w-full">
+                      <div>
+                        <span className="text-gray-900 font-semibold text-xl block">Today's Date</span>
+                        <div className="text-2xl font-extrabold mt-2 text-indigo-600">{new Date().toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}</div>
+                        <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <span>{new Date().toLocaleDateString('en-US', {weekday: 'long', year: 'numeric'})}</span>
+                        </div>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-indigo-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h2a2 2 0 002-2z" />
+                          </svg>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <h1 className="text-3xl md:text-4xl  font-extrabold text-[#7c3aed] mt-5 mb-2">Recent Activity</h1>
-              <p className="text-gray-500 text-xl">A quick overview of your recent actions</p>
+              
+              <h1 className="text-3xl md:text-4xl font-extrabold text-[#7c3aed] mt-10 mb-2">Your Work Summary</h1>
+              <p className="text-gray-500 text-xl">Recent tasks and announcements</p>
+              
               {/* Recent Activity Section */}
               <div className="w-full flex flex-col gap-8 mt-5">
                 {/* Recent Tasks Table */}
                 <div className="rounded-xl bg-white border border-gray-100 shadow-md p-4 sm:p-8">
-                  <h3 className="text-xl sm:text-2xl font-bold text-green-600 mb-3 sm:mb-4 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-7 sm:w-7 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2l4-4m5 2a9 9 0 11-18 0a9 9 0 0118 0z" /></svg>
-                    Your Recent Tasks
-                  </h3>
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl sm:text-2xl font-bold text-green-600 flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-7 sm:w-7 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2l4-4m5 2a9 9 0 11-18 0a9 9 0 0118 0z" /></svg>
+                      Your Recent Tasks
+                    </h3>
+                    <button 
+                      onClick={() => router.push(`/notes-tasks${token ? `?token=${encodeURIComponent(token)}` : ''}`)}
+                      className="px-4 py-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg font-medium text-sm transition-colors duration-200"
+                    >
+                      View All
+                    </button>
+                  </div>
+                  
                   {/* Table for lg+ */}
                   <div className="hidden lg:block overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200 text-sm">
@@ -380,22 +412,29 @@ function DashboardContent() {
                         <tr className="bg-green-50">
                           <th className="px-4 py-2 text-left font-semibold text-green-700 whitespace-nowrap">Task</th>
                           <th className="px-4 py-2 text-left font-semibold text-green-700 whitespace-nowrap">Priority</th>
-                          <th className="px-4 py-2 text-left font-semibold text-green-700 whitespace-nowrap">Created At</th>
+                          <th className="px-4 py-2 text-left font-semibold text-green-700 whitespace-nowrap">Status</th>
+                          <th className="px-4 py-2 text-left font-semibold text-green-700 whitespace-nowrap">Due Date</th>
                         </tr>
                       </thead>
                       <tbody>
                         {recentTasks.length === 0 ? (
-                          <tr><td colSpan={3} className="text-center text-gray-400 py-4">No recent tasks</td></tr>
+                          <tr><td colSpan={4} className="text-center text-gray-400 py-4">No recent tasks</td></tr>
                         ) : recentTasks.map(task => (
                           <tr key={task.id} className="hover:bg-green-50 transition">
                             <td className="px-4 py-2 font-semibold text-gray-700 whitespace-nowrap">{task.task}</td>
                             <td className="px-4 py-2 text-gray-600 whitespace-nowrap">{task.priority}</td>
-                            <td className="px-4 py-2 text-gray-600 whitespace-nowrap">{task.createdAt ? new Date(task.createdAt.seconds ? task.createdAt.seconds * 1000 : task.createdAt).toLocaleDateString() : '-'}</td>
+                            <td className="px-4 py-2 whitespace-nowrap">
+                              <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${task.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                {task.status === 'completed' ? 'Completed' : 'Pending'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-2 text-gray-600 whitespace-nowrap">{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '-'}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
+                  
                   {/* Cards for mobile */}
                   <div className="flex flex-col gap-3 lg:hidden">
                     {recentTasks.length === 0 ? (
@@ -404,17 +443,32 @@ function DashboardContent() {
                       <div key={task.id} className="border border-green-100 rounded-lg p-3 sm:p-4 md:p-5 shadow-sm bg-green-50">
                         <div className="font-semibold text-green-700 text-base sm:text-lg md:text-xl mb-1">{task.task}</div>
                         <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Priority:</span> {task.priority}</div>
-                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Created At:</span> {task.createdAt ? new Date(task.createdAt.seconds ? task.createdAt.seconds * 1000 : task.createdAt).toLocaleDateString() : '-'}</div>
+                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Status:</span> 
+                          <span className={`ml-1 ${task.status === 'completed' ? 'text-green-700' : 'text-yellow-700'} font-medium`}>
+                            {task.status === 'completed' ? 'Completed' : 'Pending'}
+                          </span>
+                        </div>
+                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Due Date:</span> {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '-'}</div>
                       </div>
                     ))}
                   </div>
                 </div>
+                
                 {/* Recent Announcements Table */}
                 <div className="rounded-xl bg-white border border-gray-100 shadow-md p-4 sm:p-8">
-                  <h3 className="text-xl sm:text-2xl font-bold text-purple-600 mb-3 sm:mb-4 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-7 sm:w-7 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 13V7a2 2 0 00-2-2H7a2 2 0 00-2 2v6m14 0a2 2 0 01-2 2H7a2 2 0 01-2-2m14 0v6a2 2 0 01-2 2H7a2 2 0 01-2-2v-6" /></svg>
-                    Latest Company Announcements
-                  </h3>
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl sm:text-2xl font-bold text-purple-600 flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-7 sm:w-7 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 13V7a2 2 0 00-2-2H7a2 2 0 00-2 2v6m14 0a2 2 0 01-2 2H7a2 2 0 01-2-2m14 0v6a2 2 0 01-2 2H7a2 2 0 01-2-2v-6" /></svg>
+                      Latest Announcements
+                    </h3>
+                    <button 
+                      onClick={() => router.push(`/announcements${token ? `?token=${encodeURIComponent(token)}` : ''}`)}
+                      className="px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg font-medium text-sm transition-colors duration-200"
+                    >
+                      View All
+                    </button>
+                  </div>
+                  
                   {/* Table for lg+ */}
                   <div className="hidden lg:block overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200 text-sm">
@@ -422,28 +476,23 @@ function DashboardContent() {
                         <tr className="bg-purple-50">
                           <th className="px-4 py-2 text-left font-semibold text-purple-700 whitespace-nowrap">Title</th>
                           <th className="px-4 py-2 text-left font-semibold text-purple-700 whitespace-nowrap">Type</th>
-                          <th className="px-4 py-2 text-left font-semibold text-purple-700 whitespace-nowrap">Created At</th>
-                          <th className="px-4 py-2 text-left font-semibold text-purple-700 whitespace-nowrap">Status</th>
+                          <th className="px-4 py-2 text-left font-semibold text-purple-700 whitespace-nowrap">Date</th>
                         </tr>
                       </thead>
                       <tbody>
                         {recentAnnouncements.length === 0 ? (
-                          <tr><td colSpan={4} className="text-center text-gray-400 py-4">No recent announcements</td></tr>
+                          <tr><td colSpan={3} className="text-center text-gray-400 py-4">No recent announcements</td></tr>
                         ) : recentAnnouncements.map(ann => (
                           <tr key={ann.id} className="hover:bg-purple-50 transition">
                             <td className="px-4 py-2 font-semibold text-gray-700 whitespace-nowrap">{ann.title}</td>
                             <td className="px-4 py-2 text-gray-600 capitalize whitespace-nowrap">{ann.type}</td>
                             <td className="px-4 py-2 text-gray-600 whitespace-nowrap">{ann.createdAt ? (ann.createdAt.seconds ? new Date(ann.createdAt.seconds * 1000).toLocaleDateString() : new Date(ann.createdAt).toLocaleDateString()) : '-'}</td>
-                            <td className="px-4 py-2 whitespace-nowrap">
-                              <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${ann.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-                                {ann.status === 'published' ? 'Published' : 'Not Published'}
-                              </span>
-                            </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
+                  
                   {/* Cards for mobile */}
                   <div className="flex flex-col gap-3 lg:hidden">
                     {recentAnnouncements.length === 0 ? (
@@ -451,37 +500,73 @@ function DashboardContent() {
                     ) : recentAnnouncements.map(ann => (
                       <div key={ann.id} className="border border-purple-100 rounded-lg p-3 sm:p-4 md:p-5 shadow-sm bg-purple-50">
                         <div className="font-semibold text-purple-700 text-base sm:text-lg md:text-xl mb-1">{ann.title}</div>
-                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Type:</span> {ann.type}</div>
-                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Created At:</span> {ann.createdAt ? (ann.createdAt.seconds ? new Date(ann.createdAt.seconds * 1000).toLocaleDateString() : new Date(ann.createdAt).toLocaleDateString()) : '-'}</div>
-                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Status:</span> <span className={`font-semibold ${ann.status === 'published' ? 'text-green-700' : 'text-gray-700'}`}>{ann.status === 'published' ? 'Published' : 'Not Published'}</span></div>
+                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Type:</span> <span className="capitalize">{ann.type}</span></div>
+                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Date:</span> {ann.createdAt ? (ann.createdAt.seconds ? new Date(ann.createdAt.seconds * 1000).toLocaleDateString() : new Date(ann.createdAt).toLocaleDateString()) : '-'}</div>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
-              {/* Learn How to Use Section */}
-              <div className="w-full rounded-xl bg-gradient-to-r from-[#a259f7] to-[#b78aeb] shadow-md p-8 mt-10 flex flex-col items-center text-center">
-                <h2 className="text-2xl font-bold text-white mb-2">Learn How to Use the Employee Panel</h2>
-                <p className="text-white/90 mb-5 max-w-2xl">
-                  Explore the features and capabilities of your employee panel in a safe, interactive environment. Try out different options, see how things work, and become a pro at working at your company!
-                </p>
-                <button
-                  className="px-6 py-2 rounded-full font-semibold text-[#a259f7] bg-white hover:bg-gray-100 shadow transition-colors text-lg"
-                  onClick={() => router.push(`/playground${token ? `?token=${encodeURIComponent(token)}` : ''}`)}
-                >
-                  Learn More
-                </button>
+              
+              {/* Quick Actions Section */}
+              <div className="w-full rounded-xl bg-gradient-to-r from-[#a259f7] to-[#b78aeb] shadow-md p-8 mt-10">
+                <h2 className="text-2xl font-bold text-white mb-4">Quick Actions</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  <button 
+                    onClick={() => router.push(`/notes-tasks${token ? `?token=${encodeURIComponent(token)}` : ''}`)}
+                    className="bg-white/90 hover:bg-white p-4 rounded-lg flex items-center gap-3 transition-colors duration-200 shadow-sm"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <span className="font-medium text-gray-800">View Tasks</span>
+                  </button>
+                  
+                  <button 
+                    onClick={() => router.push(`/announcements${token ? `?token=${encodeURIComponent(token)}` : ''}`)}
+                    className="bg-white/90 hover:bg-white p-4 rounded-lg flex items-center gap-3 transition-colors duration-200 shadow-sm"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 13V7a2 2 0 00-2-2H7a2 2 0 00-2 2v6m14 0a2 2 0 01-2 2H7a2 2 0 01-2-2m14 0v6a2 2 0 01-2 2H7a2 2 0 01-2-2v-6" /></svg>
+                    <span className="font-medium text-gray-800">Announcements</span>
+                  </button>
+                  
+                  <button 
+                    onClick={() => setProfileModalOpen(true)}
+                    className="bg-white/90 hover:bg-white p-4 rounded-lg flex items-center gap-3 transition-colors duration-200 shadow-sm"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span className="font-medium text-gray-800">View Profile</span>
+                  </button>
+                </div>
               </div>
+              
+              {/* Employee Resources Section */}
+              <div className="w-full rounded-xl bg-white border border-gray-100 shadow-md p-8 mt-8">
+                <h2 className="text-2xl font-bold mb-4" style={{ color: '#a259f7' }}>Employee Essentials</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+                    <h3 className="font-semibold text-lg text-gray-800 mb-2">Company Policies</h3>
+                    <p className="text-gray-600 mb-3">Access important company policies, guidelines, and procedures.</p>
+                    <button className="text-purple-600 font-medium hover:text-purple-800 transition-colors duration-200">View Policies →</button>
+                  </div>
+                  <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+                    <h3 className="font-semibold text-lg text-gray-800 mb-2">Help & Support</h3>
+                    <p className="text-gray-600 mb-3">Get assistance with technical issues or HR-related questions.</p>
+                    <button className="text-purple-600 font-medium hover:text-purple-800 transition-colors duration-200">Get Help →</button>
+                  </div>
+                </div>
+              </div>
+              
               {/* Terms & Privacy Section */}
               <div className="w-full rounded-xl bg-white border border-gray-100 shadow-md p-8 mt-8 flex flex-col items-center text-center">
                 <h2 className="text-2xl font-bold mb-2" style={{ color: '#a259f7' }}>Terms & Privacy</h2>
                 <p className="text-gray-700 mb-2 max-w-2xl">
-                  We value your trust and are committed to protecting your data. Please take a moment to review our Terms of Service and Privacy Policy to understand your rights and responsibilities as an employee panel user.
+                  We value your trust and are committed to protecting your data. Please take a moment to review our Terms of Service and Privacy Policy.
                 </p>
-                <p className="text-gray-700 mb-6 max-w-2xl">
-                  Staying informed helps you make the most of our platform while ensuring your information is handled with care. Your privacy and security are our top priorities.
-                </p>
-                <div className="flex gap-4 flex-wrap justify-center">
+                <div className="flex gap-4 flex-wrap justify-center mt-4">
                   <button
                     className="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-[#a259f7] to-[#b78aeb] hover:from-[#b78aeb] hover:to-[#a259f7] shadow transition-colors text-lg"
                     onClick={() => router.push(`/terms${token ? `?token=${encodeURIComponent(token)}` : ''}`)}
@@ -496,6 +581,7 @@ function DashboardContent() {
                   </button>
                 </div>
               </div>
+              
               {/* Support Component */}
               <Support />
             </div>
