@@ -24,23 +24,23 @@ function decryptToken(token) {
 export function UserInfoProvider({ children }) {
   const router = useRouter();
   const { token } = router.query;
-  const { ci } = decryptToken(token);
+  const { ci, aid } = decryptToken(token);
   const {
     user,
     loading,
     error,
     fetchUser,
-  } = useStoreUserInfoEdit(ci);
+  } = useStoreUserInfoEdit(ci, aid);
 
-  // Fetch user on mount and when ci changes
+  // Fetch user on mount and when ci or aid changes
   useEffect(() => {
-    if (ci) fetchUser();
-  }, [ci, fetchUser]);
+    if (ci && aid) fetchUser();
+  }, [ci, aid, fetchUser]);
 
   // Refresh user info on window focus or resize
   useEffect(() => {
     function handleRefresh() {
-      if (ci) fetchUser();
+      if (ci && aid) fetchUser();
     }
     window.addEventListener("focus", handleRefresh);
     window.addEventListener("resize", handleRefresh);

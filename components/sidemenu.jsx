@@ -68,34 +68,34 @@ const menuItems = [
       </svg>
     ),
   },
-  {
-    label: "Products",
-    route: "/products",
-    icon: (isActive) => (
-      <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
-        <rect
-          x="3"
-          y="7"
-          width="18"
-          height="13"
-          rx="2"
-          fill="none"
-          stroke={isActive ? "#a259f7" : "#222"}
-          strokeWidth="2"
-        />
-        <rect
-          x="7"
-          y="3"
-          width="10"
-          height="4"
-          rx="2"
-          fill={isActive ? "#a259f7" : "#fff"}
-          stroke={isActive ? "#a259f7" : "#222"}
-          strokeWidth="2"
-        />
-      </svg>
-    ),
-  },
+  // {
+  //   label: "Products",
+  //   route: "/products",
+  //   icon: (isActive) => (
+  //     <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+  //       <rect
+  //         x="3"
+  //         y="7"
+  //         width="18"
+  //         height="13"
+  //         rx="2"
+  //         fill="none"
+  //         stroke={isActive ? "#a259f7" : "#222"}
+  //         strokeWidth="2"
+  //       />
+  //       <rect
+  //         x="7"
+  //         y="3"
+  //         width="10"
+  //         height="4"
+  //         rx="2"
+  //         fill={isActive ? "#a259f7" : "#fff"}
+  //         stroke={isActive ? "#a259f7" : "#222"}
+  //         strokeWidth="2"
+  //       />
+  //     </svg>
+  //   ),
+  // },
   // Data menu item
   {
     label: "Data",
@@ -124,6 +124,38 @@ const menuItems = [
 
     ),
 /*******  e34fd138-9904-443b-a691-237cc1146e8b  *******/
+  },
+   {
+    label: "Employees",
+    route: "/employees",
+    icon: (isActive) => (
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+        <path
+          d="M17 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"
+          stroke={isActive ? "#a259f7" : "#222"}
+          strokeWidth="2"
+        />
+        <circle
+          cx="9"
+          cy="7"
+          r="4"
+          stroke={isActive ? "#a259f7" : "#222"}
+          strokeWidth="2"
+        />
+        <path
+          d="M23 20v-2a4 4 0 0 0-3-3.87"
+          stroke={isActive ? "#a259f7" : "#222"}
+          strokeWidth="2"
+        />
+        <circle
+          cx="17"
+          cy="7"
+          r="4"
+          stroke={isActive ? "#a259f7" : "#222"}
+          strokeWidth="2"
+        />
+      </svg>
+    ),
   },
     {
     label: "Assign Tasks",

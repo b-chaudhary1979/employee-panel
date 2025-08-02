@@ -645,7 +645,7 @@ const Signup = () => {
     const userCode = getFirstThree(name);
     const userSecret = getSecretCode();
     const dobDigits = getJumbledDobDigits(dob);
-    const uniqueId = `AID-${userCode}-${userSecret}-${dobDigits}`;
+    const uniqueId = `EID-${userCode}-${userSecret}-${dobDigits}`;
 
     setUniqueId(uniqueId);
     setCompanyId(companyId);

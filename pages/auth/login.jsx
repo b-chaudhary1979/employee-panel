@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import NeuralNetwork from "../../components/bg-animation";
-import usefetchCredentials from "../../hooks/usefetchCredentials";
+import usefetchCredentials from '../../hooks/usefetchCredentials';
 import ReCAPTCHA from "react-google-recaptcha";
 import CryptoJS from "crypto-js";
 
