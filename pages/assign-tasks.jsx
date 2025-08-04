@@ -8,6 +8,7 @@ import Loader from "../loader/Loader";
 import { db } from "../firebase";
 import { collection, addDoc } from "firebase/firestore";
 
+
 export default function AssignTasksPage() {
   const { isOpen } = useSidebar();
   const router = useRouter();
@@ -124,7 +125,7 @@ export default function AssignTasksPage() {
     });
     
     if (assigneeType === "employee") {
-      if (!user?.companyId || typeof user.companyId !== "string") {
+      if (!user || !user.companyId || typeof user.companyId !== "string") {
         setNotification({ show: true, message: "Company ID is missing. Cannot create assignment.", color: "red" });
         return;
       }
@@ -139,9 +140,9 @@ export default function AssignTasksPage() {
           collection(
             db,
             "users",
-            user.companyId, // <-- Use the correct property here!
+            user.companyId, // This should be "CID-CYB-R6LS-DEH"
             "employees",
-            empId,
+            empId,           // This should be the employee's unique ID
             "assignments"
           ),
           assignmentData
@@ -177,6 +178,10 @@ export default function AssignTasksPage() {
 
   console.log("Company ID:", user.ci || user.companyId || user.company);
   console.log("Employee IDs:", formData.employeeIds);
+
+  useEffect(() => {
+    console.log("User object:", user);
+  }, [user]);
 
   if (userLoading) {
     return <Loader />;

@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { FaUser, FaLink, FaFileUpload, FaCalendarAlt, FaTags, FaAlignLeft } from "react-icons/fa";
 import { useUserInfo } from "../context/UserInfoContext";
 import { useRouter } from 'next/router';
-import useStoreData from "../hooks/useStoreData";
 import { SidebarProvider } from "../context/SidebarContext";
 import AddDocumentModal from "../components/AddDocumentMondal";
 
@@ -14,7 +13,6 @@ function AddDocumentsPageContent() {
   // Use cid directly from query - same as register-employee page
   const companyId = cid;
   const employeeId = user?.aid; // Get employee ID from user context
-  const { uploadMedia, addLink, loading: uploadLoading } = useStoreData(companyId, employeeId);
 
   // Add modal state
   const [showAddDocumentModal, setShowAddDocumentModal] = useState(true);

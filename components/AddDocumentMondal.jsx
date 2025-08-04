@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaUser, FaLink, FaFileUpload, FaCalendarAlt, FaTags, FaAlignLeft } from "react-icons/fa";
 import { useUserInfo } from "../context/UserInfoContext";
-import useStoreData from "../hooks/useStoreData";
 
 export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, companyId, initialData }) {
   const { user } = useUserInfo();
@@ -11,7 +10,6 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
   
   // Use the passed companyId prop instead of user context to avoid undefined errors
   const employeeId = user?.aid; // Get employee ID from user context
-  const { uploadMedia, addLink, loading: uploadLoading, error: uploadError } = useStoreData(companyId, employeeId);
   const fileInputRef = useRef(null);
   const docInputRefs = useRef([]);
   
