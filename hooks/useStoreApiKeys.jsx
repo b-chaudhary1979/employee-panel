@@ -2,6 +2,8 @@
 import { useCallback, useState } from "react";
 import Papa from "papaparse";
 
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../firebase";
 /**
  * Converts a File (CSV, JSON, or Excel) to an array of key objects
  * Expected columns / props:  keyName, rawKey, environment, status, ...extras
@@ -26,7 +28,7 @@ const fileToKeyArray = async (file) => {
 };
 
 /* ------------------------------------------------------------------ hook */
-export default function useStoreApiKeys(companyId, currentUser) {
+export default function useStoreApiKeys(companyId, user) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [keys, setKeys] = useState([]);
@@ -89,49 +91,21 @@ export default function useStoreApiKeys(companyId, currentUser) {
   );
 
   /* ---------- single/manual key ---------- */
-  const addKey = useCallback(
-    async ({
-      keyName,
-      rawKey,
-      environment = "prod",
-      status = "active",
-      vaultKey, // <-- accept vaultKey
-      ...custom
-    }) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(`/api/keys/${companyId}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            keyName,
-            rawKey,
-            environment,
-            status,
-            vaultKey, // <-- send vaultKey
-            ...custom,
-            createdBy: currentUser?.displayName || currentUser?.name || currentUser?.uid || "system",
-          }),
-        });
+  function generateKeyId() {
+    return 'key_' + Math.random().toString(36).substr(2, 9);
+  }
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to add key");
-        }
-
-        // Refresh the keys list after adding
-        await fetchKeys();
-        return await response.json();
-      } catch (err) {
-        setError(err);
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [companyId, currentUser, fetchKeys]
-  );
+  const addKey = async (keyData) => {
+    const employeeId = user?.id || user?.uniqueId || aid; // get employee id
+    const keyId = generateKeyId(); // generate unique key id
+    const keyRef = doc(db, 'users', companyId, 'employees', employeeId, 'api-keys', keyId);
+    await setDoc(keyRef, {
+      ...keyData,
+      createdAt: Date.now(),
+      createdBy: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+    });
+    await fetchKeys();
+  };
 
   /* ---------- bulk upload (file) ---------- */
   const importFromFile = useCallback(

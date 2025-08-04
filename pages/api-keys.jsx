@@ -766,8 +766,12 @@ function APIKeysContent() {
             ref={headerRef}
             onMobileSidebarToggle={handleMobileSidebarToggle}
             mobileSidebarOpen={mobileSidebarOpen}
-            username={user?.name || "admin"}
-            companyName={user?.company || "company name"}
+            username={
+              user
+                ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
+                : "admin"
+            }
+            companyName={user?.company|| "company name"}
           />
           <main
             className="transition-all duration-300 pl-0 pr-2 sm:pl-2 sm:pr-8 py-12 md:py-6 relative"
