@@ -7,12 +7,14 @@ import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
 import { db } from "../firebase";
 import { collection, addDoc } from "firebase/firestore";
+import { useAssignmentCreator } from "../hooks/useAssignmentCreator";
 
 
 export default function AssignTasksPage() {
   const { isOpen } = useSidebar();
   const router = useRouter();
   const { user, loading: userLoading } = useUserInfo();
+  const { createAssignment } = useAssignmentCreator(user?.companyId);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(72);
   const headerRef = useRef(null);
@@ -108,50 +110,20 @@ export default function AssignTasksPage() {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Format due date for display
-    const formattedDate = formData.dueDate ? new Date(formData.dueDate).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    }) : '';
-    
-    // Show success notification with more details
-    setNotification({ 
-      show: true, 
-      message: `"${formData.title}" assignment created successfully for ${formData.assigneeName}!`, 
-      color: "green" 
-    });
-    
-    if (assigneeType === "employee") {
-      if (!user || !user.companyId || typeof user.companyId !== "string") {
-        setNotification({ show: true, message: "Company ID is missing. Cannot create assignment.", color: "red" });
-        return;
+    const assignmentData = {
+      ...formData,
+      assignedAt: new Date().toISOString(),
+      assigneeType: assigneeType,
+    };
+    try {
+      if (assigneeType === "employee") {
+        await createAssignment(formData.employeeIds, assignmentData);
       }
-
-      for (const empId of formData.employeeIds.filter(id => id.trim())) {
-        const assignmentData = {
-          ...formData,
-          assignedAt: new Date().toISOString(),
-          assigneeType: "employee",
-        };
-        await addDoc(
-          collection(
-            db,
-            "users",
-            user.companyId, // This should be "CID-CYB-R6LS-DEH"
-            "employees",
-            empId,           // This should be the employee's unique ID
-            "assignments"
-          ),
-          assignmentData
-        );
-      }
-    } else {
-      // Handle intern assignment as before
+      // ...intern logic...
+      setNotification({ show: true, message: "Assignment created!", color: "green" });
+    } catch (err) {
+      setNotification({ show: true, message: "Error: " + err.message, color: "red" });
     }
-
     // Reset form after submission
     setFormData({
       title: "",
@@ -176,14 +148,13 @@ export default function AssignTasksPage() {
     }, 5000);
   };
 
-  console.log("Company ID:", user.ci || user.companyId || user.company);
-  console.log("Employee IDs:", formData.employeeIds);
+ 
 
   useEffect(() => {
     console.log("User object:", user);
   }, [user]);
 
-  if (userLoading) {
+  if (userLoading || !user || !user.companyId) {
     return <Loader />;
   }
 
