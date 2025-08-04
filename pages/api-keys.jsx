@@ -11,7 +11,7 @@ import {
   AddKeyEncryptModal,
   KeyDetailVaultModal,
   KeyDetailModal,
-  DeleteKeyModal, // <-- import the new modal
+  DeleteKeyModal, // <-- import thhe new modal
 } from "../components/ApikeyModal";
 import {
   decryptToken,
