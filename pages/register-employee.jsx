@@ -19,7 +19,7 @@ export default function RegisterEmployeePage() {
       return;
     }
     try {
-      await addEmployee({ ...form, customQA });
+      await addEmployee({ ...form, customQA, companyId: cid }); // <-- Add companyId here
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
@@ -61,4 +61,4 @@ export default function RegisterEmployeePage() {
       </div>
     </div>
   );
-} 
+}

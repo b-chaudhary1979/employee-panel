@@ -124,13 +124,7 @@ function NotesTasksContent() {
   const [editMode, setEditMode] = useState(false);
 
   // Remove local tasks state, use Firestore
-  const {
-    tasks,
-    loading: tasksLoading,
-    addTask,
-    deleteTask: firestoreDeleteTask,
-    updateTask: firestoreUpdateTask,
-  } = useNotesTasks(ci);
+  const { tasks, loading: tasksLoading, addTask, deleteTask: firestoreDeleteTask, updateTask: firestoreUpdateTask } = useNotesTasks(ci, aid);
 
   // Add Task handler (Firestore)
   const handleAddTask = async (e) => {
@@ -1150,8 +1144,7 @@ function NotesTasksContent() {
                         <button
                           className="text-red-500 hover:text-red-700"
                           title="Delete Task"
-                          onClick={(e) => {
-                            e.stopPropagation();
+                          onClick={() => {
                             setDeleteTaskId(task.id);
                             setShowDeleteConfirm(true);
                           }}
@@ -1171,10 +1164,4 @@ function NotesTasksContent() {
   );
 }
 
-export default function NotesTasks() {
-  return (
-    <SidebarProvider>
-      <NotesTasksContent />
-    </SidebarProvider>
-  );
-}
+export default NotesTasksContent;

@@ -336,7 +336,7 @@ function EmployeesContent() {
             {/* Custom Q&A Section */}
             <div className="mb-10">
               <div className="flex items-center gap-2 mb-3">
-                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 8.25v-1.5A2.25 2.25 0 0014.25 4.5h-4.5A2.25 2.25 0 007.5 6.75v1.5m9 0v8.25A2.25 2.25 0 0114.25 18H9.75A2.25 2.25 0 017.5 16.5V8.25m9 0H7.5" /></svg>
+                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 8.25v-1.5A2.25 2.25 0 0014.25 4.5h-4.5A2.25 2.25 0 007.5 6.75v1.5m9 0v8.25A2.25 2.25 0 0114.25 18H9.75A2.25 2.25 0 007.5 16.5V8.25m9 0H7.5" /></svg>
                 <h3 className="text-xl md:text-2xl font-bold text-blue-400 tracking-tight">Custom Q&A</h3>
               </div>
               {(selectedEmployee.customQA || []).length === 0 && <div className="text-base text-gray-400">No custom questions.</div>}
@@ -521,7 +521,7 @@ function EmployeesContent() {
           className="hidden sm:block fixed top-0 left-0 h-full z-40"
           style={{ width: 270 }}
         >
-          <SideMenu />
+          <SideMenu username={`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "Employee"} />
         </div>
         {/* Sidebar for mobile (full screen overlay) */}
         {mobileSidebarOpen && (
@@ -533,7 +533,7 @@ function EmployeesContent() {
             >
               &times;
             </button>
-            <SideMenu mobileOverlay={true} />
+            <SideMenu mobileOverlay={true} username={`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "Employee"} />
           </div>
         )}
         {/* Main content area */}
@@ -546,7 +546,7 @@ function EmployeesContent() {
             ref={headerRef}
             onMobileSidebarToggle={handleMobileSidebarToggle}
             mobileSidebarOpen={mobileSidebarOpen}
-            username={user?.name || "admin"}
+            username={`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "Employee"}
             companyName={user?.company || "company name"}
           />
           <main
@@ -656,25 +656,28 @@ function EmployeesContent() {
                   <option value="Terminated">Terminated</option>
                   <option value="Employment Cancelled">Employment Cancelled</option>
                 </select>
-                <button
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg shadow flex items-center gap-2"
-                  onClick={() => router.push(`/register-employee?cid=${ci}`)}
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
+                {/* Only show if user role is HR, Manager, or Team Lead */}
+                {["HR", "Manager", "Team Lead"].includes(user?.role) && (
+                  <button
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg shadow flex items-center gap-2"
+                    onClick={() => router.push(`/register-employee?cid=${ci}`)}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                  Register Employee
-                </button>
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                    Register Employee
+                  </button>
+                )}
               </div>
 
               {/* Employee Table */}

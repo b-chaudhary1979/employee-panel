@@ -5,11 +5,16 @@ import { useSidebar } from "../context/SidebarContext";
 import { useRouter } from "next/router";
 import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
+import { db } from "../firebase";
+import { collection, addDoc } from "firebase/firestore";
+import { useAssignmentCreator } from "../hooks/useAssignmentCreator";
+
 
 export default function AssignTasksPage() {
   const { isOpen } = useSidebar();
   const router = useRouter();
   const { user, loading: userLoading } = useUserInfo();
+  const { createAssignment } = useAssignmentCreator(user?.companyId);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(72);
   const headerRef = useRef(null);
@@ -30,7 +35,8 @@ export default function AssignTasksPage() {
     resources: [""],
     evaluationCriteria: [""],
     mentorFeedback: "",
-    message: ""
+    message: "",
+    employeeIds: [""], // <-- NEW FIELD
   });
 
   // Handle mobile sidebar
@@ -102,26 +108,22 @@ export default function AssignTasksPage() {
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically save the data to your database
-    console.log("Form submitted:", { assigneeType, ...formData });
-    
-    // Format due date for display
-    const formattedDate = formData.dueDate ? new Date(formData.dueDate).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    }) : '';
-    
-    // Show success notification with more details
-    setNotification({ 
-      show: true, 
-      message: `"${formData.title}" assignment created successfully for ${formData.assigneeName}!`, 
-      color: "green" 
-    });
-    
+    const assignmentData = {
+      ...formData,
+      assignedAt: new Date().toISOString(),
+      assigneeType: assigneeType,
+    };
+    try {
+      if (assigneeType === "employee") {
+        await createAssignment(formData.employeeIds, assignmentData);
+      }
+      // ...intern logic...
+      setNotification({ show: true, message: "Assignment created!", color: "green" });
+    } catch (err) {
+      setNotification({ show: true, message: "Error: " + err.message, color: "red" });
+    }
     // Reset form after submission
     setFormData({
       title: "",
@@ -136,7 +138,8 @@ export default function AssignTasksPage() {
       resources: [""],
       evaluationCriteria: [""],
       mentorFeedback: "",
-      message: ""
+      message: "",
+      employeeIds: [""], // <-- NEW FIELD
     });
     
     // Hide notification after 5 seconds
@@ -145,7 +148,13 @@ export default function AssignTasksPage() {
     }, 5000);
   };
 
-  if (userLoading) {
+ 
+
+  useEffect(() => {
+    console.log("User object:", user);
+  }, [user]);
+
+  if (userLoading || !user || !user.companyId) {
     return <Loader />;
   }
 
@@ -184,7 +193,7 @@ export default function AssignTasksPage() {
         className="hidden sm:block fixed top-0 left-0 h-full z-40"
         style={{ width: 270 }}
       >
-        <SideMenu />
+        <SideMenu username={`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "Employee"} />
       </div>
       {/* Sidebar for mobile (full screen overlay) */}
       {mobileSidebarOpen && (
@@ -196,7 +205,7 @@ export default function AssignTasksPage() {
           >
             &times;
           </button>
-          <SideMenu mobileOverlay={true} />
+          <SideMenu mobileOverlay={true} username={`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "Employee"} />
         </div>
       )}
       {/* Main content area */}
@@ -209,8 +218,8 @@ export default function AssignTasksPage() {
           ref={headerRef}
           onMobileSidebarToggle={handleMobileSidebarToggle}
           mobileSidebarOpen={mobileSidebarOpen}
-          username={user?.name || "Employee"}
-          companyName={user?.department || "Department"}
+          username={`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "Employee"}
+          companyName={user?.company || user?.department || "Department"}
         />
         <main
           className="transition-all duration-300 px-2 sm:px-8 py-12 md:py-6"
@@ -277,19 +286,22 @@ export default function AssignTasksPage() {
                       </svg>
                       Intern
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setAssigneeType("employee")}
-                      className={`px-6 py-2.5 rounded-md flex items-center gap-2 transition-all ${assigneeType === "employee" ? "bg-white text-purple-700 shadow-sm font-medium" : "bg-transparent text-gray-600 hover:bg-gray-200"}`}
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={assigneeType === "employee" ? "#7c3aed" : "#4b5563"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                        <path d="M16 15v-1a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v1"></path>
-                        <path d="M8 11h8"></path>
-                      </svg>
-                      Employee
-                    </button>
+                    {/* Only show Employee button for allowed roles */}
+                    {["HR", "Manager", "Team Lead"].includes(user?.role) && (
+                      <button
+                        type="button"
+                        onClick={() => setAssigneeType("employee")}
+                        className={`px-6 py-2.5 rounded-md flex items-center gap-2 transition-all ${assigneeType === "employee" ? "bg-white text-purple-700 shadow-sm font-medium" : "bg-transparent text-gray-600 hover:bg-gray-200"}`}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={assigneeType === "employee" ? "#7c3aed" : "#4b5563"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="12" cy="7" r="4"></circle>
+                          <path d="M16 15v-1a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v1"></path>
+                          <path d="M8 11h8"></path>
+                        </svg>
+                        Employee
+                      </button>
+                    )}
                   </div>
                 </div>
                 
@@ -329,18 +341,65 @@ export default function AssignTasksPage() {
                       />
                     </div>
                     
-                    {/* Assignee Email */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">{assigneeType === "intern" ? "Intern" : "Employee"} Email</label>
-                      <input
-                        type="email"
-                        name="assigneeEmail"
-                        value={formData.assigneeEmail}
-                        onChange={handleChange}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        required
-                      />
-                    </div>
+                    {/* Assignee Email for Intern, Employee ID(s) for Employee */}
+                    {assigneeType === "intern" ? (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Intern Email</label>
+                        <input
+                          type="email"
+                          name="assigneeEmail"
+                          value={formData.assigneeEmail}
+                          onChange={handleChange}
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          required
+                        />
+                      </div>
+                    ) : (
+                      <div className="col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Employee ID(s)</label>
+                        <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
+                          {formData.employeeIds.map((id, idx) => (
+                            <div key={idx} className="flex mb-2">
+                              <input
+                                type="text"
+                                value={id}
+                                onChange={e => {
+                                  const updated = [...formData.employeeIds];
+                                  updated[idx] = e.target.value;
+                                  setFormData({ ...formData, employeeIds: updated });
+                                }}
+                                className="flex-grow border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                placeholder={`Employee ID ${idx + 1}`}
+                                required
+                              />
+                              {formData.employeeIds.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = [...formData.employeeIds];
+                                    updated.splice(idx, 1);
+                                    setFormData({ ...formData, employeeIds: updated });
+                                  }}
+                                  className="ml-2 px-2 py-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200"
+                                >
+                                  Remove
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, employeeIds: [...formData.employeeIds, ""] })}
+                            className="mt-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 flex items-center gap-2"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Add Employee ID
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     
                     {/* Department */}
                     <div>
@@ -645,7 +704,7 @@ export default function AssignTasksPage() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
                         <svg className="w-4 h-4 mr-1 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 012 2z"></path>
                         </svg>
                         Message to {assigneeType === "intern" ? "Intern" : "Employee"}
                       </label>
@@ -690,7 +749,8 @@ export default function AssignTasksPage() {
                         resources: [""],
                         evaluationCriteria: [""],
                         mentorFeedback: "",
-                        message: ""
+                        message: "",
+                        employeeIds: [""], // <-- NEW FIELD
                       });
                     }}
                     className="flex-1 sm:flex-none border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-medium py-3 px-8 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"

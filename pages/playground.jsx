@@ -46,11 +46,11 @@ function PlaygroundContent() {
     loading: userLoading,
     error: userError,
     fetchUser,
-  } = useStoreUserInfoEdit(ci);
+  } = useStoreUserInfoEdit(ci, aid);
 
   useEffect(() => {
-    if (ci) fetchUser();
-  }, [ci, fetchUser]);
+    if (ci && aid) fetchUser();
+  }, [ci, aid, fetchUser]);
 
   // Check for ci and aid in query params
   useEffect(() => {
@@ -141,7 +141,7 @@ function PlaygroundContent() {
           className="hidden sm:block fixed top-0 left-0 h-full z-40"
           style={{ width: 270 }}
         >
-          <SideMenu />
+          <SideMenu username={`${user?.firstName || ''} ${user?.lastName || ''}` || "Employee"} />
         </div>
         {/* Sidebar for mobile (full screen overlay) */}
         {mobileSidebarOpen && (
@@ -153,7 +153,7 @@ function PlaygroundContent() {
             >
               &times;
             </button>
-            <SideMenu mobileOverlay={true} />
+            <SideMenu mobileOverlay={true} username={`${user?.firstName || ''} ${user?.lastName || ''}` || "Employee"} />
           </div>
         )}
         {/* Main content area */}
@@ -166,7 +166,7 @@ function PlaygroundContent() {
             ref={headerRef}
             onMobileSidebarToggle={handleMobileSidebarToggle}
             mobileSidebarOpen={mobileSidebarOpen}
-            username={user?.name || "admin"}
+            username={`${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "Employee"}
             companyName={user?.company || "company name"}
           />
           <main

@@ -13,6 +13,7 @@ import VideosSection from "../components/VideosSection";
 import MusicSection from "../components/MusicSection";
 import LinksSection from "../components/LinksSection";
 import FavouriteSection from "../components/FavouriteSection";
+import useFetchEmployeeData from "../hooks/useFetchEmployeeData";
 
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
 function decryptToken(token) {
@@ -26,23 +27,7 @@ function decryptToken(token) {
   }
 }
 
-// Import mock arrays from the components (since they are not exported, redefine here for now)
-const mockImages = [
-  { id: 1, url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80", title: "Mountain", date: "2024-06-01", employee: "Alice" },
-  { id: 2, url: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80", title: "Forest", date: "2024-06-01", employee: "Bob" },
-  { id: 3, url: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80", title: "Beach", date: "2024-06-02", employee: "Charlie" },
-  { id: 4, url: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80", title: "Desert", date: "2024-06-03", employee: "Alice" },
-];
-const mockVideos = [
-  { id: 1, url: "https://www.w3schools.com/html/mov_bbb.mp4", title: "Big Buck Bunny", date: "2024-06-01", employee: "Alice" },
-  { id: 2, url: "https://www.w3schools.com/html/movie.mp4", title: "Bear Video", date: "2024-06-02", employee: "Bob" },
-];
-const mockMusic = [
-  { id: 1, url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", title: "SoundHelix Song 1", date: "2024-06-01", employee: "Alice" },
-  { id: 2, url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", title: "SoundHelix Song 2", date: "2024-06-02", employee: "Bob" },
-];
-
-const totalMedia = mockImages.length + mockVideos.length + mockMusic.length;
+// Data structure is now fetched from employee-specific collections
 
 function DataContent() {
   const router = useRouter();
@@ -52,9 +37,13 @@ function DataContent() {
   const { isOpen, isMobile, isHydrated } = useSidebar();
   const headerRef = useRef(null);
   const [headerHeight, setHeaderHeight] = useState(72);
-  const { user, loading, error } = useUserInfo();
+  const { user, loading: userLoading, error: userError } = useUserInfo();
   const [notification, setNotification] = useState({ show: false, message: "", color: "green" });
   const [activeTab, setActiveTab] = useState("images");
+  
+  // Fetch employee data from the new structure
+  const { data: employeeData, loading: dataLoading, error: dataError } = useFetchEmployeeData(ci, aid);
+  
   // Favourites state
   const [favImages, setFavImages] = useState([]);
   const [favVideos, setFavVideos] = useState([]);
@@ -166,7 +155,7 @@ function DataContent() {
   }, []);
 
   if (!ci || !aid) return null;
-  if (loading) {
+  if (userLoading || dataLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen w-full">
         <Loader />
@@ -223,11 +212,24 @@ function DataContent() {
                     </div>
                     <div>
                       <div className="text-gray-500 text-lg font-medium">Total Media</div>
-                      <div className="text-3xl font-bold text-gray-700">{totalMedia}</div>
+                      <div className="text-3xl font-bold text-gray-700">
+                    {employeeData.images.length + employeeData.videos.length + employeeData.audio.length + employeeData.documents.length + employeeData.links.length}
+                  </div>
                     </div>
                   </div>
                 </div>
               </div>
+              <div className="flex gap-3">
+                  <button
+                    onClick={() => router.push(`/add-documents?cid=${ci}`)}
+                    className="bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition-all duration-200 flex items-center gap-2"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add Data
+                  </button>
+                </div>
               {/* Horizontal options bar */}
               <div className="flex gap-4 mb-8 border-b border-gray-200">
                 {[
@@ -253,15 +255,13 @@ function DataContent() {
               </div>
               {/* Tab content */}
               <div className="bg-white rounded-2xl shadow border border-gray-100 p-8">
-                {activeTab === "images" && <ImagesSection images={mockImages} onFavourite={(item, isFav) => handleFavourite(item, isFav, "image")} />}
-                {activeTab === "videos" && <VideosSection videos={mockVideos} onFavourite={(item, isFav) => handleFavourite(item, isFav, "video")} />}
-                {activeTab === "music" && <MusicSection music={mockMusic} onFavourite={(item, isFav) => handleFavourite(item, isFav, "music")} />}
-                {activeTab === "links" && <LinksSection />}
+                {activeTab === "images" && <ImagesSection images={employeeData.images} onFavourite={(item, isFav) => handleFavourite(item, isFav, "image")} />}
+                {activeTab === "videos" && <VideosSection videos={employeeData.videos} onFavourite={(item, isFav) => handleFavourite(item, isFav, "video")} />}
+                {activeTab === "music" && <MusicSection music={employeeData.audio} onFavourite={(item, isFav) => handleFavourite(item, isFav, "music")} />}
+                {activeTab === "links" && <LinksSection links={employeeData.links} />}
                 {activeTab === "favourites" && (
                   <FavouriteSection
-                    images={favImages}
-                    videos={favVideos}
-                    music={favMusic}
+                    favourites={employeeData.favourites}
                     onRemoveFavourite={handleRemoveFavourite}
                   />
                 )}
@@ -274,8 +274,7 @@ function DataContent() {
   );
 }
 
-// Export totalMedia for dashboard usage
-export { totalMedia };
+// Data is now fetched from employee-specific collections
 
 export default function Data() {
   return (

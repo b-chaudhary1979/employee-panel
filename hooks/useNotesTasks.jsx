@@ -12,16 +12,22 @@ import {
   updateDoc,
 } from "firebase/firestore";
 
-export default function useNotesTasks(cid) {
+export default function useNotesTasks(companyId, uniqueId) {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const getTasksRef = () => {
+    if (!companyId || !uniqueId) return null;
+    return collection(db, "users", companyId, "employees", uniqueId, "notes-tasks");
+  };
+
   // Fetch tasks
   const fetchTasks = useCallback(async () => {
-    if (!cid) return;
+    const notesRef = getTasksRef();
+    if (!notesRef) return;
+
     setLoading(true);
     try {
-      const notesRef = collection(db, "users", cid, "notes-tasks");
       const q = query(notesRef, orderBy("createdAt", "desc"));
       const querySnapshot = await getDocs(q);
       const data = querySnapshot.docs.map((doc) => ({
@@ -32,15 +38,16 @@ export default function useNotesTasks(cid) {
     } finally {
       setLoading(false);
     }
-  }, [cid]);
+  }, [companyId, uniqueId]);
 
   // Add a new task
   const addTask = useCallback(
     async (taskData) => {
-      if (!cid) return;
+      const notesRef = getTasksRef();
+      if (!notesRef) return;
+
       setLoading(true);
       try {
-        const notesRef = collection(db, "users", cid, "notes-tasks");
         await addDoc(notesRef, {
           ...taskData,
           createdAt: serverTimestamp(),
@@ -50,39 +57,41 @@ export default function useNotesTasks(cid) {
         setLoading(false);
       }
     },
-    [cid, fetchTasks]
+    [fetchTasks]
   );
 
   // Delete a task
   const deleteTask = useCallback(
     async (taskId) => {
-      if (!cid || !taskId) return;
+      if (!companyId || !uniqueId || !taskId) return;
+
       setLoading(true);
       try {
-        const taskRef = doc(db, "users", cid, "notes-tasks", taskId);
+        const taskRef = doc(db, "users", companyId, "employees", uniqueId, "notes-tasks", taskId);
         await deleteDoc(taskRef);
         await fetchTasks();
       } finally {
         setLoading(false);
       }
     },
-    [cid, fetchTasks]
+    [companyId, uniqueId, fetchTasks]
   );
 
   // Update a task
   const updateTask = useCallback(
     async (taskId, updates) => {
-      if (!cid || !taskId) return;
+      if (!companyId || !uniqueId || !taskId) return;
+
       setLoading(true);
       try {
-        const taskRef = doc(db, "users", cid, "notes-tasks", taskId);
+        const taskRef = doc(db, "users", companyId, "employees", uniqueId, "notes-tasks", taskId);
         await updateDoc(taskRef, updates);
         await fetchTasks();
       } finally {
         setLoading(false);
       }
     },
-    [cid, fetchTasks]
+    [companyId, uniqueId, fetchTasks]
   );
 
   useEffect(() => {
@@ -90,4 +99,4 @@ export default function useNotesTasks(cid) {
   }, [fetchTasks]);
 
   return { tasks, loading, addTask, fetchTasks, deleteTask, updateTask };
-} 
+}
