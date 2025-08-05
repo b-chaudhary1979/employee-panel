@@ -1,15 +1,21 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaUser, FaLink, FaFileUpload, FaCalendarAlt, FaTags, FaAlignLeft } from "react-icons/fa";
 import { useUserInfo } from "../context/UserInfoContext";
+import useStoreData from "../hooks/useStoreData";
 
 export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, companyId, initialData }) {
-  const { user } = useUserInfo();
+  console.log("🎭 [MODAL] AddDocumentModal rendering - open:", open, "companyId:", companyId);
   
-  // Debug companyId
-  console.log('AddDocumentModal - companyId:', companyId);
+  const { user, aid } = useUserInfo();
+  const employeeId = aid || user?.employeeId || user?.id || 'temp-employee-id';
+  
+  console.log("👤 [MODAL] User context - user aid:", user?.aid, "employeeId:", employeeId);
   
   // Use the passed companyId prop instead of user context to avoid undefined errors
-  const employeeId = user?.aid; // Get employee ID from user context
+  const { uploadMedia, addLink, loading: uploadLoading, error: uploadError } = useStoreData(companyId, employeeId);
+  
+  console.log("📦 [MODAL] useStoreData hook - uploadLoading:", uploadLoading, "uploadError:", uploadError);
+  
   const fileInputRef = useRef(null);
   const docInputRefs = useRef([]);
   
@@ -32,56 +38,70 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
   const [uploadResults, setUploadResults] = useState({ successful: [], failed: [] });
   const [isUploading, setIsUploading] = useState(false);
 
+  console.log("📁 [MODAL] File state - uploadedFiles count:", uploadedFiles.length, "isUploading:", isUploading);
+
   // Reset uploadedFiles only when modal closes
   useEffect(() => {
-    if (!open) setUploadedFiles([]);
+    console.log("🎭 [MODAL] Modal open state changed - open:", open);
+    if (!open) {
+      console.log("🎭 [MODAL] Modal closed, resetting uploadedFiles");
+      setUploadedFiles([]);
+    }
   }, [open]);
 
-  if (!open) return null;
-  
-  // Check if employee ID is available
-  if (!employeeId) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-          <div className="text-center">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Loading...</h2>
-            <p className="text-gray-600">Please wait while we load your employee information.</p>
-          </div>
-        </div>
-      </div>
-    );
+  if (!open) {
+    console.log("🎭 [MODAL] Modal not open, returning null");
+    return null;
   }
 
   const handleChange = (e) => {
+    console.log("📝 [MODAL] Form field changed:", e.target.name, "value:", e.target.value);
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
-    setUploadedFiles(prev => [...prev, ...files]);
+    console.log("📁 [MODAL] File upload triggered - files selected:", files.length);
+    console.log("📁 [MODAL] File names:", files.map(f => f.name));
+    
+    setUploadedFiles(prev => {
+      const newFiles = [...prev, ...files];
+      console.log("📁 [MODAL] Updated uploadedFiles - previous count:", prev.length, "new count:", newFiles.length);
+      return newFiles;
+    });
+    
     e.target.value = ""; // Reset input so selecting the same file again works
+    console.log("📁 [MODAL] File input reset");
   };
 
   const handleRemoveFile = (index) => {
-    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+    console.log("🗑️ [MODAL] Removing file at index:", index);
+    setUploadedFiles(prev => {
+      const newFiles = prev.filter((_, i) => i !== index);
+      console.log("🗑️ [MODAL] Updated uploadedFiles after removal - previous count:", prev.length, "new count:", newFiles.length);
+      return newFiles;
+    });
   };
 
   const handleCustomFieldChange = (idx, key, value) => {
+    console.log("📝 [MODAL] Custom field changed - idx:", idx, "key:", key, "value:", value);
     const updated = [...customFields];
     updated[idx][key] = value;
     setCustomFields(updated);
   };
 
   const handleAddCustomField = () => {
+    console.log("➕ [MODAL] Adding custom field");
     setCustomFields([...customFields, { question: "", answer: "" }]);
   };
 
   const handleRemoveCustomField = (idx) => {
+    console.log("🗑️ [MODAL] Removing custom field at index:", idx);
     setCustomFields(customFields.filter((_, i) => i !== idx));
   };
 
   const handleSubmit = async (e) => {
+    console.log("🚀 [MODAL] Form submission started");
     e.preventDefault();
     setError("");
     
@@ -94,19 +114,23 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
     
     // If there are files, upload them
     if (uploadedFiles.length > 0) {
+      console.log("📁 [MODAL] Starting file upload process - files count:", uploadedFiles.length);
       setIsUploading(true);
       setUploadResults({ successful: [], failed: [] });
       
       try {
         // Generate session group ID once for all files in this upload
         const sessionGroupId = crypto.randomUUID();
+        console.log("🆔 [MODAL] Generated session group ID:", sessionGroupId);
         
         // Sort files by size (smallest first for better user experience)
         const sortedFiles = [...uploadedFiles].sort((a, b) => a.size - b.size);
+        console.log("📁 [MODAL] Sorted files by size:", sortedFiles.map(f => ({ name: f.name, size: f.size })));
         
         // Upload files sequentially in sorted order
         for (let i = 0; i < sortedFiles.length; i++) {
           const file = sortedFiles[i];
+          console.log("📤 [MODAL] Uploading file:", file.name, "size:", file.size);
           try {
             const meta = await uploadMedia(file, {
               title: form.title,
@@ -122,28 +146,34 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
               // Removed companyId - redundant with document path
             });
             if (meta.success) {
+              console.log("✅ [MODAL] File upload successful:", file.name);
               uploadedFileMetas.push(meta);
               successfulFiles.push({ file, meta });
             } else {
+              console.log("❌ [MODAL] File upload failed:", file.name, "error:", meta.error);
               failedFiles.push({ file, error: meta.error || 'Upload failed' });
             }
           } catch (err) {
+            console.error("❌ [MODAL] File upload error:", file.name, "error:", err.message);
             failedFiles.push({ file, error: err.message || 'Upload failed' });
           }
         }
         
         // Update upload results
+        console.log("📊 [MODAL] Upload results - successful:", successfulFiles.length, "failed:", failedFiles.length);
         setUploadResults({ successful: successfulFiles, failed: failedFiles });
         
         // Remove successful files from selection
         if (successfulFiles.length > 0) {
           const successfulFileNames = successfulFiles.map(item => item.file.name);
+          console.log("🗑️ [MODAL] Removing successful files from selection:", successfulFileNames);
           setUploadedFiles(prev => prev.filter(file => !successfulFileNames.includes(file.name)));
         }
         
         // Set success flag if any files were uploaded
         if (successfulFiles.length > 0) {
           hasFileUpload = true;
+          console.log("✅ [MODAL] File upload completed successfully");
           // Call onAdd with uploaded file metadata
           const documentData = {
             ...form,
@@ -155,16 +185,18 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
         }
         
       } catch (err) {
+        console.error("❌ [MODAL] File upload process error:", err.message);
         errorMessage = err.message || 'File upload failed';
         setError(errorMessage);
       } finally {
+        console.log("🏁 [MODAL] File upload process finished - setting isUploading to false");
         setIsUploading(false);
       }
     }
     
     // If there is a link, store it in Firestore (regardless of file upload)
     if (form.linkData) {
-      console.log('Adding link with companyId:', companyId);
+      console.log("🔗 [MODAL] Processing link data:", form.linkData);
       const linkData = {
         ...form,
         url: form.linkData, // Store as 'url' for compatibility
@@ -173,9 +205,11 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
       delete linkData.linkData; // Remove the old property
       const result = await addLink(linkData);
       if (!result.success) {
+        console.log("❌ [MODAL] Link addition failed:", result.error);
         errorMessage = result.error || "Failed to add link";
         setError(errorMessage);
       } else {
+        console.log("✅ [MODAL] Link added successfully");
         hasLinkUpload = true;
       }
     }
@@ -185,22 +219,27 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
     const hasRemainingFiles = failedFiles.length > 0; // Remaining files = failed files (successful ones are removed)
     const hasFailedFiles = failedFiles.length > 0;
     
+    console.log("📊 [MODAL] Final upload state - hasFileUpload:", hasFileUpload, "hasLinkUpload:", hasLinkUpload, "hasRemainingFiles:", hasRemainingFiles, "hasFailedFiles:", hasFailedFiles);
+    
     // Clear any existing error if all files were successful
     if (hasFileUpload && !hasRemainingFiles && !hasFailedFiles) {
       setError(""); // Clear any error state
     }
     
     if (hasFileUpload && hasLinkUpload && !hasRemainingFiles && !hasFailedFiles) {
+      console.log("✅ [MODAL] Both file and link uploaded successfully");
       setSuccessMessage('File and link added successfully!');
       setTimeout(() => {
         if (typeof onSuccess === 'function') onSuccess('File and link added successfully!');
       }, 1500);
     } else if (hasFileUpload && !hasRemainingFiles && !hasFailedFiles) {
+      console.log("✅ [MODAL] File uploaded successfully");
       setSuccessMessage('File added successfully!');
       setTimeout(() => {
         if (typeof onSuccess === 'function') onSuccess('File added successfully!');
       }, 1500);
     } else if (hasLinkUpload && !hasRemainingFiles && !hasFailedFiles) {
+      console.log("✅ [MODAL] Link added successfully");
       setSuccessMessage('Link added successfully!');
       setTimeout(() => {
         if (typeof onSuccess === 'function') onSuccess('Link added successfully!');
@@ -210,12 +249,15 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
       if (hasFileUpload) {
         const failedFileNames = failedFiles.map(item => item.file.name).join(', ');
         const errorMsg = failedFileNames ? `Failed to upload: ${failedFileNames}` : 'Please retry failed files.';
+        console.log("⚠️ [MODAL] Some files failed to upload:", errorMsg);
         setError(`Some files uploaded successfully. ${errorMsg}`);
       } else {
+        console.log("❌ [MODAL] No files or links provided");
         setError(errorMessage || "Please upload a file or enter a link.");
       }
     } else if (!hasFileUpload && !hasLinkUpload) {
       // No files or links provided
+      console.log("❌ [MODAL] No files or links provided");
       setError("Please upload a file or enter a link.");
     } else if (errorMessage) {
       if (typeof onSuccess === 'function') onSuccess(errorMessage);
@@ -225,6 +267,7 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
     
     // Reset form if not editing
     if (!initialData) {
+      console.log("🔄 [MODAL] Resetting form for new document");
       setForm({
         title: "",
         submitterName: user?.name || "",
@@ -241,6 +284,8 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
     }
     // Don't call onClose here - let onSuccess handle the redirection
   };
+
+  console.log("🎭 [MODAL] Rendering modal content");
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/80 to-purple-100/80 backdrop-blur-[6px]">
@@ -296,7 +341,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                   value={form.title}
                   onChange={handleChange}
                   required
-                  className="w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400 placeholder:text-gray-400 text-base text-gray-800 bg-purple-50/80 shadow-md transition-all duration-200"
+                  disabled={isUploading}
+                  className={`w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400 placeholder:text-gray-400 text-base text-gray-800 shadow-md transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/80'
+                  }`}
                   placeholder="Enter document title"
                 />
               </div>
@@ -312,7 +360,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                   value={form.submitterName}
                   onChange={handleChange}
                   required
-                  className="w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400 placeholder:text-gray-400 text-base text-gray-800 bg-purple-50/80 shadow-md transition-all duration-200"
+                  disabled={isUploading}
+                  className={`w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400 placeholder:text-gray-400 text-base text-gray-800 shadow-md transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/80'
+                  }`}
                   placeholder="Enter submitter name"
                 />
               </div>
@@ -327,7 +378,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                   name="linkData"
                   value={form.linkData}
                   onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 bg-purple-50/60 shadow transition-all duration-200"
+                  disabled={isUploading}
+                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 shadow transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/60'
+                  }`}
                   placeholder="https://example.com"
                 />
               </div>
@@ -339,7 +393,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                   name="category"
                   value={form.category}
                   onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm text-gray-800 bg-purple-50/60 shadow transition-all duration-200"
+                  disabled={isUploading}
+                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm text-gray-800 shadow transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/60'
+                  }`}
                 >
                   <option value="">Select Category</option>
                   <option value="Report">Report</option>
@@ -360,7 +417,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                   name="textData"
                   value={form.textData}
                   onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 bg-purple-50/60 shadow transition-all duration-200"
+                  disabled={isUploading}
+                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 shadow transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/60'
+                  }`}
                   placeholder="Enter any text data or description..."
                   rows={4}
                 />
@@ -379,7 +439,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors"
+                    disabled={isUploading}
+                    className={`bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors ${
+                      isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                   >
                     Choose Files
                   </button>
@@ -417,7 +480,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                             <button
                               type="button"
                               onClick={() => handleRemoveFile(index)}
-                              className="text-red-500 hover:text-red-700 text-sm"
+                              disabled={isUploading}
+                              className={`text-red-500 hover:text-red-700 text-sm ${
+                                isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                              }`}
                             >
                               Remove
                             </button>
@@ -454,7 +520,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                   name="tags"
                   value={form.tags}
                   onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 bg-purple-50/60 shadow transition-all duration-200"
+                  disabled={isUploading}
+                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 shadow transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/60'
+                  }`}
                   placeholder="e.g. important, urgent, review (comma separated)"
                 />
               </div>
@@ -479,7 +548,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                   name="notes"
                   value={form.notes}
                   onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 bg-purple-50/60 shadow transition-all duration-200"
+                  disabled={isUploading}
+                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 shadow transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/60'
+                  }`}
                   placeholder="Any additional notes..."
                   rows={3}
                 />
@@ -492,7 +564,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                   <button
                     type="button"
                     onClick={handleAddCustomField}
-                    className="text-xs text-purple-600 hover:text-purple-800 font-semibold px-2 py-1 rounded-xl border border-purple-100 bg-purple-50 transition"
+                    disabled={isUploading}
+                    className={`text-xs text-purple-600 hover:text-purple-800 font-semibold px-2 py-1 rounded-xl border border-purple-100 bg-purple-50 transition ${
+                      isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                   >
                     + Add Field
                   </button>
@@ -505,7 +580,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                       placeholder="Field name"
                       value={field.question}
                       onChange={e => handleCustomFieldChange(idx, 'question', e.target.value)}
-                      className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+                      disabled={isUploading}
+                      className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 ${
+                        isUploading ? 'bg-gray-100 cursor-not-allowed' : ''
+                      }`}
                     />
                     <div className="flex gap-2">
                       <input
@@ -513,12 +591,18 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                         placeholder="Field value"
                         value={field.answer}
                         onChange={e => handleCustomFieldChange(idx, 'answer', e.target.value)}
-                        className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+                        disabled={isUploading}
+                        className={`flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 ${
+                          isUploading ? 'bg-gray-100 cursor-not-allowed' : ''
+                        }`}
                       />
                       <button
                         type="button"
                         onClick={() => handleRemoveCustomField(idx)}
-                        className="text-red-500 hover:text-red-700 px-2 rounded-full bg-red-50 hover:bg-red-100 transition"
+                        disabled={isUploading}
+                        className={`text-red-500 hover:text-red-700 px-2 rounded-full bg-red-50 hover:bg-red-100 transition ${
+                          isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

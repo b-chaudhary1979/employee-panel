@@ -9,7 +9,9 @@ export default function useStoreUserInfoEdit(cid, aid) {
 
   // Fetch user data by cid and aid
   const fetchUser = useCallback(async () => {
-    if (!cid || !aid) return;
+    if (!cid || !aid) {
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -17,12 +19,14 @@ export default function useStoreUserInfoEdit(cid, aid) {
       const userRef = doc(db, 'users', cid, 'employees', aid);
       const userSnap = await getDoc(userRef);
       if (userSnap.exists()) {
-        setUser({ id: userSnap.id, ...userSnap.data() });
+        const userData = { id: userSnap.id, ...userSnap.data() };
+        setUser(userData);
       } else {
         setUser(null);
         setError('User not found');
       }
     } catch (err) {
+      console.error('useStoreUserInfoEdit: Error fetching user:', err);
       setError(err.message);
       setUser(null);
     } finally {

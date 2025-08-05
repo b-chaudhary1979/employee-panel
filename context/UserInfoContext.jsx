@@ -23,8 +23,29 @@ function decryptToken(token) {
 
 export function UserInfoProvider({ children }) {
   const router = useRouter();
-  const { token } = router.query;
-  const { ci, aid } = decryptToken(token);
+  const { token, cid, aid: urlAid } = router.query;
+  console.log("🔐 [CONTEXT] UserInfoProvider - token:", token ? "present" : "missing", "cid:", cid || "missing", "aid:", urlAid || "missing");
+  
+  // Handle both token and cid parameters
+  let ci, aid;
+  if (token) {
+    // Decrypt token if present
+    const decrypted = decryptToken(token);
+    ci = decrypted.ci;
+    aid = decrypted.aid;
+    console.log("🔐 [CONTEXT] Using token decryption - ci:", ci, "aid:", aid);
+  } else if (cid) {
+    // Use cid directly if no token
+    ci = cid;
+    // Try to get aid from URL parameter first, then localStorage/sessionStorage
+    aid = urlAid || localStorage.getItem('employeeId') || sessionStorage.getItem('employeeId') || null;
+    console.log("🔐 [CONTEXT] Using direct cid - ci:", ci, "aid:", aid);
+  } else {
+    ci = null;
+    aid = null;
+    console.log("🔐 [CONTEXT] No token or cid found");
+  }
+  
   const {
     user,
     loading,
@@ -32,9 +53,20 @@ export function UserInfoProvider({ children }) {
     fetchUser,
   } = useStoreUserInfoEdit(ci, aid);
 
+  console.log("👤 [CONTEXT] User state - loading:", loading, "user:", user ? "present" : "missing", "error:", error);
+
   // Fetch user on mount and when ci or aid changes
   useEffect(() => {
-    if (ci && aid) fetchUser();
+    console.log("🔄 [CONTEXT] useEffect triggered - ci:", ci, "aid:", aid);
+    if (ci && aid) {
+      console.log("📞 [CONTEXT] Calling fetchUser");
+      fetchUser();
+    } else if (ci && !aid) {
+      console.log("⚠️ [CONTEXT] Have ci but no aid - this might be a cid-only case");
+      // For cid-only cases, we might need to handle differently
+    } else {
+      console.log("❌ [CONTEXT] Skipping fetchUser - missing ci or aid");
+    }
   }, [ci, aid, fetchUser]);
 
   // Refresh user info on window focus or resize
@@ -51,7 +83,7 @@ export function UserInfoProvider({ children }) {
   }, [ci, fetchUser]);
 
   return (
-    <UserInfoContext.Provider value={{ user, loading, error, fetchUser }}>
+    <UserInfoContext.Provider value={{ user, loading, error, fetchUser, aid }}>
       {children}
     </UserInfoContext.Provider>
   );
