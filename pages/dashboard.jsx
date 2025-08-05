@@ -44,7 +44,7 @@ function DashboardContent() {
 
   // Fetch data from hooks
   const employeesHook = useStoreEmployees(ci);
-  const passwordsHook = useStorePassword(ci);
+  const passwordsHook = useStorePassword(ci, aid);
   const tasksHook = useNotesTasks(ci);
   const announcementsHook = useAnnouncements(ci);
 

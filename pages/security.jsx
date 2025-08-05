@@ -60,7 +60,7 @@ function SecurityContent() {
     addPassword,
     updatePassword,
     deletePassword,
-  } = useStorePassword(ci);
+  } = useStorePassword(ci, aid);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [search, setSearch] = useState("");
@@ -192,7 +192,7 @@ function SecurityContent() {
     await addPassword({
       ...data,
       customFields: data.customFields || [],
-      employee: data.employee || [],
+      employee: aid,
       createdAt: data.createdAt || new Date().toISOString(),
       submittedBy: data.submittedBy || "",
       expiryDate: data.expiryDate || "",
@@ -536,7 +536,7 @@ function SecurityContent() {
           open={showEditModal}
           onClose={() => setShowEditModal(false)}
           onAdd={async (data) => {
-            await updatePassword(editPassword.id, data);
+            await updatePassword(editPassword.id, { ...data, employee: aid });
             setShowEditModal(false);
             setNotification({
               show: true,
