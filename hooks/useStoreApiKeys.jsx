@@ -1,9 +1,23 @@
 // /hooks/useStoreApiKeys.js
 import { useCallback, useState } from "react";
 import Papa from "papaparse";
+import CryptoJS from "crypto-js";
 
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, collection, getDocs, deleteDoc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
+
+// Encryption/decryption functions
+const encrypt = (plaintext, key) =>
+  CryptoJS.AES.encrypt(plaintext, key).toString();
+
+const decrypt = (encryptedText, key) => {
+  try {
+    const bytes = CryptoJS.AES.decrypt(encryptedText, key);
+    return bytes.toString(CryptoJS.enc.Utf8);
+  } catch (error) {
+    return null;
+  }
+};
 /**
  * Converts a File (CSV, JSON, or Excel) to an array of key objects
  * Expected columns / props:  keyName, rawKey, environment, status, ...extras
@@ -36,58 +50,91 @@ export default function useStoreApiKeys(companyId, user) {
 
   /* ---------- fetch keys ---------- */
   const fetchKeys = useCallback(async () => {
-    if (!companyId) return;
+    if (!companyId || !user?.id) return;
 
     setFetchingKeys(true);
     setError(null);
     try {
-      const response = await fetch(`/api/keys/${companyId}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
+      // Get the employee ID from the user object
+      const employeeId = user?.id || user?.uniqueId;
+      
+      // Query Firestore directly using the new path structure
+      const keysCollectionRef = collection(db, 'users', companyId, 'employees', employeeId, 'api-keys');
+      const keysSnapshot = await getDocs(keysCollectionRef);
+      
+      const fetchedKeys = [];
+      keysSnapshot.forEach((doc) => {
+        const data = doc.data();
+        fetchedKeys.push({
+          id: doc.id,
+          keyName: data.keyName,
+          encryptedKey: data.encryptedKey,
+          environment: data.environment,
+          status: data.status,
+          platform: data.platform,
+          description: data.description,
+          expiryDate: data.expiryDate,
+          linkedProject: data.linkedProject,
+          usageLimit: data.usageLimit,
+          custom: data.custom || {},
+          createdAt: data.createdAt?.toDate?.() || data.createdAt,
+          createdBy: data.createdBy,
+        });
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch keys");
-      }
-
-      const data = await response.json();
-      setKeys(data.keys || []);
+      
+      setKeys(fetchedKeys);
     } catch (err) {
+      console.error("Error fetching keys:", err);
       setError(err);
       throw err;
     } finally {
       setFetchingKeys(false);
     }
-  }, [companyId]);
+  }, [companyId, user?.id]);
 
   /* ---------- decrypt key ---------- */
   const decryptKey = useCallback(
     async (keyId, vaultKey) => {
-      if (!companyId || !keyId || !vaultKey) {
-        throw new Error("Company ID, key ID, and vault key are required");
+      if (!companyId || !keyId || !vaultKey || !user?.id) {
+        throw new Error("Company ID, key ID, vault key, and user ID are required");
       }
 
       try {
-        const response = await fetch(`/api/keys/${companyId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ keyId, vaultKey }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to decrypt key");
+        const employeeId = user?.id || user?.uniqueId;
+        const keyRef = doc(db, 'users', companyId, 'employees', employeeId, 'api-keys', keyId);
+        const keySnap = await getDoc(keyRef);
+        
+        if (!keySnap.exists()) {
+          throw new Error("Key not found");
         }
-
-        const data = await response.json();
-        return data.decryptedKey;
+        
+        const keyData = keySnap.data();
+        
+        // Attempt decryption with provided vaultKey first if given
+        let decryptedKey = vaultKey ? decrypt(keyData.encryptedKey, vaultKey) : null;
+        
+        // Fallback to employeeId
+        if (!decryptedKey) {
+          decryptedKey = decrypt(keyData.encryptedKey, employeeId);
+        }
+        
+        // Final fallback to companyId (for legacy keys)
+        if (!decryptedKey) {
+          decryptedKey = decrypt(keyData.encryptedKey, companyId);
+        }
+        
+        if (!decryptedKey) {
+          throw new Error("Decryption failed. Incorrect password.");
+        }
+        
+        return decryptedKey;
       } catch (err) {
+        console.error("Error decrypting key:", err);
         setError(err);
         throw err;
       }
     },
-    [companyId]
+    [companyId, user?.id]
   );
 
   /* ---------- single/manual key ---------- */
@@ -96,20 +143,50 @@ export default function useStoreApiKeys(companyId, user) {
   }
 
   const addKey = async (keyData) => {
-    const employeeId = user?.id || user?.uniqueId || aid; // get employee id
-    const keyId = generateKeyId(); // generate unique key id
-    const keyRef = doc(db, 'users', companyId, 'employees', employeeId, 'api-keys', keyId);
-    await setDoc(keyRef, {
-      ...keyData,
-      createdAt: Date.now(),
-      createdBy: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
-    });
-    await fetchKeys();
+    if (!companyId || !user?.id) {
+      throw new Error("Company ID and user ID are required");
+    }
+    
+    try {
+      const employeeId = user?.id || user?.uniqueId; // get employee id
+      const keyId = generateKeyId(); // generate unique key id
+      const keyRef = doc(db, 'users', companyId, 'employees', employeeId, 'api-keys', keyId);
+      
+      // Extract rawKey from keyData and encrypt it
+      const { rawKey, ...restKeyData } = keyData;
+      
+      if (!rawKey) {
+        throw new Error("Raw key is required");
+      }
+      
+      // Encrypt the raw key with companyId (for backward compatibility)
+      // In a production app, you might want to use a more secure key
+      const encryptedKey = encrypt(rawKey, employeeId);
+      
+      await setDoc(keyRef, {
+        ...restKeyData,
+        encryptedKey, // Store the encrypted key
+        createdAt: Date.now(),
+        createdBy: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+      });
+      
+      // Refresh the keys list after adding
+      await fetchKeys();
+      return { success: true, keyId };
+    } catch (err) {
+      console.error("Error adding key:", err);
+      setError(err);
+      throw err;
+    }
   };
 
   /* ---------- bulk upload (file) ---------- */
   const importFromFile = useCallback(
     async (file) => {
+      if (!companyId || !user?.id) {
+        throw new Error("Company ID and user ID are required");
+      }
+      
       setLoading(true);
       setError(null);
       try {
@@ -135,15 +212,31 @@ export default function useStoreApiKeys(companyId, user) {
           chunks.push(rows.slice(i, i + chunkSize));
         }
 
+        const employeeId = user?.id || user?.uniqueId;
+        
         for (const batchRows of chunks) {
           const promises = batchRows.map(async (r) => {
-            return addKey({
+            const keyId = generateKeyId();
+            const keyRef = doc(db, 'users', companyId, 'employees', employeeId, 'api-keys', keyId);
+            
+            // Prepare key data
+            const keyData = {
               keyName: r.keyName.trim(),
-              rawKey: r.rawKey.trim(),
+              encryptedKey: encrypt(r.rawKey.trim(), employeeId), // Default encryption with companyId
               environment: r.environment || "prod",
               status: r.status || "active",
-              ...r, // extras fall into custom
-            });
+              createdAt: Date.now(),
+              createdBy: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+              // Include any other custom fields
+              platform: r.platform || "",
+              description: r.description || "",
+              expiryDate: r.expiryDate || "",
+              linkedProject: r.linkedProject || "",
+              usageLimit: r.usageLimit || "",
+              custom: { ...r } // Store all original fields in custom
+            };
+            
+            return setDoc(keyRef, keyData);
           });
 
           await Promise.all(promises);
@@ -151,104 +244,110 @@ export default function useStoreApiKeys(companyId, user) {
 
         // Refresh the keys list after importing
         await fetchKeys();
+        return true;
       } catch (err) {
+        console.error("Error importing keys:", err);
         setError(err);
         throw err;
       } finally {
         setLoading(false);
       }
     },
-    [addKey, fetchKeys]
+    [companyId, fetchKeys, user]
   );
 
   /* ---------- delete key ---------- */
   const deleteKey = useCallback(
     async (keyId, vaultKey) => {
-      if (!companyId || !keyId || !vaultKey) {
-        throw new Error("Company ID, key ID, and vault key are required");
+      if (!companyId || !keyId || !vaultKey || !user?.id) {
+        throw new Error("Company ID, key ID, user ID, and vault key are required");
       }
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`/api/keys/${companyId}`, {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ keyId, vaultKey }),
-        });
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to delete key");
+        // Verify vault key (in a real app, you'd want to verify this securely)
+        if (vaultKey !== (user?.id || user?.uniqueId)) {
+          throw new Error("Invalid vault key");
         }
+        
+        const employeeId = user?.id || user?.uniqueId;
+        const keyRef = doc(db, 'users', companyId, 'employees', employeeId, 'api-keys', keyId);
+        
+        // Delete the document
+        await deleteDoc(keyRef);
+        
+        // Refresh the keys list
         await fetchKeys();
         return true;
       } catch (err) {
+        console.error("Error deleting key:", err);
         setError(err);
         throw err;
       } finally {
         setLoading(false);
       }
     },
-    [companyId, fetchKeys]
+    [companyId, fetchKeys, user?.id]
   );
 
   /* ---------- update key encryption ---------- */
   const updateKeyEncryption = useCallback(
     async (keyId, rawKey, vaultKey) => {
-      if (!companyId || !keyId || !rawKey || !vaultKey) {
-        throw new Error("Company ID, key ID, rawKey, and vault key are required");
+      if (!companyId || !keyId || !rawKey || !user?.id) {
+        throw new Error("Company ID, key ID, rawKey, and user ID are required");
       }
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`/api/keys/${companyId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ keyId, rawKey, vaultKey }),
-        });
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to update key encryption");
-        }
+        // Encrypt the key with employeeId to be consistent with addKey function
+        const employeeId = user?.id || user?.uniqueId;
+        const encryptedKey = encrypt(rawKey, employeeId);
+        const keyRef = doc(db, 'users', companyId, 'employees', employeeId, 'api-keys', keyId);
+        
+        // Update only the encryptedKey field
+        await updateDoc(keyRef, { encryptedKey });
+        
+        // Refresh the keys list
         await fetchKeys();
         return true;
       } catch (err) {
+        console.error("Error updating key encryption:", err);
         setError(err);
         throw err;
       } finally {
         setLoading(false);
       }
     },
-    [companyId, fetchKeys]
+    [companyId, fetchKeys, user?.id]
   );
 
   /* ---------- update key status ---------- */
   const updateKeyStatus = useCallback(
     async (keyId, newStatus) => {
-      if (!companyId || !keyId || !newStatus) {
-        throw new Error("Company ID, key ID, and new status are required");
+      if (!companyId || !keyId || !newStatus || !user?.id) {
+        throw new Error("Company ID, key ID, new status, and user ID are required");
       }
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`/api/keys/${companyId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ keyId, status: newStatus }),
-        });
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to update key status");
-        }
+        const employeeId = user?.id || user?.uniqueId;
+        const keyRef = doc(db, 'users', companyId, 'employees', employeeId, 'api-keys', keyId);
+        
+        // Update only the status field
+        await updateDoc(keyRef, { status: newStatus });
+        
+        // Refresh the keys list
         await fetchKeys();
         return true;
       } catch (err) {
+        console.error("Error updating key status:", err);
         setError(err);
         throw err;
       } finally {
         setLoading(false);
       }
     },
-    [companyId, fetchKeys]
+    [companyId, fetchKeys, user?.id]
   );
 
   return {

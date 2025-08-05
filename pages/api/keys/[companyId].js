@@ -25,15 +25,20 @@ const decrypt = (encryptedText, key) => {
 
 export default async function handler(req, res) {
   const { companyId } = req.query;
+  const { employeeId } = req.body; // Get employeeId from request body
 
   if (!companyId) {
     return res.status(400).json({ error: "Company ID is required" });
   }
+  
+  if (!employeeId) {
+    return res.status(400).json({ error: "Employee ID is required" });
+  }
 
   if (req.method === "GET") {
-    // Fetch API keys for the company
+    // Fetch API keys for the employee
     try {
-      const keysColRef = collection(doc(db, "apiKeys", companyId), "keys");
+      const keysColRef = collection(doc(db, "users", companyId), "employees", employeeId, "api-keys");
       const keysSnapshot = await getDocs(keysColRef);
 
       const keys = [];
@@ -65,7 +70,7 @@ export default async function handler(req, res) {
   } else if (req.method === "POST") {
     // Add new API key
     try {
-      const keysColRef = collection(doc(db, "apiKeys", companyId), "keys");
+      const keysColRef = collection(doc(db, "users", companyId), "employees", employeeId, "api-keys");
       const {
         keyName,
         rawKey,
@@ -99,7 +104,7 @@ export default async function handler(req, res) {
       }
 
       // Use vaultKey for encryption if provided, else fallback to company CID
-      const encryptionKey = vaultKey || companyId;
+      const encryptionKey = vaultKey || employeeId;
       const encryptedKey = encrypt(rawKey, encryptionKey);
 
       const payload = {
@@ -137,24 +142,26 @@ export default async function handler(req, res) {
 
       // For now, we'll use the vault key as the decryption key
       // In a real implementation, you might want to store the vault key with each encrypted key
-      const keysColRef = collection(doc(db, "apiKeys", companyId), "keys");
-      const keyDoc = await getDocs(
-        query(keysColRef, where("keyName", "==", keyId))
-      );
+      const keysColRef = collection(doc(db, "users", companyId), "employees", employeeId, "api-keys");
+      const keyRef = doc(keysColRef, keyId);
+      const keySnap = await getDoc(keyRef);
 
-      if (keyDoc.empty) {
+      if (!keySnap.exists()) {
         return res.status(404).json({ error: "Key not found" });
       }
 
-      const keyData = keyDoc.docs[0].data();
+      const keyData = keySnap.data();
 
-      // Try to decrypt using the vault key
-      let decryptedKey;
-      try {
-        const bytes = CryptoJS.AES.decrypt(keyData.encryptedKey, vaultKey);
-        decryptedKey = bytes.toString(CryptoJS.enc.Utf8);
-      } catch (error) {
-        // If vault key doesn't work, try with company CID (for backward compatibility)
+      // Attempt decryption with provided vaultKey first
+      let decryptedKey = vaultKey ? decrypt(keyData.encryptedKey, vaultKey) : null;
+      
+      // Fallback to employeeId
+      if (!decryptedKey) {
+        decryptedKey = decrypt(keyData.encryptedKey, employeeId);
+      }
+      
+      // Final fallback to companyId (legacy)
+      if (!decryptedKey) {
         decryptedKey = decrypt(keyData.encryptedKey, companyId);
       }
 
@@ -177,17 +184,17 @@ export default async function handler(req, res) {
     // Update key status or re-encrypt a specific key
     try {
       const { keyId, rawKey, vaultKey, status } = req.body;
-      const keysColRef = collection(doc(db, "apiKeys", companyId), "keys");
+      const keysColRef = collection(doc(db, "users", companyId), "employees", employeeId, "api-keys");
       if (status && keyId) {
         // Update only the status field
         await setDoc(doc(keysColRef, keyId), { status }, { merge: true });
         return res.status(200).json({ success: true, keyId, status });
       }
-      if (!keyId || !rawKey || !vaultKey) {
-        return res.status(400).json({ error: "keyId, rawKey, and vaultKey are required" });
+      if (!keyId || !rawKey) {
+        return res.status(400).json({ error: "keyId and rawKey are required" });
       }
-      // Use vaultKey for encryption
-      const encryptedKey = encrypt(rawKey, vaultKey);
+      // Use employeeId for encryption to align with addKey function
+      const encryptedKey = encrypt(rawKey, employeeId);
       await setDoc(doc(keysColRef, keyId), { encryptedKey }, { merge: true });
       res.status(200).json({ success: true, keyId });
     } catch (error) {
@@ -202,10 +209,10 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "keyId and vaultKey are required" });
       }
       // For now, use companyId as the vault key check (can be improved)
-      if (vaultKey !== companyId) {
+      if (vaultKey !== employeeId) {
         return res.status(403).json({ error: "Invalid vault key." });
       }
-      const keysColRef = collection(doc(db, "apiKeys", companyId), "keys");
+      const keysColRef = collection(doc(db, "users", companyId), "employees", employeeId, "api-keys");
       // Delete by keyName (which is used as doc ID)
       await setDoc(doc(keysColRef, keyId), {}, { merge: false }); // Overwrite with empty object
       await (await import("firebase/firestore")).deleteDoc(doc(keysColRef, keyId));
