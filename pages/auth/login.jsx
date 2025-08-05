@@ -43,6 +43,43 @@ const Login = () => {
       setShowNotification(true);
       setTimeout(() => setShowNotification(false), 3000);
     }
+
+    // Decrypt token and set companyId if token exists in URL
+    const decryptTokenAndSetCompanyId = async (token) => {
+      try {
+        const response = await fetch('/api/decryptLoginToken', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token }),
+        });
+
+        // Check if response is ok
+        if (!response.ok) {
+          return;
+        }
+
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          return;
+        }
+
+        const data = await response.json();
+        
+        if (data.success && data.companyId) {
+          setCompanyId(data.companyId);
+        }
+      } catch (error) {
+        
+      }
+    };
+
+    // Check if token exists in URL query params
+    if (router.query.token) {
+      decryptTokenAndSetCompanyId(router.query.token);
+    }
   }, [router.query]);
 
   const handleVerify = async (e) => {
@@ -210,71 +247,7 @@ const Login = () => {
                 )}
               </span>
             </div>
-            {/* Company ID Input */}
-            <div className="relative">
-              <label className="font-semibold text-[14px] sm:text-[15px] text-[#22223b] mb-1 block">
-                Company ID
-              </label>
-              <input
-                type={showCompanyId ? "text" : "password"}
-                value={companyId}
-                onChange={(e) => setCompanyId(e.target.value)}
-                placeholder="Enter your company ID"
-                autoComplete="organization"
-                required
-                className="w-full py-3 px-4 pr-10 text-gray-700 rounded-lg border border-[#e0dfea] text-[14px] sm:text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
-              />
-              <span
-                className="absolute right-3 top-10 sm:top-12 transform -translate-y-1/2 cursor-pointer"
-                onClick={() => setShowCompanyId((prev) => !prev)}
-                tabIndex={0}
-                role="button"
-                aria-label={
-                  showCompanyId ? "Hide Company ID" : "Show Company ID"
-                }
-              >
-                {showCompanyId ? (
-                  // Eye-off SVG
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="#a259f7"
-                    className="w-5 h-5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M3 3l18 18M9.88 9.88A3 3 0 0012 15a3 3 0 002.12-5.12M15 12a3 3 0 00-3-3m0 0a3 3 0 00-3 3m0 0a3 3 0 003 3m0 0a3 3 0 003-3m0 0a3 3 0 00-3-3m0 0a3 3 0 00-3 3m0 0a3 3 0 003 3m0 0a3 3 0 003-3m0 0a3 3 0 00-3-3m0 0a3 3 0 00-3 3"
-                    />
-                  </svg>
-                ) : (
-                  // Eye SVG
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="#a259f7"
-                    className="w-5 h-5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="3"
-                      stroke="#a259f7"
-                      strokeWidth="1.5"
-                    />
-                  </svg>
-                )}
-              </span>
-            </div>
+
             {/* Google reCAPTCHA */}
             <div className="flex justify-center my-2">
               <ReCAPTCHA
