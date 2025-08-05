@@ -1,20 +1,20 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, memo, useMemo } from "react";
 import { FaUser, FaLink, FaFileUpload, FaCalendarAlt, FaTags, FaAlignLeft } from "react-icons/fa";
 import { useUserInfo } from "../context/UserInfoContext";
 import useStoreData from "../hooks/useStoreData";
 
-export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, companyId, initialData }) {
-  console.log("🎭 [MODAL] AddDocumentModal rendering - open:", open, "companyId:", companyId);
-  
+const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, onSuccess, companyId, employeeId: propEmployeeId, initialData }) {
   const { user, aid } = useUserInfo();
-  const employeeId = aid || user?.employeeId || user?.id || 'temp-employee-id';
   
-  console.log("👤 [MODAL] User context - user aid:", user?.aid, "employeeId:", employeeId);
+  // Use the passed employeeId prop if available, otherwise fall back to user context
+  const employeeId = useMemo(() => {
+    return propEmployeeId || aid || user?.employeeId || user?.id || 'temp-employee-id';
+  }, [propEmployeeId, aid, user?.employeeId, user?.id]);
+  
   
   // Use the passed companyId prop instead of user context to avoid undefined errors
   const { uploadMedia, addLink, loading: uploadLoading, error: uploadError } = useStoreData(companyId, employeeId);
   
-  console.log("📦 [MODAL] useStoreData hook - uploadLoading:", uploadLoading, "uploadError:", uploadError);
   
   const fileInputRef = useRef(null);
   const docInputRefs = useRef([]);
@@ -38,70 +38,55 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
   const [uploadResults, setUploadResults] = useState({ successful: [], failed: [] });
   const [isUploading, setIsUploading] = useState(false);
 
-  console.log("📁 [MODAL] File state - uploadedFiles count:", uploadedFiles.length, "isUploading:", isUploading);
 
   // Reset uploadedFiles only when modal closes
   useEffect(() => {
-    console.log("🎭 [MODAL] Modal open state changed - open:", open);
     if (!open) {
-      console.log("🎭 [MODAL] Modal closed, resetting uploadedFiles");
       setUploadedFiles([]);
     }
   }, [open]);
 
   if (!open) {
-    console.log("🎭 [MODAL] Modal not open, returning null");
     return null;
   }
 
   const handleChange = (e) => {
-    console.log("📝 [MODAL] Form field changed:", e.target.name, "value:", e.target.value);
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
-    console.log("📁 [MODAL] File upload triggered - files selected:", files.length);
-    console.log("📁 [MODAL] File names:", files.map(f => f.name));
     
     setUploadedFiles(prev => {
       const newFiles = [...prev, ...files];
-      console.log("📁 [MODAL] Updated uploadedFiles - previous count:", prev.length, "new count:", newFiles.length);
       return newFiles;
     });
     
     e.target.value = ""; // Reset input so selecting the same file again works
-    console.log("📁 [MODAL] File input reset");
   };
 
   const handleRemoveFile = (index) => {
-    console.log("🗑️ [MODAL] Removing file at index:", index);
     setUploadedFiles(prev => {
       const newFiles = prev.filter((_, i) => i !== index);
-      console.log("🗑️ [MODAL] Updated uploadedFiles after removal - previous count:", prev.length, "new count:", newFiles.length);
       return newFiles;
     });
   };
 
   const handleCustomFieldChange = (idx, key, value) => {
-    console.log("📝 [MODAL] Custom field changed - idx:", idx, "key:", key, "value:", value);
     const updated = [...customFields];
     updated[idx][key] = value;
     setCustomFields(updated);
   };
 
   const handleAddCustomField = () => {
-    console.log("➕ [MODAL] Adding custom field");
     setCustomFields([...customFields, { question: "", answer: "" }]);
   };
 
   const handleRemoveCustomField = (idx) => {
-    console.log("🗑️ [MODAL] Removing custom field at index:", idx);
     setCustomFields(customFields.filter((_, i) => i !== idx));
   };
 
   const handleSubmit = async (e) => {
-    console.log("🚀 [MODAL] Form submission started");
     e.preventDefault();
     setError("");
     
@@ -114,23 +99,20 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
     
     // If there are files, upload them
     if (uploadedFiles.length > 0) {
-      console.log("📁 [MODAL] Starting file upload process - files count:", uploadedFiles.length);
       setIsUploading(true);
       setUploadResults({ successful: [], failed: [] });
       
       try {
         // Generate session group ID once for all files in this upload
         const sessionGroupId = crypto.randomUUID();
-        console.log("🆔 [MODAL] Generated session group ID:", sessionGroupId);
         
         // Sort files by size (smallest first for better user experience)
         const sortedFiles = [...uploadedFiles].sort((a, b) => a.size - b.size);
-        console.log("📁 [MODAL] Sorted files by size:", sortedFiles.map(f => ({ name: f.name, size: f.size })));
-        
+    
         // Upload files sequentially in sorted order
         for (let i = 0; i < sortedFiles.length; i++) {
           const file = sortedFiles[i];
-          console.log("📤 [MODAL] Uploading file:", file.name, "size:", file.size);
+          
           try {
             const meta = await uploadMedia(file, {
               title: form.title,
@@ -146,34 +128,31 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
               // Removed companyId - redundant with document path
             });
             if (meta.success) {
-              console.log("✅ [MODAL] File upload successful:", file.name);
+              
               uploadedFileMetas.push(meta);
               successfulFiles.push({ file, meta });
             } else {
-              console.log("❌ [MODAL] File upload failed:", file.name, "error:", meta.error);
+              
               failedFiles.push({ file, error: meta.error || 'Upload failed' });
             }
           } catch (err) {
-            console.error("❌ [MODAL] File upload error:", file.name, "error:", err.message);
+           
             failedFiles.push({ file, error: err.message || 'Upload failed' });
           }
         }
         
         // Update upload results
-        console.log("📊 [MODAL] Upload results - successful:", successfulFiles.length, "failed:", failedFiles.length);
         setUploadResults({ successful: successfulFiles, failed: failedFiles });
         
         // Remove successful files from selection
         if (successfulFiles.length > 0) {
           const successfulFileNames = successfulFiles.map(item => item.file.name);
-          console.log("🗑️ [MODAL] Removing successful files from selection:", successfulFileNames);
           setUploadedFiles(prev => prev.filter(file => !successfulFileNames.includes(file.name)));
         }
         
         // Set success flag if any files were uploaded
         if (successfulFiles.length > 0) {
           hasFileUpload = true;
-          console.log("✅ [MODAL] File upload completed successfully");
           // Call onAdd with uploaded file metadata
           const documentData = {
             ...form,
@@ -185,18 +164,15 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
         }
         
       } catch (err) {
-        console.error("❌ [MODAL] File upload process error:", err.message);
         errorMessage = err.message || 'File upload failed';
         setError(errorMessage);
       } finally {
-        console.log("🏁 [MODAL] File upload process finished - setting isUploading to false");
         setIsUploading(false);
       }
     }
     
     // If there is a link, store it in Firestore (regardless of file upload)
     if (form.linkData) {
-      console.log("🔗 [MODAL] Processing link data:", form.linkData);
       const linkData = {
         ...form,
         url: form.linkData, // Store as 'url' for compatibility
@@ -205,11 +181,9 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
       delete linkData.linkData; // Remove the old property
       const result = await addLink(linkData);
       if (!result.success) {
-        console.log("❌ [MODAL] Link addition failed:", result.error);
         errorMessage = result.error || "Failed to add link";
         setError(errorMessage);
       } else {
-        console.log("✅ [MODAL] Link added successfully");
         hasLinkUpload = true;
       }
     }
@@ -219,27 +193,22 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
     const hasRemainingFiles = failedFiles.length > 0; // Remaining files = failed files (successful ones are removed)
     const hasFailedFiles = failedFiles.length > 0;
     
-    console.log("📊 [MODAL] Final upload state - hasFileUpload:", hasFileUpload, "hasLinkUpload:", hasLinkUpload, "hasRemainingFiles:", hasRemainingFiles, "hasFailedFiles:", hasFailedFiles);
-    
     // Clear any existing error if all files were successful
     if (hasFileUpload && !hasRemainingFiles && !hasFailedFiles) {
       setError(""); // Clear any error state
     }
     
     if (hasFileUpload && hasLinkUpload && !hasRemainingFiles && !hasFailedFiles) {
-      console.log("✅ [MODAL] Both file and link uploaded successfully");
       setSuccessMessage('File and link added successfully!');
       setTimeout(() => {
         if (typeof onSuccess === 'function') onSuccess('File and link added successfully!');
       }, 1500);
     } else if (hasFileUpload && !hasRemainingFiles && !hasFailedFiles) {
-      console.log("✅ [MODAL] File uploaded successfully");
       setSuccessMessage('File added successfully!');
       setTimeout(() => {
         if (typeof onSuccess === 'function') onSuccess('File added successfully!');
       }, 1500);
     } else if (hasLinkUpload && !hasRemainingFiles && !hasFailedFiles) {
-      console.log("✅ [MODAL] Link added successfully");
       setSuccessMessage('Link added successfully!');
       setTimeout(() => {
         if (typeof onSuccess === 'function') onSuccess('Link added successfully!');
@@ -249,15 +218,12 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
       if (hasFileUpload) {
         const failedFileNames = failedFiles.map(item => item.file.name).join(', ');
         const errorMsg = failedFileNames ? `Failed to upload: ${failedFileNames}` : 'Please retry failed files.';
-        console.log("⚠️ [MODAL] Some files failed to upload:", errorMsg);
         setError(`Some files uploaded successfully. ${errorMsg}`);
       } else {
-        console.log("❌ [MODAL] No files or links provided");
         setError(errorMessage || "Please upload a file or enter a link.");
       }
     } else if (!hasFileUpload && !hasLinkUpload) {
       // No files or links provided
-      console.log("❌ [MODAL] No files or links provided");
       setError("Please upload a file or enter a link.");
     } else if (errorMessage) {
       if (typeof onSuccess === 'function') onSuccess(errorMessage);
@@ -267,7 +233,6 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
     
     // Reset form if not editing
     if (!initialData) {
-      console.log("🔄 [MODAL] Resetting form for new document");
       setForm({
         title: "",
         submitterName: user?.name || "",
@@ -285,7 +250,6 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
     // Don't call onClose here - let onSuccess handle the redirection
   };
 
-  console.log("🎭 [MODAL] Rendering modal content");
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/80 to-purple-100/80 backdrop-blur-[6px]">
@@ -652,4 +616,6 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
       </div>
     </div>
   );
-}
+});
+
+export default AddDocumentModal;

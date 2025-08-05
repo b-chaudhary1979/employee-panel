@@ -133,18 +133,31 @@ const mockDocuments = [
 function DataContent() {
   const router = useRouter();
   const { token } = router.query;
-  const { ci, aid } = decryptToken(token);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { isOpen, isMobile, isHydrated } = useSidebar();
   const headerRef = useRef(null);
   const [headerHeight, setHeaderHeight] = useState(72);
   const { user, loading, error } = useUserInfo();
+  
+  // Wait for router to be ready before decrypting token
+  const isRouterReady = router.isReady && token;
+  
+  // Decrypt token only when router is ready
+  const { ci, aid } = isRouterReady ? decryptToken(token) : { ci: null, aid: null };
+  
   // Use ci from token consistently - same as employee page
   const companyId = ci;
-  const { addFavourite, removeFavourite, deleteMedia, fetchFavourites } =
-    useStoreData(companyId,aid);
-  const { addLink } = useStoreData(companyId,aid); // for completeness, but not used for delete
-  const { loading: storeLoading, error: storeError } = useStoreData(companyId,aid);
+  
+  // Call useStoreData hook - it will handle its own early returns
+  const { 
+    addFavourite, 
+    removeFavourite, 
+    deleteMedia, 
+    fetchFavourites,
+    addLink,
+    loading: storeLoading, 
+    error: storeError 
+  } = useStoreData(companyId, aid);
   // Delete handler for links
   const handleDeleteLink = async (link) => {
     try {
@@ -448,6 +461,18 @@ function DataContent() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // Show loading state while router is not ready
+  if (!isRouterReady) {
+    return (
+      <div className="flex items-center justify-center min-h-screen w-full">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!ci || !aid) return null;
   if (loading) {

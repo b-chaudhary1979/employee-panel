@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
 import { app, db } from '../firebase';
 
@@ -7,16 +7,20 @@ export default function useStoreUserInfoEdit(cid, aid) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Memoize the parameters to prevent unnecessary re-renders
+  const memoizedCid = useMemo(() => cid, [cid]);
+  const memoizedAid = useMemo(() => aid, [aid]);
+
   // Fetch user data by cid and aid
   const fetchUser = useCallback(async () => {
-    if (!cid || !aid) {
+    if (!memoizedCid || !memoizedAid) {
       return;
     }
 
     setLoading(true);
     setError(null);
     try {
-      const userRef = doc(db, 'users', cid, 'employees', aid);
+      const userRef = doc(db, 'users', memoizedCid, 'employees', memoizedAid);
       const userSnap = await getDoc(userRef);
       if (userSnap.exists()) {
         const userData = { id: userSnap.id, ...userSnap.data() };
@@ -26,21 +30,20 @@ export default function useStoreUserInfoEdit(cid, aid) {
         setError('User not found');
       }
     } catch (err) {
-      console.error('useStoreUserInfoEdit: Error fetching user:', err);
       setError(err.message);
       setUser(null);
     } finally {
       setLoading(false);
     }
-  }, [cid, aid]);
+  }, [memoizedCid, memoizedAid]);
 
   // Update all fields at once
-  const updateAllFields = async (fields) => {
-    if (!cid || !aid) return;
+  const updateAllFields = useCallback(async (fields) => {
+    if (!memoizedCid || !memoizedAid) return;
     setLoading(true);
     setError(null);
     try {
-      const userRef = doc(db, 'users', cid, 'employees', aid);
+      const userRef = doc(db, 'users', memoizedCid, 'employees', memoizedAid);
       await updateDoc(userRef, fields);
       setUser((prev) => prev ? { ...prev, ...fields } : prev);
     } catch (err) {
@@ -48,14 +51,17 @@ export default function useStoreUserInfoEdit(cid, aid) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [memoizedCid, memoizedAid]);
 
-  return {
+  // Memoize the return value to prevent unnecessary re-renders
+  const result = useMemo(() => ({
     user,
     setUser,
     loading,
     error,
     fetchUser,
     updateAllFields,
-  };
+  }), [user, loading, error, fetchUser, updateAllFields]);
+
+  return result;
 }

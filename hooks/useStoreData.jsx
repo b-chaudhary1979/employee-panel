@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getFirestore, doc, setDoc, deleteDoc, arrayUnion, getDocs, query, where, collection, onSnapshot, updateDoc } from 'firebase/firestore';
 import app from '../firebase';
 import useCloudinary from './useCloudinary';
@@ -27,6 +27,7 @@ function cleanDataForFirestore(data) {
 
 // New hook for media counts
 export function useMediaCounts(companyId, employeeId) {
+  // All hooks must be called first, before any conditional logic
   const [counts, setCounts] = useState({
     images: 0,
     videos: 0,
@@ -38,9 +39,24 @@ export function useMediaCounts(companyId, employeeId) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (!companyId || !employeeId) return;
+  // Now handle the early return logic after all hooks are called
+  if (!companyId || !employeeId) {
+    return {
+      counts: {
+        images: 0,
+        videos: 0,
+        audio: 0,
+        links: 0,
+        documents: 0,
+        total: 0
+      },
+      loading: false,
+      error: null
+    };
+  }
 
+  // Only define useEffect when we have valid parameters
+  useEffect(() => {
     setLoading(true);
     setError(null);
 
@@ -62,7 +78,6 @@ export function useMediaCounts(companyId, employeeId) {
         });
         setLoading(false);
       }, (err) => {
-       
         setError(`Failed to fetch ${mediaType} count`);
         setLoading(false);
       });
@@ -72,26 +87,38 @@ export function useMediaCounts(companyId, employeeId) {
     return () => {
       unsubscribers.forEach(unsubscribe => unsubscribe());
     };
-  }, [companyId, employeeId]);
+  }, [companyId || '', employeeId || '']);
 
   return { counts, loading, error };
 }
 
 export default function useStoreData(companyId, employeeId) {
- 
-  
+  // All hooks must be called first, before any conditional logic
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { uploadToCloudinary, deleteFromCloudinary, loading: cloudinaryLoading, error: cloudinaryError } = useCloudinary();
 
-  
+  // Now handle the early return logic after all hooks are called
+  if (!companyId || !employeeId) {
+    return {
+      uploadMedia: async () => ({ success: false, error: 'Invalid parameters' }),
+      addLink: async () => ({ success: false, error: 'Invalid parameters' }),
+      addFavourite: async () => ({ success: false, error: 'Invalid parameters' }),
+      removeFavourite: async () => ({ success: false, error: 'Invalid parameters' }),
+      deleteMedia: async () => ({ success: false, error: 'Invalid parameters' }),
+      fetchFavourites: async () => ({ success: false, error: 'Invalid parameters' }),
+      listenForComments: () => null,
+      fetchMediaCounts: async () => ({ success: false, error: 'Invalid parameters' }),
+      loading: false,
+      error: null,
+    };
+  }
 
+  // Only define functions and useMemo when we have valid parameters
   const uploadMedia = async (file, metadata = {}) => {
-    
     setLoading(true);
     setError(null);
     try {
-      
       const collectionName = getCollectionByExtension(file.name);
       // Upload to Cloudinary first
       const cloudinaryResult = await uploadToCloudinary(file, `cyberclipper/${collectionName}`);
@@ -148,8 +175,6 @@ export default function useStoreData(companyId, employeeId) {
         fileDocId
       );
       
-      
-      
       await setDoc(fileDocRef, cleanDataForFirestore(docData));
       
       setLoading(false);
@@ -162,13 +187,6 @@ export default function useStoreData(companyId, employeeId) {
       };
       
     } catch (err) {
-      
-      console.error('Error details:', {
-        message: err.message,
-        code: err.code,
-        stack: err.stack
-      });
-      
       // Always show generic error to user, never expose Firebase errors
       setError('Upload failed');
       setLoading(false);
@@ -183,7 +201,6 @@ export default function useStoreData(companyId, employeeId) {
     try {
       // Validate companyId
       if (!companyId) {
-       
         setError('Company ID is required');
         setLoading(false);
         return { success: false, error: 'Company ID is required' };
@@ -207,11 +224,6 @@ export default function useStoreData(companyId, employeeId) {
       setLoading(false);
       return { success: true, docId: linkDocId };
     } catch (err) {
-      console.error('Error details:', {
-        message: err.message,
-        code: err.code,
-        stack: err.stack
-      });
       // Always show generic error to user, never expose Firebase errors
       setError('Failed to save link');
       setLoading(false);
@@ -235,7 +247,6 @@ export default function useStoreData(companyId, employeeId) {
         where('originalId', '==', favData.id)
       );
             
-      // const favouriteDocId = `favourite-${Date.now()}-${uuid}`;
       const existingFavouritesSnapshot = await getDocs(existingFavouritesQuery);
       
       if (!existingFavouritesSnapshot.empty) {
@@ -250,7 +261,6 @@ export default function useStoreData(companyId, employeeId) {
         collection(db, 'users', companyId, 'employees', employeeId, 'data_favourites'),
         favouriteDocId
       );
-      
       
       // Store the favourite as an individual document
       const favouriteData = {
@@ -276,11 +286,7 @@ export default function useStoreData(companyId, employeeId) {
       setLoading(false);
       return { success: true, favouriteId: favouriteDocId };
     } catch (err) {
-      console.error('Error details:', {
-        message: err.message,
-        code: err.code,
-        stack: err.stack
-      });
+     
       // Always show generic error to user, never expose Firebase errors
       setError('Failed to add to favourites');
       setLoading(false);
@@ -302,11 +308,6 @@ export default function useStoreData(companyId, employeeId) {
       return { success: true };
     } catch (err) {
      
-      console.error('Error details:', {
-        message: err.message,
-        code: err.code,
-        stack: err.stack
-      });
       // Always show generic error to user, never expose Firebase errors
       setError('Failed to remove from favourites');
       setLoading(false);
@@ -326,10 +327,7 @@ export default function useStoreData(companyId, employeeId) {
       // Delete from Cloudinary if cloudinaryPublicId exists
       if (media.cloudinaryPublicId) {
         const cloudinaryResult = await deleteFromCloudinary(media.cloudinaryPublicId, media.cloudinaryResourceType || 'auto');
-        if (!cloudinaryResult.success) {
-          console.warn('Failed to delete from Cloudinary:', cloudinaryResult.error);
-          // Continue with Firestore deletion even if Cloudinary deletion fails
-        }
+       
       }
       
       // Delete the document from the appropriate subcollection
@@ -352,12 +350,6 @@ export default function useStoreData(companyId, employeeId) {
       setLoading(false);
       return { success: true };
     } catch (err) {
-     
-      console.error('Error details:', {
-        message: err.message,
-        code: err.code,
-        stack: err.stack
-      });
       // Always show generic error to user, never expose Firebase errors
       setError('Failed to delete media');
       setLoading(false);
@@ -373,7 +365,6 @@ export default function useStoreData(companyId, employeeId) {
       const favouritesQuery = query(
         collection(db, 'users', companyId, 'employees', employeeId, 'data_favourites')
       );
-      
       
       // Use onSnapshot for real-time updates
       const unsubscribe = onSnapshot(favouritesQuery, (snapshot) => {
@@ -391,7 +382,6 @@ export default function useStoreData(companyId, employeeId) {
           callback({ success: true, favourites });
         }
       }, (err) => {
-       
         setError('Failed to fetch favourites');
         setLoading(false);
         if (callback && typeof callback === 'function') {
@@ -402,7 +392,6 @@ export default function useStoreData(companyId, employeeId) {
       // Return unsubscribe function for cleanup
       return unsubscribe;
     } catch (err) {
-      
       setError('Failed to fetch favourites');
       setLoading(false);
       if (callback && typeof callback === 'function') {
@@ -425,7 +414,6 @@ export default function useStoreData(companyId, employeeId) {
       setLoading(false);
       return { success: true };
     } catch (err) {
-     
       setError('Failed to add comment');
       setLoading(false);
       return { success: false, error: 'Failed to add comment' };
@@ -437,7 +425,6 @@ export default function useStoreData(companyId, employeeId) {
     try {
       const docRef = doc(db, 'users', companyId, 'employees', employeeId, `data_${collectionName}`, documentId);
 
-      
       const unsubscribe = onSnapshot(docRef, (docSnapshot) => {
         if (docSnapshot.exists()) {
           const data = docSnapshot.data();
@@ -452,7 +439,6 @@ export default function useStoreData(companyId, employeeId) {
           }
         }
       }, (err) => {
-       
         if (callback && typeof callback === 'function') {
           callback({ success: false, error: 'Failed to listen for comments' });
         }
@@ -460,7 +446,6 @@ export default function useStoreData(companyId, employeeId) {
       
       return unsubscribe;
     } catch (err) {
-      
       if (callback && typeof callback === 'function') {
         callback({ success: false, error: 'Failed to listen for comments' });
       }
@@ -486,13 +471,13 @@ export default function useStoreData(companyId, employeeId) {
       setLoading(false);
       return { success: true, counts };
     } catch (err) {
-     
       setError('Failed to fetch media counts');
       setLoading(false);
       return { success: false, error: 'Failed to fetch media counts' };
     }
   };
 
+  // Return the object directly without useMemo to avoid dependency array issues
   return {
     uploadMedia,
     addLink,

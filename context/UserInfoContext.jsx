@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/router";
 import useStoreUserInfoEdit from "../hooks/useStoreUserInfoEdit";
 import CryptoJS from "crypto-js";
@@ -24,27 +24,27 @@ function decryptToken(token) {
 export function UserInfoProvider({ children }) {
   const router = useRouter();
   const { token, cid, aid: urlAid } = router.query;
-  console.log("🔐 [CONTEXT] UserInfoProvider - token:", token ? "present" : "missing", "cid:", cid || "missing", "aid:", urlAid || "missing");
-  
-  // Handle both token and cid parameters
-  let ci, aid;
-  if (token) {
-    // Decrypt token if present
-    const decrypted = decryptToken(token);
-    ci = decrypted.ci;
-    aid = decrypted.aid;
-    console.log("🔐 [CONTEXT] Using token decryption - ci:", ci, "aid:", aid);
-  } else if (cid) {
-    // Use cid directly if no token
-    ci = cid;
-    // Try to get aid from URL parameter first, then localStorage/sessionStorage
-    aid = urlAid || localStorage.getItem('employeeId') || sessionStorage.getItem('employeeId') || null;
-    console.log("🔐 [CONTEXT] Using direct cid - ci:", ci, "aid:", aid);
-  } else {
-    ci = null;
-    aid = null;
-    console.log("🔐 [CONTEXT] No token or cid found");
-  }
+  // Memoize the ci and aid calculation to prevent unnecessary re-renders
+  const { ci, aid } = useMemo(() => {
+    let calculatedCi, calculatedAid;
+    
+    if (token) {
+      // Decrypt token if present
+      const decrypted = decryptToken(token);
+      calculatedCi = decrypted.ci;
+      calculatedAid = decrypted.aid;
+    } else if (cid) {
+      // Use cid directly if no token
+      calculatedCi = cid;
+      // Try to get aid from URL parameter first, then localStorage/sessionStorage
+      calculatedAid = urlAid || localStorage.getItem('employeeId') || sessionStorage.getItem('employeeId') || null;
+    } else {
+      calculatedCi = null;
+      calculatedAid = null;
+    }
+    
+    return { ci: calculatedCi, aid: calculatedAid };
+  }, [token, cid, urlAid]);
   
   const {
     user,
@@ -53,37 +53,32 @@ export function UserInfoProvider({ children }) {
     fetchUser,
   } = useStoreUserInfoEdit(ci, aid);
 
-  console.log("👤 [CONTEXT] User state - loading:", loading, "user:", user ? "present" : "missing", "error:", error);
-
-  // Fetch user on mount and when ci or aid changes
-  useEffect(() => {
-    console.log("🔄 [CONTEXT] useEffect triggered - ci:", ci, "aid:", aid);
+  // Memoize the fetchUser callback to prevent unnecessary re-renders
+  const memoizedFetchUser = useCallback(() => {
     if (ci && aid) {
-      console.log("📞 [CONTEXT] Calling fetchUser");
       fetchUser();
-    } else if (ci && !aid) {
-      console.log("⚠️ [CONTEXT] Have ci but no aid - this might be a cid-only case");
-      // For cid-only cases, we might need to handle differently
-    } else {
-      console.log("❌ [CONTEXT] Skipping fetchUser - missing ci or aid");
     }
   }, [ci, aid, fetchUser]);
 
-  // Refresh user info on window focus or resize
+  // Fetch user on mount and when ci or aid changes
   useEffect(() => {
-    function handleRefresh() {
-      if (ci && aid) fetchUser();
-    }
-    window.addEventListener("focus", handleRefresh);
-    window.addEventListener("resize", handleRefresh);
-    return () => {
-      window.removeEventListener("focus", handleRefresh);
-      window.removeEventListener("resize", handleRefresh);
-    };
-  }, [ci, fetchUser]);
+    memoizedFetchUser();
+  }, [memoizedFetchUser]);
+
+  // Remove the window event listeners that were causing unnecessary re-renders
+  // These were triggering fetchUser on every focus/resize, which was causing the loading state flicker
+
+  // Memoize the context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
+    user,
+    loading,
+    error,
+    fetchUser: memoizedFetchUser,
+    aid
+  }), [user, loading, error, memoizedFetchUser, aid]);
 
   return (
-    <UserInfoContext.Provider value={{ user, loading, error, fetchUser, aid }}>
+    <UserInfoContext.Provider value={contextValue}>
       {children}
     </UserInfoContext.Provider>
   );

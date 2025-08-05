@@ -24,54 +24,50 @@ import useStoreData from "../hooks/useStoreData";
 // }
 
 function AddDocumentsPageContent() {
-  console.log("🔄 [RENDER] AddDocumentsPageContent rendering");
   
   const router = useRouter();
   const { token, cid, aid } = router.query; // Get encrypted token or cid and aid from query
   const { user, loading } = useUserInfo();
   
-  console.log("📋 [STATE] Router query - token:", token ? "present" : "missing", "cid:", cid || "missing", "aid:", aid || "missing");
-  console.log("👤 [STATE] User info - loading:", loading, "user:", user ? "present" : "missing", "user aid:", user?.aid);
-  console.log("👤 [STATE] User details - companyId:", user?.companyId, "ci:", user?.ci, "aid:", user?.aid);
-  
-  // Get companyId and employeeId directly from cid and aid parameters
+    // Wait for router to be ready and have valid parameters
+  const isRouterReady = router.isReady && (cid || token);
+
+  // Calculate companyId and employeeId - these might be undefined initially
   const companyId = cid;
   const employeeId = aid || user?.aid || user?.employeeId || user?.id || 'temp-employee-id';
-  
-  console.log("🏢 [STATE] Final values - companyId:", companyId, "employeeId:", employeeId);
-  
-  const {
-    uploadMedia,
-    addLink,
-    loading: uploadLoading,
-  } = useStoreData(companyId, employeeId);
 
-  console.log("📦 [HOOK] useStoreData called with - companyId:", companyId, "employeeId:", employeeId);
-  console.log("📦 [HOOK] useStoreData returned - uploadLoading:", uploadLoading);
+
+  // Call useStoreData hook first - it will handle its own memoization and early returns
+  const { uploadMedia, addLink, loading: uploadLoading, error: uploadError } = useStoreData(companyId, employeeId);
+  
 
   // Add modal state
   const [showAddDocumentModal, setShowAddDocumentModal] = useState(true);
   const [notification, setNotification] = useState({ show: false, message: "", color: "green" });
 
-  console.log("🎭 [STATE] Modal state - showAddDocumentModal:", showAddDocumentModal);
 
   // Simple authentication check - same as other pages
   useEffect(() => {
-    console.log("🔐 [AUTH] Authentication check - router.isReady:", router.isReady, "cid:", cid || "missing");
-    console.log("🔐 [AUTH] Router state - isReady:", router.isReady, "asPath:", router.asPath);
-    if (router.isReady && !cid) {
-      console.log("🔐 [AUTH] Redirecting to login - no valid parameters");
+    if (router.isReady && !cid && !token) {
       router.replace("/auth/login");
     }
-  }, [router.isReady, cid]);
+  }, [router.isReady, cid, token]);
+
+  // Don't render the modal until we have valid parameters
+  if (!isRouterReady || !companyId || !employeeId) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Simple loading states - same as other pages
-  if (!cid) {
-    console.log("❌ [RENDER] Early return - no valid parameters");
-    return null;
-  }
-  if (loading) {
-    console.log("⏳ [RENDER] User context loading - waiting for user data");
+  // Only show loading if we don't have valid parameters yet
+  if (loading && (!companyId || !employeeId)) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -89,27 +85,18 @@ function AddDocumentsPageContent() {
     );
   }
   
-  // If we have cid but no employeeId, we can still proceed for file upload
-  if (!employeeId) {
-    console.log("⚠️ [RENDER] No employeeId but have cid - proceeding with limited functionality");
-    // We can still show the modal for file upload, but some features might be limited
-  }
-
   // Handle document addition
   const handleAddDocument = (documentData) => {
-    console.log("📄 [HANDLER] handleAddDocument called with:", documentData);
     // Don't handle redirection here - let onSuccess handle it
     // This prevents double router.back() calls
   };
 
   // Handle modal close
   const handleCloseModal = () => {
-    console.log("❌ [HANDLER] handleCloseModal called");
     setShowAddDocumentModal(false);
     router.back();
   };
 
-  console.log("✅ [RENDER] Rendering main component");
 
   return (
     <>
@@ -131,11 +118,10 @@ function AddDocumentsPageContent() {
         onClose={handleCloseModal}
         onAdd={handleAddDocument}
         companyId={companyId}
+        employeeId={employeeId}
         onSuccess={(message) => {
-          console.log("✅ [SUCCESS] onSuccess called with message:", message);
           setNotification({ show: true, message, color: 'green' });
           setTimeout(() => {
-            console.log("⏰ [TIMEOUT] Executing timeout callback");
             setNotification({ show: false, message: '', color: 'green' });
             router.back();
           }, 1500);
@@ -146,7 +132,6 @@ function AddDocumentsPageContent() {
 }
 
 export default function AddDocumentsPage() {
-  console.log("🏗️ [RENDER] AddDocumentsPage wrapper rendering");
   return (
     <SidebarProvider>
       <AddDocumentsPageContent />

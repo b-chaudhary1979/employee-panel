@@ -41,8 +41,8 @@ export default function LinksSection({ onDelete }) {
   
   // Only initialize useStoreData when both companyId and employeeId are available
   const { loading: storeLoading, error: storeError, addComment, listenForComments } = useStoreData(
-    companyId && employeeId ? companyId : null, 
-    companyId && employeeId ? employeeId : null
+    companyId, 
+    employeeId
   );
 
   useEffect(() => {
@@ -71,7 +71,6 @@ export default function LinksSection({ onDelete }) {
         setLinks(linksData);
         setLoading(false);
       }, (err) => {
-        console.error("LinksSection: Error fetching links:", err);
         setError("Failed to fetch links");
         setLoading(false);
       });
