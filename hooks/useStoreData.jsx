@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { getFirestore, doc, setDoc, deleteDoc, arrayUnion, getDocs, query, where, collection, onSnapshot, updateDoc } from 'firebase/firestore';
 import app from '../firebase';
 import useCloudinary from './useCloudinary';
+import useDataSyncToAdmin from './useDataSyncToAdmin';
 
 const db = getFirestore(app);
 
@@ -9,7 +10,7 @@ const db = getFirestore(app);
 function getCollectionByExtension(filename) {
   const ext = filename.split('.').pop().toLowerCase();
   if (["jpg", "jpeg", "png", "gif"].includes(ext)) return "images";
-  if (["mp3", "wav", "aac", "flac", "ogg", "m4a"].includes(ext)) return "audio";
+  if (["mp3", "wav", "aac", "flac", "ogg", "m4a"].includes(ext)) return "audios";
   if (["mp4", "avi", "mov", "wmv", "flv", "webm"].includes(ext)) return "videos";
   if (["pdf", "doc", "docx", "txt"].includes(ext)) return "documents";
   return "documents"; // Default to documents for unknown types
@@ -31,7 +32,7 @@ export function useMediaCounts(companyId, employeeId) {
   const [counts, setCounts] = useState({
     images: 0,
     videos: 0,
-    audio: 0,
+    audios: 0,
     links: 0,
     documents: 0,
     total: 0
@@ -45,7 +46,7 @@ export function useMediaCounts(companyId, employeeId) {
       counts: {
         images: 0,
         videos: 0,
-        audio: 0,
+        audios: 0,
         links: 0,
         documents: 0,
         total: 0
@@ -60,7 +61,7 @@ export function useMediaCounts(companyId, employeeId) {
     setLoading(true);
     setError(null);
 
-    const collections = ['data_images', 'data_videos', 'data_audio', 'data_links', 'data_documents'];
+    const collections = ['data_images', 'data_videos', 'data_audios', 'data_links', 'data_documents'];
     const unsubscribers = [];
 
     collections.forEach(collectionName => {
@@ -73,7 +74,7 @@ export function useMediaCounts(companyId, employeeId) {
             [mediaType]: snapshot.size
           };
           // Calculate total
-          newCounts.total = newCounts.images + newCounts.videos + newCounts.audio + newCounts.links + newCounts.documents;
+          newCounts.total = newCounts.images + newCounts.videos + newCounts.audios + newCounts.links + newCounts.documents;
           return newCounts;
         });
         setLoading(false);
@@ -97,6 +98,9 @@ export default function useStoreData(companyId, employeeId) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { uploadToCloudinary, deleteFromCloudinary, loading: cloudinaryLoading, error: cloudinaryError } = useCloudinary();
+  
+  // Admin sync hook for delete operations
+  const { deleteMediaFromAdmin, deleteLinkFromAdmin } = useDataSyncToAdmin();
 
   // Now handle the early return logic after all hooks are called
   if (!companyId || !employeeId) {
@@ -152,10 +156,12 @@ export default function useStoreData(companyId, employeeId) {
         fileType: file.type,
         fileSize: file.size,
         uploadedAt: new Date().toISOString(),
+        role: "Employee", // Hardcoded role field
+        employeeId: employeeId, // Store the employee ID
       };
       
-      // Only add comments field for images, audio, and videos
-      if (["images", "audio", "videos"].includes(collectionName)) {
+      // Only add comments field for images, audios, and videos
+      if (["images", "audios", "videos"].includes(collectionName)) {
         docData.comments = [];
       }
 
@@ -180,7 +186,18 @@ export default function useStoreData(companyId, employeeId) {
       setLoading(false);
       return { 
         success: true, 
-        cloudinaryUrl: cloudinaryResult.cloudinaryUrl, 
+        cloudinaryUrl: cloudinaryResult.cloudinaryUrl,
+        cloudinaryPublicId: cloudinaryResult.cloudinaryPublicId,
+        cloudinaryAssetId: cloudinaryResult.cloudinaryAssetId,
+        cloudinaryVersion: cloudinaryResult.cloudinaryVersion,
+        cloudinaryFormat: cloudinaryResult.cloudinaryFormat,
+        cloudinaryResourceType: cloudinaryResult.cloudinaryResourceType,
+        cloudinaryBytes: cloudinaryResult.cloudinaryBytes,
+        cloudinaryWidth: cloudinaryResult.cloudinaryWidth,
+        cloudinaryHeight: cloudinaryResult.cloudinaryHeight,
+        cloudinaryDuration: cloudinaryResult.cloudinaryDuration,
+        cloudinaryBitRate: cloudinaryResult.cloudinaryBitRate,
+        cloudinaryFps: cloudinaryResult.cloudinaryFps,
         collectionName, 
         docId: fileDocId, 
         storageType: 'cloudinary' 
@@ -218,6 +235,8 @@ export default function useStoreData(companyId, employeeId) {
         ...linkData,
         uploadedAt: new Date().toISOString(),
         comments: [], // Initialize comments array
+        role: "Employee", // Hardcoded role field
+        employeeId: employeeId, // Store the employee ID
       };
       
       await setDoc(linkDocRef, linkDataWithMetadata);
@@ -277,6 +296,8 @@ export default function useStoreData(companyId, employeeId) {
         favouriteDate: new Date().toISOString(),
         favouritedBy: favData.submitterName || favData.employee || 'Unknown',
         originalCollection: favData.originalCollection || 'unknown', // Store which collection the original item is in
+        role: "Employee", // Hardcoded role field
+        employeeId: employeeId, // Store the employee ID
       };
       
       // Clean the data to remove any undefined values
@@ -347,6 +368,20 @@ export default function useStoreData(companyId, employeeId) {
         await Promise.all(deletePromises);
       }
       
+      // SYNC DELETE TO ADMIN DATABASE
+      try {
+        const adminDeleteResult = await deleteMediaFromAdmin({
+          companyId,
+          employeeId,
+          documentId: docId,
+          mediaType: collectionName
+        });
+        
+      } catch (syncErr) {
+        
+        // Don't fail the entire operation if admin delete fails
+      }
+      
       setLoading(false);
       return { success: true };
     } catch (err) {
@@ -354,6 +389,61 @@ export default function useStoreData(companyId, employeeId) {
       setError('Failed to delete media');
       setLoading(false);
       return { success: false, error: 'Failed to delete media' };
+    }
+  };
+
+  // Delete link from Firestore and sync to admin
+  const deleteLink = async (link) => {
+   
+    setLoading(true);
+    setError(null);
+    try {
+      const docId = link.id;
+    
+      // Delete the document from the links subcollection
+      const docRef = doc(db, 'users', companyId, 'employees', employeeId, 'data_links', docId);
+     
+      
+      await deleteDoc(docRef);
+     
+      // Also delete any related favourite documents
+      const favouritesQuery = query(
+        collection(db, 'users', companyId, 'employees', employeeId, 'data_favourites'),
+        where('originalId', '==', docId)
+      );
+           
+      const favouritesSnapshot = await getDocs(favouritesQuery);
+      
+      if (!favouritesSnapshot.empty) {
+        const deletePromises = favouritesSnapshot.docs.map(doc => deleteDoc(doc.ref));
+        await Promise.all(deletePromises);
+       
+      }
+      
+      // SYNC DELETE TO ADMIN DATABASE
+     
+      try {
+        const adminDeleteParams = {
+          companyId,
+          employeeId,
+          documentId: docId
+        };
+              
+        const adminDeleteResult = await deleteLinkFromAdmin(adminDeleteParams);
+       
+      } catch (syncErr) {
+       
+        // Don't fail the entire operation if admin delete fails
+      }
+      
+      setLoading(false);
+     
+      return { success: true };
+    } catch (err) {
+      // Always show generic error to user, never expose Firebase errors
+      setError('Failed to delete link');
+      setLoading(false);
+      return { success: false, error: 'Failed to delete link' };
     }
   };
 
@@ -458,7 +548,7 @@ export default function useStoreData(companyId, employeeId) {
     setLoading(true);
     setError(null);
     try {
-      const collections = ['data_images', 'data_videos', 'data_audio', 'data_links', 'data_documents'];
+      const collections = ['data_images', 'data_videos', 'data_audios', 'data_links', 'data_documents'];
       const counts = {};
       
       for (const collectionName of collections) {
@@ -481,6 +571,7 @@ export default function useStoreData(companyId, employeeId) {
   return {
     uploadMedia,
     addLink,
+    deleteLink,
     addFavourite,
     removeFavourite,
     deleteMedia,

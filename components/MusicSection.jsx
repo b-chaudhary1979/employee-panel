@@ -88,7 +88,7 @@ export default function MusicSection({ onFavourite }) {
         const result = await addComment(
           modal.music.id,
           modal.feedback.trim(),
-          "audio"
+          "audios"
         );
         if (result.success) {
           setNotification("Feedback submitted successfully!");
@@ -115,7 +115,7 @@ export default function MusicSection({ onFavourite }) {
       const { updateDoc, arrayRemove } = await import("firebase/firestore");
       const { getFirestore, doc } = await import("firebase/firestore");
       const db = getFirestore();
-      const docRef = doc(db, "users", companyId, "employees", employeeId, "data_audio", modal.music.id);
+      const docRef = doc(db, "users", companyId, "employees", employeeId, "data_audios", modal.music.id);
 
       await updateDoc(docRef, {
         comments: arrayRemove(commentToDelete),
@@ -134,7 +134,7 @@ export default function MusicSection({ onFavourite }) {
     if (modal && modal.music && modal.music.id) {
       const unsubscribe = listenForComments(
         modal.music.id,
-        "audio",
+        "audios",
         (result) => {
           if (result.success) {
             setComments(result.comments);
@@ -154,7 +154,7 @@ export default function MusicSection({ onFavourite }) {
     import("firebase/firestore").then(
       ({ getFirestore, collection, query, where, onSnapshot }) => {
         const db = getFirestore();
-        const musicRef = collection(db, "users", companyId, "employees", employeeId, "data_audio");
+        const musicRef = collection(db, "users", companyId, "employees", employeeId, "data_audios");
         const musicQuery = query(musicRef);
         unsubscribe = onSnapshot(musicQuery, (querySnapshot) => {
           const musicData = [];
@@ -451,7 +451,7 @@ export default function MusicSection({ onFavourite }) {
 
                   setIsDeleting(true);
                   try {
-                    const result = await deleteMedia(confirmDelete, "audio");
+                    const result = await deleteMedia(confirmDelete, "audios");
                     if (result.success) {
                       setNotification("Music deleted successfully!");
                       setTimeout(() => setNotification(""), 1500);
@@ -460,7 +460,7 @@ export default function MusicSection({ onFavourite }) {
                       setTimeout(() => setNotification(""), 1500);
                     }
                   } catch (error) {
-                    console.error("Delete error:", error);
+                    
                     setNotification(
                       "An error occurred while deleting the music"
                     );

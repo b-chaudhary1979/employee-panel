@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, memo, useMemo } from "react";
 import { FaUser, FaLink, FaFileUpload, FaCalendarAlt, FaTags, FaAlignLeft } from "react-icons/fa";
 import { useUserInfo } from "../context/UserInfoContext";
 import useStoreData from "../hooks/useStoreData";
+import useDataSyncToAdmin from "../hooks/useDataSyncToAdmin";
 
 const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, onSuccess, companyId, employeeId: propEmployeeId, initialData }) {
   const { user, aid } = useUserInfo();
@@ -14,6 +15,15 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
   
   // Use the passed companyId prop instead of user context to avoid undefined errors
   const { uploadMedia, addLink, loading: uploadLoading, error: uploadError } = useStoreData(companyId, employeeId);
+  
+  // Admin sync hook
+  const { 
+    syncMediaToAdmin, 
+    syncLinkToAdmin: syncLinkToAdminHook, 
+    loading: syncLoading, 
+    error: syncError,
+    lastSyncStatus 
+  } = useDataSyncToAdmin();
   
   
   const fileInputRef = useRef(null);
@@ -84,6 +94,128 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
 
   const handleRemoveCustomField = (idx) => {
     setCustomFields(customFields.filter((_, i) => i !== idx));
+  };
+
+  // Sync successful uploads to admin database
+  const syncSuccessfulUploadsToAdmin = async (successfulFiles) => {
+    if (!companyId || successfulFiles.length === 0) return;
+
+    const syncPromises = successfulFiles.map(async (fileItem) => {
+      const { file, meta } = fileItem;
+      
+      // Determine media type from file extension
+      const getMediaType = (filename) => {
+        const ext = filename.split('.').pop().toLowerCase();
+        if (["jpg", "jpeg", "png", "gif"].includes(ext)) return "images";
+        if (["mp3", "wav", "aac", "flac", "ogg", "m4a"].includes(ext)) return "audios";
+        if (["mp4", "avi", "mov", "wmv", "flv", "webm"].includes(ext)) return "videos";
+        if (["pdf", "doc", "docx", "txt"].includes(ext)) return "documents";
+        return "documents"; // Default
+      };
+
+      const mediaType = getMediaType(file.name);
+      
+      // Get the document data that was stored in employee database
+      // This should match exactly what's stored in useStoreData.jsx
+      const documentData = {
+        title: form.title,
+        submitterName: form.submitterName,
+        category: form.category,
+        tags: form.tags,
+        notes: form.notes,
+        textData: form.textData,
+        customFields, // Include custom fields
+        cloudinaryUrl: meta.cloudinaryUrl,
+        cloudinaryPublicId: meta.cloudinaryPublicId,
+        cloudinaryAssetId: meta.cloudinaryAssetId,
+        cloudinaryVersion: meta.cloudinaryVersion,
+        cloudinaryFormat: meta.cloudinaryFormat,
+        cloudinaryResourceType: meta.cloudinaryResourceType,
+        cloudinaryBytes: meta.cloudinaryBytes,
+        cloudinaryWidth: meta.cloudinaryWidth,
+        cloudinaryHeight: meta.cloudinaryHeight,
+        cloudinaryDuration: meta.cloudinaryDuration,
+        cloudinaryBitRate: meta.cloudinaryBitRate,
+        cloudinaryFps: meta.cloudinaryFps,
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size,
+        createdAt: form.createdAt, // Include the original createdAt
+        uploadedAt: new Date().toISOString(),
+        role: "Employee",
+        employeeId: employeeId,
+        // Add comments field for images, audios, and videos
+        ...(mediaType === 'images' || mediaType === 'audios' || mediaType === 'videos' ? { comments: [] } : {}),
+        // Add document-specific fields for documents
+        ...(mediaType === 'documents' ? {
+          documentId: meta.docId,
+          documentGroupId: `${form.title}-${form.sessionGroupId || crypto.randomUUID()}`
+        } : {}),
+        // Include all metadata from the upload
+        ...meta
+      };
+
+      try {
+        const syncResult = await syncMediaToAdmin({
+          companyId,
+          employeeId,
+          documentId: meta.docId, // Use the same document ID
+          data: documentData,
+          mediaType,
+          operation: 'set'
+        });
+
+        if (!syncResult.success) {
+          return { success: false, file: file.name, error: syncResult.error };
+        }
+
+        return { success: true, file: file.name };
+
+      } catch (err) {
+      
+        return { success: false, file: file.name, error: err.message };
+      }
+    });
+
+    const syncResults = await Promise.all(syncPromises);
+    const successfulSyncs = syncResults.filter(result => result.success);
+    const failedSyncs = syncResults.filter(result => !result.success);
+
+    return { successfulSyncs, failedSyncs };
+  };
+
+  // Sync link to admin database
+  const syncLinkToAdmin = async (linkData, linkDocId) => {
+    if (!companyId || !linkDocId) return;
+
+    try {
+      // Ensure we send all the fields that are stored in the employee database
+      const completeLinkData = {
+        ...linkData,
+        customFields, // Include custom fields
+        createdAt: form.createdAt, // Include the original createdAt
+        uploadedAt: new Date().toISOString(),
+        comments: [], // Initialize comments array
+        role: "Employee", // Hardcoded role field
+        employeeId: employeeId, // Store the employee ID
+      };
+
+      const syncResult = await syncLinkToAdminHook({
+        companyId,
+        employeeId,
+        documentId: linkDocId,
+        data: completeLinkData,
+        operation: 'set'
+      });
+
+      if (!syncResult.success) {
+        return { success: false, error: syncResult.error };
+      }
+      return { success: true };
+
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -161,6 +293,15 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
             id: Date.now(),
           };
           onAdd(documentData);
+          
+          // SYNC TO ADMIN DATABASE - This is the key integration point
+          try {
+            const adminSyncResult = await syncSuccessfulUploadsToAdmin(successfulFiles);
+           
+          } catch (syncErr) {
+            
+            // Don't fail the entire operation if admin sync fails
+          }
         }
         
       } catch (err) {
@@ -173,18 +314,42 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
     
     // If there is a link, store it in Firestore (regardless of file upload)
     if (form.linkData) {
-      const linkData = {
-        ...form,
-        url: form.linkData, // Store as 'url' for compatibility
-        createdAt: new Date().toISOString(),
-      };
-      delete linkData.linkData; // Remove the old property
-      const result = await addLink(linkData);
-      if (!result.success) {
-        errorMessage = result.error || "Failed to add link";
+      // Set uploading state for link uploads
+      if (!isUploading) {
+        setIsUploading(true);
+      }
+      
+      try {
+        const linkData = {
+          ...form,
+          url: form.linkData, // Store as 'url' for compatibility
+          createdAt: new Date().toISOString(),
+        };
+        delete linkData.linkData; // Remove the old property
+        const result = await addLink(linkData);
+        if (!result.success) {
+          errorMessage = result.error || "Failed to add link";
+          setError(errorMessage);
+        } else {
+          hasLinkUpload = true;
+          
+          // SYNC LINK TO ADMIN DATABASE
+          try {
+            const adminSyncResult = await syncLinkToAdmin(linkData, result.docId);
+
+          } catch (syncErr) {
+           
+            // Don't fail the entire operation if admin sync fails
+          }
+        }
+      } catch (err) {
+        errorMessage = err.message || 'Link upload failed';
         setError(errorMessage);
-      } else {
-        hasLinkUpload = true;
+      } finally {
+        // Only reset uploading state if no files were uploaded (to avoid conflicts)
+        if (uploadedFiles.length === 0) {
+          setIsUploading(false);
+        }
       }
     }
     
@@ -603,7 +768,7 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Uploading...
+                    {uploadedFiles.length > 0 ? "Uploading..." : "Adding Link..."}
                   </span>
                 ) : (
                   initialData ? "Update Document" : "Add Document"

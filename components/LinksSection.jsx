@@ -33,6 +33,7 @@ export default function LinksSection({ onDelete }) {
   const [confirmDelete, setConfirmDelete] = useState(null); // link to delete
   const [notification, setNotification] = useState("");
   const [comments, setComments] = useState([]); // To store comments for the current link
+  const [isDeleting, setIsDeleting] = useState(false); // Loading state for delete operation
   const { user, aid: userAid } = useUserInfo();
   
   // Use ci from token as companyId (same as data.jsx page)
@@ -378,30 +379,69 @@ export default function LinksSection({ onDelete }) {
                 <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full border-2 border-red-200 flex flex-col items-center">
                   <h3 className="text-xl font-bold text-red-600 mb-4">Delete Link?</h3>
                   <p className="text-gray-700 mb-6 text-center">Are you sure you want to delete this link? This action cannot be undone.</p>
-                  <div className="flex gap-4 w-full justify-end">
-                    <button
-                      className="px-6 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition"
-                      onClick={() => setConfirmDelete(null)}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                          className="px-6 py-2 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 transition"
-                          onClick={async () => {
-                            const { getFirestore, doc, deleteDoc } = await import("firebase/firestore");
-                            const db = getFirestore();
-                            const docRef = doc(db, "users", companyId, "employees", employeeId, "data_links", confirmDelete.id);
-                            await deleteDoc(docRef);
-                        
-                            setLinks(prev => prev.filter(l => l.id !== confirmDelete.id));
-                            setConfirmDelete(null);
-                            setModal(null);
-                            setNotification("Link deleted successfully!");
-                            setTimeout(() => setNotification(""), 1500);
-                             }}
-                           >
-                             Delete
-                           </button>
+                                     <div className="flex gap-4 w-full justify-end">
+                     <button
+                       className={`px-6 py-2 rounded-lg text-gray-700 font-semibold transition ${isDeleting ? "bg-gray-300 cursor-not-allowed" : "bg-gray-200 hover:bg-gray-300"}`}
+                       onClick={() => !isDeleting && setConfirmDelete(null)}
+                       disabled={isDeleting}
+                     >
+                       Cancel
+                     </button>
+                     <button
+                           className={`px-6 py-2 rounded-lg text-white font-semibold transition flex items-center gap-2 ${isDeleting ? "bg-red-400 cursor-not-allowed" : "bg-red-500 hover:bg-red-600"}`}
+                           onClick={async () => {
+                             if (isDeleting || typeof onDelete !== 'function') return;
+                             
+                             setIsDeleting(true);
+                             try {
+                               const result = await onDelete(confirmDelete);
+                               if (result && result.success) {
+                                 setNotification("Link deleted successfully!");
+                                 setTimeout(() => setNotification(""), 1500);
+                               } else {
+                                 setNotification("Failed to delete link");
+                                 setTimeout(() => setNotification(""), 1500);
+                               }
+                             } catch (error) {
+                              
+                               setNotification("An error occurred while deleting the link");
+                               setTimeout(() => setNotification(""), 1500);
+                             } finally {
+                               setIsDeleting(false);
+                               setConfirmDelete(null);
+                               setModal(null);
+                             }
+                           }}
+                           disabled={isDeleting}
+                         >
+                           {isDeleting ? (
+                             <>
+                               <svg
+                                 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                               >
+                                 <circle
+                                   className="opacity-25"
+                                   cx="12"
+                                   cy="12"
+                                   r="10"
+                                   stroke="currentColor"
+                                   strokeWidth="4"
+                                 ></circle>
+                                 <path
+                                   className="opacity-75"
+                                   fill="currentColor"
+                                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                 ></path>
+                               </svg>
+                               Deleting...
+                             </>
+                           ) : (
+                             "Delete"
+                           )}
+                         </button>
 
                   </div>
                 </div>

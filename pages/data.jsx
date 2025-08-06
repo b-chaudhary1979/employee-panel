@@ -16,6 +16,8 @@ import FavouriteSection from "../components/FavouriteSection";
 
 import DocumentsSection from "../components/DocumentsSection";
 import useStoreData from "../hooks/useStoreData";
+import useFetchEmployeeData from "../hooks/useFetchEmployeeData";
+import useDataSyncToAdmin from "../hooks/useDataSyncToAdmin";
 
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
 
@@ -148,46 +150,54 @@ function DataContent() {
   // Use ci from token consistently - same as employee page
   const companyId = ci;
   
-  // Call useStoreData hook - it will handle its own early returns
   const { 
     addFavourite, 
     removeFavourite, 
     deleteMedia, 
+    deleteLink,
     fetchFavourites,
     addLink,
     loading: storeLoading, 
     error: storeError 
   } = useStoreData(companyId, aid);
+
+  // Call useFetchEmployeeData hook to get all data including favourites
+  const { 
+    data: employeeData, 
+    loading: employeeDataLoading, 
+    error: employeeDataError 
+  } = useFetchEmployeeData(companyId, aid);
+  // Admin sync hook for delete operations
+  const { deleteLinkFromAdmin } = useDataSyncToAdmin();
+
   // Delete handler for links
   const handleDeleteLink = async (link) => {
+   
     try {
-      // Remove from Firestore using deleteDoc
-      import("firebase/firestore").then(
-        async ({ getFirestore, doc, deleteDoc }) => {
-          const db = getFirestore();
-          // Delete the specific link document using its ID from the links subcollection
-          const linkDocRef = doc(
-            db,
-            "users",
-            companyId,
-            "employees",
-            aid,
-            "data_links",
-            link.id
-          );
-          await deleteDoc(linkDocRef);
-
-          setNotification({
-            show: true,
-            message: "Link deleted successfully!",
-            color: "green",
-          });
-          setTimeout(
-            () => setNotification({ show: false, message: "", color: "green" }),
-            1500
-          );
-        }
-      );
+      // Use the deleteLink function from useStoreData which handles both employee and admin deletion
+      const result = await deleteLink(link);
+      
+      if (result.success) {
+        setNotification({
+          show: true,
+          message: "Link deleted successfully!",
+          color: "green",
+        });
+        setTimeout(
+          () => setNotification({ show: false, message: "", color: "green" }),
+          1500
+        );
+      } else {
+        setNotification({
+          show: true,
+          message: result.error || "Delete failed",
+          color: "red",
+        });
+        setTimeout(
+          () => setNotification({ show: false, message: "", color: "red" }),
+          1500
+        );
+      }
     } catch (err) {
       setNotification({
         show: true,
@@ -214,49 +224,32 @@ function DataContent() {
 
   const totalMedia = 0; // Documents are now handled by DocumentsSection component
 
-  // Load favourites from Firestore with real-time updates
-  const loadFavourites = async () => {
-    if (!companyId || !aid) return;
+  // Load favourites from useFetchEmployeeData hook
+  useEffect(() => {
+    if (employeeData && employeeData.favourites) {
+         
+      // Separate favourites by type
+      const images = employeeData.favourites.filter(
+        (fav) =>
+          fav.originalType === "image" || fav.originalCollection === "images"
+      );
+      const videos = employeeData.favourites.filter(
+        (fav) =>
+          fav.originalType === "video" || fav.originalCollection === "videos"
+      );
+      const music = employeeData.favourites.filter(
+        (fav) =>
+          fav.originalType === "audio" || 
+          fav.originalType === "music" || 
+          fav.originalCollection === "audios"
+      );
 
-    setFavouritesLoading(true);
-    try {
-      const unsubscribe = await fetchFavourites((result) => {
-        if (result.success) {
-          const favourites = result.favourites;
 
-          // Separate favourites by type
-          const images = favourites.filter(
-            (fav) =>
-              fav.originalType === "image" || fav.fileCategory === "image"
-          );
-          const videos = favourites.filter(
-            (fav) =>
-              fav.originalType === "video" || fav.fileCategory === "video"
-          );
-          const music = favourites.filter(
-            (fav) =>
-              fav.originalType === "music" || fav.fileCategory === "music"
-          );
-
-          setFavImages(images);
-          setFavVideos(videos);
-          setFavMusic(music);
-        }
-        setFavouritesLoading(false);
-      });
-
-      // Store unsubscribe function for cleanup
-      if (unsubscribe) {
-        // Clean up previous listener if exists
-        if (window.favouritesUnsubscribe) {
-          window.favouritesUnsubscribe();
-        }
-        window.favouritesUnsubscribe = unsubscribe;
-      }
-    } catch (err) {
-      setFavouritesLoading(false);
+      setFavImages(images);
+      setFavVideos(videos);
+      setFavMusic(music);
     }
-  };
+  }, [employeeData]);
 
   const handleEditDocument = (documentData) => {
     setNotification({
@@ -328,8 +321,42 @@ function DataContent() {
   // Handlers for adding/removing favourites
   const handleFavourite = async (item, isFav, type) => {
     if (isFav) {
+      // Determine the type and original collection based on the item's properties
+      let itemType = type;
+      let originalCollection = 'unknown';
+      
+      // If type is not provided, try to determine it from the item's properties
+      if (!itemType) {
+        if (item.cloudinaryUrl) {
+          // Check file extension or other properties to determine type
+          if (item.fileName) {
+            const ext = item.fileName.split('.').pop().toLowerCase();
+            if (["jpg", "jpeg", "png", "gif"].includes(ext)) {
+              itemType = 'image';
+            } else if (["mp3", "wav", "aac", "flac", "ogg", "m4a"].includes(ext)) {
+              itemType = 'audio';
+            } else if (["mp4", "avi", "mov", "wmv", "flv", "webm"].includes(ext)) {
+              itemType = 'video';
+            }
+          }
+        }
+      }
+      
+      // Determine the original collection based on the type
+      if (itemType === 'image' || itemType === 'images') {
+        originalCollection = 'images';
+      } else if (itemType === 'video' || itemType === 'videos') {
+        originalCollection = 'videos';
+      } else if (itemType === 'audio' || itemType === 'music') {
+        originalCollection = 'audios';
+      } else if (itemType === 'document' || itemType === 'documents') {
+        originalCollection = 'documents';
+      } else if (itemType === 'link' || itemType === 'links') {
+        originalCollection = 'links';
+      }
+      
       // Add to Firestore
-      await addFavourite({ ...item, type });
+      await addFavourite({ ...item, type: itemType, originalCollection });
       setNotification({
         show: true,
         message: "Added to Favourites",
@@ -407,26 +434,14 @@ function DataContent() {
     }
   }, [router.isReady, ci, aid]);
 
-  // Load favourites when component mounts or companyId changes
-  useEffect(() => {
-    if (companyId) {
-      loadFavourites();
-    }
-
-    // Cleanup function to unsubscribe from real-time listener
-    return () => {
-      if (window.favouritesUnsubscribe) {
-        window.favouritesUnsubscribe();
-        window.favouritesUnsubscribe = null;
-      }
-    };
-  }, [companyId]);
+  // No longer needed since we're using useFetchEmployeeData hook
+  // The favourites are now loaded automatically through the hook
 
   useEffect(() => {
-    if (error) {
+    if (error || employeeDataError) {
       setNotification({
         show: true,
-        message: `Error loading user info: ${error}`,
+        message: `Error loading user info: ${error || employeeDataError}`,
       });
       const timer = setTimeout(
         () => setNotification({ show: false, message: "" }),
@@ -434,7 +449,7 @@ function DataContent() {
       );
       return () => clearTimeout(timer);
     }
-  }, [error]);
+  }, [error, employeeDataError]);
 
   const getContentMarginLeft = () => {
     if (!isHydrated) return 270;
@@ -475,7 +490,7 @@ function DataContent() {
   }
 
   if (!ci || !aid) return null;
-  if (loading) {
+  if (loading || employeeDataLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen w-full">
         <Loader />
