@@ -16,6 +16,7 @@
     "crypto-browserify": "^3.12.1",
     "crypto-js": "^4.2.0",
     "firebase": "^11.10.0",
+    "firebase-admin": "^13.4.0",
     "formidable": "^3.5.4",
     "heroicons": "^2.2.0",
     "jsonwebtoken": "^9.0.2",

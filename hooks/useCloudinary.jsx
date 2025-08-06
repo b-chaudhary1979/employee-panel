@@ -1,171 +1,183 @@
-import { useState, useCallback } from 'react';
-
-// Cloudinary configuration for client-side
-const CLOUDINARY_CONFIG = {
-    cloud_name: 'dqvae07io', 
-    api_key: '349726265388583', 
-    upload_preset: 'ml_default' // You'll need to create this in your Cloudinary dashboard
-};
+import { useState } from 'react';
 
 export default function useCloudinary() {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-    // Upload image to Cloudinary using client-side API
-    const uploadImage = useCallback(async (file, options = {}) => {
-        setLoading(true);
-        setError(null);
-        
-        try {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', CLOUDINARY_CONFIG.upload_preset);
-            formData.append('cloud_name', CLOUDINARY_CONFIG.cloud_name);
-            
-            if (options.folder) {
-                formData.append('folder', options.folder);
-            }
-            if (options.public_id) {
-                formData.append('public_id', options.public_id);
-            }
+  const uploadToCloudinary = async (file, folder = 'cyberclipper') => {
+    setLoading(true);
+    setError(null);
+  
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
+      formData.append("folder", folder);
+  
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/auto/upload`, {
+        method: "POST",
+        body: formData,
+      });
+  
+      const result = await response.json();
+  
+      if (!response.ok) {
+        const errorMessage = result.error?.message || result.error || result.message || "Upload failed";
+        throw new Error(errorMessage);
+      }
+  
+      setLoading(false);
+      return {
+        success: true,
+        cloudinaryUrl: result.secure_url,
+        cloudinaryPublicId: result.public_id,
+        cloudinaryAssetId: result.asset_id,
+        cloudinaryVersion: result.version,
+        cloudinaryFormat: result.format,
+        cloudinaryResourceType: result.resource_type,
+        cloudinaryBytes: result.bytes || null,
+        cloudinaryWidth: result.width || null,
+        cloudinaryHeight: result.height || null,
+        cloudinaryDuration: result.duration || null,
+        cloudinaryBitRate: result.bit_rate || null,
+        cloudinaryFps: result.fps || null,
+      };
+  
+    } catch (err) {
+      console.error("Cloudinary upload error:", err);
+      setError("Upload failed");
+      setLoading(false);
+      return {
+        success: false,
+        error: err.message || "Upload failed",
+      };
+    }
+  };
+  
+  
 
-            const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloud_name}/image/upload`, {
-                method: 'POST',
-                body: formData
-            });
+  // Delete file from Cloudinary via API route
+  const deleteFromCloudinary = async (publicId, resourceType = 'auto') => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Delete via API route
+      const response = await fetch('/api/cloudinary-delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          publicId: publicId,
+          resourceType: resourceType,
+        }),
+      });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error?.message || 'Upload failed');
-            }
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Deletion failed');
+      }
 
-            const uploadResult = await response.json();
-            setLoading(false);
-            return uploadResult;
-        } catch (err) {
-            setError(err.message || 'Failed to upload image');
-            setLoading(false);
-            throw err;
-        }
-    }, []);
+      const result = await response.json();
 
-    // Generate Cloudinary URL with transformations
-    const generateCloudinaryUrl = useCallback((publicId, options = {}) => {
-        try {
-            const baseUrl = `https://res.cloudinary.com/${CLOUDINARY_CONFIG.cloud_name}/image/upload`;
-            const transformations = [];
-            
-            if (options.fetch_format) transformations.push(`f_${options.fetch_format}`);
-            if (options.quality) transformations.push(`q_${options.quality}`);
-            if (options.width) transformations.push(`w_${options.width}`);
-            if (options.height) transformations.push(`h_${options.height}`);
-            if (options.crop) transformations.push(`c_${options.crop}`);
-            if (options.gravity) transformations.push(`g_${options.gravity}`);
-            if (options.radius) transformations.push(`r_${options.radius}`);
-            
-            const transformString = transformations.join(',');
-            return transformString ? `${baseUrl}/${transformString}/${publicId}` : `${baseUrl}/${publicId}`;
-        } catch (err) {
-            setError(err.message || 'Failed to generate URL');
-            throw err;
-        }
-    }, []);
+      setLoading(false);
+      return {
+        success: true,
+        deletedCount: result.deletedCount,
+        deletedResources: result.deletedResources,
+      };
 
-    // Get optimized URL for an image
-    const getOptimizedUrl = useCallback((publicId, options = {}) => {
-        return generateCloudinaryUrl(publicId, {
-            fetch_format: 'auto',
-            quality: 'auto',
-            ...options
-        });
-    }, [generateCloudinaryUrl]);
+    } catch (err) {
+      console.error('Cloudinary deletion error:', err);
+      setError('Deletion failed');
+      setLoading(false);
+      return { 
+        success: false, 
+        error: err.message || 'Deletion failed' 
+      };
+    }
+  };
 
-    // Get transformed URL (e.g., cropped, resized)
-    const getTransformedUrl = useCallback((publicId, options = {}) => {
-        return generateCloudinaryUrl(publicId, {
-            crop: 'auto',
-            gravity: 'auto',
-            width: 500,
-            height: 500,
-            ...options
-        });
-    }, [generateCloudinaryUrl]);
+  // Get optimized URL for different use cases
+  const getOptimizedUrl = (cloudinaryUrl, options = {}) => {
+    if (!cloudinaryUrl) return null;
 
-    // Get profile picture URL (small, circular)
-    const getProfilePictureUrl = useCallback((publicId, size = 150) => {
-        return generateCloudinaryUrl(publicId, {
-            width: size,
-            height: size,
-            crop: 'fill',
-            gravity: 'face',
-            radius: 'max',
-            fetch_format: 'auto',
-            quality: 'auto'
-        });
-    }, [generateCloudinaryUrl]);
+    const {
+      width,
+      height,
+      quality = 'auto',
+      format = 'auto',
+      crop = 'scale',
+      gravity = 'auto',
+      effect = null,
+    } = options;
 
-    // Get thumbnail URL
-    const getThumbnailUrl = useCallback((publicId, width = 200, height = 200) => {
-        return generateCloudinaryUrl(publicId, {
-            width,
-            height,
-            crop: 'fill',
-            gravity: 'auto',
-            fetch_format: 'auto',
-            quality: 'auto'
-        });
-    }, [generateCloudinaryUrl]);
+    // Parse the Cloudinary URL
+    const urlParts = cloudinaryUrl.split('/');
+    const versionIndex = urlParts.findIndex(part => part.match(/^v\d+$/));
+    
+    if (versionIndex === -1) return cloudinaryUrl;
 
-    // Delete image from Cloudinary (requires server-side implementation for security)
-    const deleteImage = useCallback(async (publicId) => {
-        setLoading(true);
-        setError(null);
-        
-        try {
-            // Note: Delete operations should be done server-side for security
-            // This is a placeholder - implement server-side deletion
-            setLoading(false);
-            return { result: 'ok' };
-        } catch (err) {
-            setError(err.message || 'Failed to delete image');
-            setLoading(false);
-            throw err;
-        }
-    }, []);
+    // Insert transformations before the version
+    const transformations = [];
+    
+    if (width || height) {
+      const size = [];
+      if (width) size.push(`w_${width}`);
+      if (height) size.push(`h_${height}`);
+      if (crop) size.push(`c_${crop}`);
+      if (gravity) size.push(`g_${gravity}`);
+      transformations.push(size.join(','));
+    }
+    
+    if (quality !== 'auto') {
+      transformations.push(`q_${quality}`);
+    }
+    
+    if (format !== 'auto') {
+      transformations.push(`f_${format}`);
+    }
+    
+    if (effect) {
+      transformations.push(`e_${effect}`);
+    }
 
-    // Upload multiple images
-    const uploadMultipleImages = useCallback(async (files, options = {}) => {
-        setLoading(true);
-        setError(null);
-        
-        try {
-            const uploadPromises = files.map((file, index) => 
-                uploadImage(file, {
-                    ...options,
-                    public_id: options.public_id ? `${options.public_id}_${index}` : `employee_${Date.now()}_${index}`
-                })
-            );
-            
-            const results = await Promise.all(uploadPromises);
-            setLoading(false);
-            return results;
-        } catch (err) {
-            setError(err.message || 'Failed to upload multiple images');
-            setLoading(false);
-            throw err;
-        }
-    }, [uploadImage]);
+    if (transformations.length === 0) return cloudinaryUrl;
 
-    return {
-        uploadImage,
-        uploadMultipleImages,
-        getOptimizedUrl,
-        getTransformedUrl,
-        getProfilePictureUrl,
-        getThumbnailUrl,
-        deleteImage,
-        loading,
-        error,
-        clearError: () => setError(null)
-    };
+    const transformationString = transformations.join('/');
+    urlParts.splice(versionIndex, 0, transformationString);
+    
+    return urlParts.join('/');
+  };
+
+  // Get thumbnail URL
+  const getThumbnailUrl = (cloudinaryUrl, width = 300, height = 300) => {
+    return getOptimizedUrl(cloudinaryUrl, {
+      width,
+      height,
+      crop: 'fill',
+      gravity: 'auto',
+      quality: 'auto',
+    });
+  };
+
+  // Get responsive URL
+  const getResponsiveUrl = (cloudinaryUrl, maxWidth = 1200) => {
+    return getOptimizedUrl(cloudinaryUrl, {
+      width: maxWidth,
+      crop: 'scale',
+      quality: 'auto',
+    });
+  };
+
+  return {
+    uploadToCloudinary,
+    deleteFromCloudinary,
+    getOptimizedUrl,
+    getThumbnailUrl,
+    getResponsiveUrl,
+    loading,
+    error,
+  };
 } 
