@@ -19,6 +19,7 @@ const Header = forwardRef(function Header(
   const dropdownRef = useRef(null);
   const { isOpen } = useSidebar();
   const router = useRouter();
+  const { token } = router.query;
   const [isMobile, setIsMobile] = useState(
     typeof window !== "undefined" ? window.innerWidth < 640 : true
   );
@@ -67,9 +68,13 @@ const Header = forwardRef(function Header(
   }, []);
 
   const handleProfileClick = () => {
-    // Navigate to admin info edit page
+    // Navigate to admin info edit page, preserve token if available
     setIsDropdownOpen(false);
-    router.push("/admininfo_edit");
+    if (token) {
+      router.push(`/admininfo_edit?token=${encodeURIComponent(token)}`);
+    } else {
+      router.push("/admininfo_edit");
+    }
   };
 
   const handleLogoutClick = () => {
