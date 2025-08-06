@@ -1,7 +1,5 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import path from 'path';
-import fs from 'fs';
 
 // Initialize Firebase Admin SDK for admin database
 let adminApp;
@@ -13,14 +11,12 @@ try {
   adminApp = apps.find(app => app.name === 'admin-db');
   
   if (!adminApp) {
-    // Path to your service account key file
-    const serviceAccountPath = path.join(process.cwd(), 'keys', 'admin-service-account.json');
-    
-    if (!fs.existsSync(serviceAccountPath)) {
-      throw new Error('Admin service account file not found');
+    // Read service account from environment variable
+    if (!process.env.ADMIN_SERVICE_ACCOUNT) {
+      throw new Error('ADMIN_SERVICE_ACCOUNT environment variable not found');
     }
     
-    const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+    const serviceAccount = JSON.parse(process.env.ADMIN_SERVICE_ACCOUNT);
     
     adminApp = initializeApp({
       credential: cert(serviceAccount),
@@ -30,7 +26,7 @@ try {
   
   adminDb = getFirestore(adminApp);
 } catch (error) {
-  
+  console.error('Failed to initialize admin Firebase:', error);
 }
 
 export default async function handler(req, res) {
