@@ -1,60 +1,90 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { FaUser, FaLink, FaFileUpload, FaCalendarAlt, FaTags, FaAlignLeft } from "react-icons/fa";
 import { useUserInfo } from "../context/UserInfoContext";
 import { useRouter } from 'next/router';
 import { SidebarProvider } from "../context/SidebarContext";
-import AddDocumentModal from "../components/AddDocumentMondal";
+import AddDocumentModal from "../components/AddDocumentModal";
+import useStoreData from "../hooks/useStoreData";
+// import CryptoJS from "crypto-js"; // TEMPORARILY DISABLED - not using encryption
+
+// TEMPORARILY DISABLED: Utility to decrypt token into ci and aid
+// const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
+// function decryptToken(token) {
+//   console.log("🔐 [DECRYPT] Attempting to decrypt token:", token ? "present" : "missing");
+//   try {
+//     const bytes = CryptoJS.AES.decrypt(token, ENCRYPTION_KEY);
+//     const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+//     const { ci, aid } = JSON.parse(decrypted);
+//     console.log("🔐 [DECRYPT] Successfully decrypted - ci:", ci, "aid:", aid);
+//     return { ci, aid };
+//   } catch (error) {
+//     console.error("🔐 [DECRYPT] Failed to decrypt token:", error);
+//     return { ci: null, aid: null };
+//   }
+// }
 
 function AddDocumentsPageContent() {
+  
   const router = useRouter();
-  const { cid } = router.query; // Use cid directly like register-employee page
+  const { token, cid, aid } = router.query; // Get encrypted token or cid and aid from query
   const { user, loading } = useUserInfo();
   
-  // Use cid directly from query - same as register-employee page
+    // Wait for router to be ready and have valid parameters
+  const isRouterReady = router.isReady && (cid || token);
+
+  // Calculate companyId and employeeId - these might be undefined initially
   const companyId = cid;
-  const employeeId = user?.aid; // Get employee ID from user context
+  const employeeId = aid || user?.aid || user?.employeeId || user?.id || 'temp-employee-id';
+
+
+  // Call useStoreData hook first - it will handle its own memoization and early returns
+  const { uploadMedia, addLink, loading: uploadLoading, error: uploadError } = useStoreData(companyId, employeeId);
+  
 
   // Add modal state
   const [showAddDocumentModal, setShowAddDocumentModal] = useState(true);
   const [notification, setNotification] = useState({ show: false, message: "", color: "green" });
 
-  // COMMENTED OUT FORM STATE - NOT USED (AddDocumentModal handles this)
-  /*
-  // Form state
-  const [form, setForm] = useState({
-    title: "",
-    submitterName: "",
-    linkData: "",
-    textData: "",
-    category: "",
-    tags: "",
-    notes: "",
-    createdAt: new Date().toISOString(),
-  });
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [error, setError] = useState("");
-  */
 
-  // Simple authentication check - same as register-employee page
+  // Simple authentication check - same as other pages
   useEffect(() => {
-    if (router.isReady && !cid) {
+    if (router.isReady && !cid && !token) {
       router.replace("/auth/login");
     }
-  }, [router.isReady, cid]);
+  }, [router.isReady, cid, token]);
 
-  // Simple loading states - same as register-employee page
-  if (!cid) return null;
-  if (loading || uploadLoading || !employeeId) {
+  // Don't render the modal until we have valid parameters
+  if (!isRouterReady || !companyId || !employeeId) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">Loading...</h1>
-          <p className="text-gray-600">Please wait while we load your information.</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     );
   }
 
+  // Simple loading states - same as other pages
+  // Only show loading if we don't have valid parameters yet
+  if (loading && (!companyId || !employeeId)) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">Loading...</h1>
+          <p className="text-gray-600">Please wait while we load your information.</p>
+          <div className="mt-4 text-sm text-gray-500">
+            <p>Debug Info:</p>
+            <p>CID: {cid || "missing"}</p>
+            <p>User Loading: {loading ? "true" : "false"}</p>
+            <p>Employee ID: {employeeId || "missing"}</p>
+            <p>User: {user ? "present" : "missing"}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   // Handle document addition
   const handleAddDocument = (documentData) => {
     // Don't handle redirection here - let onSuccess handle it
@@ -67,81 +97,6 @@ function AddDocumentsPageContent() {
     router.back();
   };
 
-  // COMMENTED OUT FUNCTIONS - NOT USED (AddDocumentModal handles these)
-  /*
-  // Form handlers
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files);
-    setUploadedFiles(prev => [...prev, ...files]);
-    e.target.value = ""; // Reset input so selecting the same file again works
-  };
-
-  const handleRemoveFile = (index) => {
-    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    
-    // If there are files, upload them
-    if (uploadedFiles.length > 0) {
-      let uploadedFileMetas = [];
-      try {
-        for (const file of uploadedFiles) {
-          const meta = await uploadMedia(file, {
-            title: form.title,
-            submitterName: form.submitterName,
-            linkData: form.linkData,
-            textData: form.textData,
-            category: form.category,
-            tags: form.tags,
-            notes: form.notes,
-            createdAt: form.createdAt,
-          });
-          if (!meta.success) throw new Error(meta.error || 'Upload failed');
-          uploadedFileMetas.push(meta);
-        }
-      } catch (err) {
-        setError(err.message || 'File upload failed');
-        return;
-      }
-      
-      // Call onAdd with uploaded file metadata
-      const documentData = {
-        ...form,
-        files: uploadedFileMetas,
-        id: Date.now(),
-      };
-      handleAddDocument(documentData);
-      return;
-    }
-    
-    // If there is a link, store it in Firestore
-    if (form.linkData) {
-      const linkData = {
-        ...form,
-        url: form.linkData, // Store as 'url' for compatibility
-        createdAt: new Date().toISOString(),
-      };
-      delete linkData.linkData; // Remove the old property
-      const result = await addLink(linkData);
-      if (!result.success) {
-        setError(result.error || "Failed to add link");
-        return;
-      }
-      handleAddDocument(linkData);
-      return;
-    }
-    
-    // Optionally, handle the case where neither file nor link is provided
-    setError("Please upload a file or enter a link.");
-  };
-  */
 
   return (
     <>
@@ -163,6 +118,7 @@ function AddDocumentsPageContent() {
         onClose={handleCloseModal}
         onAdd={handleAddDocument}
         companyId={companyId}
+        employeeId={employeeId}
         onSuccess={(message) => {
           setNotification({ show: true, message, color: 'green' });
           setTimeout(() => {
@@ -171,50 +127,6 @@ function AddDocumentsPageContent() {
           }, 1500);
         }}
       />
-
-      {/* ORIGINAL FORM CODE - COMMENTED OUT (NOT USED) */}
-      {/*
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/80 to-purple-100/80 backdrop-blur-[6px]">
-        <div className="bg-white/80 border border-purple-200 rounded-3xl shadow-2xl w-full max-w-4xl p-0 relative animate-modalIn backdrop-blur-xl ring-1 ring-purple-100">
-          <div className="w-full h-full max-h-[90vh] flex flex-col">
-            <button
-              className="absolute top-3 right-3 text-gray-400 hover:text-purple-500 text-2xl transition-colors rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white/70 shadow-md hover:bg-purple-100"
-              onClick={() => router.push(`/data?cid=${encodeURIComponent(cid)}`)}
-              aria-label="Close"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="11" stroke="currentColor" strokeWidth="2" fill="none" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            
-            <div className="px-8 pt-8 pb-2">
-              <h2 className="text-2xl font-extrabold mb-1 text-purple-700 tracking-tight drop-shadow-sm">
-                Add New Document
-              </h2>
-              <div className="h-1 w-24 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-600 rounded-full mb-3" />
-              <p className="mb-4 text-gray-500 text-sm">Fill in the details below to add a new document entry.</p>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto px-4 pb-8">
-              <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6 text-gray-800 bg-white/70 rounded-2xl p-6 shadow-lg ring-1 ring-purple-50">
-                // Title field
-                // Submitter Name field  
-                // Link Data field
-                // Category field
-                // File Upload field with file display
-                // Text Data field
-                // Tags field
-                // Created Date field
-                // Notes field
-                // Error Display
-                // Submit Button
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-      */}
     </>
   );
 }

@@ -31,7 +31,6 @@
 // const storage = getStorage(app);
 // export { db, storage };
 
-
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
@@ -46,7 +45,7 @@ const firebaseConfig = {
   storageBucket: "employee-panel-7a54c.firebasestorage.app",
   messagingSenderId: "218477018324",
   appId: "1:218477018324:web:6f8dd8424086e0c19f8f41",
-  measurementId: "G-CS05ZXBBCR"
+  measurementId: "G-CS05ZXBBCR",
 };
 
 // Initialize Firebase only if it hasn't been initialized already
@@ -63,7 +62,7 @@ if (typeof window !== "undefined") {
   try {
     analytics = getAnalytics(app);
   } catch (error) {
-    console.log('Analytics initialization failed:', error);
+    console.log("Analytics initialization failed:", error);
   }
 }
 

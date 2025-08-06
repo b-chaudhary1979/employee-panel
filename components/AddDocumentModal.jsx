@@ -1,15 +1,31 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, memo, useMemo } from "react";
 import { FaUser, FaLink, FaFileUpload, FaCalendarAlt, FaTags, FaAlignLeft } from "react-icons/fa";
 import { useUserInfo } from "../context/UserInfoContext";
+import useStoreData from "../hooks/useStoreData";
+import useDataSyncToAdmin from "../hooks/useDataSyncToAdmin";
 
-export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, companyId, initialData }) {
-  const { user } = useUserInfo();
+const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, onSuccess, companyId, employeeId: propEmployeeId, initialData }) {
+  const { user, aid } = useUserInfo();
   
-  // Debug companyId
-  console.log('AddDocumentModal - companyId:', companyId);
+  // Use the passed employeeId prop if available, otherwise fall back to user context
+  const employeeId = useMemo(() => {
+    return propEmployeeId || aid || user?.employeeId || user?.id || 'temp-employee-id';
+  }, [propEmployeeId, aid, user?.employeeId, user?.id]);
+  
   
   // Use the passed companyId prop instead of user context to avoid undefined errors
-  const employeeId = user?.aid; // Get employee ID from user context
+  const { uploadMedia, addLink, loading: uploadLoading, error: uploadError } = useStoreData(companyId, employeeId);
+  
+  // Admin sync hook
+  const { 
+    syncMediaToAdmin, 
+    syncLinkToAdmin: syncLinkToAdminHook, 
+    loading: syncLoading, 
+    error: syncError,
+    lastSyncStatus 
+  } = useDataSyncToAdmin();
+  
+  
   const fileInputRef = useRef(null);
   const docInputRefs = useRef([]);
   
@@ -32,25 +48,16 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
   const [uploadResults, setUploadResults] = useState({ successful: [], failed: [] });
   const [isUploading, setIsUploading] = useState(false);
 
+
   // Reset uploadedFiles only when modal closes
   useEffect(() => {
-    if (!open) setUploadedFiles([]);
+    if (!open) {
+      setUploadedFiles([]);
+    }
   }, [open]);
 
-  if (!open) return null;
-  
-  // Check if employee ID is available
-  if (!employeeId) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-          <div className="text-center">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Loading...</h2>
-            <p className="text-gray-600">Please wait while we load your employee information.</p>
-          </div>
-        </div>
-      </div>
-    );
+  if (!open) {
+    return null;
   }
 
   const handleChange = (e) => {
@@ -59,12 +66,20 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
 
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
-    setUploadedFiles(prev => [...prev, ...files]);
+    
+    setUploadedFiles(prev => {
+      const newFiles = [...prev, ...files];
+      return newFiles;
+    });
+    
     e.target.value = ""; // Reset input so selecting the same file again works
   };
 
   const handleRemoveFile = (index) => {
-    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+    setUploadedFiles(prev => {
+      const newFiles = prev.filter((_, i) => i !== index);
+      return newFiles;
+    });
   };
 
   const handleCustomFieldChange = (idx, key, value) => {
@@ -79,6 +94,128 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
 
   const handleRemoveCustomField = (idx) => {
     setCustomFields(customFields.filter((_, i) => i !== idx));
+  };
+
+  // Sync successful uploads to admin database
+  const syncSuccessfulUploadsToAdmin = async (successfulFiles) => {
+    if (!companyId || successfulFiles.length === 0) return;
+
+    const syncPromises = successfulFiles.map(async (fileItem) => {
+      const { file, meta } = fileItem;
+      
+      // Determine media type from file extension
+      const getMediaType = (filename) => {
+        const ext = filename.split('.').pop().toLowerCase();
+        if (["jpg", "jpeg", "png", "gif"].includes(ext)) return "images";
+        if (["mp3", "wav", "aac", "flac", "ogg", "m4a"].includes(ext)) return "audios";
+        if (["mp4", "avi", "mov", "wmv", "flv", "webm"].includes(ext)) return "videos";
+        if (["pdf", "doc", "docx", "txt"].includes(ext)) return "documents";
+        return "documents"; // Default
+      };
+
+      const mediaType = getMediaType(file.name);
+      
+      // Get the document data that was stored in employee database
+      // This should match exactly what's stored in useStoreData.jsx
+      const documentData = {
+        title: form.title,
+        submitterName: form.submitterName,
+        category: form.category,
+        tags: form.tags,
+        notes: form.notes,
+        textData: form.textData,
+        customFields, // Include custom fields
+        cloudinaryUrl: meta.cloudinaryUrl,
+        cloudinaryPublicId: meta.cloudinaryPublicId,
+        cloudinaryAssetId: meta.cloudinaryAssetId,
+        cloudinaryVersion: meta.cloudinaryVersion,
+        cloudinaryFormat: meta.cloudinaryFormat,
+        cloudinaryResourceType: meta.cloudinaryResourceType,
+        cloudinaryBytes: meta.cloudinaryBytes,
+        cloudinaryWidth: meta.cloudinaryWidth,
+        cloudinaryHeight: meta.cloudinaryHeight,
+        cloudinaryDuration: meta.cloudinaryDuration,
+        cloudinaryBitRate: meta.cloudinaryBitRate,
+        cloudinaryFps: meta.cloudinaryFps,
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size,
+        createdAt: form.createdAt, // Include the original createdAt
+        uploadedAt: new Date().toISOString(),
+        role: "Employee",
+        employeeId: employeeId,
+        // Add comments field for images, audios, and videos
+        ...(mediaType === 'images' || mediaType === 'audios' || mediaType === 'videos' ? { comments: [] } : {}),
+        // Add document-specific fields for documents
+        ...(mediaType === 'documents' ? {
+          documentId: meta.docId,
+          documentGroupId: `${form.title}-${form.sessionGroupId || crypto.randomUUID()}`
+        } : {}),
+        // Include all metadata from the upload
+        ...meta
+      };
+
+      try {
+        const syncResult = await syncMediaToAdmin({
+          companyId,
+          employeeId,
+          documentId: meta.docId, // Use the same document ID
+          data: documentData,
+          mediaType,
+          operation: 'set'
+        });
+
+        if (!syncResult.success) {
+          return { success: false, file: file.name, error: syncResult.error };
+        }
+
+        return { success: true, file: file.name };
+
+      } catch (err) {
+      
+        return { success: false, file: file.name, error: err.message };
+      }
+    });
+
+    const syncResults = await Promise.all(syncPromises);
+    const successfulSyncs = syncResults.filter(result => result.success);
+    const failedSyncs = syncResults.filter(result => !result.success);
+
+    return { successfulSyncs, failedSyncs };
+  };
+
+  // Sync link to admin database
+  const syncLinkToAdmin = async (linkData, linkDocId) => {
+    if (!companyId || !linkDocId) return;
+
+    try {
+      // Ensure we send all the fields that are stored in the employee database
+      const completeLinkData = {
+        ...linkData,
+        customFields, // Include custom fields
+        createdAt: form.createdAt, // Include the original createdAt
+        uploadedAt: new Date().toISOString(),
+        comments: [], // Initialize comments array
+        role: "Employee", // Hardcoded role field
+        employeeId: employeeId, // Store the employee ID
+      };
+
+      const syncResult = await syncLinkToAdminHook({
+        companyId,
+        employeeId,
+        documentId: linkDocId,
+        data: completeLinkData,
+        operation: 'set'
+      });
+
+      if (!syncResult.success) {
+        return { success: false, error: syncResult.error };
+      }
+      return { success: true };
+
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -103,10 +240,11 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
         
         // Sort files by size (smallest first for better user experience)
         const sortedFiles = [...uploadedFiles].sort((a, b) => a.size - b.size);
-        
+    
         // Upload files sequentially in sorted order
         for (let i = 0; i < sortedFiles.length; i++) {
           const file = sortedFiles[i];
+          
           try {
             const meta = await uploadMedia(file, {
               title: form.title,
@@ -122,12 +260,15 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
               // Removed companyId - redundant with document path
             });
             if (meta.success) {
+              
               uploadedFileMetas.push(meta);
               successfulFiles.push({ file, meta });
             } else {
+              
               failedFiles.push({ file, error: meta.error || 'Upload failed' });
             }
           } catch (err) {
+           
             failedFiles.push({ file, error: err.message || 'Upload failed' });
           }
         }
@@ -152,6 +293,15 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
             id: Date.now(),
           };
           onAdd(documentData);
+          
+          // SYNC TO ADMIN DATABASE - This is the key integration point
+          try {
+            const adminSyncResult = await syncSuccessfulUploadsToAdmin(successfulFiles);
+           
+          } catch (syncErr) {
+            
+            // Don't fail the entire operation if admin sync fails
+          }
         }
         
       } catch (err) {
@@ -164,19 +314,42 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
     
     // If there is a link, store it in Firestore (regardless of file upload)
     if (form.linkData) {
-      console.log('Adding link with companyId:', companyId);
-      const linkData = {
-        ...form,
-        url: form.linkData, // Store as 'url' for compatibility
-        createdAt: new Date().toISOString(),
-      };
-      delete linkData.linkData; // Remove the old property
-      const result = await addLink(linkData);
-      if (!result.success) {
-        errorMessage = result.error || "Failed to add link";
+      // Set uploading state for link uploads
+      if (!isUploading) {
+        setIsUploading(true);
+      }
+      
+      try {
+        const linkData = {
+          ...form,
+          url: form.linkData, // Store as 'url' for compatibility
+          createdAt: new Date().toISOString(),
+        };
+        delete linkData.linkData; // Remove the old property
+        const result = await addLink(linkData);
+        if (!result.success) {
+          errorMessage = result.error || "Failed to add link";
+          setError(errorMessage);
+        } else {
+          hasLinkUpload = true;
+          
+          // SYNC LINK TO ADMIN DATABASE
+          try {
+            const adminSyncResult = await syncLinkToAdmin(linkData, result.docId);
+
+          } catch (syncErr) {
+           
+            // Don't fail the entire operation if admin sync fails
+          }
+        }
+      } catch (err) {
+        errorMessage = err.message || 'Link upload failed';
         setError(errorMessage);
-      } else {
-        hasLinkUpload = true;
+      } finally {
+        // Only reset uploading state if no files were uploaded (to avoid conflicts)
+        if (uploadedFiles.length === 0) {
+          setIsUploading(false);
+        }
       }
     }
     
@@ -242,6 +415,7 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
     // Don't call onClose here - let onSuccess handle the redirection
   };
 
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/80 to-purple-100/80 backdrop-blur-[6px]">
       {/* Success Notification */}
@@ -296,7 +470,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                   value={form.title}
                   onChange={handleChange}
                   required
-                  className="w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400 placeholder:text-gray-400 text-base text-gray-800 bg-purple-50/80 shadow-md transition-all duration-200"
+                  disabled={isUploading}
+                  className={`w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400 placeholder:text-gray-400 text-base text-gray-800 shadow-md transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/80'
+                  }`}
                   placeholder="Enter document title"
                 />
               </div>
@@ -312,7 +489,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                   value={form.submitterName}
                   onChange={handleChange}
                   required
-                  className="w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400 placeholder:text-gray-400 text-base text-gray-800 bg-purple-50/80 shadow-md transition-all duration-200"
+                  disabled={isUploading}
+                  className={`w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400 placeholder:text-gray-400 text-base text-gray-800 shadow-md transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/80'
+                  }`}
                   placeholder="Enter submitter name"
                 />
               </div>
@@ -327,7 +507,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                   name="linkData"
                   value={form.linkData}
                   onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 bg-purple-50/60 shadow transition-all duration-200"
+                  disabled={isUploading}
+                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 shadow transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/60'
+                  }`}
                   placeholder="https://example.com"
                 />
               </div>
@@ -339,7 +522,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                   name="category"
                   value={form.category}
                   onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm text-gray-800 bg-purple-50/60 shadow transition-all duration-200"
+                  disabled={isUploading}
+                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm text-gray-800 shadow transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/60'
+                  }`}
                 >
                   <option value="">Select Category</option>
                   <option value="Report">Report</option>
@@ -360,7 +546,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                   name="textData"
                   value={form.textData}
                   onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 bg-purple-50/60 shadow transition-all duration-200"
+                  disabled={isUploading}
+                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 shadow transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/60'
+                  }`}
                   placeholder="Enter any text data or description..."
                   rows={4}
                 />
@@ -379,7 +568,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors"
+                    disabled={isUploading}
+                    className={`bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors ${
+                      isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                   >
                     Choose Files
                   </button>
@@ -417,7 +609,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                             <button
                               type="button"
                               onClick={() => handleRemoveFile(index)}
-                              className="text-red-500 hover:text-red-700 text-sm"
+                              disabled={isUploading}
+                              className={`text-red-500 hover:text-red-700 text-sm ${
+                                isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                              }`}
                             >
                               Remove
                             </button>
@@ -454,7 +649,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                   name="tags"
                   value={form.tags}
                   onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 bg-purple-50/60 shadow transition-all duration-200"
+                  disabled={isUploading}
+                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 shadow transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/60'
+                  }`}
                   placeholder="e.g. important, urgent, review (comma separated)"
                 />
               </div>
@@ -479,7 +677,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                   name="notes"
                   value={form.notes}
                   onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 bg-purple-50/60 shadow transition-all duration-200"
+                  disabled={isUploading}
+                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 shadow transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/60'
+                  }`}
                   placeholder="Any additional notes..."
                   rows={3}
                 />
@@ -492,7 +693,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                   <button
                     type="button"
                     onClick={handleAddCustomField}
-                    className="text-xs text-purple-600 hover:text-purple-800 font-semibold px-2 py-1 rounded-xl border border-purple-100 bg-purple-50 transition"
+                    disabled={isUploading}
+                    className={`text-xs text-purple-600 hover:text-purple-800 font-semibold px-2 py-1 rounded-xl border border-purple-100 bg-purple-50 transition ${
+                      isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                   >
                     + Add Field
                   </button>
@@ -505,7 +709,10 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                       placeholder="Field name"
                       value={field.question}
                       onChange={e => handleCustomFieldChange(idx, 'question', e.target.value)}
-                      className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+                      disabled={isUploading}
+                      className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 ${
+                        isUploading ? 'bg-gray-100 cursor-not-allowed' : ''
+                      }`}
                     />
                     <div className="flex gap-2">
                       <input
@@ -513,12 +720,18 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                         placeholder="Field value"
                         value={field.answer}
                         onChange={e => handleCustomFieldChange(idx, 'answer', e.target.value)}
-                        className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+                        disabled={isUploading}
+                        className={`flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 ${
+                          isUploading ? 'bg-gray-100 cursor-not-allowed' : ''
+                        }`}
                       />
                       <button
                         type="button"
                         onClick={() => handleRemoveCustomField(idx)}
-                        className="text-red-500 hover:text-red-700 px-2 rounded-full bg-red-50 hover:bg-red-100 transition"
+                        disabled={isUploading}
+                        className={`text-red-500 hover:text-red-700 px-2 rounded-full bg-red-50 hover:bg-red-100 transition ${
+                          isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -555,7 +768,7 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Uploading...
+                    {uploadedFiles.length > 0 ? "Uploading..." : "Adding Link..."}
                   </span>
                 ) : (
                   initialData ? "Update Document" : "Add Document"
@@ -568,4 +781,6 @@ export default function AddDocumentModal({ open, onClose, onAdd, onSuccess, comp
       </div>
     </div>
   );
-}
+});
+
+export default AddDocumentModal;
