@@ -4,10 +4,11 @@ import React, { useState, useRef, useEffect, forwardRef } from "react";
 import { User, LogOut, ChevronDown } from "lucide-react";
 import { useSidebar } from "../context/SidebarContext";
 import { useRouter } from "next/router";
+import { useUserInfo } from "../context/UserInfoContext";
 
 // Refactor Header to use forwardRef
 const Header = forwardRef(function Header(
-  { username = "Employee", companyName = "Department", onMobileSidebarToggle, mobileSidebarOpen },
+  { onMobileSidebarToggle, mobileSidebarOpen },
   ref
 ) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -18,9 +19,15 @@ const Header = forwardRef(function Header(
   const dropdownRef = useRef(null);
   const { isOpen } = useSidebar();
   const router = useRouter();
+  const { token } = router.query;
   const [isMobile, setIsMobile] = useState(
     typeof window !== "undefined" ? window.innerWidth < 640 : true
   );
+
+  // Fetch logged-in employee info
+  const { user } = useUserInfo();
+  const displayUsername = user ? (user.firstName ? `${user.firstName} ${user.lastName || ""}`.trim() : (user.name || "Employee")) : "Employee";
+  const displayCompany = user?.company || "Company";
 
   // Track window width for responsive margin
   useEffect(() => {
@@ -61,9 +68,13 @@ const Header = forwardRef(function Header(
   }, []);
 
   const handleProfileClick = () => {
-    // Navigate to admin info edit page
+    // Navigate to admin info edit page, preserve token if available
     setIsDropdownOpen(false);
-    router.push("/admininfo_edit");
+    if (token) {
+      router.push(`/admininfo_edit?token=${encodeURIComponent(token)}`);
+    } else {
+      router.push("/admininfo_edit");
+    }
   };
 
   const handleLogoutClick = () => {
@@ -124,7 +135,7 @@ const Header = forwardRef(function Header(
           )}
           <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-900">
             Welcome,{" "}
-            <span className="text-purple-600 font-semibold">{username}</span>
+            <span className="text-purple-600 font-semibold">{displayUsername}</span>
           </h1>
         </div>
 
@@ -133,7 +144,7 @@ const Header = forwardRef(function Header(
           {/* Company name */}
           <div className="hidden md:block">
             <h2 className="text-lg font-semibold text-purple-500">
-              {companyName}
+              {displayCompany}
             </h2>
           </div>
 

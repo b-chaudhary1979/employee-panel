@@ -24,34 +24,23 @@ function generateStrongPassword() {
   return pass;
 }
 
-export default function AddPasswordModalEmployee({
-  open,
-  onClose,
-  onAdd,
-  initialData,
-  employeeName,
-}) {
-  const [form, setForm] = useState(
-    initialData
-      ? {
-          ...initialData,
-          employee: [employeeName],
-          createdAt: initialData.createdAt || new Date().toISOString(),
-        }
-      : {
-          website: "",
-          username: "",
-          password: "",
-          employee: [employeeName],
-          url: "",
-          notes: "",
-          createdAt: new Date().toISOString(),
-          securityLevel: "Medium",
-          passwordHint: "",
-          usageTag: "In Use",
-        }
-  );
-
+export default function AddPasswordModalEmployee({ open, onClose, onAdd, initialData, employeeName }) {
+  const [form, setForm] = useState(initialData ? {
+    ...initialData,
+    employee: [employeeName],
+    createdAt: initialData.createdAt || new Date().toISOString(),
+  } : {
+    website: "",
+    username: "",
+    password: "",
+    employee: [employeeName],
+    url: "",
+    notes: "",
+    createdAt: new Date().toISOString(),
+    securityLevel: "Medium",
+    passwordHint: "",
+    usageTag: "In Use",
+  });
   const [showPassword, setShowPassword] = useState(false);
 
   if (!open) return null;
@@ -90,26 +79,9 @@ export default function AddPasswordModalEmployee({
             aria-label="Close"
             style={{ lineHeight: 1 }}
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                cx="12"
-                cy="12"
-                r="11"
-                stroke="currentColor"
-                strokeWidth="2"
-                fill="none"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="11" stroke="currentColor" strokeWidth="2" fill="none" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
           <div className="px-8 pt-8 pb-2">
@@ -117,19 +89,12 @@ export default function AddPasswordModalEmployee({
               {initialData ? "Edit Password" : "Add New Password"}
             </h2>
             <div className="h-1 w-24 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-600 rounded-full mb-3 animate-shimmer" />
-            <p className="mb-4 text-gray-500 text-sm">
-              Fill in the details below to store your password securely.
-            </p>
+            <p className="mb-4 text-gray-500 text-sm">Fill in the details below to store your password securely.</p>
           </div>
           <div className="flex-1 overflow-x-auto px-4 pb-8">
-            <form
-              onSubmit={handleSubmit}
-              className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6 text-gray-800 bg-white/70 rounded-2xl p-6 shadow-lg ring-1 ring-purple-50 animate-fadeIn"
-            >
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6 text-gray-800 bg-white/70 rounded-2xl p-6 shadow-lg ring-1 ring-purple-50 animate-fadeIn">
               <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold mb-1 text-gray-700">
-                  Logged-in Employee
-                </label>
+                <label className="block text-xs font-semibold mb-1 text-gray-700">Logged-in Employee</label>
                 <input
                   type="text"
                   value={employeeName}
@@ -137,6 +102,7 @@ export default function AddPasswordModalEmployee({
                   className="w-full border rounded-xl px-4 py-2 bg-gray-100 text-gray-700 text-sm cursor-not-allowed"
                 />
               </div>
+
               <div>
                 <label className="block text-xs font-semibold mb-1 text-gray-700">
                   Website/Service
@@ -164,9 +130,7 @@ export default function AddPasswordModalEmployee({
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="text-xs font-semibold mb-1 text-gray-700 flex items-center gap-2">
-                  <FaKey className="text-purple-400" /> Password
-                </label>
+                <label className="block text-xs font-semibold mb-1 text-gray-700 flex items-center gap-2"><FaKey className="text-purple-400" /> Password</label>
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
@@ -178,7 +142,7 @@ export default function AddPasswordModalEmployee({
                 <div className="mt-2 flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => setShowPassword((p) => !p)}
+                    onClick={() => setShowPassword(p => !p)}
                     className="text-xs text-purple-500 hover:text-purple-700"
                   >
                     {showPassword ? "Hide Password" : "Show Password"}
@@ -186,26 +150,17 @@ export default function AddPasswordModalEmployee({
                   <button
                     type="button"
                     className="text-xs font-semibold bg-purple-100 border border-purple-200 px-3 py-1 rounded-lg hover:bg-purple-200"
-                    onClick={() =>
-                      setForm((f) => ({
-                        ...f,
-                        password: generateStrongPassword(),
-                      }))
-                    }
+                    onClick={() => setForm(f => ({ ...f, password: generateStrongPassword() }))}
                   >
                     Generate Strong Password
                   </button>
-                  <span
-                    className={`text-xs font-semibold ${getPasswordStrength(form.password) === "Strong" ? "text-green-600" : getPasswordStrength(form.password) === "Medium" ? "text-yellow-600" : "text-red-600"}`}
-                  >
+                  <span className={`text-xs font-semibold ${getPasswordStrength(form.password) === "Strong" ? "text-green-600" : getPasswordStrength(form.password) === "Medium" ? "text-yellow-600" : "text-red-600"}`}>
                     Strength: {getPasswordStrength(form.password)}
                   </span>
                 </div>
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold mb-1 text-gray-700">
-                  URL
-                </label>
+                <label className="block text-xs font-semibold mb-1 text-gray-700">URL</label>
                 <input
                   type="url"
                   name="url"
@@ -215,13 +170,13 @@ export default function AddPasswordModalEmployee({
                   placeholder="e.g. https://example.com"
                 />
               </div>
+
               <div className="sm:col-span-2">
-                <label className="text-xs font-semibold mb-1 text-gray-700 flex items-center gap-2">
-                  <FaTags className="text-purple-400" /> Notes
-                </label>
+                <label className="block text-xs font-semibold mb-1 text-gray-700 flex items-center gap-2"><FaTags className="text-purple-400" /> Notes</label>
                 <textarea
                   name="notes"
                   value={form.notes}
+
                   onChange={handleChange}
                   className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm bg-purple-50/60 shadow"
                   rows={2}
@@ -229,9 +184,8 @@ export default function AddPasswordModalEmployee({
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1 text-gray-700">
-                  Security Level
-                </label>
+
+                <label className="block text-xs font-semibold mb-1 text-gray-700">Security Level</label>
                 <select
                   name="securityLevel"
                   value={form.securityLevel}
@@ -244,9 +198,7 @@ export default function AddPasswordModalEmployee({
                 </select>
               </div>
               <div className="lg:col-span-3 sm:col-span-2">
-                <label className="block text-xs font-semibold mb-1 text-gray-700">
-                  Password Hint (optional)
-                </label>
+                <label className="block text-xs font-semibold mb-1 text-gray-700">Password Hint (optional)</label>
                 <textarea
                   name="passwordHint"
                   value={form.passwordHint || ""}

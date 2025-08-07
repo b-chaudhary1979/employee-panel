@@ -23,7 +23,7 @@ export default function useAnnouncements(cid) {
     setLoading(true);
     setError(null);
     try {
-      const ref = collection(db, "users", cid, "announcement");
+      const ref = collection(db, "users", cid, "announcements");
       const q = query(ref, orderBy("createdAt", "desc"));
       const snap = await getDocs(q);
       setAnnouncements(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
@@ -41,7 +41,7 @@ export default function useAnnouncements(cid) {
       setLoading(true);
       setError(null);
       try {
-        const ref = collection(db, "users", cid, "announcement");
+        const ref = collection(db, "users", cid, "announcements");
         await addDoc(ref, {
           ...data,
           createdAt: serverTimestamp(),
@@ -63,7 +63,7 @@ export default function useAnnouncements(cid) {
       setLoading(true);
       setError(null);
       try {
-        const ref = doc(db, "users", cid, "announcement", id);
+        const ref = doc(db, "users", cid, "announcements", id);
         await updateDoc(ref, updates);
         await fetchAnnouncements();
       } catch (err) {
@@ -82,7 +82,7 @@ export default function useAnnouncements(cid) {
       setLoading(true);
       setError(null);
       try {
-        const ref = doc(db, "users", cid, "announcement", id);
+        const ref = doc(db, "users", cid, "announcements", id);
         await deleteDoc(ref);
         await fetchAnnouncements();
       } catch (err) {
@@ -107,4 +107,4 @@ export default function useAnnouncements(cid) {
     updateAnnouncement,
     deleteAnnouncement,
   };
-} 
+}

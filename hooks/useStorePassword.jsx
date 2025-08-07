@@ -26,19 +26,19 @@ function decrypt(cipher) {
   }
 }
 
-export default function useStorePassword(ci) {
+export default function useStorePassword(ci, aid) {
   const [passwords, setPasswords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Firestore path: companies/{ci}/passwords
+  // Firestore path: users/{ci}/employees/{aid}/passwords
   function passwordsColRef() {
-    return collection(db, "users", ci, "passwords");
+    return collection(db, "users", ci, "employees", aid, "passwords");
   }
 
   // Fetch and listen to passwords for this company
   useEffect(() => {
-    if (!ci) return;
+    if (!ci || !aid) return;
     setLoading(true);
     const colRef = passwordsColRef();
     const unsub = onSnapshot(
@@ -61,7 +61,7 @@ export default function useStorePassword(ci) {
     );
     return () => unsub();
     // eslint-disable-next-line
-  }, [ci]);
+  }, [ci, aid]);
 
   // Add password
   const addPassword = useCallback(
@@ -78,7 +78,7 @@ export default function useStorePassword(ci) {
         setError(err.message);
       }
     },
-    [ci]
+    [ci, aid]
   );
 
   // Update password
@@ -86,7 +86,7 @@ export default function useStorePassword(ci) {
     async (id, data) => {
       try {
         setError(null);
-        const ref = doc(db, "users", ci, "passwords", id); // FIXED: was 'companies', should be 'users'
+        const ref = doc(db, "users", ci, "employees", aid, "passwords", id);
         const encrypted = {
           ...data,
           password: encrypt(data.password),
@@ -96,22 +96,22 @@ export default function useStorePassword(ci) {
         setError(err.message);
       }
     },
-    [ci]
+    [ci, aid]
   );
 
   // Delete password
   const deletePassword = useCallback(async (id) => {
     try {
       setError(null);
-      await deleteDoc(doc(db, "users", ci, "passwords", id)); // FIXED: was 'companies', should be 'users'
+      await deleteDoc(doc(db, "users", ci, "employees", aid, "passwords", id));
     } catch (err) {
       setError(err.message);
     }
-  }, [ci]);
+  }, [ci, aid]);
 
   // Manual fetch (if needed)
   const fetchPasswords = useCallback(async () => {
-    if (!ci) return [];
+    if (!ci || !aid) return [];
     setLoading(true);
     try {
       const colRef = passwordsColRef();
@@ -130,7 +130,7 @@ export default function useStorePassword(ci) {
       setLoading(false);
       return [];
     }
-  }, [ci]);
+  }, [ci, aid]);
 
   return {
     passwords,
@@ -141,4 +141,4 @@ export default function useStorePassword(ci) {
     deletePassword,
     fetchPasswords,
   };
-} 
+}
