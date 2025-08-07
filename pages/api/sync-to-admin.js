@@ -25,9 +25,13 @@ try {
   }
   
   adminDb = getFirestore(adminApp);
+<<<<<<< HEAD
 } catch (error) {
   console.error('Failed to initialize admin Firebase:', error);
 }
+=======
+} catch (error) {}
+>>>>>>> cea7712 (Logs cleared)
 
 export default async function handler(req, res) {
  

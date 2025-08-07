@@ -2,7 +2,14 @@ import React, { useEffect, useState, useRef } from "react";
 import { useUserInfo } from "../context/UserInfoContext";
 import useStoreData from "../hooks/useStoreData";
 import BgAnimation from "./bg-animation";
-import { UserIcon, EyeIcon, ArrowDownTrayIcon, ChatBubbleLeftRightIcon, XMarkIcon, TrashIcon } from '@heroicons/react/24/solid';
+import {
+  UserIcon,
+  EyeIcon,
+  ArrowDownTrayIcon,
+  ChatBubbleLeftRightIcon,
+  XMarkIcon,
+  TrashIcon,
+} from "@heroicons/react/24/solid";
 import CryptoJS from "crypto-js";
 import { useRouter } from "next/router";
 
@@ -23,7 +30,7 @@ export default function ImagesSection({ onFavourite }) {
   const router = useRouter();
   const { token } = router.query;
   const { ci, aid } = decryptToken(token);
-  
+
   const [copied, setCopied] = useState(null);
   const [search, setSearch] = useState("");
   const [modal, setModal] = useState(null); // For modal info
@@ -33,7 +40,7 @@ export default function ImagesSection({ onFavourite }) {
   const [isDeleting, setIsDeleting] = useState(false); // Loading state for delete operation
   const inputRef = useRef();
   const { user, aid: userAid } = useUserInfo();
-  
+
   // Use ci from token as companyId (same as data.jsx page)
   const companyId = ci;
   const employeeId = aid;
@@ -78,9 +85,7 @@ export default function ImagesSection({ onFavourite }) {
       if (img.cloudinaryUrl) {
         window.open(img.cloudinaryUrl, "_blank");
       }
-    } catch (error) {
-      console.log("Failed to preview image:", error);
-    }
+    } catch (error) {}
   };
 
   // Feedback submit handler
@@ -117,7 +122,15 @@ export default function ImagesSection({ onFavourite }) {
       const { updateDoc, arrayRemove } = await import("firebase/firestore");
       const { getFirestore, doc } = await import("firebase/firestore");
       const db = getFirestore();
-      const docRef = doc(db, "users", companyId, "employees", employeeId, "data_images", modal.image.id);
+      const docRef = doc(
+        db,
+        "users",
+        companyId,
+        "employees",
+        employeeId,
+        "data_images",
+        modal.image.id
+      );
 
       await updateDoc(docRef, {
         comments: arrayRemove(commentToDelete),
@@ -138,7 +151,14 @@ export default function ImagesSection({ onFavourite }) {
     import("firebase/firestore").then(
       ({ getFirestore, collection, query, where, onSnapshot }) => {
         const db = getFirestore();
-        const dataRef = collection(db, "users", companyId, "employees", employeeId, "data_images");
+        const dataRef = collection(
+          db,
+          "users",
+          companyId,
+          "employees",
+          employeeId,
+          "data_images"
+        );
         unsubscribe = onSnapshot(dataRef, (querySnapshot) => {
           const imagesData = [];
           querySnapshot.forEach((doc) => {
@@ -462,7 +482,6 @@ export default function ImagesSection({ onFavourite }) {
                             setTimeout(() => setNotification(""), 1500);
                           }
                         } catch (error) {
-                          console.error("Delete error:", error);
                           setNotification(
                             "An error occurred while deleting the image"
                           );

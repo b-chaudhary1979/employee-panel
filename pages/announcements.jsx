@@ -26,23 +26,34 @@ function decryptToken(token) {
 // Add EditToggle component (slider style) if not already present
 function EditToggle({ value, onChange }) {
   return (
-    <div className="flex flex-col items-center" style={{ marginLeft: '-28px' }}>
+    <div className="flex flex-col items-center" style={{ marginLeft: "-28px" }}>
       <div className="flex items-center">
         <button
           type="button"
-          className={`relative w-14 h-8 flex items-center rounded-full transition-colors duration-300 focus:outline-none shadow ${value ? 'bg-green-500' : 'bg-red-500'}`}
+          className={`relative w-14 h-8 flex items-center rounded-full transition-colors duration-300 focus:outline-none shadow ${value ? "bg-green-500" : "bg-red-500"}`}
           onClick={() => onChange(!value)}
           aria-label="Toggle Edit"
-          style={{ transition: 'background 0.3s cubic-bezier(.4,2,.6,1)' }}
+          style={{ transition: "background 0.3s cubic-bezier(.4,2,.6,1)" }}
         >
           <span
             className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-transform duration-300`}
-            style={{ left: value ? 'calc(100% - 2rem)' : '0.25rem', transition: 'left 0.3s cubic-bezier(.4,2,.6,1)' }}
+            style={{
+              left: value ? "calc(100% - 2rem)" : "0.25rem",
+              transition: "left 0.3s cubic-bezier(.4,2,.6,1)",
+            }}
           />
         </button>
-        <span className={`ml-3 text-sm font-bold ${value ? 'text-green-600' : 'text-red-600'}`}>{value ? 'ON' : 'OFF'}</span>
+        <span
+          className={`ml-3 text-sm font-bold ${value ? "text-green-600" : "text-red-600"}`}
+        >
+          {value ? "ON" : "OFF"}
+        </span>
       </div>
-      <span className={`mt-1 text-xs font-bold ${value ? 'text-green-600' : 'text-red-600'}`}>{value ? 'Edit is ON' : 'Edit is OFF'}</span>
+      <span
+        className={`mt-1 text-xs font-bold ${value ? "text-green-600" : "text-red-600"}`}
+      >
+        {value ? "Edit is ON" : "Edit is OFF"}
+      </span>
     </div>
   );
 }
@@ -54,18 +65,28 @@ function StatusSwitch({ value, onChange, disabled }) {
       <div className="flex items-center">
         <button
           type="button"
-          className={`relative w-14 h-8 flex items-center rounded-full transition-colors duration-300 focus:outline-none shadow ${value === 'published' ? 'bg-green-500' : 'bg-red-500'}`}
-          onClick={() => !disabled && onChange(value === 'published' ? 'not published' : 'published')}
+          className={`relative w-14 h-8 flex items-center rounded-full transition-colors duration-300 focus:outline-none shadow ${value === "published" ? "bg-green-500" : "bg-red-500"}`}
+          onClick={() =>
+            !disabled &&
+            onChange(value === "published" ? "not published" : "published")
+          }
           aria-label="Toggle Status"
-          style={{ transition: 'background 0.3s cubic-bezier(.4,2,.6,1)' }}
+          style={{ transition: "background 0.3s cubic-bezier(.4,2,.6,1)" }}
           disabled={disabled}
         >
           <span
             className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-transform duration-300`}
-            style={{ left: value === 'published' ? 'calc(100% - 2rem)' : '0.25rem', transition: 'left 0.3s cubic-bezier(.4,2,.6,1)' }}
+            style={{
+              left: value === "published" ? "calc(100% - 2rem)" : "0.25rem",
+              transition: "left 0.3s cubic-bezier(.4,2,.6,1)",
+            }}
           />
         </button>
-        <span className={`ml-3 text-sm font-bold ${value === 'published' ? 'text-green-600' : 'text-red-600'}`}>{value === 'published' ? 'Active' : 'Inactive'}</span>
+        <span
+          className={`ml-3 text-sm font-bold ${value === "published" ? "text-green-600" : "text-red-600"}`}
+        >
+          {value === "published" ? "Active" : "Inactive"}
+        </span>
       </div>
     </div>
   );
@@ -115,7 +136,9 @@ function AnnouncementsContent() {
   const [editMode, setEditMode] = useState(false);
   // Add state for custom Q&A in form and edit modal
   const [customQA, setCustomQA] = useState([{ question: "", answer: "" }]);
-  const [editCustomQA, setEditCustomQA] = useState([{ question: "", answer: "" }]);
+  const [editCustomQA, setEditCustomQA] = useState([
+    { question: "", answer: "" },
+  ]);
 
   // Add state for confirmation modals
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
@@ -123,11 +146,20 @@ function AnnouncementsContent() {
   const [confirmStatusId, setConfirmStatusId] = useState(null);
   const [pendingStatus, setPendingStatus] = useState(null);
 
-  const { announcements, loading: loadingAnnouncements, error: announcementsError, addAnnouncement, updateAnnouncement, deleteAnnouncement } = useAnnouncements(ci);
+  const {
+    announcements,
+    loading: loadingAnnouncements,
+    error: announcementsError,
+    addAnnouncement,
+    updateAnnouncement,
+    deleteAnnouncement,
+  } = useAnnouncements(ci);
 
   // Summary stats (dynamic)
   const totalAnnouncements = announcements.length;
-  const activeAnnouncements = announcements.filter(a => a.status === 'published' || a.active).length;
+  const activeAnnouncements = announcements.filter(
+    (a) => a.status === "published" || a.active
+  ).length;
   const totalViews = announcements.reduce((sum, a) => sum + (a.views || 0), 0);
 
   const types = [
@@ -199,7 +231,7 @@ function AnnouncementsContent() {
       await addAnnouncement({
         ...form,
         status,
-        active: status === 'published',
+        active: status === "published",
         customQA,
         views: 0,
         createdAt: new Date().toISOString(),
@@ -231,7 +263,6 @@ function AnnouncementsContent() {
       // Clear errors
       setErrors({});
     } catch (error) {
-      console.error("Error creating announcement:", error);
       showNotification(
         error.message || "Failed to create announcement. Please try again.",
         "error"
@@ -307,9 +338,9 @@ function AnnouncementsContent() {
 
   // Helper to get a valid date string from Firestore Timestamp or string
   function getAnnouncementDate(createdAt) {
-    if (!createdAt) return 'N/A';
+    if (!createdAt) return "N/A";
     // Firestore Timestamp object
-    if (typeof createdAt === 'object' && createdAt.seconds) {
+    if (typeof createdAt === "object" && createdAt.seconds) {
       return new Date(createdAt.seconds * 1000).toLocaleDateString();
     }
     // ISO string or other string
@@ -317,7 +348,7 @@ function AnnouncementsContent() {
     if (!isNaN(date.getTime())) {
       return date.toLocaleDateString();
     }
-    return 'N/A';
+    return "N/A";
   }
 
   /* ───────────────────────────────────────── hooks ───────────────────────────────────────── */
@@ -386,8 +417,8 @@ function AnnouncementsContent() {
               notification.type === "error"
                 ? "bg-gradient-to-r from-red-500 to-pink-500 text-white"
                 : notification.type === "warning"
-                ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white"
-                : "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
+                  ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white"
+                  : "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
             }`}
           >
             <svg
@@ -650,11 +681,15 @@ function AnnouncementsContent() {
 
                   {/* Subtitle */}
                   <div>
-                    <label className="block text-lg font-semibold text-gray-700 mb-2">Subtitle</label>
+                    <label className="block text-lg font-semibold text-gray-700 mb-2">
+                      Subtitle
+                    </label>
                     <input
                       type="text"
                       value={form.subtitle}
-                      onChange={(e) => handleInputChange("subtitle", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("subtitle", e.target.value)
+                      }
                       className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg text-gray-900"
                       placeholder="Enter subtitle here..."
                       disabled={isSubmitting}
@@ -662,11 +697,15 @@ function AnnouncementsContent() {
                   </div>
                   {/* Link */}
                   <div>
-                    <label className="block text-lg font-semibold text-gray-700 mb-2">Link</label>
+                    <label className="block text-lg font-semibold text-gray-700 mb-2">
+                      Link
+                    </label>
                     <input
                       type="text"
                       value={form.link}
-                      onChange={(e) => handleInputChange("link", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("link", e.target.value)
+                      }
                       className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg text-gray-900"
                       placeholder="Enter link (optional)"
                       disabled={isSubmitting}
@@ -674,26 +713,38 @@ function AnnouncementsContent() {
                   </div>
                   {/* Image */}
                   <div>
-                    <label className="block text-lg font-semibold text-gray-700 mb-2">Image URL</label>
+                    <label className="block text-lg font-semibold text-gray-700 mb-2">
+                      Image URL
+                    </label>
                     <input
                       type="text"
                       value={form.image}
-                      onChange={(e) => handleInputChange("image", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("image", e.target.value)
+                      }
                       className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg text-gray-900"
                       placeholder="Paste image URL (optional)"
                       disabled={isSubmitting}
                     />
                     {form.image && (
-                      <img src={form.image} alt="Announcement" className="max-h-32 rounded-lg border mt-2" />
+                      <img
+                        src={form.image}
+                        alt="Announcement"
+                        className="max-h-32 rounded-lg border mt-2"
+                      />
                     )}
                   </div>
                   {/* Audience */}
                   <div>
-                    <label className="block text-lg font-semibold text-gray-700 mb-2">Audience</label>
+                    <label className="block text-lg font-semibold text-gray-700 mb-2">
+                      Audience
+                    </label>
                     <input
                       type="text"
                       value={form.audience}
-                      onChange={(e) => handleInputChange("audience", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("audience", e.target.value)
+                      }
                       className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg text-gray-900"
                       placeholder="Target audience (optional)"
                       disabled={isSubmitting}
@@ -701,22 +752,30 @@ function AnnouncementsContent() {
                   </div>
                   {/* Expiry Date */}
                   <div>
-                    <label className="block text-lg font-semibold text-gray-700 mb-2">Expiry Date</label>
+                    <label className="block text-lg font-semibold text-gray-700 mb-2">
+                      Expiry Date
+                    </label>
                     <input
                       type="date"
                       value={form.expiryDate}
-                      onChange={(e) => handleInputChange("expiryDate", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("expiryDate", e.target.value)
+                      }
                       className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg text-gray-900"
                       disabled={isSubmitting}
                     />
                   </div>
                   {/* Tags */}
                   <div>
-                    <label className="block text-lg font-semibold text-gray-700 mb-2">Tags</label>
+                    <label className="block text-lg font-semibold text-gray-700 mb-2">
+                      Tags
+                    </label>
                     <input
                       type="text"
                       value={form.tags}
-                      onChange={(e) => handleInputChange("tags", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("tags", e.target.value)
+                      }
                       className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-lg text-gray-900"
                       placeholder="Comma separated tags (optional)"
                       disabled={isSubmitting}
@@ -724,14 +783,19 @@ function AnnouncementsContent() {
                   </div>
                   {/* Custom Q&A */}
                   <div>
-                    <label className="block text-lg font-semibold text-gray-700 mb-2">Custom Q&A</label>
+                    <label className="block text-lg font-semibold text-gray-700 mb-2">
+                      Custom Q&A
+                    </label>
                     {customQA.map((qa, idx) => (
-                      <div key={idx} className="flex flex-col md:flex-row gap-2 mb-2">
+                      <div
+                        key={idx}
+                        className="flex flex-col md:flex-row gap-2 mb-2"
+                      >
                         <input
                           type="text"
                           placeholder="Question"
                           value={qa.question}
-                          onChange={e => {
+                          onChange={(e) => {
                             const updatedQA = [...customQA];
                             updatedQA[idx].question = e.target.value;
                             setCustomQA(updatedQA);
@@ -743,7 +807,7 @@ function AnnouncementsContent() {
                           type="text"
                           placeholder="Answer"
                           value={qa.answer}
-                          onChange={e => {
+                          onChange={(e) => {
                             const updatedQA = [...customQA];
                             updatedQA[idx].answer = e.target.value;
                             setCustomQA(updatedQA);
@@ -755,7 +819,9 @@ function AnnouncementsContent() {
                     ))}
                     <button
                       type="button"
-                      onClick={() => setCustomQA([...customQA, { question: "", answer: "" }])}
+                      onClick={() =>
+                        setCustomQA([...customQA, { question: "", answer: "" }])
+                      }
                       className="mt-2 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
                       disabled={isSubmitting}
                     >
@@ -837,8 +903,13 @@ function AnnouncementsContent() {
                               </span>
                             </div>
                             <StatusSwitch
-                              value={announcement.status || (announcement.active ? 'published' : 'not published')}
-                              onChange={status => {
+                              value={
+                                announcement.status ||
+                                (announcement.active
+                                  ? "published"
+                                  : "not published")
+                              }
+                              onChange={(status) => {
                                 setConfirmStatusId(announcement.id);
                                 setPendingStatus(status);
                               }}
@@ -853,7 +924,11 @@ function AnnouncementsContent() {
                           className="text-blue-500 hover:text-blue-700 p-2 rounded-full hover:bg-blue-50 transition-colors border border-blue-200 hover:border-blue-300"
                           onClick={() => {
                             setEditAnnouncement(announcement);
-                            setEditCustomQA(announcement.customQA || [{ question: "", answer: "" }]);
+                            setEditCustomQA(
+                              announcement.customQA || [
+                                { question: "", answer: "" },
+                              ]
+                            );
                             setShowEditModal(true);
                             setEditMode(false);
                           }}
@@ -906,7 +981,9 @@ function AnnouncementsContent() {
                               : "bg-gray-100 text-gray-700"
                           }`}
                         >
-                          {announcement.status === "published" ? "Published" : "Not Published"}
+                          {announcement.status === "published"
+                            ? "Published"
+                            : "Not Published"}
                         </span>
                       </div>
                       <div>
@@ -934,13 +1011,18 @@ function AnnouncementsContent() {
           <div className="relative w-full max-w-xl mx-auto bg-white rounded-xl shadow-2xl p-6 overflow-y-auto max-h-[90vh] border-2 border-purple-500">
             <button
               className="absolute top-1 right-3 text-gray-400 hover:text-black text-4xl"
-              onClick={() => { setShowEditModal(false); setEditMode(false); }}
+              onClick={() => {
+                setShowEditModal(false);
+                setEditMode(false);
+              }}
               aria-label="Close"
             >
               &times;
             </button>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-purple-700">Edit Announcement</h2>
+              <h2 className="text-2xl font-bold text-purple-700">
+                Edit Announcement
+              </h2>
               <EditToggle value={editMode} onChange={setEditMode} />
             </div>
             <form
@@ -948,118 +1030,195 @@ function AnnouncementsContent() {
               onSubmit={async (e) => {
                 e.preventDefault();
                 const { id, ...updateData } = editAnnouncement;
-                await updateAnnouncement(editAnnouncement.id, { ...updateData, customQA: editCustomQA });
+                await updateAnnouncement(editAnnouncement.id, {
+                  ...updateData,
+                  customQA: editCustomQA,
+                });
                 setShowEditModal(false);
                 setEditMode(false);
               }}
             >
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Title</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Title
+                </label>
                 <input
                   type="text"
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
                   value={editAnnouncement.title || ""}
-                  onChange={e => setEditAnnouncement({ ...editAnnouncement, title: e.target.value })}
+                  onChange={(e) =>
+                    setEditAnnouncement({
+                      ...editAnnouncement,
+                      title: e.target.value,
+                    })
+                  }
                   required
                   disabled={!editMode}
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Subtitle</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Subtitle
+                </label>
                 <input
                   type="text"
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
                   value={editAnnouncement.subtitle || ""}
-                  onChange={e => setEditAnnouncement({ ...editAnnouncement, subtitle: e.target.value })}
+                  onChange={(e) =>
+                    setEditAnnouncement({
+                      ...editAnnouncement,
+                      subtitle: e.target.value,
+                    })
+                  }
                   disabled={!editMode}
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Type</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Type
+                </label>
                 <select
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black bg-white"
                   value={editAnnouncement.type || "information"}
-                  onChange={e => setEditAnnouncement({ ...editAnnouncement, type: e.target.value })}
+                  onChange={(e) =>
+                    setEditAnnouncement({
+                      ...editAnnouncement,
+                      type: e.target.value,
+                    })
+                  }
                   disabled={!editMode}
                 >
                   {types.map((type) => (
-                    <option key={type.value} value={type.value}>{type.label}</option>
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Content</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Content
+                </label>
                 <textarea
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
                   value={editAnnouncement.content || ""}
-                  onChange={e => setEditAnnouncement({ ...editAnnouncement, content: e.target.value })}
+                  onChange={(e) =>
+                    setEditAnnouncement({
+                      ...editAnnouncement,
+                      content: e.target.value,
+                    })
+                  }
                   rows={3}
                   required
                   disabled={!editMode}
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Link</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Link
+                </label>
                 <input
                   type="text"
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
                   value={editAnnouncement.link || ""}
-                  onChange={e => setEditAnnouncement({ ...editAnnouncement, link: e.target.value })}
+                  onChange={(e) =>
+                    setEditAnnouncement({
+                      ...editAnnouncement,
+                      link: e.target.value,
+                    })
+                  }
                   disabled={!editMode}
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Image URL</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Image URL
+                </label>
                 <input
                   type="text"
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
                   value={editAnnouncement.image || ""}
-                  onChange={e => setEditAnnouncement({ ...editAnnouncement, image: e.target.value })}
+                  onChange={(e) =>
+                    setEditAnnouncement({
+                      ...editAnnouncement,
+                      image: e.target.value,
+                    })
+                  }
                   disabled={!editMode}
                 />
                 {editAnnouncement.image && (
-                  <img src={editAnnouncement.image} alt="Announcement" className="max-h-32 rounded-lg border mt-2" />
+                  <img
+                    src={editAnnouncement.image}
+                    alt="Announcement"
+                    className="max-h-32 rounded-lg border mt-2"
+                  />
                 )}
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Audience</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Audience
+                </label>
                 <input
                   type="text"
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
                   value={editAnnouncement.audience || ""}
-                  onChange={e => setEditAnnouncement({ ...editAnnouncement, audience: e.target.value })}
+                  onChange={(e) =>
+                    setEditAnnouncement({
+                      ...editAnnouncement,
+                      audience: e.target.value,
+                    })
+                  }
                   disabled={!editMode}
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Expiry Date</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Expiry Date
+                </label>
                 <input
                   type="date"
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
                   value={editAnnouncement.expiryDate || ""}
-                  onChange={e => setEditAnnouncement({ ...editAnnouncement, expiryDate: e.target.value })}
+                  onChange={(e) =>
+                    setEditAnnouncement({
+                      ...editAnnouncement,
+                      expiryDate: e.target.value,
+                    })
+                  }
                   disabled={!editMode}
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Tags</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Tags
+                </label>
                 <input
                   type="text"
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black"
                   value={editAnnouncement.tags || ""}
-                  onChange={e => setEditAnnouncement({ ...editAnnouncement, tags: e.target.value })}
+                  onChange={(e) =>
+                    setEditAnnouncement({
+                      ...editAnnouncement,
+                      tags: e.target.value,
+                    })
+                  }
                   disabled={!editMode}
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Custom Q&A</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Custom Q&A
+                </label>
                 {(editCustomQA || []).map((qa, idx) => (
-                  <div key={idx} className="flex flex-col md:flex-row gap-2 mb-2">
+                  <div
+                    key={idx}
+                    className="flex flex-col md:flex-row gap-2 mb-2"
+                  >
                     <input
                       type="text"
                       placeholder="Question"
                       value={qa.question}
-                      onChange={e => {
+                      onChange={(e) => {
                         if (!editMode) return;
                         const updatedQA = [...editCustomQA];
                         updatedQA[idx].question = e.target.value;
@@ -1072,7 +1231,7 @@ function AnnouncementsContent() {
                       type="text"
                       placeholder="Answer"
                       value={qa.answer}
-                      onChange={e => {
+                      onChange={(e) => {
                         if (!editMode) return;
                         const updatedQA = [...editCustomQA];
                         updatedQA[idx].answer = e.target.value;
@@ -1086,7 +1245,12 @@ function AnnouncementsContent() {
                 {editMode && (
                   <button
                     type="button"
-                    onClick={() => setEditCustomQA([...(editCustomQA || []), { question: "", answer: "" }])}
+                    onClick={() =>
+                      setEditCustomQA([
+                        ...(editCustomQA || []),
+                        { question: "", answer: "" },
+                      ])
+                    }
                     className="mt-2 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
                   >
                     + Add Custom Q&A
@@ -1115,7 +1279,10 @@ function AnnouncementsContent() {
                   <button
                     type="button"
                     className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg px-4 py-2 transition-colors duration-200"
-                    onClick={() => { setShowEditModal(false); setEditMode(false); }}
+                    onClick={() => {
+                      setShowEditModal(false);
+                      setEditMode(false);
+                    }}
                   >
                     Cancel
                   </button>
@@ -1135,7 +1302,8 @@ function AnnouncementsContent() {
               Confirm Delete
             </h2>
             <p className="mb-6 text-gray-700">
-              Are you sure you want to delete this announcement? This action cannot be undone.
+              Are you sure you want to delete this announcement? This action
+              cannot be undone.
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -1163,7 +1331,19 @@ function AnnouncementsContent() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
           <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
             <h2 className="text-lg font-bold mb-4 text-purple-600 flex items-center gap-2">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              <svg
+                className="w-6 h-6 text-purple-600"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
               Confirm Publish
             </h2>
             <p className="mb-6 text-gray-700">
@@ -1179,7 +1359,9 @@ function AnnouncementsContent() {
               <button
                 className="px-4 py-2 rounded bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold"
                 onClick={async () => {
-                  await updateAnnouncement(confirmPublishId, { status: "published" });
+                  await updateAnnouncement(confirmPublishId, {
+                    status: "published",
+                  });
                   setConfirmPublishId(null);
                 }}
               >
@@ -1195,23 +1377,42 @@ function AnnouncementsContent() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
           <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
             <h2 className="text-lg font-bold mb-4 text-purple-600 flex items-center gap-2">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              <svg
+                className="w-6 h-6 text-purple-600"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
               Confirm Status Change
             </h2>
             <p className="mb-6 text-gray-700">
-              Are you sure you want to change the status of this announcement to "{pendingStatus === 'published' ? 'Published' : 'Not Published'}"?
+              Are you sure you want to change the status of this announcement to
+              "{pendingStatus === "published" ? "Published" : "Not Published"}"?
             </p>
             <div className="flex justify-end gap-3">
               <button
                 className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold"
-                onClick={() => { setConfirmStatusId(null); setPendingStatus(null); }}
+                onClick={() => {
+                  setConfirmStatusId(null);
+                  setPendingStatus(null);
+                }}
               >
                 Cancel
               </button>
               <button
                 className="px-4 py-2 rounded bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold"
                 onClick={async () => {
-                  await updateAnnouncement(confirmStatusId, { status: pendingStatus, active: pendingStatus === 'published' });
+                  await updateAnnouncement(confirmStatusId, {
+                    status: pendingStatus,
+                    active: pendingStatus === "published",
+                  });
                   setConfirmStatusId(null);
                   setPendingStatus(null);
                 }}
