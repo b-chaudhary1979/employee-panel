@@ -144,7 +144,6 @@ export default async function handler(req, res) {
         const data = fs.readFileSync(announcementsPath, "utf8");
         announcements = JSON.parse(data);
       } catch (error) {
-        console.error("Error reading announcements file:", error);
         announcements = [];
       }
     }
@@ -169,7 +168,6 @@ export default async function handler(req, res) {
       },
     });
   } catch (error) {
-    console.error("Error creating announcement:", error);
     res.status(500).json({
       error: "Internal server error",
       message: error.message,

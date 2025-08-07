@@ -44,7 +44,6 @@ export default function useCloudinary() {
       };
   
     } catch (err) {
-      console.error("Cloudinary upload error:", err);
       setError("Upload failed");
       setLoading(false);
       return {
@@ -89,7 +88,6 @@ export default function useCloudinary() {
       };
 
     } catch (err) {
-      console.error('Cloudinary deletion error:', err);
       setError('Deletion failed');
       setLoading(false);
       return { 
