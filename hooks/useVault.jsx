@@ -50,7 +50,7 @@ export default function useVault(correctVaultKey) {
     e.preventDefault();
     setIsVaultLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    if (vaultKey === correctVaultKey) {
+    if (vaultKey.trim().toLowerCase() === String(correctVaultKey).trim().toLowerCase()) {
       setIsVaultUnlocked(true);
       localStorage.removeItem("vaultFailedAttempts");
       setVaultAttempts(0);
@@ -99,4 +99,4 @@ export default function useVault(correctVaultKey) {
     handleVaultSubmit,
     resetVaultLockout,
   };
-} 
+}

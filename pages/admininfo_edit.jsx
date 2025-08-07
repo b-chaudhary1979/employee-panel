@@ -1,12 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import CryptoJS from "crypto-js";
 import { useRouter } from "next/router";
 import useStoreUserInfoEdit from "../hooks/useStoreUserInfoEdit";
 import Loader from "../loader/Loader";
 
+const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
+function decryptToken(token) {
+  try {
+    const bytes = CryptoJS.AES.decrypt(token, ENCRYPTION_KEY);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    const { ci, aid } = JSON.parse(decrypted);
+    return { ci, aid };
+  } catch {
+    return { ci: null, aid: null };
+  }
+}
+
 const AdminInfoEdit = () => {
   const router = useRouter();
-  const [cid, setCid] = useState("");
-  const [cidModalOpen, setCidModalOpen] = useState(true);
+  const { token } = router.query;
+  const { ci, aid } = useMemo(() => decryptToken(token), [token]);
+  const [cid, setCid] = useState(ci || "");
+  const [cidModalOpen, setCidModalOpen] = useState(!ci);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifMsg, setNotifMsg] = useState("");
   const [editFields, setEditFields] = useState({});
@@ -19,11 +34,18 @@ const AdminInfoEdit = () => {
     error,
     fetchUser,
     updateAllFields,
-  } = useStoreUserInfoEdit(cid);
+  } = useStoreUserInfoEdit(cid, aid);
 
   useEffect(() => {
-    if (cid) fetchUser();
-  }, [cid, fetchUser]);
+    if (ci) {
+      setCid(ci);
+      setCidModalOpen(false);
+    }
+  }, [ci]);
+
+  useEffect(() => {
+    if (cid && aid) fetchUser();
+  }, [cid, aid, fetchUser]);
 
   useEffect(() => {
     if (notifOpen) {
@@ -52,7 +74,7 @@ const AdminInfoEdit = () => {
   };
 
   const NON_EDITABLE_FIELDS = [
-    'id', 'uniqueId', 'companyId', 'companyName', 'plan', 'status', 'profilePhoto', 'updatedAt'
+    'id', 'uniqueId', 'companyId', 'companyName', 'plan', 'status', 'profilePhoto', 'updatedAt', 'employeeId', 'aid'
   ];
 
   const renderFields = () => {

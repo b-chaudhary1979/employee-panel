@@ -52,7 +52,7 @@ function APIKeysContent() {
     addKey,
     importFromFile,
     fetchKeys,
-    decryptKey: serverDecryptKey,
+    decryptKey,
     deleteKey, // <-- use deleteKey
     updateKeyEncryption, // <-- add this line
     updateKeyStatus, // <-- add this line
@@ -78,7 +78,7 @@ function APIKeysContent() {
     lockoutUntil,
     handleVaultSubmit,
     resetVaultLockout,
-  } = useVault(ci);
+  } = useVault(aid);
 
   // API keys data from database
   const [apiKeys, setApiKeys] = useState([]);
@@ -180,7 +180,7 @@ function APIKeysContent() {
   // Handle vault verification for key details
   const handleKeyDetailVaultSubmit = (e) => {
     e.preventDefault();
-    if (keyDetailVaultKey === ci) {
+    if (keyDetailVaultKey.trim().toLowerCase() === String(aid).trim().toLowerCase()) {
       setShowKeyDetailVaultModal(false);
       setShowKeyDetailModal(true);
       setKeyDetailVaultKey("");
@@ -427,23 +427,48 @@ function APIKeysContent() {
       return;
     }
     setIsProcessing(true);
-    // Simulate processing delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setApiKeys((prevKeys) =>
-      prevKeys.map((key) =>
-        key.id === selectedKeyId
-          ? {
-              ...key,
-              encryptedKey: encryptKey(key.key, encryptionPassword),
-              isEncrypted: true,
-              isDecrypted: false,
-            }
-          : key
-      )
-    );
-    setShowEncryptModal(false);
-    setEncryptionPassword("");
-    setIsProcessing(false);
+    try {
+      const selectedKeyObj = apiKeys.find((key) => key.id === selectedKeyId);
+      if (!selectedKeyObj) {
+        throw new Error("Key not found");
+      }
+      
+      // Update the key encryption in the database
+      await updateKeyEncryption(selectedKeyId, selectedKeyObj.key, encryptionPassword);
+      
+      // Update the local state
+      setApiKeys((prevKeys) =>
+        prevKeys.map((key) =>
+          key.id === selectedKeyId
+            ? {
+                ...key,
+                encryptedKey: encryptKey(key.key, encryptionPassword),
+                isEncrypted: true,
+                isDecrypted: false,
+                key: "", // Clear the decrypted key for security
+              }
+            : key
+        )
+      );
+      
+      setNotification({
+        show: true,
+        message: "Key encrypted successfully!",
+        type: "success",
+      });
+      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+    } catch (error) {
+      setNotification({
+        show: true,
+        message: `Encryption failed: ${error.message}`,
+        type: "error",
+      });
+      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+    } finally {
+      setShowEncryptModal(false);
+      setEncryptionPassword("");
+      setIsProcessing(false);
+    }
   };
 
   // Decryption Modal submit handler
@@ -466,20 +491,17 @@ function APIKeysContent() {
           message: "No key found.",
         });
         setTimeout(() => setNotification({ show: false, message: "" }), 3000);
-        setIsProcessing(false);
         return;
       }
-      // Use server-side decryption
-      const decryptedKey = await serverDecryptKey(selectedKeyObj.keyName, decryptionPassword);
+      
+      // Use the decryptKey function from the hook
+      const decryptedKey = await decryptKey(selectedKeyId, decryptionPassword);
+      
       if (!decryptedKey) {
-        setNotification({
-          show: true,
-          message: "Incorrect password. Decryption failed.",
-        });
-        setTimeout(() => setNotification({ show: false, message: "" }), 3000);
-        setIsProcessing(false);
-        return;
+        throw new Error("Incorrect password. Decryption failed.");
       }
+      
+      // Update the local state
       setApiKeys((prevKeys) =>
         prevKeys.map((key) =>
           key.id === selectedKeyId
@@ -492,15 +514,24 @@ function APIKeysContent() {
             : key
         )
       );
+      
+      setNotification({
+        show: true,
+        message: "Key decrypted successfully!",
+        type: "success",
+      });
+      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+      
       setShowDecryptModal(false);
       setDecryptionPassword("");
-      setIsProcessing(false);
     } catch (error) {
       setNotification({
         show: true,
         message: `Decryption failed: ${error.message}`,
+        type: "error",
       });
       setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+    } finally {
       setIsProcessing(false);
     }
   };
@@ -538,7 +569,7 @@ function APIKeysContent() {
         setDeleteLoading(false);
         return;
       }
-      if (trimmedVaultKey !== ci) {
+      if (trimmedVaultKey.toLowerCase() !== String(aid).trim().toLowerCase()) {
         setDeleteError("Incorrect vault key.");
         setDeleteLoading(false);
         return;
@@ -565,26 +596,99 @@ function APIKeysContent() {
     }
   };
 
-  const handleDetailEncrypt = () => {
+  const handleDetailEncrypt = async () => {
     if (!selectedKey || !selectedKey.key) return;
-    const encryptedKey = encryptKey(selectedKey.key, ci);
-    setSelectedKey({
-      ...selectedKey,
-      encryptedKey,
-      isEncrypted: true,
-      isDecrypted: false,
-    });
+    try {
+      // Update the key encryption in the database
+      await updateKeyEncryption(selectedKey.id, selectedKey.key, aid);
+      
+      // Update the local state
+      const encryptedKey = encryptKey(selectedKey.key, aid);
+      setSelectedKey({
+        ...selectedKey,
+        encryptedKey,
+        isEncrypted: true,
+        isDecrypted: false,
+        key: "", // Clear the decrypted key for security
+      });
+      
+      // Update the key in the apiKeys array
+      setApiKeys(prevKeys => 
+        prevKeys.map(key => 
+          key.id === selectedKey.id 
+            ? {
+                ...key,
+                encryptedKey,
+                isEncrypted: true,
+                isDecrypted: false,
+                key: "", // Clear the decrypted key for security
+              }
+            : key
+        )
+      );
+      
+      setNotification({
+        show: true,
+        message: "Key encrypted successfully!",
+        type: "success",
+      });
+      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+    } catch (error) {
+      setNotification({
+        show: true,
+        message: `Encryption failed: ${error.message}`,
+        type: "error",
+      });
+      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+    }
   };
 
-  const handleDetailDecrypt = () => {
+  const handleDetailDecrypt = async () => {
     if (!selectedKey || !selectedKey.encryptedKey) return;
-    const decryptedKey = require('../utils/apiKeys').decryptKey(selectedKey.encryptedKey, ci);
-    setSelectedKey({
-      ...selectedKey,
-      key: decryptedKey,
-      isEncrypted: false,
-      isDecrypted: true,
-    });
+    try {
+      // Use the decryptKey function from the hook
+      const decryptedKey = await decryptKey(selectedKey.id, aid);
+      
+      if (!decryptedKey) {
+        throw new Error("Decryption failed. The key may be corrupted or the vault key is incorrect.");
+      }
+      
+      // Update the local state
+      setSelectedKey({
+        ...selectedKey,
+        key: decryptedKey,
+        isEncrypted: false,
+        isDecrypted: true,
+      });
+      
+      // Update the key in the apiKeys array
+      setApiKeys(prevKeys => 
+        prevKeys.map(key => 
+          key.id === selectedKey.id 
+            ? {
+                ...key,
+                key: decryptedKey,
+                isEncrypted: false,
+                isDecrypted: true,
+              }
+            : key
+        )
+      );
+      
+      setNotification({
+        show: true,
+        message: "Key decrypted successfully!",
+        type: "success",
+      });
+      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+    } catch (error) {
+      setNotification({
+        show: true,
+        message: `Decryption failed: ${error.message}`,
+        type: "error",
+      });
+      setTimeout(() => setNotification({ show: false, message: "" }), 3000);
+    }
   };
 
   // Handler for status change in KeyDetailModal
@@ -706,7 +810,7 @@ function APIKeysContent() {
         handleDecrypt={handleDetailDecrypt}
         onDelete={handleDeleteClick}
         updateKeyEncryption={updateKeyEncryption}
-        vaultKey={ci}
+        vaultKey={aid}
         onStatusChange={handleStatusChange}
         statusUpdating={statusUpdating}
       />
