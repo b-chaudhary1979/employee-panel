@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import NeuralNetwork from "../../components/bg-animation";
-import usefetchCredentials from '../../hooks/usefetchCredentials';
+import usefetchCredentials from "../../hooks/usefetchCredentials";
 import ReCAPTCHA from "react-google-recaptcha";
 import CryptoJS from "crypto-js";
 
@@ -36,7 +36,7 @@ const Login = () => {
       localStorage.removeItem("logoutSuccess");
       setTimeout(() => setShowNotification(false), 2000);
     }
-    
+
     // Check for message in query params (for redirects)
     if (router.query.message) {
       setNotificationMessage(router.query.message);
@@ -47,10 +47,10 @@ const Login = () => {
     // Decrypt token and set companyId if token exists in URL
     const decryptTokenAndSetCompanyId = async (token) => {
       try {
-        const response = await fetch('/api/decryptLoginToken', {
-          method: 'POST',
+        const response = await fetch("/api/decryptLoginToken", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ token }),
         });
@@ -61,19 +61,17 @@ const Login = () => {
         }
 
         // Check if response is JSON
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
           return;
         }
 
         const data = await response.json();
-        
+
         if (data.success && data.companyId) {
           setCompanyId(data.companyId);
         }
-      } catch (error) {
-        
-      }
+      } catch (error) {}
     };
 
     // Check if token exists in URL query params
@@ -117,38 +115,76 @@ const Login = () => {
         {showNotification && (
           <div
             className={`fixed top-4 left-1/2 transform -translate-x-1/2 md:top-6 md:right-6 md:left-auto md:translate-x-0 z-50 px-4 py-2 md:px-6 md:py-3 rounded-lg shadow-lg flex items-center space-x-2 animate-in slide-in-from-right duration-300 max-w-[90vw] md:max-w-none 
-              ${notificationMessage && (notificationMessage.toLowerCase().includes('invalid credentials') || notificationMessage.toLowerCase().includes('please complete the captcha'))
-                ? 'bg-red-400 text-white'
-                : 'bg-green-500 text-white'}
+              ${
+                notificationMessage &&
+                (notificationMessage
+                  .toLowerCase()
+                  .includes("invalid credentials") ||
+                  notificationMessage
+                    .toLowerCase()
+                    .includes("please complete the captcha"))
+                  ? "bg-red-400 text-white"
+                  : "bg-green-500 text-white"
+              }
             `}
           >
-            {notificationMessage && notificationMessage.toLowerCase().includes('invalid credentials') ? (
+            {notificationMessage &&
+            notificationMessage
+              .toLowerCase()
+              .includes("invalid credentials") ? (
               // Cross (X) SVG for error
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
-            ) : notificationMessage && notificationMessage.toLowerCase().includes('please complete the captcha') ? (
+            ) : notificationMessage &&
+              notificationMessage
+                .toLowerCase()
+                .includes("please complete the captcha") ? (
               // Exclamation SVG for captcha warning
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M12 17a5 5 0 100-10 5 5 0 000 10z" />
+              <svg
+                className="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01M12 17a5 5 0 100-10 5 5 0 000 10z"
+                />
               </svg>
             ) : (
               // Checkmark SVG for success
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             )}
-            <span className="font-medium text-sm md:text-base">{notificationMessage}</span>
+            <span className="font-medium text-sm md:text-base">
+              {notificationMessage}
+            </span>
           </div>
         )}
-        {/* Back Button - Top Left */}
-        <button
-          onClick={() => router.push("/")}
-          className="absolute top-2 left-2 md:top-3 md:left-6 z-50 flex items-center space-x-2 text-[#a259f7] hover:text-gray-500 transition-colors duration-200 text-base md:text-lg"
-        >
-          <span className="text-lg">←</span>
-          <span className="font-medium">Back</span>
-        </button>
         {/* Left Section */}
         <div className="flex-1 flex flex-col justify-start items-start py-8 px-4 sm:px-8 md:py-[5vh] md:px-[4vw] relative bg-white/5 backdrop-blur-xs w-full md:w-auto">
           {/* Branding Info */}
@@ -157,8 +193,9 @@ const Login = () => {
               Employee Portal
             </h1>
             <p className="text-[15px] sm:text-[16px] md:text-[18px] leading-relaxed text-[#fff]">
-              Access your workspace, manage tasks, and collaborate with your team. Our
-              employee portal is designed to enhance productivity and streamline your workflow.
+              Access your workspace, manage tasks, and collaborate with your
+              team. Our employee portal is designed to enhance productivity and
+              streamline your workflow.
             </p>
             <ul className="mt-4 md:mt-5 pl-5 text-[#a259f7] font-semibold list-disc text-[14px] sm:text-[15px] md:text-[16px]">
               <li>Task management</li>
@@ -167,8 +204,8 @@ const Login = () => {
             </ul>
             {/* Brief additional info */}
             <p className="mt-4 md:mt-5 text-[13px] sm:text-[14px] md:text-[15px] text-[#fff]">
-              Log in with your employee credentials to access your personalized dashboard
-              and company resources.
+              Log in with your employee credentials to access your personalized
+              dashboard and company resources.
             </p>
           </div>
         </div>
@@ -203,7 +240,9 @@ const Login = () => {
                 onClick={() => setShowUniqueId((prev) => !prev)}
                 tabIndex={0}
                 role="button"
-                aria-label={showUniqueId ? "Hide Employee ID" : "Show Employee ID"}
+                aria-label={
+                  showUniqueId ? "Hide Employee ID" : "Show Employee ID"
+                }
               >
                 {showUniqueId ? (
                   // Eye-off SVG

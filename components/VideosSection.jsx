@@ -2,7 +2,14 @@ import React, { useEffect, useState, useRef } from "react";
 import { useUserInfo } from "../context/UserInfoContext";
 import useStoreData from "../hooks/useStoreData";
 import BgAnimation from "./bg-animation";
-import { UserIcon, EyeIcon, ArrowDownTrayIcon, ChatBubbleLeftRightIcon, XMarkIcon, TrashIcon } from '@heroicons/react/24/solid';
+import {
+  UserIcon,
+  EyeIcon,
+  ArrowDownTrayIcon,
+  ChatBubbleLeftRightIcon,
+  XMarkIcon,
+  TrashIcon,
+} from "@heroicons/react/24/solid";
 import CryptoJS from "crypto-js";
 import { useRouter } from "next/router";
 
@@ -23,7 +30,7 @@ export default function VideosSection({ onFavourite }) {
   const router = useRouter();
   const { token } = router.query;
   const { ci, aid } = decryptToken(token);
-  
+
   const [copied, setCopied] = useState(null);
   const [search, setSearch] = useState("");
   const [modal, setModal] = useState(null); // For modal info
@@ -33,7 +40,7 @@ export default function VideosSection({ onFavourite }) {
   const [isDeleting, setIsDeleting] = useState(false); // Loading state for delete operation
   const inputRef = useRef();
   const { user, aid: userAid } = useUserInfo();
-  
+
   // Use ci from token as companyId (same as data.jsx page)
   const companyId = ci;
   const employeeId = aid;
@@ -77,9 +84,7 @@ export default function VideosSection({ onFavourite }) {
       if (vid.cloudinaryUrl) {
         window.open(vid.cloudinaryUrl, "_blank");
       }
-    } catch (error) {
-      console.error("Preview error:", error);
-    }
+    } catch (error) {}
   };
 
   // Delete comment from database
@@ -88,7 +93,15 @@ export default function VideosSection({ onFavourite }) {
       const { updateDoc, arrayRemove } = await import("firebase/firestore");
       const { getFirestore, doc } = await import("firebase/firestore");
       const db = getFirestore();
-      const docRef = doc(db, "users", companyId, "employees", employeeId, "data_videos", modal.video.id);
+      const docRef = doc(
+        db,
+        "users",
+        companyId,
+        "employees",
+        employeeId,
+        "data_videos",
+        modal.video.id
+      );
 
       await updateDoc(docRef, {
         comments: arrayRemove(commentToDelete),
@@ -127,7 +140,14 @@ export default function VideosSection({ onFavourite }) {
     import("firebase/firestore").then(
       ({ getFirestore, collection, query, where, onSnapshot }) => {
         const db = getFirestore();
-        const dataRef = collection(db, "users", companyId, "employees", employeeId, "data_videos");
+        const dataRef = collection(
+          db,
+          "users",
+          companyId,
+          "employees",
+          employeeId,
+          "data_videos"
+        );
         const videosQuery = query(dataRef);
         unsubscribe = onSnapshot(videosQuery, (querySnapshot) => {
           const videosData = [];
@@ -157,7 +177,6 @@ export default function VideosSection({ onFavourite }) {
         setNotification("Failed to submit feedback.");
       }
     } catch (error) {
-      console.error("Feedback error:", error);
       setNotification("Error while submitting feedback.");
     }
 
@@ -454,7 +473,6 @@ export default function VideosSection({ onFavourite }) {
                             setTimeout(() => setNotification(""), 1500);
                           }
                         } catch (error) {
-                          console.error("Delete error:", error);
                           setNotification(
                             "An error occurred while deleting the video"
                           );
