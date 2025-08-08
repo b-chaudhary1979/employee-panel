@@ -5,6 +5,30 @@ import { useSidebar } from "../context/SidebarContext";
 import { useRouter } from "next/router";
 import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
+import { initializeApp, getApps } from "firebase/app";
+import { getFirestore, doc, setDoc, serverTimestamp } from "firebase/firestore";
+
+// Firebase configuration for Intern Management System (IMS)
+const imsFirebaseConfig = {
+  apiKey: "AIzaSyBmwgxA1ps7W62toCPILN_5voHH1iVcqOc",
+  authDomain: "intern-management-system-5df18.firebaseapp.com",
+  projectId: "intern-management-system-5df18",
+  storageBucket: "intern-management-system-5df18.firebasestorage.app",
+  messagingSenderId: "1001534086782",
+  appId: "1:1001534086782:web:e77932c3ea3ff8bfd0822f",
+  measurementId: "G-JWHRQ6609V"
+};
+
+// Initialise IMS Firebase app once
+let imsApp;
+if (!getApps().some((a) => a.name === "imsApp")) {
+  imsApp = initializeApp(imsFirebaseConfig, "imsApp");
+} else {
+  imsApp = getApps().find((a) => a.name === "imsApp");
+}
+
+// Firestore reference for IMS
+const imsDb = getFirestore(imsApp);
 
 export default function InternManagementSystem() {
   const { isOpen } = useSidebar();
@@ -112,14 +136,30 @@ export default function InternManagementSystem() {
   }, []);
 
   // Handle adding a new intern
-  const handleAddIntern = (e) => {
+  const handleAddIntern = async (e) => {
     e.preventDefault();
     const newId = `INT${String(interns.length + 1).padStart(3, '0')}`;
     const internToAdd = {
       ...newIntern,
       id: newId,
-      status: "Active"
+      status: "Active",
+      createdAt: serverTimestamp()
     };
+
+    // Determine company ID (CID) from URL or user context
+    const companyId = router.query.cid || user?.companyId || null;
+    if (!companyId) {
+      setNotification({ show: true, message: "Company ID missing – cannot add intern.", color: "red" });
+      return;
+    }
+
+    try {
+      await setDoc(doc(imsDb, "users", companyId, "interns", newId), internToAdd);
+    } catch (err) {
+      console.error("Failed to add intern to Firestore", err);
+      setNotification({ show: true, message: "Failed to add intern. Please try again.", color: "red" });
+      return;
+    }
     
     setInterns([...interns, internToAdd]);
     setShowAddInternModal(false);
