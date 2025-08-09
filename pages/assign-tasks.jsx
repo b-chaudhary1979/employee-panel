@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import SideMenu from "../components/sidemenu";
 import Header from "../components/header";
 import { useSidebar } from "../context/SidebarContext";
@@ -8,12 +8,27 @@ import Loader from "../loader/Loader";
 import { db } from "../firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { useAssignmentCreator } from "../hooks/useAssignmentCreator";
+import CryptoJS from "crypto-js";
+
+const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
+function decryptToken(token) {
+  try {
+    const bytes = CryptoJS.AES.decrypt(token, ENCRYPTION_KEY);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    const { ci, aid } = JSON.parse(decrypted);
+    return { ci, aid };
+  } catch {
+    return { ci: null, aid: null };
+  }
+}
 
 export default function AssignTasksPage() {
   const { isOpen } = useSidebar();
   const router = useRouter();
+  const { token } = router.query;
+  const { ci, aid } = useMemo(() => decryptToken(token), [token]);
   const { user, loading: userLoading } = useUserInfo();
-  const { createAssignment } = useAssignmentCreator(user?.companyId);
+  const { createAssignment } = useAssignmentCreator(ci);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(72);
   const headerRef = useRef(null);
@@ -58,6 +73,13 @@ export default function AssignTasksPage() {
     }
     return isOpen ? 270 : 64;
   };
+
+  // Redirect if no token/credentials
+  useEffect(() => {
+    if (router.isReady && (!ci || !aid)) {
+      router.replace("/auth/login");
+    }
+  }, [router.isReady, ci, aid]);
 
   // Update header height on resize
   useEffect(() => {
@@ -159,7 +181,7 @@ export default function AssignTasksPage() {
     }, 5000);
   };
 
-  if (userLoading || !user || !user.companyId) {
+  if (userLoading || !user || !ci) {
     return <Loader />;
   }
 
