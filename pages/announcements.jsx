@@ -52,7 +52,10 @@ function AnnouncementsContent() {
     announcements,
     loading: loadingAnnouncements,
     error: announcementsError,
-  } = useAnnouncements(ci);
+    readStatus,
+    markAsRead,
+    markAllAsRead,
+  } = useAnnouncements(ci, aid);
 
   const getTypeColor = (type) => {
     switch (type) {
@@ -294,6 +297,17 @@ function AnnouncementsContent() {
               <p className="text-gray-500 text-lg mb-8">
                   Stay updated with the latest news and important information for all employees.
                 </p>
+              
+              {/* Mark All as Read Button */}
+              <div className="flex justify-end mb-4">
+                <button
+                  className="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors"
+                  onClick={markAllAsRead}
+                  disabled={announcements.every(a => readStatus[a.id])}
+                >
+                  Mark All as Read
+                </button>
+              </div>
 
                 {loadingAnnouncements ? (
                   <div className="flex justify-center items-center py-12">
@@ -323,7 +337,9 @@ function AnnouncementsContent() {
                   announcements.map((announcement) => (
                   <div
                     key={announcement.id}
-                    className="bg-white rounded-md shadow border border-gray-100 p-3 cursor-pointer hover:shadow-lg hover:border-purple-200 transition-all duration-200"
+                    className={`bg-white rounded-md shadow border border-gray-100 p-3 cursor-pointer hover:shadow-lg hover:border-purple-200 transition-all duration-200 ${
+                      readStatus[announcement.id] ? "opacity-60" : ""
+                    }`}
                     onClick={() => handleAnnouncementClick(announcement)}
                   >
                     <div className="flex flex-col gap-2">
@@ -343,14 +359,20 @@ function AnnouncementsContent() {
                           {announcement.title}
                         </h3>
                         <button
-                          className="px-2 py-1 bg-green-100 text-green-700 rounded text-sm font-medium hover:bg-green-200 transition-colors flex-shrink-0"
+                          className={`px-2 py-1 rounded text-sm font-medium transition-colors flex-shrink-0 ${
+                            readStatus[announcement.id]
+                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                              : "bg-green-100 text-green-700 hover:bg-green-200"
+                          }`}
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent opening the modal when clicking the button
-                            // Handle mark as read functionality here
-                            console.log('Marked as read:', announcement.id);
+                            if (!readStatus[announcement.id]) {
+                              markAsRead(announcement.id);
+                            }
                           }}
+                          disabled={readStatus[announcement.id]}
                         >
-                          Mark as read
+                          {readStatus[announcement.id] ? "Read" : "Mark as Read"}
                         </button>
                       </div>
 
@@ -358,9 +380,7 @@ function AnnouncementsContent() {
                         {announcement.content}
                       </div>
                     </div>
-
-
-                      </div>
+                  </div>
                 ))
                 )}
               </div>
@@ -422,10 +442,10 @@ function AnnouncementsContent() {
                     alt="Announcement"
                     className="w-full max-h-64 object-cover rounded-lg border"
                   />
-              </div>
+                </div>
               )}
 
-                            {/* Additional Details */}
+              {/* Additional Details */}
               {(selectedAnnouncement.audience || selectedAnnouncement.expiryDate || selectedAnnouncement.tags) && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   {selectedAnnouncement.audience && (
@@ -476,6 +496,25 @@ function AnnouncementsContent() {
                 </div>
               )}
 
+                            {/* Custom Q&A */}
+              {selectedAnnouncement.customQA && 
+               selectedAnnouncement.customQA.length > 0 && 
+               selectedAnnouncement.customQA.some(qa => qa.question && qa.question.trim() && qa.answer && qa.answer.trim()) && (
+                <div className="mb-6">
+                  <h4 className="font-semibold text-gray-700 mb-3">Questions & Answers</h4>
+                  <div className="space-y-4">
+                    {selectedAnnouncement.customQA.map((qa, index) => (
+                      qa.question && qa.question.trim() && qa.answer && qa.answer.trim() && (
+                        <div key={index} className="bg-gray-50 rounded-lg p-4">
+                          <h5 className="font-medium text-gray-800 mb-2">Q: {qa.question}</h5>
+                          <p className="text-gray-600">A: {qa.answer}</p>
+                        </div>
+                      )
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Custom Q&A */}
               {selectedAnnouncement.customQA && 
                selectedAnnouncement.customQA.length > 0 && 
@@ -498,13 +537,19 @@ function AnnouncementsContent() {
               {/* Action Buttons */}
               <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
                 <button
-                  className="px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium hover:bg-green-200 transition-colors"
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    readStatus[selectedAnnouncement.id]
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-green-100 text-green-700 hover:bg-green-200"
+                  }`}
                   onClick={() => {
-                    // Handle mark as read functionality here
-                    console.log('Marked as read from modal:', selectedAnnouncement.id);
+                    if (!readStatus[selectedAnnouncement.id]) {
+                      markAsRead(selectedAnnouncement.id);
+                    }
                   }}
+                  disabled={readStatus[selectedAnnouncement.id]}
                 >
-                  Mark as read
+                  {readStatus[selectedAnnouncement.id] ? "Already Read" : "Mark as Read"}
                 </button>
                 <button
                   className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
