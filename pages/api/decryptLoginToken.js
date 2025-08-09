@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const SESSION_SECRET = process.env.SESSION_SECRET;
+const JWT_SECRET = "cyberclipperSecretKey123!";
 
 export default function handler(req, res) {
   // Set CORS headers with environment-based configuration
@@ -32,9 +32,8 @@ export default function handler(req, res) {
       return res.status(400).json({ error: 'Token is required' });
     }
 
-    // Decode the JWT token
-    const decoded = jwt.verify(token, SESSION_SECRET);
-    
+    // Verify and decode the JWT token
+    const decoded = jwt.verify(token, JWT_SECRET);
     
     // Extract companyId from the decoded payload
     const { companyId } = decoded;
@@ -48,6 +47,12 @@ export default function handler(req, res) {
       companyId: companyId,
     });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to decrypt token', details: error.message });
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(400).json({ error: 'Invalid JWT token format', details: error.message });
+    } else if (error.name === 'TokenExpiredError') {
+      return res.status(400).json({ error: 'JWT token has expired', details: error.message });
+    }
+    
+    res.status(500).json({ error: 'Failed to verify JWT token', details: error.message });
   }
 } 

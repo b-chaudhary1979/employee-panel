@@ -54,7 +54,9 @@ export function AuthProvider({ children }) {
       expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
       const cookieValue = `employeeSession=${token};expires=${expires.toUTCString()};path=/;SameSite=Strict${process.env.NODE_ENV === 'production' ? ';Secure' : ''}`;
       document.cookie = cookieValue;
+      
     } catch (error) {
+      console.error('Failed to set session cookie:', error);
       setError('Session creation failed. Please try again.');
     }
   };
