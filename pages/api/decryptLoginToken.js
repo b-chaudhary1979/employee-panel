@@ -1,10 +1,18 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'cyberclipperSecretKey123!';
+const SESSION_SECRET = process.env.SESSION_SECRET;
 
 export default function handler(req, res) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // Set CORS headers with environment-based configuration
+  const allowedOrigins = process.env.NODE_ENV === 'production' 
+    ? (process.env.ALLOWED_ORIGINS?.split(','))
+    : ['http://localhost:3000', 'http://localhost:3001','http://localhost:3002'];
+
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -25,7 +33,7 @@ export default function handler(req, res) {
     }
 
     // Decode the JWT token
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, SESSION_SECRET);
     
     
     // Extract companyId from the decoded payload
@@ -38,7 +46,6 @@ export default function handler(req, res) {
     res.status(200).json({ 
       success: true, 
       companyId: companyId,
-      decoded: decoded
     });
   } catch (error) {
     res.status(500).json({ error: 'Failed to decrypt token', details: error.message });
