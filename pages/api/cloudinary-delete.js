@@ -7,17 +7,19 @@ cloudinary.config({
 });
 
 export default async function handler(req, res) {
+  
   if (req.method !== "DELETE" && req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   const { publicId, resourceType } = req.body;
-
+ 
   if (!publicId || !resourceType) {
     return res.status(400).json({ error: "Missing publicId or resourceType" });
   }
 
   try {
+    
     const result = await cloudinary.uploader.destroy(publicId, {
       resource_type: resourceType, // 'image', 'video', or 'raw'
     });

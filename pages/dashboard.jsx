@@ -46,7 +46,7 @@ function DashboardContent() {
   const employeesHook = useStoreEmployees(ci);
   const passwordsHook = useStorePassword(ci, aid);
   const tasksHook = useNotesTasks(ci);
-  const announcementsHook = useAnnouncements(ci);
+  const announcementsHook = useAnnouncements(ci, aid);
 
   // Loading and error states
   const isAnyLoading = loading || employeesHook.loading || passwordsHook.loading || tasksHook.loading || announcementsHook.loading;
@@ -483,8 +483,13 @@ function DashboardContent() {
                         {recentAnnouncements.length === 0 ? (
                           <tr><td colSpan={3} className="text-center text-gray-400 py-4">No recent announcements</td></tr>
                         ) : recentAnnouncements.map(ann => (
-                          <tr key={ann.id} className="hover:bg-purple-50 transition">
-                            <td className="px-4 py-2 font-semibold text-gray-700 whitespace-nowrap">{ann.title}</td>
+                          <tr key={ann.id} className={`hover:bg-purple-50 transition ${announcementsHook.readStatus[ann.id] ? 'opacity-60' : ''}`}>
+                            <td className="px-4 py-2 font-semibold text-gray-700 whitespace-nowrap">
+                              {ann.title}
+                              {!announcementsHook.readStatus[ann.id] && (
+                                <span className="ml-2 inline-block w-2 h-2 bg-red-500 rounded-full"></span>
+                              )}
+                            </td>
                             <td className="px-4 py-2 text-gray-600 capitalize whitespace-nowrap">{ann.type}</td>
                             <td className="px-4 py-2 text-gray-600 whitespace-nowrap">{ann.createdAt ? (ann.createdAt.seconds ? new Date(ann.createdAt.seconds * 1000).toLocaleDateString() : new Date(ann.createdAt).toLocaleDateString()) : '-'}</td>
                           </tr>
@@ -498,8 +503,13 @@ function DashboardContent() {
                     {recentAnnouncements.length === 0 ? (
                       <div className="text-center text-gray-400 py-4">No recent announcements</div>
                     ) : recentAnnouncements.map(ann => (
-                      <div key={ann.id} className="border border-purple-100 rounded-lg p-3 sm:p-4 md:p-5 shadow-sm bg-purple-50">
-                        <div className="font-semibold text-purple-700 text-base sm:text-lg md:text-xl mb-1">{ann.title}</div>
+                      <div key={ann.id} className={`border border-purple-100 rounded-lg p-3 sm:p-4 md:p-5 shadow-sm bg-purple-50 ${announcementsHook.readStatus[ann.id] ? 'opacity-60' : ''}`}>
+                        <div className="font-semibold text-purple-700 text-base sm:text-lg md:text-xl mb-1 flex items-center">
+                          {ann.title}
+                          {!announcementsHook.readStatus[ann.id] && (
+                            <span className="ml-2 inline-block w-2 h-2 bg-red-500 rounded-full"></span>
+                          )}
+                        </div>
                         <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Type:</span> <span className="capitalize">{ann.type}</span></div>
                         <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Date:</span> {ann.createdAt ? (ann.createdAt.seconds ? new Date(ann.createdAt.seconds * 1000).toLocaleDateString() : new Date(ann.createdAt).toLocaleDateString()) : '-'}</div>
                       </div>

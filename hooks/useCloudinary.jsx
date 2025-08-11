@@ -1,31 +1,41 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function useCloudinary() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const uploadToCloudinary = async (file, folder = 'cyberclipper') => {
+  const uploadToCloudinary = async (file, folder = "cyberclipper") => {
     setLoading(true);
     setError(null);
-  
+
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
+      formData.append(
+        "upload_preset",
+        process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+      );
       formData.append("folder", folder);
-  
-      const response = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/auto/upload`, {
-        method: "POST",
-        body: formData,
-      });
-  
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/auto/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
       const result = await response.json();
-  
+
       if (!response.ok) {
-        const errorMessage = result.error?.message || result.error || result.message || "Upload failed";
+        const errorMessage =
+          result.error?.message ||
+          result.error ||
+          result.message ||
+          "Upload failed";
         throw new Error(errorMessage);
       }
-  
+
       setLoading(false);
       return {
         success: true,
@@ -42,7 +52,6 @@ export default function useCloudinary() {
         cloudinaryBitRate: result.bit_rate || null,
         cloudinaryFps: result.fps || null,
       };
-  
     } catch (err) {
       setError("Upload failed");
       setLoading(false);
@@ -52,47 +61,45 @@ export default function useCloudinary() {
       };
     }
   };
-  
-  
 
   // Delete file from Cloudinary via API route
-  const deleteFromCloudinary = async (publicId, resourceType = 'auto') => {
+  const deleteFromCloudinary = async (publicId, resourceType = "auto") => {
     setLoading(true);
     setError(null);
-    
+
     try {
-      // Delete via API route
-      const response = await fetch('/api/cloudinary-delete', {
-        method: 'DELETE',
+      const requestBody = {
+        publicId: publicId,
+        resourceType: resourceType,
+      };
+      
+      // Delete via API route - use POST instead of DELETE for JSON body
+      const response = await fetch("/api/cloudinary-delete", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          publicId: publicId,
-          resourceType: resourceType,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Deletion failed');
-      }
+              if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Deletion failed");
+        }
 
-      const result = await response.json();
-
+        const result = await response.json();
       setLoading(false);
       return {
         success: true,
         deletedCount: result.deletedCount,
         deletedResources: result.deletedResources,
       };
-
     } catch (err) {
-      setError('Deletion failed');
+      setError("Deletion failed");
       setLoading(false);
-      return { 
-        success: false, 
-        error: err.message || 'Deletion failed' 
+      return {
+        success: false,
+        error: err.message || "Deletion failed",
       };
     }
   };
@@ -104,49 +111,49 @@ export default function useCloudinary() {
     const {
       width,
       height,
-      quality = 'auto',
-      format = 'auto',
-      crop = 'scale',
-      gravity = 'auto',
+      quality = "auto",
+      format = "auto",
+      crop = "scale",
+      gravity = "auto",
       effect = null,
     } = options;
 
     // Parse the Cloudinary URL
-    const urlParts = cloudinaryUrl.split('/');
-    const versionIndex = urlParts.findIndex(part => part.match(/^v\d+$/));
-    
+    const urlParts = cloudinaryUrl.split("/");
+    const versionIndex = urlParts.findIndex((part) => part.match(/^v\d+$/));
+
     if (versionIndex === -1) return cloudinaryUrl;
 
     // Insert transformations before the version
     const transformations = [];
-    
+
     if (width || height) {
       const size = [];
       if (width) size.push(`w_${width}`);
       if (height) size.push(`h_${height}`);
       if (crop) size.push(`c_${crop}`);
       if (gravity) size.push(`g_${gravity}`);
-      transformations.push(size.join(','));
+      transformations.push(size.join(","));
     }
-    
-    if (quality !== 'auto') {
+
+    if (quality !== "auto") {
       transformations.push(`q_${quality}`);
     }
-    
-    if (format !== 'auto') {
+
+    if (format !== "auto") {
       transformations.push(`f_${format}`);
     }
-    
+
     if (effect) {
       transformations.push(`e_${effect}`);
     }
 
     if (transformations.length === 0) return cloudinaryUrl;
 
-    const transformationString = transformations.join('/');
+    const transformationString = transformations.join("/");
     urlParts.splice(versionIndex, 0, transformationString);
-    
-    return urlParts.join('/');
+
+    return urlParts.join("/");
   };
 
   // Get thumbnail URL
@@ -154,9 +161,9 @@ export default function useCloudinary() {
     return getOptimizedUrl(cloudinaryUrl, {
       width,
       height,
-      crop: 'fill',
-      gravity: 'auto',
-      quality: 'auto',
+      crop: "fill",
+      gravity: "auto",
+      quality: "auto",
     });
   };
 
@@ -164,8 +171,8 @@ export default function useCloudinary() {
   const getResponsiveUrl = (cloudinaryUrl, maxWidth = 1200) => {
     return getOptimizedUrl(cloudinaryUrl, {
       width: maxWidth,
-      crop: 'scale',
-      quality: 'auto',
+      crop: "scale",
+      quality: "auto",
     });
   };
 
@@ -178,4 +185,4 @@ export default function useCloudinary() {
     loading,
     error,
   };
-} 
+}
