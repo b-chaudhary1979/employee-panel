@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useSidebar } from "../context/SidebarContext";
 import CryptoJS from "crypto-js";
+import { useUserInfo } from "../context/UserInfoContext";   // ← NEW
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
 function decryptToken(token) {
   try {
@@ -174,6 +175,17 @@ const menuItems = [
     ),
 /*******  e34fd138-9904-443b-a691-237cc1146e8b  *******/
   },
+   {
+    label: "My Tasks",
+    route: "/my-tasks",
+    icon: (isActive) => (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="3" width="18" height="18" rx="2" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" />
+        <path d="M8 8h8M8 12h8M8 16h5" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" strokeLinecap="round" />
+        <path d="M16 12l2 2l4 -4" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
 
   // {
   //   label: "Users",
@@ -341,6 +353,7 @@ const underlineKeyframes = `
 export default function SideMenu({ mobileOverlay = false }) {
   const { isOpen, toggleSidebar } = useSidebar();
   const router = useRouter();
+  const { user } = useUserInfo();          // ← NEW: current user info (has user.role)
   // Get token from current query and decrypt
   const { token } = router.query;
   const { ci, aid } = decryptToken(token);

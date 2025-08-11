@@ -6,7 +6,8 @@ import { useRouter } from "next/router";
 import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
 import { db } from "../firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs } from "firebase/firestore";
+import { db as imsDb } from "../firebaseIMS"; // IMS Firestore instance
 import { useAssignmentCreator } from "../hooks/useAssignmentCreator";
 import CryptoJS from "crypto-js";
 
@@ -38,6 +39,8 @@ export default function AssignTasksPage() {
     message: "",
     color: "green",
   });
+  const [internOptions, setInternOptions] = useState([]); // fetched list
+  const [selectedInternIds, setSelectedInternIds] = useState([]); // chosen interns
 
   // Form state
   const [formData, setFormData] = useState({
@@ -94,6 +97,17 @@ export default function AssignTasksPage() {
 
     return () => window.removeEventListener("resize", updateHeaderHeight);
   }, []);
+  
+  /* Fetch interns once companyId is available */
+  useEffect(() => {
+    const fetchInterns = async () => {
+      if (!user?.companyId) return;
+      const qSnap = await getDocs(collection(imsDb, "users", user.companyId, "interns"));
+      const opts = qSnap.docs.map((d) => ({ id: d.id, name: d.data().name || "Unnamed" }));
+      setInternOptions(opts);
+    };
+    fetchInterns();
+  }, [user?.companyId]);
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -143,8 +157,22 @@ export default function AssignTasksPage() {
     try {
       if (assigneeType === "employee") {
         await createAssignment(formData.employeeIds, assignmentData);
+      } else {
+        /* create for every selected intern */
+        for (const internId of selectedInternIds) {
+          const intern = internOptions.find((i) => i.id === internId);
+          if (!intern) continue;
+          const dataWithIntern = {
+            ...assignmentData,
+            internId,
+            internName: intern.name,
+          };
+          await addDoc(
+            collection(imsDb, "users", user.companyId, "interns", internId, "assignments"),
+            dataWithIntern
+          );
+        }
       }
-      // ...intern logic...
       setNotification({
         show: true,
         message: "Assignment created!",
@@ -174,6 +202,9 @@ export default function AssignTasksPage() {
       message: "",
       employeeIds: [""], // <-- NEW FIELD
     });
+    
+    // Reset selected interns
+    setSelectedInternIds([]);
 
     // Hide notification after 5 seconds
     setTimeout(() => {
@@ -471,36 +502,55 @@ export default function AssignTasksPage() {
                         />
                       </div>
 
-                      {/* Assignee Name */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          {assigneeType === "intern" ? "Intern" : "Employee"}{" "}
-                          Name
-                        </label>
-                        <input
-                          type="text"
-                          name="assigneeName"
-                          value={formData.assigneeName}
-                          onChange={handleChange}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          required
-                        />
-                      </div>
-
-                      {/* Assignee Email for Intern, Employee ID(s) for Employee */}
-                      {assigneeType === "intern" ? (
+                      {/* Assignee Name - only for employees */}
+                      {assigneeType === "employee" && (
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Intern Email
+                            Employee Name
                           </label>
                           <input
-                            type="email"
-                            name="assigneeEmail"
-                            value={formData.assigneeEmail}
+                            type="text"
+                            name="assigneeName"
+                            value={formData.assigneeName}
                             onChange={handleChange}
                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                             required
                           />
+                        </div>
+                      )}
+
+                      {/* Intern Multi-select or Employee ID(s) */}
+                      {assigneeType === "intern" ? (
+                        <div className="col-span-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Select Intern(s)
+                          </label>
+                          {/* checkbox list */}
+                          <div className="bg-gray-50 p-3 rounded-md border border-gray-200 max-h-52 overflow-y-auto">
+                            {internOptions.map((intern) => (
+                              <label key={intern.id} className="flex items-center space-x-2 mb-2">
+                                <input
+                                  type="checkbox"
+                                  value={intern.id}
+                                  checked={selectedInternIds.includes(intern.id)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedInternIds([...selectedInternIds, intern.id]);
+                                    } else {
+                                      setSelectedInternIds(selectedInternIds.filter((id) => id !== intern.id));
+                                    }
+                                  }}
+                                  className="accent-purple-600"
+                                />
+                                <span>{intern.id} – {intern.name}</span>
+                              </label>
+                            ))}
+                          </div>
+                          {selectedInternIds.length > 0 && (
+                            <p className="mt-2 text-sm text-purple-600">
+                              {selectedInternIds.length} {selectedInternIds.length === 1 ? "intern" : "interns"} selected
+                            </p>
+                          )}
                         </div>
                       ) : (
                         <div className="col-span-2">
