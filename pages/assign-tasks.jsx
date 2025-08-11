@@ -153,6 +153,8 @@ export default function AssignTasksPage() {
       ...formData,
       assignedAt: new Date().toISOString(),
       assigneeType: assigneeType,
+      employeeId: aid, // <-- automatically include assigning employee ID
+      employeeName: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(), // <-- and name
     };
     try {
       if (assigneeType === "employee") {
