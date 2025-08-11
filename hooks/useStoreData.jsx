@@ -345,10 +345,13 @@ export default function useStoreData(companyId, employeeId) {
       const collectionName = media.originalCollection || getCollectionByExtension(media.fileName || '');
       const docId = media.id;
       
-      // Delete from Cloudinary if cloudinaryPublicId exists
+            // Delete from Cloudinary if cloudinaryPublicId exists
       if (media.cloudinaryPublicId) {
         const cloudinaryResult = await deleteFromCloudinary(media.cloudinaryPublicId, media.cloudinaryResourceType || 'auto');
        
+        if (!cloudinaryResult.success) {
+          // Continue with other deletions even if Cloudinary fails
+        }
       }
       
       // Delete the document from the appropriate subcollection
@@ -363,10 +366,10 @@ export default function useStoreData(companyId, employeeId) {
            
       const favouritesSnapshot = await getDocs(favouritesQuery);
       
-      if (!favouritesSnapshot.empty) {
-        const deletePromises = favouritesSnapshot.docs.map(doc => deleteDoc(doc.ref));
-        await Promise.all(deletePromises);
-      }
+              if (!favouritesSnapshot.empty) {
+          const deletePromises = favouritesSnapshot.docs.map(doc => deleteDoc(doc.ref));
+          await Promise.all(deletePromises);
+        }
       
       // SYNC DELETE TO ADMIN DATABASE
       try {
@@ -377,8 +380,10 @@ export default function useStoreData(companyId, employeeId) {
           mediaType: collectionName
         });
         
+        if (!adminDeleteResult.success) {
+          // Don't fail the entire operation if admin delete fails
+        }
       } catch (syncErr) {
-        
         // Don't fail the entire operation if admin delete fails
       }
       

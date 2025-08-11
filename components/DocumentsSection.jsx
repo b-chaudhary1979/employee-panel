@@ -11,6 +11,7 @@ import {
 import { useUserInfo } from "../context/UserInfoContext";
 import CryptoJS from "crypto-js";
 import { useRouter } from "next/router";
+import useStoreData from "../hooks/useStoreData";
 
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
 
@@ -35,6 +36,13 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
   // Use ci from token as companyId (same as data.jsx page)
   const companyId = ci;
   const employeeId = aid;
+
+  // Use the useStoreData hook like other media sections
+  const {
+    deleteMedia,
+    addComment,
+    listenForComments,
+  } = useStoreData(companyId, employeeId);
 
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -69,7 +77,15 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
     return null;
   }); // {document}
   const [editFileModal, setEditFileModal] = useState(null); // {file, formData}
-  const [deleteConfirmModal, setDeleteConfirmModal] = useState(null); // {file}
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState(null); // {document}
+  const [deleteFileConfirmModal, setDeleteFileConfirmModal] = useState(null); // {file, document}
+  
+  // New state for deletion tracking
+  const [deletingDocumentId, setDeletingDocumentId] = useState(null);
+  const [deletingFileId, setDeletingFileId] = useState(null);
+  const [isDeletingDocument, setIsDeletingDocument] = useState(false);
+  const [isDeletingFile, setIsDeletingFile] = useState(false);
+  const [deleteProgress, setDeleteProgress] = useState({ current: 0, total: 0 });
 
   // Group documents by documentGroupId
   const groupDocuments = (documents) => {
@@ -100,6 +116,10 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
           fileSize: doc.fileSize,
           data: doc.data,
           cloudinaryUrl: doc.cloudinaryUrl,
+          cloudinaryPublicId: doc.cloudinaryPublicId,
+          cloudinaryResourceType: doc.cloudinaryResourceType || 'auto',
+          role: doc.role || 'Employee',
+          employeeId: doc.employeeId || employeeId,
         }));
 
         const totalFileSize = group.reduce(
@@ -140,6 +160,10 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                 fileSize: doc.fileSize,
                 data: doc.data,
                 cloudinaryUrl: doc.cloudinaryUrl,
+                cloudinaryPublicId: doc.cloudinaryPublicId,
+                cloudinaryResourceType: doc.cloudinaryResourceType || 'auto',
+                role: doc.role || 'Employee',
+                employeeId: doc.employeeId || employeeId,
               },
             ]
           : [],
@@ -188,6 +212,8 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
             const fetchedDocuments = [];
             querySnapshot.forEach((doc) => {
               const data = doc.data();
+
+              
               // Robustly extract date from uploadAt
               let date = "Unknown";
               const uploadedAt = data.uploadedAt;
@@ -224,8 +250,12 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                 fileSize: data.fileSize,
                 data: data.data || null,
                 cloudinaryUrl: data.cloudinaryUrl || null,
+                cloudinaryPublicId: data.cloudinaryPublicId || null,
+                cloudinaryResourceType: data.cloudinaryResourceType || 'auto',
                 documentGroupId: data.documentGroupId || null,
                 documentId: data.documentId || null,
+                role: data.role || 'Employee',
+                employeeId: data.employeeId || employeeId,
               });
             });
 
@@ -271,22 +301,109 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
     };
   }, [companyId]);
 
-  // Delete document function
+  // Delete document function using useStoreData hook
   const handleDelete = async (document) => {
     try {
-      const { getFirestore, doc, deleteDoc } = await import(
-        "firebase/firestore"
-      );
-      const db = getFirestore();
+      setDeleteProgress({ current: 0, total: document.documentIds.length });
 
-      // Delete all documents in the group
-      const deletePromises = document.documentIds.map((docId) => {
-        const documentRef = doc(db, "users", companyId, "data", docId);
-        return deleteDoc(documentRef);
+      // Delete each document in the group using the deleteMedia function
+      for (let i = 0; i < document.documentIds.length; i++) {
+        const docId = document.documentIds[i];
+        
+        // Find the corresponding file data for this document ID
+        const fileData = document.files.find(file => file.id === docId);
+        
+        if (fileData) {
+          
+          // Use the deleteMedia function from useStoreData hook
+          const result = await deleteMedia({
+            id: docId,
+            fileName: fileData.fileName,
+            cloudinaryPublicId: fileData.cloudinaryPublicId,
+            cloudinaryResourceType: fileData.cloudinaryResourceType || 'auto',
+            originalCollection: 'documents',
+            role: fileData.role || 'Employee',
+            employeeId: fileData.employeeId || employeeId
+          });
+          
+          if (!result.success) {
+            console.error('Failed to delete document:', docId, result.error);
+          }
+        } else {
+          console.error('No file data found for document ID:', docId);
+        }
+        
+        // Update progress
+        setDeleteProgress(prev => ({ ...prev, current: i + 1 }));
+      }
+
+      // Show success message
+      const toast = window.document.createElement('div');
+      toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+      toast.textContent = 'Document deleted successfully!';
+      window.document.body.appendChild(toast);
+      setTimeout(() => window.document.body.removeChild(toast), 3000);
+
+    } catch (err) {
+      console.error('Document deletion error:', err);
+      
+      // Show error message
+      const toast = window.document.createElement('div');
+      toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+      toast.textContent = 'Error deleting document. Please try again.';
+      window.document.body.appendChild(toast);
+      setTimeout(() => window.document.body.removeChild(toast), 3000);
+    }
+  };
+
+  // Delete single file function using useStoreData hook
+  const handleDeleteFile = async (file, parentDocument) => {
+    try {
+      
+      
+      // Use the deleteMedia function from useStoreData hook
+      const result = await deleteMedia({
+        id: file.id,
+        fileName: file.fileName,
+        cloudinaryPublicId: file.cloudinaryPublicId,
+        cloudinaryResourceType: file.cloudinaryResourceType || 'auto',
+        originalCollection: 'documents',
+        role: file.role || 'Employee',
+        employeeId: file.employeeId || employeeId
       });
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to delete file');
+      }
 
-      await Promise.all(deletePromises);
-    } catch (err) {}
+      // Update edit modal state to remove the deleted file
+      if (editFilesModal && editFilesModal.document.id === parentDocument.id) {
+        setEditFilesModal(prev => ({
+          ...prev,
+          document: {
+            ...prev.document,
+            files: prev.document.files.filter(f => f.id !== file.id)
+          }
+        }));
+      }
+
+      // Show success message
+      const toast = window.document.createElement('div');
+      toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+      toast.textContent = 'File deleted successfully!';
+      window.document.body.appendChild(toast);
+      setTimeout(() => window.document.body.removeChild(toast), 3000);
+
+    } catch (err) {
+      console.error('File deletion error:', err);
+      
+      // Show error message
+      const toast = window.document.createElement('div');
+      toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+      toast.textContent = 'Error deleting file. Please try again.';
+      window.document.body.appendChild(toast);
+      setTimeout(() => window.document.body.removeChild(toast), 3000);
+    }
   };
 
   // Get unique categories for filter dropdown
@@ -399,28 +516,28 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
             // Create blob URL
             const url = URL.createObjectURL(blob);
 
-            // Create download link
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = file.fileName || "document";
-            link.style.display = "none";
-            document.body.appendChild(link);
-            link.click();
+                    // Create download link
+        const link = window.document.createElement("a");
+        link.href = url;
+        link.download = file.fileName || "document";
+        link.style.display = "none";
+        window.document.body.appendChild(link);
+        link.click();
 
-            // Clean up
-            document.body.removeChild(link);
+        // Clean up
+        window.document.body.removeChild(link);
             setTimeout(() => {
               URL.revokeObjectURL(url);
             }, 1000);
           })
           .catch((error) => {
             // Show toast error
-            const toast = document.createElement("div");
+            const toast = window.document.createElement("div");
             toast.className =
               "fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50";
             toast.textContent = "Error downloading file. Please try again.";
-            document.body.appendChild(toast);
-            setTimeout(() => document.body.removeChild(toast), 3000);
+            window.document.body.appendChild(toast);
+            setTimeout(() => window.document.body.removeChild(toast), 3000);
           });
       } else if (file.data) {
         const base64Data = file.data.split(",")[1] || file.data;
@@ -437,36 +554,36 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
 
         // Create download link
         const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
+        const link = window.document.createElement("a");
         link.href = url;
         link.download = file.fileName || "document";
         link.style.display = "none";
-        document.body.appendChild(link);
+        window.document.body.appendChild(link);
         link.click();
 
         // Clean up
-        document.body.removeChild(link);
+        window.document.body.removeChild(link);
         setTimeout(() => {
           URL.revokeObjectURL(url);
         }, 1000);
       } else {
         // Show toast error
-        const toast = document.createElement("div");
+        const toast = window.document.createElement("div");
         toast.className =
           "fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50";
         toast.textContent =
           "Unable to download this file. File data not found.";
-        document.body.appendChild(toast);
-        setTimeout(() => document.body.removeChild(toast), 3000);
+        window.document.body.appendChild(toast);
+        setTimeout(() => window.document.body.removeChild(toast), 3000);
       }
     } catch (error) {
       // Show toast error
-      const toast = document.createElement("div");
+      const toast = window.document.createElement("div");
       toast.className =
         "fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50";
       toast.textContent = "Error downloading file. Please try again.";
-      document.body.appendChild(toast);
-      setTimeout(() => document.body.removeChild(toast), 3000);
+      window.document.body.appendChild(toast);
+      setTimeout(() => window.document.body.removeChild(toast), 3000);
     }
   };
 
@@ -530,23 +647,23 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
         return;
       } else {
         // Show toast error
-        const toast = document.createElement("div");
+        const toast = window.document.createElement("div");
         toast.className =
           "fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50";
         toast.textContent =
           "Unable to view this file. Please try downloading it instead.";
-        document.body.appendChild(toast);
-        setTimeout(() => document.body.removeChild(toast), 3000);
+        window.document.body.appendChild(toast);
+        setTimeout(() => window.document.body.removeChild(toast), 3000);
       }
     } catch (error) {
       // Show toast error
-      const toast = document.createElement("div");
+      const toast = window.document.createElement("div");
       toast.className =
         "fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50";
       toast.textContent =
         "Error viewing file. Please try downloading it instead.";
-      document.body.appendChild(toast);
-      setTimeout(() => document.body.removeChild(toast), 3000);
+      window.document.body.appendChild(toast);
+      setTimeout(() => window.document.body.removeChild(toast), 3000);
     }
   };
 
@@ -801,16 +918,24 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                           <FaEdit className="w-3 h-3" />
                           Edit
                         </button>
-                        {onDelete && (
-                          <button
-                            onClick={() => onDelete(doc)}
-                            className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200 transition flex items-center gap-1"
-                            title="Delete"
-                          >
-                            <FaTrash className="w-3 h-3" />
-                            Delete
-                          </button>
-                        )}
+                        <button
+                          onClick={() => setDeleteConfirmModal(doc)}
+                          className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200 transition flex items-center gap-1"
+                          title="Delete"
+                          disabled={isDeletingDocument && deletingDocumentId === doc.id}
+                        >
+                          {isDeletingDocument && deletingDocumentId === doc.id ? (
+                            <>
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-red-700"></div>
+                              Deleting...
+                            </>
+                          ) : (
+                            <>
+                              <FaTrash className="w-3 h-3" />
+                              Delete
+                            </>
+                          )}
+                        </button>
                       </div>
                     </div>
                   </td>
@@ -1179,13 +1304,23 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                       </button>
                       <button
                         onClick={() => {
-                          setDeleteConfirmModal({ file });
+                          setDeleteFileConfirmModal({ file, document: editFilesModal.document });
                         }}
                         className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2"
                         title="Delete file"
+                        disabled={isDeletingFile && deletingFileId === file.id}
                       >
-                        <FaTrash className="w-4 h-4" />
-                        Delete
+                        {isDeletingFile && deletingFileId === file.id ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            Deleting...
+                          </>
+                        ) : (
+                          <>
+                            <FaTrash className="w-4 h-4" />
+                            Delete
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>
@@ -1366,6 +1501,101 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                 className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition"
               >
                 Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmModal && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full border-2 border-purple-200 flex flex-col items-center">
+            <h3 className="text-xl font-bold text-red-600 mb-4">Confirm Deletion</h3>
+            <p className="text-gray-700 mb-6 text-center">
+              Are you sure you want to delete the document "{deleteConfirmModal.title}"? This action cannot be undone.
+            </p>
+            {isDeletingDocument && (
+              <div className="w-full mb-4">
+                <div className="flex justify-between text-sm text-gray-600 mb-2">
+                  <span>Deleting files...</span>
+                  <span>{deleteProgress.current} of {deleteProgress.total}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-red-500 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${(deleteProgress.current / deleteProgress.total) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+            )}
+            <div className="flex gap-4 w-full justify-end">
+              <button
+                className="px-6 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition"
+                onClick={() => setDeleteConfirmModal(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-6 py-2 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 transition"
+                onClick={async () => {
+                  setIsDeletingDocument(true);
+                  setDeletingDocumentId(deleteConfirmModal.id);
+                  
+                  try {
+                    await handleDelete(deleteConfirmModal);
+                    setDocuments(prev => prev.filter(doc => doc.id !== deleteConfirmModal.id));
+                    setDeleteConfirmModal(null);
+                  } catch (error) {
+                    console.error('Delete error:', error);
+                  } finally {
+                    setIsDeletingDocument(false);
+                    setDeletingDocumentId(null);
+                  }
+                }}
+                disabled={isDeletingDocument}
+              >
+                {isDeletingDocument ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete File Confirmation Modal */}
+      {deleteFileConfirmModal && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full border-2 border-purple-200 flex flex-col items-center">
+            <h3 className="text-xl font-bold text-red-600 mb-4">Confirm Deletion</h3>
+            <p className="text-gray-700 mb-6 text-center">
+              Are you sure you want to delete the file "{deleteFileConfirmModal.file.fileName}" from the document "{deleteFileConfirmModal.document.title}"? This action cannot be undone.
+            </p>
+            <div className="flex gap-4 w-full justify-end">
+              <button
+                className="px-6 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition"
+                onClick={() => setDeleteFileConfirmModal(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-6 py-2 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 transition"
+                onClick={async () => {
+                  setIsDeletingFile(true);
+                  setDeletingFileId(deleteFileConfirmModal.file.id);
+                  
+                  try {
+                    await handleDeleteFile(deleteFileConfirmModal.file, deleteFileConfirmModal.document);
+                    setDeleteFileConfirmModal(null);
+                  } catch (error) {
+                    console.error('Delete file error:', error);
+                  } finally {
+                    setIsDeletingFile(false);
+                    setDeletingFileId(null);
+                  }
+                }}
+                disabled={isDeletingFile}
+              >
+                {isDeletingFile ? 'Deleting...' : 'Delete'}
               </button>
             </div>
           </div>

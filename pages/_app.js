@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { SidebarProvider } from "../context/SidebarContext";
 import { UserInfoProvider } from "../context/UserInfoContext";
+import { AuthProvider } from "../context/AuthContext";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 export default function App({ Component, pageProps }) {
   const [loading, setLoading] = useState(false);
@@ -25,10 +27,14 @@ export default function App({ Component, pageProps }) {
   }, [router]);
 
   return (
-    <SidebarProvider>
-      <UserInfoProvider>
-        {loading ? <Loader /> : <Component {...pageProps} />}
-      </UserInfoProvider>
-    </SidebarProvider>
+    <AuthProvider>
+      <SidebarProvider>
+        <UserInfoProvider>
+          <ProtectedRoute>
+            {loading ? <Loader /> : <Component {...pageProps} />}
+          </ProtectedRoute>
+        </UserInfoProvider>
+      </SidebarProvider>
+    </AuthProvider>
   );
 }

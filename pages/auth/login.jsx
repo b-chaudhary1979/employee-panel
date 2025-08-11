@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import NeuralNetwork from "../../components/bg-animation";
-import usefetchCredentials from "../../hooks/usefetchCredentials";
+import { useAuth } from "../../context/AuthContext";
 import ReCAPTCHA from "react-google-recaptcha";
 import CryptoJS from "crypto-js";
 
@@ -23,8 +23,8 @@ const Login = () => {
   const [notificationMessage, setNotificationMessage] = useState("");
   const [captchaValue, setCaptchaValue] = useState(null);
 
-  // Use the authentication hook
-  const { authenticate, loading, error, user } = usefetchCredentials();
+  // Use the authentication hook from AuthContext
+  const { authenticate, loading, error, user } = useAuth();
 
   useEffect(() => {
     if (
@@ -95,6 +95,7 @@ const Login = () => {
       setShowNotification(true);
       setTimeout(() => {
         setShowNotification(false);
+        // Create CryptoJS token for playground compatibility  
         const token = encryptToken(companyId, uniqueId);
         router.push(`/playground?token=${encodeURIComponent(token)}`);
       }, 1500);
