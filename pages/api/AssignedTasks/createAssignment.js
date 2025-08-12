@@ -82,18 +82,15 @@ export default async function handler(req, res) {
 
   console.log('createAssignment API called with:', {
     companyId: req.body.companyId,
-    assigneeType: req.body.assigneeType,
     selectedInternIds: req.body.selectedInternIds,
     assignmentDataKeys: Object.keys(req.body.assignmentData || {}),
-    employeeIds: req.body.assignmentData?.employeeIds
   });
 
   try {
     const { 
       companyId, 
       assignmentData, 
-      selectedInternIds, 
-      assigneeType 
+      selectedInternIds
     } = req.body;
 
     if (!companyId || !assignmentData) {
@@ -102,26 +99,77 @@ export default async function handler(req, res) {
 
     const { employeeDb, internDb, adminDb } = initializeDatabases();
 
-    // Standardize the assignment data structure
+    // Prepare and sanitize data (no undefined values)
+    const cleanLinks = Array.isArray(assignmentData.links)
+      ? assignmentData.links.filter((l) => typeof l === 'string' && l.trim() !== '')
+      : [];
+
+    // Fetch intern details for each selected intern
+    const internDetails = [];
+    for (const internId of selectedInternIds) {
+      try {
+        // Fetch intern details from intern database
+        const internResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/interns/fetchInterns`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ companyId }),
+        });
+
+        if (internResponse.ok) {
+          const internData = await internResponse.json();
+          const intern = internData.interns.find(i => i.id === internId);
+          if (intern) {
+            internDetails.push({
+              internId: internId,
+              internName: `${intern.firstName || ""} ${intern.lastName || ""}`.trim() || "Unknown Intern",
+              internEmail: intern.email || `intern${internId}@company.com`,
+              internRole: "Intern"
+            });
+          } else {
+            // Fallback if intern not found
+            internDetails.push({
+              internId: internId,
+              internName: `Intern ${internId}`,
+              internEmail: `intern${internId}@company.com`,
+              internRole: "Intern"
+            });
+          }
+        } else {
+          // Fallback if API call fails
+          internDetails.push({
+            internId: internId,
+            internName: `Intern ${internId}`,
+            internEmail: `intern${internId}@company.com`,
+            internRole: "Intern"
+          });
+        }
+      } catch (error) {
+        console.error(`Error fetching intern ${internId} details:`, error);
+        // Fallback if any error occurs
+        internDetails.push({
+          internId: internId,
+          internName: `Intern ${internId}`,
+          internEmail: `intern${internId}@company.com`,
+          internRole: "Intern"
+        });
+      }
+    }
+
     const standardizedData = {
-      taskName: assignmentData.title,
+      taskName: assignmentData.title || '',
       description: assignmentData.description || '',
       status: 'pending',
-      links: assignmentData.links || assignmentData.resources || [], // Handle both links and resources
+      links: cleanLinks,
       assignedBy: assignmentData.employeeName || '',
       assignedById: assignmentData.employeeId || '',
-      assignedByRole: 'Employee', // Hardcoded to "Employee" for all databases
+      assignedByRole: 'Employee',
       assignedAt: assignmentData.assignedAt || new Date().toISOString(),
       dueDate: assignmentData.dueDate || '',
       priority: assignmentData.priority || 'Medium',
       category: assignmentData.department || '',
-      syncedAt: new Date().toISOString(),
-      mentor: assignmentData.mentorName || '',
-      requirements: assignmentData.requirements || [],
-      evaluationCriteria: assignmentData.evaluationCriteria || [],
-      mentorFeedback: assignmentData.mentorFeedback || '',
-      message: assignmentData.message || '',
-      assigneeType: assigneeType
+      syncedAt: new Date().toISOString()
     };
 
     let employeeSuccess = false;
@@ -133,18 +181,22 @@ export default async function handler(req, res) {
        try {
          console.log('Starting employee database save...');
          
-         if (assigneeType === 'intern' && selectedInternIds && selectedInternIds.length > 0) {
+         if (selectedInternIds && selectedInternIds.length > 0) {
            console.log(`Creating assignments for ${selectedInternIds.length} interns:`, selectedInternIds);
-           // Create assignment for each selected intern
+            // Create assignment for each selected intern
            for (const internId of selectedInternIds) {
-             const internData = {
+             // Find the intern details for this specific intern
+             const internDetail = internDetails.find(detail => detail.internId === internId);
+             const internData = { 
                ...standardizedData,
-               internId,
-               internName: assignmentData.internName || 'Unknown Intern'
+               internId: internId,
+               internName: internDetail?.internName || `Intern ${internId}`,
+               internEmail: internDetail?.internEmail || `intern${internId}@company.com`,
+               internRole: internDetail?.internRole || "Intern"
              };
              
              // Debug: Log the data being saved
-             console.log(`Data to be saved for intern ${internId}:`, JSON.stringify(internData, null, 2));
+              console.log(`Data to be saved for intern ${internId}:`, JSON.stringify(internData, null, 2));
              
              let docId;
              if (uuidv4) {
@@ -228,7 +280,7 @@ export default async function handler(req, res) {
                  // Use Firestore auto-generated ID
                  console.log(`Using Firestore auto-generated ID for intern: ${internId}`);
                  try {
-                   const docRef = await employeeDb
+                 const docRef = await employeeDb
                      .collection('users')
                      .doc(companyId)
                      .collection('employees')
@@ -248,63 +300,10 @@ export default async function handler(req, res) {
              generatedDocIds.push({ docId, internId, type: 'intern' });
              console.log(`Saved to employee DB for intern: ${internId} with docId: ${docId}`);
            }
-         } else if (assigneeType === 'employee') {
-           // Create assignment for employees
-           console.log('Processing employee assignment with employeeIds:', assignmentData.employeeIds);
-           
-           // Handle case where employeeIds might be undefined, null, or empty
-           const employeeIds = assignmentData.employeeIds || [];
-           if (employeeIds.length === 0) {
-             console.log('No employee IDs provided, skipping employee assignment');
-             return res.status(400).json({ 
-               error: 'No employee IDs provided for employee assignment',
-               details: 'Please provide at least one employee ID'
-             });
-           }
-           
-           for (const employeeId of employeeIds) {
-             if (employeeId && employeeId.trim()) {
-               const employeeData = {
-                 ...standardizedData,
-                 employeeId: employeeId.trim()
-               };
-               
-               let docId;
-               if (uuidv4) {
-                 // Use UUID if available
-                 docId = uuidv4();
-                 console.log(`Using UUID for employee: ${employeeId.trim()} with docId: ${docId}`);
-                 await employeeDb
-                   .collection('users')
-                   .doc(companyId)
-                   .collection('employees')
-                   .doc(employeeId.trim())
-                   .collection('pending_tasks')
-                   .doc(docId)
-                   .set(employeeData);
-               } else {
-                 // Use Firestore auto-generated ID
-                 console.log(`Using Firestore auto-generated ID for employee: ${employeeId.trim()}`);
-                 const docRef = await employeeDb
-                   .collection('users')
-                   .doc(companyId)
-                   .collection('employees')
-                   .doc(employeeId.trim())
-                   .collection('pending_tasks')
-                   .add(employeeData);
-                 docId = docRef.id;
-               }
-               
-               generatedDocIds.push({ docId, employeeId: employeeId.trim(), type: 'employee' });
-               console.log(`Saved to employee DB for employee: ${employeeId.trim()} with docId: ${docId}`);
-             }
-           }
          } else {
-           // Handle case where assigneeType is neither 'intern' nor 'employee'
-           console.log('Invalid assigneeType:', assigneeType);
            return res.status(400).json({ 
-             error: 'Invalid assignee type',
-             details: `Assignee type must be 'intern' or 'employee', received: ${assigneeType}`
+             error: 'No interns provided',
+             details: 'Please provide at least one intern to assign the task to'
            });
          }
          
@@ -328,14 +327,18 @@ export default async function handler(req, res) {
        }
 
                                                                              // 2. Save to Intern Database (if assignee type is intern) - Use same document IDs
-        if (assigneeType === 'intern' && selectedInternIds && selectedInternIds.length > 0 && internDb) {
+         if (selectedInternIds && selectedInternIds.length > 0 && internDb) {
           try {
             // Use the generated document IDs from employee database
             for (const { docId, internId } of generatedDocIds.filter(item => item.type === 'intern')) {
-              const internData = {
+              // Find the intern details for this specific intern
+              const internDetail = internDetails.find(detail => detail.internId === internId);
+              const internData = { 
                 ...standardizedData,
-                internId,
-                internName: assignmentData.internName || 'Unknown Intern'
+                internId: internId,
+                internName: internDetail?.internName || `Intern ${internId}`,
+                internEmail: internDetail?.internEmail || `intern${internId}@company.com`,
+                internRole: internDetail?.internRole || "Intern"
               };
               
               console.log(`Saving to intern DB for intern: ${internId} with docId: ${docId}`);
@@ -375,15 +378,19 @@ export default async function handler(req, res) {
         }
 
                                                                                                                                                                                                                                                                                                                                // 3. Save to Admin Database - Use same document IDs
-        if (adminDb) {
+         if (adminDb) {
           try {
-            if (assigneeType === 'intern' && selectedInternIds && selectedInternIds.length > 0) {
+            if (selectedInternIds && selectedInternIds.length > 0) {
               // Use the generated document IDs from employee database
               for (const { docId, internId } of generatedDocIds.filter(item => item.type === 'intern')) {
-                const adminData = {
+                // Find the intern details for this specific intern
+                const internDetail = internDetails.find(detail => detail.internId === internId);
+                const adminData = { 
                   ...standardizedData,
-                  internId,
-                  internName: assignmentData.internName || 'Unknown Intern'
+                  internId: internId,
+                  internName: internDetail?.internName || `Intern ${internId}`,
+                  internEmail: internDetail?.internEmail || `intern${internId}@company.com`,
+                  internRole: internDetail?.internRole || "Intern"
                 };
                 
                 console.log(`Saving to admin DB for intern: ${internId} with docId: ${docId}`);
