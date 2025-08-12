@@ -59,8 +59,13 @@ function DashboardContent() {
   const totalAnnouncements = announcementsHook.announcements?.length || 0;
 
   // Additional employee-specific stats
-  const completedTasks = (tasksHook.tasks || []).filter(t => t.status === 'completed').length;
-  const pendingTasks = (tasksHook.tasks || []).filter(t => t.status !== 'completed').length;
+  const completedTasks = (tasksHook.tasks || []).filter(t => t.completed === true).length;
+  const pendingTasks = (tasksHook.tasks || []).filter(t => t.completed !== true).length;
+  const highPriorityTasks = (tasksHook.tasks || []).filter(t => t.priority === 'High' && t.completed !== true).length;
+  const overdueTasks = (tasksHook.tasks || []).filter(t => {
+    if (t.completed === true || !t.dueDate) return false;
+    return new Date(t.dueDate) < new Date();
+  }).length;
   const department = user?.department || 'N/A';
 
   // Mock data for products, users, media
@@ -170,8 +175,7 @@ function DashboardContent() {
               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-200 via-pink-200 to-blue-200 flex items-center justify-center shadow-lg mb-2 overflow-hidden">
                 {user.photo ? (
                   <img 
-                    src={user.photo} 
-                    alt="Profile Photo" 
+                    src={user.photo.startsWith('data:') ? user.photo : `data:image/jpeg;base64,${user.photo}`}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       e.target.style.display = 'none';
@@ -261,7 +265,7 @@ function DashboardContent() {
                         <span className="text-gray-900 font-semibold text-xl block">Your Tasks</span>
                         <div className="text-3xl font-extrabold mt-2 text-purple-600">{totalTasks}</div>
                         <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                          <span>Click to view all tasks</span>
+                          <span>{totalTasks > 0 ? `${Math.round((completedTasks / totalTasks) * 100)}% completed` : 'No tasks yet'}</span>
                         </div>
                       </div>
                       <div className="ml-4 flex-shrink-0">
@@ -334,6 +338,30 @@ function DashboardContent() {
                         <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-purple-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Priority & Overdue Tasks */}
+                  <div className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 group">
+                    <div className="flex items-center justify-between w-full">
+                      <div>
+                        <span className="text-gray-900 font-semibold text-xl block">Priority Tasks</span>
+                        <div className="flex items-center gap-2 mt-2">
+                          <div className="text-2xl font-extrabold text-red-600">{highPriorityTasks}</div>
+                          <span className="text-gray-400">/</span>
+                          <div className="text-2xl font-extrabold text-orange-600">{overdueTasks}</div>
+                        </div>
+                        <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <span>High Priority / Overdue</span>
+                        </div>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-red-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                           </svg>
                         </span>
                       </div>
@@ -419,18 +447,34 @@ function DashboardContent() {
                       <tbody>
                         {recentTasks.length === 0 ? (
                           <tr><td colSpan={4} className="text-center text-gray-400 py-4">No recent tasks</td></tr>
-                        ) : recentTasks.map(task => (
-                          <tr key={task.id} className="hover:bg-green-50 transition">
-                            <td className="px-4 py-2 font-semibold text-gray-700 whitespace-nowrap">{task.task}</td>
-                            <td className="px-4 py-2 text-gray-600 whitespace-nowrap">{task.priority}</td>
-                            <td className="px-4 py-2 whitespace-nowrap">
-                              <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${task.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                                {task.status === 'completed' ? 'Completed' : 'Pending'}
-                              </span>
-                            </td>
-                            <td className="px-4 py-2 text-gray-600 whitespace-nowrap">{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '-'}</td>
-                          </tr>
-                        ))}
+                        ) : recentTasks.map(task => {
+                          const isOverdue = task.dueDate && !task.completed && new Date(task.dueDate) < new Date();
+                          return (
+                            <tr key={task.id} className={`hover:bg-green-50 transition ${isOverdue ? 'bg-red-50' : ''}`}>
+                              <td className="px-4 py-2 font-semibold text-gray-700 whitespace-nowrap">
+                                {task.task}
+                                {isOverdue && <span className="ml-2 text-red-500 text-xs">⚠️ Overdue</span>}
+                              </td>
+                              <td className="px-4 py-2 text-gray-600 whitespace-nowrap">
+                                <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                  task.priority === 'High' ? 'bg-red-100 text-red-700' :
+                                  task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                                  'bg-green-100 text-green-700'
+                                }`}>
+                                  {task.priority}
+                                </span>
+                              </td>
+                              <td className="px-4 py-2 whitespace-nowrap">
+                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${task.completed === true ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                  {task.completed === true ? 'Completed' : 'Pending'}
+                                </span>
+                              </td>
+                              <td className={`px-4 py-2 whitespace-nowrap ${isOverdue ? 'text-red-600 font-semibold' : 'text-gray-600'}`}>
+                                {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '-'}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -439,18 +483,37 @@ function DashboardContent() {
                   <div className="flex flex-col gap-3 lg:hidden">
                     {recentTasks.length === 0 ? (
                       <div className="text-center text-gray-400 py-4">No recent tasks</div>
-                    ) : recentTasks.map(task => (
-                      <div key={task.id} className="border border-green-100 rounded-lg p-3 sm:p-4 md:p-5 shadow-sm bg-green-50">
-                        <div className="font-semibold text-green-700 text-base sm:text-lg md:text-xl mb-1">{task.task}</div>
-                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Priority:</span> {task.priority}</div>
-                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Status:</span> 
-                          <span className={`ml-1 ${task.status === 'completed' ? 'text-green-700' : 'text-yellow-700'} font-medium`}>
-                            {task.status === 'completed' ? 'Completed' : 'Pending'}
-                          </span>
+                    ) : recentTasks.map(task => {
+                      const isOverdue = task.dueDate && !task.completed && new Date(task.dueDate) < new Date();
+                      return (
+                        <div key={task.id} className={`border rounded-lg p-3 sm:p-4 md:p-5 shadow-sm ${
+                          isOverdue ? 'border-red-200 bg-red-50' : 'border-green-100 bg-green-50'
+                        }`}>
+                          <div className="font-semibold text-green-700 text-base sm:text-lg md:text-xl mb-1 flex items-center">
+                            {task.task}
+                            {isOverdue && <span className="ml-2 text-red-500 text-xs">⚠️ Overdue</span>}
+                          </div>
+                          <div className="text-xs sm:text-sm md:text-base text-gray-600">
+                            <span className="font-semibold">Priority:</span> 
+                            <span className={`ml-1 px-2 py-1 rounded text-xs font-semibold ${
+                              task.priority === 'High' ? 'bg-red-100 text-red-700' :
+                              task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                              'bg-green-100 text-green-700'
+                            }`}>
+                              {task.priority}
+                            </span>
+                          </div>
+                          <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Status:</span> 
+                            <span className={`ml-1 ${task.completed === true ? 'text-green-700' : 'text-yellow-700'} font-medium`}>
+                              {task.completed === true ? 'Completed' : 'Pending'}
+                            </span>
+                          </div>
+                          <div className={`text-xs sm:text-sm md:text-base ${isOverdue ? 'text-red-600 font-semibold' : 'text-gray-600'}`}>
+                            <span className="font-semibold">Due Date:</span> {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '-'}
+                          </div>
                         </div>
-                        <div className="text-xs sm:text-sm md:text-base text-gray-600"><span className="font-semibold">Due Date:</span> {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '-'}</div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
                 
