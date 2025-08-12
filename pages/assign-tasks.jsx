@@ -5,9 +5,7 @@ import { useSidebar } from "../context/SidebarContext";
 import { useRouter } from "next/router";
 import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
-import { collection, addDoc, getDocs } from "firebase/firestore";
-import { db as imsDb } from "../firebaseIMS"; // IMS Firestore instance
-import { useAssignmentCreator } from "../hooks/useAssignmentCreator";
+
 import CryptoJS from "crypto-js";
 
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
@@ -28,7 +26,6 @@ export default function AssignTasksPage() {
   const { token } = router.query;
   const { ci, aid } = useMemo(() => decryptToken(token), [token]);
   const { user, loading: userLoading } = useUserInfo();
-  const { createAssignment } = useAssignmentCreator(ci);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(72);
   const headerRef = useRef(null);
@@ -40,6 +37,8 @@ export default function AssignTasksPage() {
   });
   const [internOptions, setInternOptions] = useState([]); // fetched list
   const [selectedInternIds, setSelectedInternIds] = useState([]); // chosen interns
+  const [showInternDropdown, setShowInternDropdown] = useState(false); // dropdown visibility
+  const [isSubmitting, setIsSubmitting] = useState(false); // loading state for form submission
 
   // Form state
   const [formData, setFormData] = useState({
@@ -52,11 +51,11 @@ export default function AssignTasksPage() {
     mentorName: "",
     description: "",
     requirements: [""],
-    resources: [""],
+    links: [""],
     evaluationCriteria: [""],
     mentorFeedback: "",
     message: "",
-    employeeIds: [""], // <-- NEW FIELD
+    employeeIds: [""],
   });
 
   // Handle mobile sidebar
@@ -96,17 +95,58 @@ export default function AssignTasksPage() {
 
     return () => window.removeEventListener("resize", updateHeaderHeight);
   }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showInternDropdown && !event.target.closest('.intern-dropdown')) {
+        setShowInternDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showInternDropdown]);
   
   /* Fetch interns once companyId is available */
   useEffect(() => {
     const fetchInterns = async () => {
-      if (!user?.companyId) return;
-      const qSnap = await getDocs(collection(imsDb, "users", user.companyId, "interns"));
-      const opts = qSnap.docs.map((d) => ({ id: d.id, name: d.data().name || "Unnamed" }));
-      setInternOptions(opts);
+      console.log("Fetching interns for companyId:", ci);
+      if (!ci) {
+        console.log("No companyId available, skipping fetch");
+        return;
+      }
+      try {
+        const response = await fetch('/api/interns/fetchInterns', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ companyId: ci }),
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("API response:", data);
+        
+        const opts = (data.interns || []).map((intern) => {
+          console.log("Intern data:", intern);
+          return { 
+            id: intern.id, 
+            name: `${intern.firstName || ""} ${intern.lastName || ""}`.trim() || "Unnamed" 
+          };
+        });
+        console.log("Processed intern options:", opts);
+        setInternOptions(opts);
+      } catch (error) {
+        console.error("Error fetching interns:", error);
+      }
     };
     fetchInterns();
-  }, [user?.companyId]);
+  }, [ci]);
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -117,7 +157,7 @@ export default function AssignTasksPage() {
     });
   };
 
-  // Handle array field changes (requirements, resources, evaluation criteria)
+  // Handle array field changes (requirements, links, evaluation criteria)
   const handleArrayFieldChange = (field, index, value) => {
     const updatedArray = [...formData[field]];
     updatedArray[index] = value;
@@ -148,64 +188,89 @@ export default function AssignTasksPage() {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Set loading state
+    setIsSubmitting(true);
+    
+    // Validate required fields
+    if (assigneeType === "intern" && selectedInternIds.length === 0) {
+      setNotification({
+        show: true,
+        message: "Please select at least one intern",
+        color: "red",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
     const assignmentData = {
       ...formData,
       assignedAt: new Date().toISOString(),
       assigneeType: assigneeType,
       employeeId: aid, // <-- automatically include assigning employee ID
-      employeeName: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(), // <-- and name
+      employeeName: user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() : "Unknown Employee", // <-- and name
+      assignedByRole: user?.role || "Employee"
     };
+
     try {
-      if (assigneeType === "employee") {
-        await createAssignment(formData.employeeIds, assignmentData);
-      } else {
-        /* create for every selected intern */
-        for (const internId of selectedInternIds) {
-          const intern = internOptions.find((i) => i.id === internId);
-          if (!intern) continue;
-          const dataWithIntern = {
-            ...assignmentData,
-            internId,
-            internName: intern.name,
-          };
-          await addDoc(
-            collection(imsDb, "users", user.companyId, "interns", internId, "assignments"),
-            dataWithIntern
-          );
-        }
+      // Call the new API endpoint for all three databases
+      const response = await fetch('/api/AssignedTasks/createAssignment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          companyId: ci,
+          assignmentData,
+          selectedInternIds,
+          assigneeType
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create assignment');
       }
+
+      const result = await response.json();
+      
       setNotification({
         show: true,
-        message: "Assignment created!",
+        message: result.message || "Assignment created successfully!",
         color: "green",
       });
+
+      // Reset form after successful submission
+      setFormData({
+        title: "",
+        assigneeName: "",
+        assigneeEmail: "",
+        department: "",
+        dueDate: "",
+        priority: "Medium",
+        mentorName: "",
+        description: "",
+        requirements: [""],
+        links: [""],
+        evaluationCriteria: [""],
+        mentorFeedback: "",
+        message: "",
+        employeeIds: [""],
+      });
+      
+      // Reset selected interns
+      setSelectedInternIds([]);
+
     } catch (err) {
       setNotification({
         show: true,
         message: "Error: " + err.message,
         color: "red",
       });
+    } finally {
+      // Reset loading state
+      setIsSubmitting(false);
     }
-    // Reset form after submission
-    setFormData({
-      title: "",
-      assigneeName: "",
-      assigneeEmail: "",
-      department: "",
-      dueDate: "",
-      priority: "Medium",
-      mentorName: "",
-      description: "",
-      requirements: [""],
-      resources: [""],
-      evaluationCriteria: [""],
-      mentorFeedback: "",
-      message: "",
-      employeeIds: [""], // <-- NEW FIELD
-    });
-    
-    // Reset selected interns
-    setSelectedInternIds([]);
 
     // Hide notification after 5 seconds
     setTimeout(() => {
@@ -213,8 +278,26 @@ export default function AssignTasksPage() {
     }, 5000);
   };
 
-  if (userLoading || !user || !ci) {
+  // Debug loading state
+  console.log("Loading state:", { userLoading, user: !!user, ci: !!ci, aid });
+  
+  // Temporarily allow rendering without user to debug
+  if (!ci) {
+    console.log("Showing loader because: no ci");
     return <Loader />;
+  }
+  
+  // If user is still loading, show a simpler loading state
+  if (userLoading) {
+    console.log("User is still loading, showing simple loader");
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading user data...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -276,12 +359,11 @@ export default function AssignTasksPage() {
         className="hidden sm:block fixed top-0 left-0 h-full z-40"
         style={{ width: 270 }}
       >
-        <SideMenu
-          username={
-            `${user?.firstName || ""} ${user?.lastName || ""}`.trim() ||
-            "Employee"
-          }
-        />
+                 <SideMenu
+           username={
+             user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() : "Employee"
+           }
+         />
       </div>
       {/* Sidebar for mobile (full screen overlay) */}
       {mobileSidebarOpen && (
@@ -293,13 +375,12 @@ export default function AssignTasksPage() {
           >
             &times;
           </button>
-          <SideMenu
-            mobileOverlay={true}
-            username={
-              `${user?.firstName || ""} ${user?.lastName || ""}`.trim() ||
-              "Employee"
-            }
-          />
+                     <SideMenu
+             mobileOverlay={true}
+             username={
+               user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() : "Employee"
+             }
+           />
         </div>
       )}
       {/* Main content area */}
@@ -312,11 +393,10 @@ export default function AssignTasksPage() {
           ref={headerRef}
           onMobileSidebarToggle={handleMobileSidebarToggle}
           mobileSidebarOpen={mobileSidebarOpen}
-          username={
-            `${user?.firstName || ""} ${user?.lastName || ""}`.trim() ||
-            "Employee"
-          }
-          companyName={user?.company || user?.department || "Department"}
+                     username={
+             user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() : "Employee"
+           }
+           companyName={user ? (user.company || user.department) : "Department"}
         />
         <main
           className="transition-all duration-300 px-2 sm:px-8 py-12 md:py-6"
@@ -437,8 +517,8 @@ export default function AssignTasksPage() {
                       </svg>
                       Intern
                     </button>
-                    {/* Only show Employee button for allowed roles */}
-                    {["HR", "Manager", "Team Lead"].includes(user?.role) && (
+                                         {/* Only show Employee button for allowed roles */}
+                     {user && ["HR", "Manager", "Team Lead"].includes(user.role) && (
                       <button
                         type="button"
                         onClick={() => setAssigneeType("employee")}
@@ -491,14 +571,15 @@ export default function AssignTasksPage() {
                       {/* Assignment Title */}
                       <div className="col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Assignment Title
+                          Assignment Title <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
                           name="title"
                           value={formData.title}
                           onChange={handleChange}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 placeholder-gray-500"
+                          placeholder="Enter assignment title"
                           required
                         />
                       </div>
@@ -514,7 +595,8 @@ export default function AssignTasksPage() {
                             name="assigneeName"
                             value={formData.assigneeName}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 placeholder-gray-500"
+                            placeholder="Enter employee name"
                             required
                           />
                         </div>
@@ -526,31 +608,88 @@ export default function AssignTasksPage() {
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Select Intern(s)
                           </label>
-                          {/* checkbox list */}
-                          <div className="bg-gray-50 p-3 rounded-md border border-gray-200 max-h-52 overflow-y-auto">
-                            {internOptions.map((intern) => (
-                              <label key={intern.id} className="flex items-center space-x-2 mb-2">
-                                <input
-                                  type="checkbox"
-                                  value={intern.id}
-                                  checked={selectedInternIds.includes(intern.id)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      setSelectedInternIds([...selectedInternIds, intern.id]);
-                                    } else {
-                                      setSelectedInternIds(selectedInternIds.filter((id) => id !== intern.id));
-                                    }
-                                  }}
-                                  className="accent-purple-600"
-                                />
-                                <span>{intern.id} – {intern.name}</span>
-                              </label>
-                            ))}
+                          {/* Dropdown with checkboxes */}
+                          <div className="relative intern-dropdown">
+                            <div 
+                              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white cursor-pointer flex justify-between items-center"
+                              onClick={() => setShowInternDropdown(!showInternDropdown)}
+                            >
+                              <span className={selectedInternIds.length > 0 ? "text-gray-900 font-medium" : "text-gray-500"}>
+                                {selectedInternIds.length > 0 
+                                  ? `${selectedInternIds.length} ${selectedInternIds.length === 1 ? "intern" : "interns"} selected`
+                                  : "Select an intern..."
+                                }
+                              </span>
+                              <svg 
+                                className={`w-4 h-4 transition-transform ${showInternDropdown ? "rotate-180" : ""}`}
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </div>
+                            
+                                                         {/* Dropdown list */}
+                             {showInternDropdown && (
+                               <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                 {console.log("Rendering dropdown with internOptions:", internOptions)}
+                                 {internOptions.length > 0 ? (
+                                  internOptions.map((intern) => (
+                                    <label 
+                                      key={intern.id} 
+                                      className="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        value={intern.id}
+                                        checked={selectedInternIds.includes(intern.id)}
+                                        onChange={(e) => {
+                                          if (e.target.checked) {
+                                            setSelectedInternIds([...selectedInternIds, intern.id]);
+                                          } else {
+                                            setSelectedInternIds(selectedInternIds.filter((id) => id !== intern.id));
+                                          }
+                                        }}
+                                        className="mr-3 accent-purple-600"
+                                      />
+                                      <div className="flex flex-col">
+                                        <span className="text-sm font-medium text-gray-900">{intern.name}</span>
+                                        <span className="text-xs text-gray-500">{intern.id}</span>
+                                      </div>
+                                    </label>
+                                  ))
+                                ) : (
+                                  <div className="px-3 py-2 text-sm text-gray-500">
+                                    No interns available
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
+                          
+                          {/* Selected interns display */}
                           {selectedInternIds.length > 0 && (
-                            <p className="mt-2 text-sm text-purple-600">
-                              {selectedInternIds.length} {selectedInternIds.length === 1 ? "intern" : "interns"} selected
-                            </p>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {selectedInternIds.map((internId) => {
+                                const intern = internOptions.find(i => i.id === internId);
+                                return (
+                                  <span 
+                                    key={internId}
+                                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
+                                  >
+                                    {intern?.name || internId}
+                                    <button
+                                      type="button"
+                                      onClick={() => setSelectedInternIds(selectedInternIds.filter(id => id !== internId))}
+                                      className="ml-1 text-purple-600 hover:text-purple-800"
+                                    >
+                                      ×
+                                    </button>
+                                  </span>
+                                );
+                              })}
+                            </div>
                           )}
                         </div>
                       ) : (
@@ -572,7 +711,7 @@ export default function AssignTasksPage() {
                                       employeeIds: updated,
                                     });
                                   }}
-                                  className="flex-grow border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                  className="flex-grow border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 placeholder-gray-500"
                                   placeholder={`Employee ID ${idx + 1}`}
                                   required
                                 />
@@ -632,19 +771,19 @@ export default function AssignTasksPage() {
                           name="department"
                           value={formData.department}
                           onChange={handleChange}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white text-gray-900"
                           required
                         >
-                          <option value="">Select Department</option>
-                          <option value="Software Development">
+                          <option value="" className="text-gray-500">Select Department</option>
+                          <option value="Software Development" className="text-gray-900">
                             Software Development
                           </option>
-                          <option value="SEO">SEO</option>
-                          <option value="UI/UX Design">UI/UX Design</option>
-                          <option value="Content Writing">
+                          <option value="SEO" className="text-gray-900">SEO</option>
+                          <option value="UI/UX Design" className="text-gray-900">UI/UX Design</option>
+                          <option value="Content Writing" className="text-gray-900">
                             Content Writing
                           </option>
-                          <option value="Social Media Management">
+                          <option value="Social Media Management" className="text-gray-900">
                             Social Media Management (SMM)
                           </option>
                         </select>
@@ -653,14 +792,14 @@ export default function AssignTasksPage() {
                       {/* Due Date */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Due Date
+                          Due Date <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="date"
                           name="dueDate"
                           value={formData.dueDate}
                           onChange={handleChange}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
                           required
                         />
                       </div>
@@ -811,7 +950,8 @@ export default function AssignTasksPage() {
                             name="mentorName"
                             value={formData.mentorName}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 placeholder-gray-500"
+                            placeholder="Enter mentor name"
                             required
                           />
                         </div>
@@ -842,7 +982,7 @@ export default function AssignTasksPage() {
                       {/* Description */}
                       <div className="col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Description
+                          Description <span className="text-red-500">*</span>
                         </label>
                         <textarea
                           name="description"
@@ -850,7 +990,7 @@ export default function AssignTasksPage() {
                           onChange={handleChange}
                           rows="4"
                           placeholder="Provide a detailed description of the task..."
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 placeholder-gray-500"
                           required
                         ></textarea>
                       </div>
@@ -887,7 +1027,7 @@ export default function AssignTasksPage() {
                                     e.target.value
                                   )
                                 }
-                                className="flex-grow border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                className="flex-grow border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 placeholder-gray-500"
                                 placeholder={`Requirement ${index + 1}`}
                               />
                               {formData.requirements.length > 1 && (
@@ -927,7 +1067,7 @@ export default function AssignTasksPage() {
                         </div>
                       </div>
 
-                      {/* Resources */}
+                      {/* links */}
                       <div className="col-span-2">
                         <label className="text-sm font-medium text-gray-700 mb-1 flex items-center">
                           <svg
@@ -944,10 +1084,10 @@ export default function AssignTasksPage() {
                               d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
                             ></path>
                           </svg>
-                          Resources
+                          links
                         </label>
                         <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
-                          {formData.resources.map((resource, index) => (
+                          {formData.links.map((resource, index) => (
                             <div
                               key={`resource-${index}`}
                               className="flex mb-2"
@@ -957,19 +1097,19 @@ export default function AssignTasksPage() {
                                 value={resource}
                                 onChange={(e) =>
                                   handleArrayFieldChange(
-                                    "resources",
+                                    "links",
                                     index,
                                     e.target.value
                                   )
                                 }
-                                className="flex-grow border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                className="flex-grow border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 placeholder-gray-500"
                                 placeholder={`Resource ${index + 1} (URL or reference)`}
                               />
-                              {formData.resources.length > 1 && (
+                              {formData.links.length > 1 && (
                                 <button
                                   type="button"
                                   onClick={() =>
-                                    removeArrayItem("resources", index)
+                                    removeArrayItem("links", index)
                                   }
                                   className="ml-2 px-2 py-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200"
                                 >
@@ -980,7 +1120,7 @@ export default function AssignTasksPage() {
                           ))}
                           <button
                             type="button"
-                            onClick={() => addArrayItem("resources")}
+                            onClick={() => addArrayItem("links")}
                             className="mt-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 flex items-center gap-2"
                           >
                             <svg
@@ -997,7 +1137,7 @@ export default function AssignTasksPage() {
                                 d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                               ></path>
                             </svg>
-                            Add Resource
+                            Add Link
                           </button>
                         </div>
                       </div>
@@ -1060,7 +1200,7 @@ export default function AssignTasksPage() {
                                       e.target.value
                                     )
                                   }
-                                  className="flex-grow border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                  className="flex-grow border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 placeholder-gray-500"
                                   placeholder={`Criteria ${index + 1}`}
                                 />
                                 {formData.evaluationCriteria.length > 1 && (
@@ -1130,7 +1270,7 @@ export default function AssignTasksPage() {
                             onChange={handleChange}
                             rows="3"
                             placeholder="Provide feedback guidelines for the mentor..."
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 placeholder-gray-500"
                           ></textarea>
                         </div>
                       )}
@@ -1183,7 +1323,7 @@ export default function AssignTasksPage() {
                           onChange={handleChange}
                           rows="3"
                           placeholder="Add a personal message or instructions for the assignee..."
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 placeholder-gray-500"
                         ></textarea>
                       </div>
                     </div>
@@ -1193,26 +1333,60 @@ export default function AssignTasksPage() {
                   <div className="mt-8 flex flex-col sm:flex-row gap-4">
                     <button
                       type="submit"
-                      className="flex-1 sm:flex-none bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
+                      disabled={isSubmitting}
+                      className={`flex-1 sm:flex-none text-white font-bold py-3 px-8 rounded-md transition-colors duration-200 flex items-center justify-center gap-2 ${
+                        isSubmitting 
+                          ? 'bg-purple-400 cursor-not-allowed' 
+                          : 'bg-purple-600 hover:bg-purple-700'
+                      }`}
                     >
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                        <polyline points="7 3 7 8 15 8"></polyline>
-                      </svg>
-                      Create Assignment
+                      {isSubmitting ? (
+                        <>
+                          <svg
+                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                          </svg>
+                          Create Assignment
+                        </>
+                      )}
                     </button>
                     <button
                       type="button"
+                      disabled={isSubmitting}
                       onClick={() => {
                         setFormData({
                           title: "",
@@ -1224,14 +1398,18 @@ export default function AssignTasksPage() {
                           mentorName: "",
                           description: "",
                           requirements: [""],
-                          resources: [""],
+                          links: [""],
                           evaluationCriteria: [""],
                           mentorFeedback: "",
                           message: "",
-                          employeeIds: [""], // <-- NEW FIELD
+                          employeeIds: [""],
                         });
                       }}
-                      className="flex-1 sm:flex-none border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-medium py-3 px-8 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
+                      className={`flex-1 sm:flex-none border border-gray-300 font-medium py-3 px-8 rounded-md transition-colors duration-200 flex items-center justify-center gap-2 ${
+                        isSubmitting 
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                          : 'bg-white hover:bg-gray-50 text-gray-700'
+                      }`}
                     >
                       <svg
                         width="20"

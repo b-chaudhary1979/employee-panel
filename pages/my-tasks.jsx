@@ -5,7 +5,7 @@ import { useSidebar } from "../context/SidebarContext";
 import { useUserInfo } from "../context/UserInfoContext";
 import { useRouter } from "next/router";
 import Loader from "../loader/Loader";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from "../firebase";
 import CryptoJS from "crypto-js";
 
@@ -43,6 +43,7 @@ export default function MyTasksPage() {
     message: "",
     color: "green",
   });
+  const [unsubscribeFunctions, setUnsubscribeFunctions] = useState([]);
 
      const STATUS_OPTIONS = [
      {
@@ -81,49 +82,89 @@ export default function MyTasksPage() {
     }
   }, [router.isReady, ci, aid]);
 
-    const fetchTasks = async () => {
+  const setupRealTimeListeners = () => {
     // Use ci (companyId) from token and user.id (employeeId)
     if (!ci || !user?.id) {
       setFetching(false);
       return;
     }
-    
+
+    // Clear any existing listeners
+    unsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+    setUnsubscribeFunctions([]);
+
+    const unsubscribers = [];
+
     try {
-      // Fetch pending tasks
-      const pendingTasksSnap = await getDocs(
-        collection(db, "users", ci, "employees", user.id, "tasks", "task-data", "pending_tasks")
+      // Set up real-time listener for pending tasks
+      const pendingTasksQuery = query(
+        collection(db, "users", ci, "employees", user.id, "tasks", "task-data", "pending_tasks"),
+        orderBy("assignedAt", "desc")
       );
-      const pendingTasks = pendingTasksSnap.docs.map((d) => ({ 
-        id: d.id, 
-        ...d.data(),
-        status: d.data().status || 'pending'
-      }));
 
-      // Fetch completed tasks
-      const completedTasksSnap = await getDocs(
-        collection(db, "users", ci, "employees", user.id, "tasks", "task-data", "completed_tasks")
+      const pendingUnsubscribe = onSnapshot(pendingTasksQuery, (snapshot) => {
+        const pendingTasks = snapshot.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+          status: d.data().status || 'pending'
+        }));
+
+        // Update tasks with real-time data
+        setTasks(currentTasks => {
+          const completedTasks = currentTasks.filter(task => task.status === 'completed');
+          return [...pendingTasks, ...completedTasks];
+        });
+      }, (error) => {
+        console.error("Error listening to pending tasks:", error);
+      });
+
+      unsubscribers.push(pendingUnsubscribe);
+
+      // Set up real-time listener for completed tasks
+      const completedTasksQuery = query(
+        collection(db, "users", ci, "employees", user.id, "tasks", "task-data", "completed_tasks"),
+        orderBy("assignedAt", "desc")
       );
-      const completedTasks = completedTasksSnap.docs.map((d) => ({ 
-        id: d.id, 
-        ...d.data(),
-        status: d.data().status || 'completed'
-      }));
 
-      // Combine both lists
-      const allTasks = [...pendingTasks, ...completedTasks];
-      setTasks(allTasks);
+      const completedUnsubscribe = onSnapshot(completedTasksQuery, (snapshot) => {
+        const completedTasks = snapshot.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+          status: d.data().status || 'completed'
+        }));
+
+        // Update tasks with real-time data
+        setTasks(currentTasks => {
+          const pendingTasks = currentTasks.filter(task => task.status === 'pending');
+          return [...pendingTasks, ...completedTasks];
+        });
+      }, (error) => {
+        console.error("Error listening to completed tasks:", error);
+      });
+
+      unsubscribers.push(completedUnsubscribe);
+
+      setUnsubscribeFunctions(unsubscribers);
+      setFetching(false);
+
     } catch (error) {
-      console.error("Error fetching tasks:", error);
+      console.error("Error setting up real-time listeners:", error);
       setTasks([]);
-    } finally {
       setFetching(false);
     }
   };
 
-  /* fetch tasks for this employee */
+  /* Set up real-time listeners for tasks */
   useEffect(() => {
-    fetchTasks();
+    setupRealTimeListeners();
   }, [ci, user?.id]);
+
+  /* Cleanup listeners on unmount */
+  useEffect(() => {
+    return () => {
+      unsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+    };
+  }, [unsubscribeFunctions]);
 
   // Update header height on resize
   useEffect(() => {
@@ -250,8 +291,7 @@ export default function MyTasksPage() {
       setShowConfirmation(false);
       closeTaskModal();
 
-      // Refresh the tasks list to show updated data
-      await fetchTasks();
+      // Tasks will automatically update via real-time listeners
 
     } catch (error) {
       console.error('Error submitting task:', error);
@@ -364,8 +404,11 @@ export default function MyTasksPage() {
          className="p-6 transition-all duration-300"
          style={{ marginLeft: getContentMarginLeft(), marginTop: headerHeight }}
        >
-                   <h1 className="text-3xl font-extrabold text-[#7c3aed] mb-1 font-manrope">My Tasks</h1>
-          <p className="text-gray-500 text-lg font-manrope">Track all your tasks, update statuses, and submit your work here.</p>
+                   <div className="flex items-center gap-3 mb-1">
+                     <h1 className="text-3xl font-extrabold text-[#7c3aed] font-manrope">My Tasks</h1>
+                     
+                   </div>
+                   <p className="text-gray-500 text-lg font-manrope">Track all your tasks, update statuses, and submit your work here. Data updates in real-time.</p>
                  {tasks.length === 0 ? (
                        <div className="text-center py-8">
               <p className="text-gray-500 text-lg font-manrope">No tasks found.</p>

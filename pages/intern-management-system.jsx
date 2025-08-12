@@ -5,30 +5,20 @@ import { useSidebar } from "../context/SidebarContext";
 import { useRouter } from "next/router";
 import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
-import { initializeApp, getApps } from "firebase/app";
-import { getFirestore, doc, setDoc, serverTimestamp } from "firebase/firestore";
+import useFetchInterns from "../hooks/useFetchInterns";
+import CryptoJS from "crypto-js";
 
-// Firebase configuration for Intern Management System (IMS)
-const imsFirebaseConfig = {
-  apiKey: "AIzaSyBmwgxA1ps7W62toCPILN_5voHH1iVcqOc",
-  authDomain: "intern-management-system-5df18.firebaseapp.com",
-  projectId: "intern-management-system-5df18",
-  storageBucket: "intern-management-system-5df18.firebasestorage.app",
-  messagingSenderId: "1001534086782",
-  appId: "1:1001534086782:web:e77932c3ea3ff8bfd0822f",
-  measurementId: "G-JWHRQ6609V"
-};
-
-// Initialise IMS Firebase app once
-let imsApp;
-if (!getApps().some((a) => a.name === "imsApp")) {
-  imsApp = initializeApp(imsFirebaseConfig, "imsApp");
-} else {
-  imsApp = getApps().find((a) => a.name === "imsApp");
+const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
+function decryptToken(token) {
+  try {
+    const bytes = CryptoJS.AES.decrypt(token, ENCRYPTION_KEY);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    const { ci, aid } = JSON.parse(decrypted);
+    return { ci, aid };
+  } catch {
+    return { ci: null, aid: null };
+  }
 }
-
-// Firestore reference for IMS
-const imsDb = getFirestore(imsApp);
 
 export default function InternManagementSystem() {
   const { isOpen } = useSidebar();
@@ -39,42 +29,13 @@ export default function InternManagementSystem() {
   const headerRef = useRef(null);
   const [notification, setNotification] = useState({ show: false, message: "", color: "green" });
   
-  // Intern management state
-  const [interns, setInterns] = useState([
-    {
-      id: "INT001",
-      name: "John Doe",
-      email: "john.doe@example.com",
-      department: "Software Development",
-      startDate: "2023-06-15",
-      endDate: "2023-12-15",
-      status: "Active",
-      mentor: "Jane Smith",
-      projects: ["Website Redesign", "Mobile App Development"]
-    },
-    {
-      id: "INT002",
-      name: "Alice Johnson",
-      email: "alice.johnson@example.com",
-      department: "UI/UX Design",
-      startDate: "2023-07-01",
-      endDate: "2023-10-01",
-      status: "Active",
-      mentor: "Robert Brown",
-      projects: ["Brand Identity Design", "User Research"]
-    },
-    {
-      id: "INT003",
-      name: "Michael Wilson",
-      email: "michael.wilson@example.com",
-      department: "Content Writing",
-      startDate: "2023-05-10",
-      endDate: "2023-11-10",
-      status: "Inactive",
-      mentor: "Sarah Davis",
-      projects: ["Blog Content Creation", "SEO Optimization"]
-    }
-  ]);
+  // Get company ID from URL token (same as other pages)
+  const { token } = router.query;
+  const { ci, aid } = decryptToken(token);
+  const companyId = ci; // This is the real companyId from the token
+  
+  // Use the hook to fetch interns
+  const { interns, loading: internsLoading, error: internsError, addIntern, updateIntern } = useFetchInterns(companyId);
   
   const [selectedIntern, setSelectedIntern] = useState(null);
   const [showAddInternModal, setShowAddInternModal] = useState(false);
@@ -138,62 +99,50 @@ export default function InternManagementSystem() {
   // Handle adding a new intern
   const handleAddIntern = async (e) => {
     e.preventDefault();
-    const newId = `INT${String(interns.length + 1).padStart(3, '0')}`;
-    const internToAdd = {
-      ...newIntern,
-      id: newId,
-      status: "Active",
-      createdAt: serverTimestamp()
-    };
-
-    // Determine company ID (CID) from URL or user context
-    const companyId = router.query.cid || user?.companyId || null;
+    
     if (!companyId) {
       setNotification({ show: true, message: "Company ID missing – cannot add intern.", color: "red" });
       return;
     }
 
     try {
-      await setDoc(doc(imsDb, "users", companyId, "interns", newId), internToAdd);
+      await addIntern(newIntern);
+      setShowAddInternModal(false);
+      setNewIntern({
+        name: "",
+        email: "",
+        phone: "",
+        department: "",
+        startDate: "",
+        endDate: "",
+        mentor: "",
+        projects: [""],
+        skills: [""],
+        preferredTechnologies: [""],
+        education: {
+          university: "",
+          currentSemester: ""
+        },
+        githubProfile: "",
+        linkedinProfile: "",
+        portfolioWebsite: "",
+        aboutYourself: "",
+        careerGoals: ""
+      });
+      
+      setNotification({
+        show: true,
+        message: "Intern added successfully!",
+        color: "green"
+      });
+      
+      setTimeout(() => {
+        setNotification({ show: false, message: "", color: "green" });
+      }, 3000);
     } catch (err) {
       console.error("Failed to add intern to Firestore", err);
       setNotification({ show: true, message: "Failed to add intern. Please try again.", color: "red" });
-      return;
     }
-    
-    setInterns([...interns, internToAdd]);
-    setShowAddInternModal(false);
-    setNewIntern({
-      name: "",
-      email: "",
-      phone: "",
-      department: "",
-      startDate: "",
-      endDate: "",
-      mentor: "",
-      projects: [""],
-      skills: [""],
-      preferredTechnologies: [""],
-      education: {
-        university: "",
-        currentSemester: ""
-      },
-      githubProfile: "",
-      linkedinProfile: "",
-      portfolioWebsite: "",
-      aboutYourself: "",
-      careerGoals: ""
-    });
-    
-    setNotification({
-      show: true,
-      message: "Intern added successfully!",
-      color: "green"
-    });
-    
-    setTimeout(() => {
-      setNotification({ show: false, message: "", color: "green" });
-    }, 3000);
   };
 
   // Handle input change for new intern form
@@ -303,9 +252,10 @@ export default function InternManagementSystem() {
   // Filter interns based on status and search term
   const filteredInterns = interns.filter(intern => {
     const matchesStatus = filterStatus === "All" || intern.status === filterStatus;
-    const matchesSearch = intern.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         intern.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         intern.department.toLowerCase().includes(searchTerm.toLowerCase());
+    const fullName = `${intern.firstName || ''} ${intern.lastName || ''}`.toLowerCase();
+    const matchesSearch = fullName.includes(searchTerm.toLowerCase()) || 
+                         (intern.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                         (intern.department?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
@@ -320,33 +270,52 @@ export default function InternManagementSystem() {
   };
 
   // Change intern status
-  const changeInternStatus = (id, newStatus) => {
-    const updatedInterns = interns.map(intern => {
-      if (intern.id === id) {
-        return { ...intern, status: newStatus };
+  const changeInternStatus = async (id, newStatus) => {
+    try {
+      await updateIntern(id, { status: newStatus });
+      
+      if (selectedIntern && selectedIntern.id === id) {
+        setSelectedIntern({ ...selectedIntern, status: newStatus });
       }
-      return intern;
-    });
-    
-    setInterns(updatedInterns);
-    
-    if (selectedIntern && selectedIntern.id === id) {
-      setSelectedIntern({ ...selectedIntern, status: newStatus });
+      
+      setNotification({
+        show: true,
+        message: `Intern status updated to ${newStatus}!`,
+        color: "green"
+      });
+      
+      setTimeout(() => {
+        setNotification({ show: false, message: "", color: "green" });
+      }, 3000);
+    } catch (err) {
+      console.error("Failed to update intern status:", err);
+      setNotification({
+        show: true,
+        message: "Failed to update intern status. Please try again.",
+        color: "red"
+      });
     }
-    
-    setNotification({
-      show: true,
-      message: `Intern status updated to ${newStatus}!`,
-      color: "green"
-    });
-    
-    setTimeout(() => {
-      setNotification({ show: false, message: "", color: "green" });
-    }, 3000);
   };
 
-  if (userLoading) {
+  if (userLoading || internsLoading) {
     return <Loader />;
+  }
+
+  if (internsError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Interns</h2>
+          <p className="text-gray-600 mb-4">{internsError}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -464,10 +433,10 @@ export default function InternManagementSystem() {
                       filteredInterns.map((intern) => (
                         <tr key={intern.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{intern.id}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{intern.name}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{intern.email}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{intern.department}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{intern.mentor}</td>
+                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{intern.firstName} {intern.lastName}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{intern.email}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{intern.department}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{intern.mentor || "No mentor Assigned"}</td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${intern.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                               {intern.status}
@@ -815,67 +784,63 @@ export default function InternManagementSystem() {
         </div>
       )}
 
-      {/* Intern Details Modal */}
-      {selectedIntern && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+             {/* Intern Details Modal */}
+       {selectedIntern && (
+         <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent">
           <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-gray-800">Intern Details</h2>
-              <button
-                onClick={closeInternDetails}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
+                         <div className="mb-4">
+               <h2 className="text-2xl font-bold text-gray-800">Intern Details</h2>
+             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">ID</h3>
-                <p className="text-lg font-semibold">{selectedIntern.id}</p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Name</h3>
-                <p className="text-lg font-semibold">{selectedIntern.name}</p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Email</h3>
-                <p className="text-lg">{selectedIntern.email}</p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Department</h3>
-                <p className="text-lg">{selectedIntern.department}</p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Mentor</h3>
-                <p className="text-lg">{selectedIntern.mentor}</p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Status</h3>
-                <span className={`px-2 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${selectedIntern.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                  {selectedIntern.status}
-                </span>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Start Date</h3>
-                <p className="text-lg">{selectedIntern.startDate}</p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">End Date</h3>
-                <p className="text-lg">{selectedIntern.endDate}</p>
-              </div>
-            </div>
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+               <div>
+                 <h3 className="text-sm font-medium text-gray-700">ID</h3>
+                 <p className="text-lg font-semibold text-gray-900">{selectedIntern.id}</p>
+               </div>
+                              <div>
+                  <h3 className="text-sm font-medium text-gray-700">Name</h3>
+                  <p className="text-lg font-semibold text-gray-900">{selectedIntern.firstName} {selectedIntern.lastName}</p>
+                </div>
+               <div>
+                 <h3 className="text-sm font-medium text-gray-700">Email</h3>
+                 <p className="text-lg text-gray-900">{selectedIntern.email}</p>
+               </div>
+               <div>
+                 <h3 className="text-sm font-medium text-gray-700">Department</h3>
+                 <p className="text-lg text-gray-900">{selectedIntern.department}</p>
+               </div>
+               <div>
+                 <h3 className="text-sm font-medium text-gray-700">Mentor</h3>
+                 <p className="text-lg text-gray-900">{selectedIntern.mentor || "No mentor Assigned"}</p>
+               </div>
+               <div>
+                 <h3 className="text-sm font-medium text-gray-700">Status</h3>
+                 <span className={`px-2 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${selectedIntern.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                   {selectedIntern.status}
+                 </span>
+               </div>
+               <div>
+                 <h3 className="text-sm font-medium text-gray-700">Start Date</h3>
+                 <p className="text-lg text-gray-900">{selectedIntern.startDate}</p>
+               </div>
+               <div>
+                 <h3 className="text-sm font-medium text-gray-700">End Date</h3>
+                 <p className="text-lg text-gray-900">{selectedIntern.endDate}</p>
+               </div>
+             </div>
             
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-2">Projects</h3>
-              <ul className="list-disc pl-5 space-y-1">
-                {selectedIntern.projects.map((project, index) => (
-                  <li key={index} className="text-gray-700">{project}</li>
-                ))}
-              </ul>
-            </div>
+                         <div className="mb-6">
+               <h3 className="text-lg font-semibold mb-2">Projects</h3>
+               <ul className="list-disc pl-5 space-y-1">
+                 {selectedIntern.projects && selectedIntern.projects.length > 0 ? (
+                   selectedIntern.projects.map((project, index) => (
+                     <li key={index} className="text-gray-700">{project}</li>
+                   ))
+                 ) : (
+                   <li className="text-gray-500 italic">No projects listed</li>
+                 )}
+               </ul>
+             </div>
             
             <div className="flex justify-between mt-6">
               <button

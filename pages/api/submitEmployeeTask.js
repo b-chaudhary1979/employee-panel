@@ -136,6 +136,60 @@ export default async function handler(req, res) {
         console.log('Warning: Could not ensure parent documents in admin database:', error.message);
       }
 
+      // Remove from admin pending_tasks collection if it exists
+      try {
+        const adminPendingCollectionRef = adminDb
+          .collection('users')
+          .doc(companyId)
+          .collection('employee_tasks')
+          .doc(employeeId)
+          .collection('pending_tasks');
+
+        console.log('Attempting to delete from admin pending_tasks by taskId...');
+        const byIdRef = adminPendingCollectionRef.doc(taskId);
+        const byIdSnap = await byIdRef.get();
+        if (byIdSnap.exists) {
+          await byIdRef.delete();
+          console.log('Deleted pending task by document id:', taskId);
+        } else {
+          // Try by originalTaskId
+          try {
+            console.log('Pending delete by originalTaskId:', taskId);
+            const byOriginalIdSnap = await adminPendingCollectionRef
+              .where('originalTaskId', '==', taskId)
+              .get();
+            if (!byOriginalIdSnap.empty) {
+              const batch = adminDb.batch();
+              byOriginalIdSnap.forEach((docSnap) => batch.delete(docSnap.ref));
+              await batch.commit();
+              console.log(`Deleted ${byOriginalIdSnap.size} pending task(s) by originalTaskId`);
+            }
+          } catch (qErr) {
+            console.log('Warning: query by originalTaskId failed:', qErr.message);
+          }
+
+          // Try by taskName as a fallback
+          if (taskData?.taskName) {
+            try {
+              console.log('Pending delete by taskName:', taskData.taskName);
+              const byNameSnap = await adminPendingCollectionRef
+                .where('taskName', '==', taskData.taskName)
+                .get();
+              if (!byNameSnap.empty) {
+                const batch = adminDb.batch();
+                byNameSnap.forEach((docSnap) => batch.delete(docSnap.ref));
+                await batch.commit();
+                console.log(`Deleted ${byNameSnap.size} pending task(s) by taskName`);
+              }
+            } catch (qErr) {
+              console.log('Warning: query by taskName failed:', qErr.message);
+            }
+          }
+        }
+      } catch (error) {
+        console.log('Warning: Could not delete from admin pending_tasks (may not exist):', error.message);
+      }
+
       // Store in admin database
       const adminTaskRef = adminDb
         .collection('users')
