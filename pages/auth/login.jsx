@@ -22,6 +22,7 @@ const Login = () => {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [captchaValue, setCaptchaValue] = useState(null);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // Use the authentication hook from AuthContext
   const { authenticate, loading, error, user } = useAuth();
@@ -88,21 +89,37 @@ const Login = () => {
       setTimeout(() => setShowNotification(false), 2000);
       return;
     }
-    // Use the authenticate function from the hook
-    const result = await authenticate(companyId, uniqueId);
-    if (result) {
-      setNotificationMessage("Successfully logged in!");
-      setShowNotification(true);
-      setTimeout(() => {
-        setShowNotification(false);
-        // Create CryptoJS token for playground compatibility  
-        const token = encryptToken(companyId, uniqueId);
-        router.push(`/playground?token=${encodeURIComponent(token)}`);
-      }, 1500);
-    } else {
-      setNotificationMessage(error || "Invalid credentials");
+    
+    // Set loading state
+    setIsLoggingIn(true);
+    
+    try {
+      // Trim input values before validation
+      const trimmedCompanyId = companyId.trim();
+      const trimmedUniqueId = uniqueId.trim();
+      
+      // Use the authenticate function from the hook with trimmed values
+      const result = await authenticate(trimmedCompanyId, trimmedUniqueId);
+      if (result) {
+        setNotificationMessage("Successfully logged in!");
+        setShowNotification(true);
+        setTimeout(() => {
+          setShowNotification(false);
+          // Create CryptoJS token for playground compatibility  
+          const token = encryptToken(trimmedCompanyId, trimmedUniqueId);
+          router.push(`/playground?token=${encodeURIComponent(token)}`);
+        }, 1500);
+      } else {
+        setNotificationMessage(error || "Invalid credentials");
+        setShowNotification(true);
+        setTimeout(() => setShowNotification(false), 2000);
+      }
+    } catch (error) {
+      setNotificationMessage("Authentication failed. Please try again.");
       setShowNotification(true);
       setTimeout(() => setShowNotification(false), 2000);
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -298,14 +315,36 @@ const Login = () => {
             {/* Login Button */}
             <button
               type="submit"
-              disabled={loading}
-              className={`w-full py-[13px] rounded-lg text-[16px] sm:text-[17px] font-bold transition-all duration-200 tracking-wider border-none ${
-                loading
+              disabled={isLoggingIn}
+              className={`w-full py-[13px] rounded-lg text-[16px] sm:text-[17px] font-bold transition-all duration-200 tracking-wider border-none flex items-center justify-center gap-2 ${
+                isLoggingIn
                   ? "bg-[#e0dfea] text-[#a259f7] cursor-not-allowed"
                   : "bg-[#a259f7] text-white cursor-pointer"
               }`}
             >
-              {loading ? "Logging in..." : "Login"}
+              {isLoggingIn && (
+                <svg
+                  className="animate-spin h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              )}
+              {isLoggingIn ? "Logging In..." : "Login"}
             </button>
             {/* Help Text */}
             <div className="text-[14px] sm:text-[15px] text-[#4b5563] text-center">

@@ -5,7 +5,6 @@ import { useSidebar } from "../context/SidebarContext";
 import { useRouter } from "next/router";
 import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
-import { db } from "../firebase";
 import { collection, addDoc, getDocs } from "firebase/firestore";
 import { db as imsDb } from "../firebaseIMS"; // IMS Firestore instance
 import { useAssignmentCreator } from "../hooks/useAssignmentCreator";
