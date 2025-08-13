@@ -1,5 +1,6 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import CryptoJS from 'crypto-js';
 
 // Initialize Firebase Admin for intern database
 let internApp;
@@ -25,6 +26,54 @@ const initializeInternFirebase = () => {
     }
   }
   return internDb;
+};
+
+// Department code mapping
+const getDepartmentCode = (department) => {
+  const departmentMap = {
+    'Software Development': 'SDE',
+    'SEO': 'SEO',
+    'UI/UX Design': 'UIX',
+    'Content Writing': 'CON',
+    'Social Media Management': 'SMM',
+    'Sales': 'SAL',
+    'Digital Marketing': 'DIG'
+  };
+  return departmentMap[department] || 'GEN';
+};
+
+// Format date to DDMMYY
+const formatDateToDDMMYY = (dateString) => {
+  if (!dateString) return '000000';
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = String(date.getFullYear()).slice(-2);
+  return `${day}${month}${year}`;
+};
+
+// Generate SHA-256 hash and get first 4 characters
+const generateHash = (name, email, phone, startDate) => {
+  const dataString = `${name}${email}${phone}${startDate}`;
+  const hash = CryptoJS.SHA256(dataString).toString();
+  return hash.substring(0, 4).toUpperCase();
+};
+
+// Generate new intern ID
+const generateInternId = (internData) => {
+  const { name, email, phone, department, startDate } = internData;
+  
+  // Get department code
+  const deptCode = getDepartmentCode(department);
+  
+  // Format date
+  const dateCode = formatDateToDDMMYY(startDate);
+  
+  // Generate hash
+  const hashCode = generateHash(name, email, phone, startDate);
+  
+  // Combine to form ID
+  return `IID-${deptCode}-${dateCode}-${hashCode}`;
 };
 
 export default async function handler(req, res) {
@@ -61,10 +110,8 @@ export default async function handler(req, res) {
 
     const db = initializeInternFirebase();
     
-    // Generate a new intern ID
-    const internsRef = db.collection('users').doc(companyId).collection('interns');
-    const snapshot = await internsRef.get();
-    const newId = `INT${String(snapshot.size + 1).padStart(3, '0')}`;
+    // Generate new intern ID using the new pattern
+    const newId = generateInternId(internData);
     
     const internToAdd = {
       ...internData,
@@ -73,7 +120,7 @@ export default async function handler(req, res) {
       lastUpdated: new Date().toISOString()
     };
 
-    await internsRef.doc(newId).set(internToAdd);
+    await db.collection('users').doc(companyId).collection('interns').doc(newId).set(internToAdd);
 
     return res.status(200).json({ 
       success: true,
