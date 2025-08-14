@@ -269,8 +269,8 @@ function DashboardContent() {
                         </div>
                       </div>
                       <div className="ml-4 flex-shrink-0">
-                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-green-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-green-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2l4-4m5 2a9 9 0 11-18 0a9 9 0 0118 0z" />
                           </svg>
                         </span>
@@ -283,14 +283,14 @@ function DashboardContent() {
                     <div className="flex items-center justify-between w-full">
                       <div>
                         <span className="text-gray-900 font-semibold text-xl block">Your Department</span>
-                        <div className="text-3xl font-extrabold mt-2 text-green-600">{department}</div>
+                        <div className="text-2xl font-extrabold mt-2 text-green-600">{department}</div>
                         <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
                           <span>{user?.role || "Team Member"}</span>
                         </div>
                       </div>
                       <div className="ml-4 flex-shrink-0">
-                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-green-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-green-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                           </svg>
                         </span>
@@ -305,14 +305,14 @@ function DashboardContent() {
                     <div className="flex items-center justify-between w-full">
                       <div>
                         <span className="text-gray-900 font-semibold text-xl block">Your Profile</span>
-                        <div className="text-3xl font-extrabold mt-2 text-pink-600">View</div>
+                        <div className="text-2xl font-extrabold mt-2 text-pink-600">View</div>
                         <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
                           <span>See your profile details</span>
                         </div>
                       </div>
                       <div className="ml-4 flex-shrink-0">
-                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-pink-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-pink-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                           </svg>
                         </span>
@@ -335,8 +335,8 @@ function DashboardContent() {
                         </div>
                       </div>
                       <div className="ml-4 flex-shrink-0">
-                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-green-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-green-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                           </svg>
                         </span>
@@ -359,8 +359,8 @@ function DashboardContent() {
                         </div>
                       </div>
                       <div className="ml-4 flex-shrink-0">
-                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-red-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                           </svg>
                         </span>
@@ -382,8 +382,8 @@ function DashboardContent() {
                         </div>
                       </div>
                       <div className="ml-4 flex-shrink-0">
-                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-green-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-green-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 13V7a2 2 0 00-2-2H7a2 2 0 00-2 2v6m14 0a2 2 0 01-2 2H7a2 2 0 01-2-2m14 0v6a2 2 0 01-2 2H7a2 2 0 01-2-2v-6" />
                           </svg>
                         </span>
@@ -402,8 +402,8 @@ function DashboardContent() {
                         </div>
                       </div>
                       <div className="ml-4 flex-shrink-0">
-                        <span className="flex items-center justify-center w-14 h-14 rounded-lg bg-indigo-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-indigo-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h2a2 2 0 002-2z" />
                           </svg>
                         </span>
@@ -616,38 +616,21 @@ function DashboardContent() {
                 </div>
               </div>
               
-              {/* Employee Resources Section */}
-              <div className="w-full rounded-xl bg-white border border-gray-100 shadow-md p-8 mt-8">
-                <h2 className="text-2xl font-bold mb-4" style={{ color: '#' }}>Employee Essentials</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
-                    <h3 className="font-semibold text-lg text-gray-800 mb-2">Company Policies</h3>
-                    <p className="text-gray-600 mb-3">Access important company policies, guidelines, and procedures.</p>
-                    <button className="text-green-600 font-medium hover:text-green-800 transition-colors duration-200">View Policies →</button>
-                  </div>
-                  <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
-                    <h3 className="font-semibold text-lg text-gray-800 mb-2">Help & Support</h3>
-                    <p className="text-gray-600 mb-3">Get assistance with technical issues or HR-related questions.</p>
-                    <button className="text-green-600 font-medium hover:text-green-800 transition-colors duration-200">Get Help →</button>
-                  </div>
-                </div>
-              </div>
-              
               {/* Terms & Privacy Section */}
               <div className="w-full rounded-xl bg-white border border-gray-100 shadow-md p-8 mt-8 flex flex-col items-center text-center">
-                <h2 className="text-2xl font-bold mb-2" style={{ color: '#' }}>Terms & Privacy</h2>
+                <h2 className="text-2xl font-bold mb-2" style={{ color: '#16a34a' }}>Terms & Privacy</h2>
                 <p className="text-gray-700 mb-2 max-w-2xl">
                   We value your trust and are committed to protecting your data. Please take a moment to review our Terms of Service and Privacy Policy.
                 </p>
                 <div className="flex gap-4 flex-wrap justify-center mt-4">
                   <button
-                    className="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-[#] to-[#28BD78] hover:from-[#28BD78] hover:to-[#] shadow transition-colors text-lg"
+                    className="px-6 py-2 rounded-full font-semibold text-white bg-gradient-to-r from-[#16a34a] to-[#28BD78] hover:from-[#28BD78] hover:to-[#16a34a] shadow transition-colors text-lg"
                     onClick={() => router.push(`/terms${token ? `?token=${encodeURIComponent(token)}` : ''}`)}
                   >
                     Read Terms
                   </button>
                   <button
-                    className="px-6 py-2 rounded-full font-semibold text-[#] bg-white border border-[#] hover:bg-[#f5edff] shadow transition-colors text-lg"
+                    className="px-6 py-2 rounded-full font-semibold text-[#16a34a] bg-white border border-[#16a34a] hover:bg-[#28BD78] shadow transition-colors text-lg"
                     onClick={() => router.push(`/privacy${token ? `?token=${encodeURIComponent(token)}` : ''}`)}
                   >
                     Read Privacy Policy

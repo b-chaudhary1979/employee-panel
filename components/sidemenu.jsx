@@ -373,11 +373,11 @@ export default function SideMenu({ mobileOverlay = false }) {
     background: transparent;
   }
   nav::-webkit-scrollbar-thumb {
-    background:rgb(167, 100, 234); /* Tailwind green-500 */
+    background:#28DB78; /* Tailwind green-500 */
     border-radius: 6px;
   }
   nav {
-    scrollbar-color:rgb(183, 138, 235) transparent;
+    scrollbar-color:#28DB78 transparent;
     scrollbar-width: thin;
   }
 `}</style>

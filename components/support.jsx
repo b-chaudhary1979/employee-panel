@@ -10,7 +10,7 @@ export default function Support() {
       <a
         href="mailto:info@cyberclipper.com"
         className="inline-block px-5 py-2 rounded-full font-semibold text-white"
-        style={{ background: "linear-gradient(90deg, #16a34a 0%, #b78aeb 100%)", boxShadow: "0 2px 8px 0 rgba(162,89,247,0.10)" }}
+        style={{ background: "linear-gradient(90deg, #16a34a 0%, #28BD78 100%)", boxShadow: "0 2px 8px 0 rgba(162,89,247,0.10)" }}
       >
         Email Support
       </a>
