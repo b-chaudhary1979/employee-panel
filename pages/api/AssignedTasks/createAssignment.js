@@ -81,8 +81,8 @@ export default async function handler(req, res) {
   }
 
   console.log('createAssignment API called with:', {
-    companyId: req.body.companyId,
-    selectedInternIds: req.body.selectedInternIds,
+    hasCompanyId: !!req.body.companyId,
+    internCount: req.body.selectedInternIds?.length || 0,
     assignmentDataKeys: Object.keys(req.body.assignmentData || {}),
   });
 
@@ -146,7 +146,7 @@ export default async function handler(req, res) {
           });
         }
       } catch (error) {
-        console.error(`Error fetching intern ${internId} details:`, error);
+        console.error(`Error fetching intern details:`, error);
         // Fallback if any error occurs
         internDetails.push({
           internId: internId,
@@ -182,7 +182,7 @@ export default async function handler(req, res) {
          console.log('Starting employee database save...');
          
          if (selectedInternIds && selectedInternIds.length > 0) {
-           console.log(`Creating assignments for ${selectedInternIds.length} interns:`, selectedInternIds);
+           console.log(`Creating assignments for ${selectedInternIds.length} interns`);
             // Create assignment for each selected intern
            for (const internId of selectedInternIds) {
              // Find the intern details for this specific intern
@@ -195,22 +195,22 @@ export default async function handler(req, res) {
                internRole: internDetail?.internRole || "Intern"
              };
              
-             // Debug: Log the data being saved
-              console.log(`Data to be saved for intern ${internId}:`, JSON.stringify(internData, null, 2));
+             // Debug: Log the data being saved (sanitized)
+              console.log(`Data prepared for intern assignment`);
              
              let docId;
              if (uuidv4) {
                // Use UUID if available
                docId = uuidv4();
-               console.log(`Using UUID for intern: ${internId} with docId: ${docId}`);
+               console.log(`Using UUID for intern assignment`);
                
                // Validate data before saving
                if (!internData.taskName || !internData.description) {
-                 console.error(`Missing required fields for intern ${internId}:`, {
+                 console.error(`Missing required fields for intern assignment:`, {
                    taskName: !!internData.taskName,
                    description: !!internData.description
                  });
-                 throw new Error(`Missing required fields for intern ${internId}`);
+                 throw new Error(`Missing required fields for intern assignment`);
                }
                
                try {
@@ -223,7 +223,7 @@ export default async function handler(req, res) {
                    .get();
                  
                  if (!employeeDoc.exists) {
-                   console.log(`Employee document does not exist: ${assignmentData.employeeId}, creating it...`);
+                   console.log(`Employee document does not exist, creating it...`);
                    await employeeDb
                      .collection('users')
                      .doc(companyId)
@@ -246,7 +246,7 @@ export default async function handler(req, res) {
                    .get();
                  
                  if (!internTasksDoc.exists) {
-                   console.log(`Intern tasks document does not exist for intern: ${internId}, creating it...`);
+                   console.log(`Intern tasks document does not exist, creating it...`);
                    await employeeDb
                      .collection('users')
                      .doc(companyId)
@@ -271,14 +271,14 @@ export default async function handler(req, res) {
                    .collection('pending_tasks')
                    .doc(docId)
                    .set(internData);
-                 console.log(`Successfully wrote data to employee DB for intern ${internId}`);
-               } catch (writeError) {
-                 console.error(`Error writing to employee DB for intern ${internId}:`, writeError);
+                 console.log(`Successfully wrote data to employee DB for intern assignment`);
+                                } catch (writeError) {
+                   console.error(`Error writing to employee DB for intern assignment:`, writeError);
                  throw writeError;
                }
                             } else {
                  // Use Firestore auto-generated ID
-                 console.log(`Using Firestore auto-generated ID for intern: ${internId}`);
+                 console.log(`Using Firestore auto-generated ID for intern assignment`);
                  try {
                  const docRef = await employeeDb
                      .collection('users')
@@ -290,15 +290,15 @@ export default async function handler(req, res) {
                      .collection('pending_tasks')
                      .add(internData);
                    docId = docRef.id;
-                   console.log(`Successfully wrote data to employee DB for intern ${internId} with auto-generated ID: ${docId}`);
+                   console.log(`Successfully wrote data to employee DB for intern assignment with auto-generated ID`);
                  } catch (writeError) {
-                   console.error(`Error writing to employee DB for intern ${internId}:`, writeError);
+                   console.error(`Error writing to employee DB for intern assignment:`, writeError);
                    throw writeError;
                  }
                }
              
              generatedDocIds.push({ docId, internId, type: 'intern' });
-             console.log(`Saved to employee DB for intern: ${internId} with docId: ${docId}`);
+             console.log(`Saved to employee DB for intern assignment`);
            }
          } else {
            return res.status(400).json({ 
@@ -317,7 +317,7 @@ export default async function handler(req, res) {
          }
          
          employeeSuccess = true;
-         console.log('Successfully saved to employee database with generated docIds:', generatedDocIds);
+         console.log('Successfully saved to employee database with generated document IDs');
        } catch (error) {
          console.error('Error saving to employee database:', error);
          return res.status(500).json({ 
@@ -341,7 +341,7 @@ export default async function handler(req, res) {
                 internRole: internDetail?.internRole || "Intern"
               };
               
-              console.log(`Saving to intern DB for intern: ${internId} with docId: ${docId}`);
+              console.log(`Saving to intern DB for intern assignment`);
               
               // Since users/{companyId}/interns/{internId} always exists,
               // we only need to ensure task-data document exists
@@ -356,7 +356,7 @@ export default async function handler(req, res) {
               // Check if task-data document exists, if not create it
               const taskDataDoc = await taskDataRef.get();
               if (!taskDataDoc.exists) {
-                console.log(`Creating task-data document for intern: ${internId}`);
+                console.log(`Creating task-data document for intern assignment`);
                 await taskDataRef.set({
                   createdAt: new Date().toISOString(),
                   internId: internId
@@ -393,7 +393,7 @@ export default async function handler(req, res) {
                   internRole: internDetail?.internRole || "Intern"
                 };
                 
-                console.log(`Saving to admin DB for intern: ${internId} with docId: ${docId}`);
+                console.log(`Saving to admin DB for intern assignment`);
                 
                 // First, check if the company document exists in admin DB
                 const companyDoc = await adminDb
@@ -402,7 +402,7 @@ export default async function handler(req, res) {
                   .get();
                 
                 if (!companyDoc.exists) {
-                  console.log(`Company document does not exist in admin DB: ${companyId}, creating it...`);
+                  console.log(`Company document does not exist in admin DB, creating it...`);
                   await adminDb
                     .collection('users')
                     .doc(companyId)
@@ -421,7 +421,7 @@ export default async function handler(req, res) {
                   .get();
                 
                 if (!internTasksDoc.exists) {
-                  console.log(`Intern tasks document does not exist in admin DB for intern: ${internId}, creating it...`);
+                  console.log(`Intern tasks document does not exist in admin DB, creating it...`);
                   await adminDb
                     .collection('users')
                     .doc(companyId)
@@ -443,7 +443,7 @@ export default async function handler(req, res) {
                   .doc(docId)
                   .set(adminData);
                   
-                console.log(`Successfully wrote data to admin DB for intern ${internId}`);
+                console.log(`Successfully wrote data to admin DB for intern assignment`);
               }
             }
             adminSuccess = true;

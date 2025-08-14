@@ -249,7 +249,7 @@ export default function MyTasksPage() {
         return;
       }
 
-      console.log('Submitting assignment with links:', validSubmissionLinks);
+      console.log('Submitting assignment with links');
 
       const response = await fetch('/api/submitEmployeeTask', {
         method: 'POST',
@@ -282,7 +282,7 @@ export default function MyTasksPage() {
       }
 
       const result = await response.json();
-      console.log('Task submitted successfully:', result);
+      console.log('Task submitted successfully');
 
       // Show success message
       showNotification('Task submitted successfully!', 'green');

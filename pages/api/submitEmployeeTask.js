@@ -78,7 +78,7 @@ export default async function handler(req, res) {
     // Commit the batch operations
     await batch.commit();
 
-    console.log(`Task ${taskId} successfully moved from pending to completed in employee database`);
+    console.log(`Task successfully moved from pending to completed in employee database`);
 
     // Step 3: Sync to admin database
     try {
@@ -145,16 +145,16 @@ export default async function handler(req, res) {
           .doc(employeeId)
           .collection('pending_tasks');
 
-        console.log('Attempting to delete from admin pending_tasks by taskId...');
+        console.log('Attempting to delete from admin pending_tasks...');
         const byIdRef = adminPendingCollectionRef.doc(taskId);
         const byIdSnap = await byIdRef.get();
         if (byIdSnap.exists) {
           await byIdRef.delete();
-          console.log('Deleted pending task by document id:', taskId);
+          console.log('Deleted pending task by document id');
         } else {
           // Try by originalTaskId
           try {
-            console.log('Pending delete by originalTaskId:', taskId);
+            console.log('Pending delete by originalTaskId');
             const byOriginalIdSnap = await adminPendingCollectionRef
               .where('originalTaskId', '==', taskId)
               .get();
@@ -171,7 +171,7 @@ export default async function handler(req, res) {
           // Try by taskName as a fallback
           if (taskData?.taskName) {
             try {
-              console.log('Pending delete by taskName:', taskData.taskName);
+              console.log('Pending delete by taskName');
               const byNameSnap = await adminPendingCollectionRef
                 .where('taskName', '==', taskData.taskName)
                 .get();
@@ -212,7 +212,7 @@ export default async function handler(req, res) {
         taskType: 'employee_task'
       });
 
-      console.log(`Task ${taskId} successfully sent to admin database for employee ${employeeId}`);
+      console.log(`Task successfully sent to admin database for employee`);
     } catch (adminError) {
       console.error('Error syncing to admin database:', adminError);
       // Don't fail the entire operation if admin sync fails

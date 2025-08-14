@@ -327,10 +327,10 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
           });
           
           if (!result.success) {
-            console.error('Failed to delete document:', docId, result.error);
+            console.error('Failed to delete document:', result.error);
           }
         } else {
-          console.error('No file data found for document ID:', docId);
+          console.error('No file data found for document');
         }
         
         // Update progress

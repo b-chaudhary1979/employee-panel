@@ -118,16 +118,16 @@ export default async function handler(req, res) {
         .doc(employeeId)
         .collection('pending_tasks');
 
-      console.log('Attempting to delete from admin pending_tasks by taskId...');
+      console.log('Attempting to delete from admin pending_tasks...');
       const byIdRef = adminPendingCollectionRef.doc(taskId);
       const byIdSnap = await byIdRef.get();
       if (byIdSnap.exists) {
         await byIdRef.delete();
-        console.log('Deleted pending task by document id:', taskId);
+        console.log('Deleted pending task by document id');
       } else {
         // Try by originalTaskId
         try {
-          console.log('Pending delete by originalTaskId:', taskId);
+          console.log('Pending delete by originalTaskId');
           const byOriginalIdSnap = await adminPendingCollectionRef
             .where('originalTaskId', '==', taskId)
             .get();
@@ -144,7 +144,7 @@ export default async function handler(req, res) {
         // Try by taskName as a fallback
         if (taskData?.taskName) {
           try {
-            console.log('Pending delete by taskName:', taskData.taskName);
+            console.log('Pending delete by taskName');
             const byNameSnap = await adminPendingCollectionRef
               .where('taskName', '==', taskData.taskName)
               .get();
@@ -190,7 +190,7 @@ export default async function handler(req, res) {
     // This could be done by calling another API endpoint or directly here
     // For now, we'll just log that the task was successfully sent to admin
 
-    console.log(`Task ${taskId} successfully sent to admin database for employee ${employeeId}`);
+    console.log(`Task successfully sent to admin database for employee`);
 
     return res.status(200).json({ 
       success: true,

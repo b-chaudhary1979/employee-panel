@@ -120,9 +120,9 @@ export default function AssignTasksPage() {
   /* Fetch interns once companyId is available */
   useEffect(() => {
     const fetchInterns = async () => {
-      console.log("Fetching interns for companyId:", ci);
+      console.log("Fetching interns for company");
       if (!ci) {
-        console.log("No companyId available, skipping fetch");
+        console.log("No company ID available, skipping fetch");
         return;
       }
       try {
@@ -139,16 +139,15 @@ export default function AssignTasksPage() {
         }
 
         const data = await response.json();
-        console.log("API response:", data);
+        console.log("API response received successfully");
         
         const opts = (data.interns || []).map((intern) => {
-          console.log("Intern data:", intern);
           return { 
             id: intern.id, 
             name: `${intern.firstName || ""} ${intern.lastName || ""}`.trim() || "Unnamed" 
           };
         });
-        console.log("Processed intern options:", opts);
+        console.log("Processed intern options successfully");
         setInternOptions(opts);
       } catch (error) {
         console.error("Error fetching interns:", error);
@@ -228,11 +227,11 @@ export default function AssignTasksPage() {
   };
 
   // Debug loading state
-  console.log("Loading state:", { userLoading, user: !!user, ci: !!ci, aid });
+  console.log("Loading state:", { userLoading, user: !!user, companyId: !!ci, employeeId: !!aid });
   
   // Temporarily allow rendering without user to debug
   if (!ci) {
-    console.log("Showing loader because: no ci");
+    console.log("Showing loader because: no company ID");
     return <Loader />;
   }
   
