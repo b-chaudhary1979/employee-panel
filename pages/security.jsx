@@ -346,19 +346,19 @@ function SecurityContent() {
       />
       {/* Password Detail Modal */}
       {showPasswordDetailModal && selectedPassword && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-purple-50/80 via-white/90 to-purple-100/80 backdrop-blur-[8px] animate-fadeIn font-[Manrope]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-green-50/80 via-white/90 to-green-100/80 backdrop-blur-[8px] animate-fadeIn font-[Manrope]">
           {/* Premium modal border shimmer */}
           <div className="absolute inset-0 pointer-events-none z-0">
             <div className="w-full h-full rounded-3xl border-4 border-transparent animate-borderShimmer" style={{boxShadow:'0 0 40px 8px rgba(124,58,237,0.08), 0 4px 32px 0 rgba(80,0,120,0.06)'}}></div>
           </div>
-          <div className="relative bg-white/90 backdrop-blur-2xl rounded-3xl shadow-2xl w-full max-w-2xl sm:max-w-2xl md:max-w-2xl lg:max-w-2xl p-0 border border-purple-100/60 ring-2 ring-purple-100/40 animate-premiumModal overflow-hidden font-[Manrope] mx-2 sm:mx-0" style={{boxShadow:'0 8px 48px 0 rgba(124,58,237,0.10), 0 1.5px 8px 0 rgba(80,0,120,0.06)'}}>
+          <div className="relative bg-white/90 backdrop-blur-2xl rounded-3xl shadow-2xl w-full max-w-2xl sm:max-w-2xl md:max-w-2xl lg:max-w-2xl p-0 border border-green-100/60 ring-2 ring-green-100/40 animate-premiumModal overflow-hidden font-[Manrope] mx-2 sm:mx-0" style={{boxShadow:'0 8px 48px 0 rgba(124,58,237,0.10), 0 1.5px 8px 0 rgba(80,0,120,0.06)'}}>
             {/* Optional noise overlay for texture */}
             <div className="absolute inset-0 pointer-events-none z-0" style={{backgroundImage:'url("https://www.transparenttextures.com/patterns/symphony.png")', opacity:0.06}}></div>
             {/* Header with back button, icon and close */}
-            <div className="flex items-center justify-between px-4 sm:px-8 py-4 sm:py-6 bg-purple-200 border-b border-purple-100/40 rounded-t-3xl shadow-md relative">
+            <div className="flex items-center justify-between px-4 sm:px-8 py-4 sm:py-6 bg-green-200 border-b border-green-100/40 rounded-t-3xl shadow-md relative">
               {/* Back Button */}
               <button
-                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 flex items-center gap-1 bg-purple-50 hover:bg-purple-100 text-purple-700 px-3 py-1.5 rounded-xl font-semibold shadow transition focus:outline-none focus:ring-2 focus:ring-purple-200"
+                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 flex items-center gap-1 bg-green-50 hover:bg-green-100 text-green-700 px-3 py-1.5 rounded-xl font-semibold shadow transition focus:outline-none focus:ring-2 focus:ring-green-200"
                 onClick={() => setShowPasswordDetailModal(false)}
                 aria-label="Back"
                 style={{ zIndex: 2 }}
@@ -367,11 +367,11 @@ function SecurityContent() {
                 Back
               </button>
               <div className="flex items-center gap-3 mx-auto">
-                <svg className="w-8 h-8 text-purple-600 drop-shadow-lg" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="6" y="10" width="12" height="8" rx="2" className="stroke-current"/><path d="M8 10V7a4 4 0 118 0v3" className="stroke-current"/><circle cx="12" cy="15" r="1" className="fill-current text-purple-200"/></svg>
+                <svg className="w-8 h-8 text-green-600 drop-shadow-lg" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="6" y="10" width="12" height="8" rx="2" className="stroke-current"/><path d="M8 10V7a4 4 0 118 0v3" className="stroke-current"/><circle cx="12" cy="15" r="1" className="fill-current text-green-200"/></svg>
                 <h2 className="text-lg sm:text-2xl font-extrabold tracking-wide font-[Manrope] drop-shadow-lg text-gray-900">Password Details</h2>
               </div>
               <button
-                className="text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 rounded-full p-1.5 transition focus:outline-none focus:ring-2 focus:ring-purple-200 absolute right-2 sm:right-4 top-1/2 -translate-y-1/2"
+                className="text-green-700 hover:text-green-900 bg-green-50 hover:bg-green-100 rounded-full p-1.5 transition focus:outline-none focus:ring-2 focus:ring-green-200 absolute right-2 sm:right-4 top-1/2 -translate-y-1/2"
                 onClick={() => setShowPasswordDetailModal(false)}
                 aria-label="Close"
                 style={{ lineHeight: 1, zIndex: 2 }}
@@ -382,26 +382,26 @@ function SecurityContent() {
             {/* Content with horizontal scroller */}
             <div className="px-3 sm:px-8 py-6 sm:py-10 space-y-4 sm:space-y-5 text-gray-800 animate-fadeIn overflow-x-auto relative z-10 text-sm sm:text-base" style={{ minHeight: '320px', maxHeight: '70vh' }}>
               {/* Website/Service */}
-              <div className="flex items-center gap-2 sm:gap-3 bg-purple-100 rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-purple-50">
-                <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 4h16v16H4z" stroke="currentColor" strokeWidth="2"/><path d="M4 9h16" stroke="#7c3aed" strokeWidth="2"/></svg>
+              <div className="flex items-center gap-2 sm:gap-3 bg-green-100 rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-green-50">
+                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 4h16v16H4z" stroke="currentColor" strokeWidth="2"/><path d="M4 9h16" stroke="#28BD78" strokeWidth="2"/></svg>
                 <span className="font-semibold text-gray-900">Website/Service:</span>
                 <span className="ml-1 font-medium">{selectedPassword.website}</span>
               </div>
               {/* Username */}
-              <div className="flex items-center gap-2 sm:gap-3 bg-purple-100 rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-purple-50">
-                <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="2"/><path d="M4 20v-1a7 7 0 0114 0v1" stroke="#7c3aed" strokeWidth="2"/></svg>
+              <div className="flex items-center gap-2 sm:gap-3 bg-green-100 rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-green-50">
+                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="2"/><path d="M4 20v-1a7 7 0 0114 0v1" stroke="#28BD78" strokeWidth="2"/></svg>
                 <span className="font-semibold text-gray-900">Username:</span>
                 <span className="ml-1 font-medium">{selectedPassword.username}</span>
               </div>
               {/* Password */}
-              <div className="flex items-center gap-2 sm:gap-3 bg-purple-100 rounded-xl px-3 sm:px-4 py-2 shadow-md border border-purple-100">
-                <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="6" y="10" width="12" height="8" rx="2" className="stroke-current"/><path d="M8 10V7a4 4 0 118 0v3" className="stroke-current"/><circle cx="12" cy="15" r="1" className="fill-current text-purple-500"/></svg>
+              <div className="flex items-center gap-2 sm:gap-3 bg-green-100 rounded-xl px-3 sm:px-4 py-2 shadow-md border border-green-100">
+                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="6" y="10" width="12" height="8" rx="2" className="stroke-current"/><path d="M8 10V7a4 4 0 118 0v3" className="stroke-current"/><circle cx="12" cy="15" r="1" className="fill-current text-green-500"/></svg>
                 <span className="font-semibold text-gray-900">Password:</span>
                 <span className="ml-1 font-mono bg-white px-2 py-1 rounded text-gray-800 text-base tracking-wider select-all">
                   {modalPasswordVisible ? selectedPassword.password : "•".repeat(Math.max(8, selectedPassword.password?.length || 8))}
                 </span>
                 <button
-                  className="text-purple-500 hover:text-purple-700 ml-1 focus:outline-none focus:ring-2 focus:ring-purple-200 rounded"
+                  className="text-green-500 hover:text-green-700 ml-1 focus:outline-none focus:ring-2 focus:ring-green-200 rounded"
                   onClick={() => setModalPasswordVisible((v) => !v)}
                   title={modalPasswordVisible ? "Hide" : "Show"}
                   aria-label={modalPasswordVisible ? "Hide password" : "Show password"}
@@ -413,7 +413,7 @@ function SecurityContent() {
                   )}
                 </button>
                 <button
-                  className="text-purple-500 hover:text-purple-700 ml-1 focus:outline-none focus:ring-2 focus:ring-purple-200 rounded"
+                  className="text-green-500 hover:text-green-700 ml-1 focus:outline-none focus:ring-2 focus:ring-green-200 rounded"
                   onClick={() => handleCopy(selectedPassword.password, null, true)}
                   title="Copy Password"
                   aria-label="Copy password"
@@ -428,59 +428,59 @@ function SecurityContent() {
                 </button>
               </div>
               {/* Employee/User */}
-              <div className="flex items-center gap-2 bg-purple-100 sm:gap-3 rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-purple-50">
-                <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 20v-1a7 7 0 0114 0v1" stroke="#7c3aed" strokeWidth="2"/><circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="2"/></svg>
+              <div className="flex items-center gap-2 bg-green-100 sm:gap-3 rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-green-50">
+                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 20v-1a7 7 0 0114 0v1" stroke="#28BD78" strokeWidth="2"/><circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="2"/></svg>
                 <span className="font-semibold text-gray-900">Employee/User:</span>
                 <span className="ml-1 font-medium">{selectedPassword.employee}</span>
               </div>
               {/* Category */}
-              <div className="flex items-center gap-2 bg-purple-100 sm:gap-3 rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-purple-50">
-                <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14" stroke="#7c3aed" strokeWidth="2"/></svg>
+              <div className="flex items-center gap-2 bg-green-100 sm:gap-3 rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-green-50">
+                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14" stroke="#28BD78" strokeWidth="2"/></svg>
                 <span className="font-semibold text-gray-900">Category:</span>
                 <span className="ml-1 font-medium">{selectedPassword.category}</span>
               </div>
               {/* URL */}
-              <div className="flex items-center bg-purple-100 gap-2 sm:gap-3 rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-purple-50">
-                <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3.9 12a5 5 0 017.1-7.1l1 1" stroke="#7c3aed" strokeWidth="2"/><path d="M20.1 12a5 5 0 01-7.1 7.1l-1-1" stroke="#7c3aed" strokeWidth="2"/><path d="M8 12h8" stroke="#7c3aed" strokeWidth="2"/></svg>
+              <div className="flex items-center bg-green-100 gap-2 sm:gap-3 rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-green-50">
+                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3.9 12a5 5 0 017.1-7.1l1 1" stroke="#28BD78" strokeWidth="2"/><path d="M20.1 12a5 5 0 01-7.1 7.1l-1-1" stroke="#28BD78" strokeWidth="2"/><path d="M8 12h8" stroke="#28BD78" strokeWidth="2"/></svg>
                 <span className="font-semibold text-gray-900">URL:</span>
                 <a href={selectedPassword.url} className="ml-1 underline break-all font-medium" target="_blank" rel="noopener noreferrer">{selectedPassword.url}</a>
               </div>
               {/* Notes */}
               {selectedPassword.notes && (
-                <div className="flex items-center bg-purple-100 gap-2 sm:gap-3 rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-purple-50">
-                  <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 4h16v16H4z" stroke="#7c3aed" strokeWidth="2"/><path d="M8 8h8M8 12h6M8 16h4" stroke="#7c3aed" strokeWidth="2"/></svg>
+                <div className="flex items-center bg-green-100 gap-2 sm:gap-3 rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-green-50">
+                  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 4h16v16H4z" stroke="#28BD78" strokeWidth="2"/><path d="M8 8h8M8 12h6M8 16h4" stroke="#28BD78" strokeWidth="2"/></svg>
                   <span className="font-semibold text-gray-900">Notes:</span>
                   <span className="ml-1 font-medium">{selectedPassword.notes}</span>
                 </div>
               )}
               {/* Expiry Date */}
               {selectedPassword.expiry && (
-                <div className="flex items-center bg-purple-100 gap-2 sm:gap-3 rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-purple-50">
-                  <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#7c3aed" strokeWidth="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="#7c3aed" strokeWidth="2"/></svg>
+                <div className="flex items-center bg-green-100 gap-2 sm:gap-3 rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-green-50">
+                  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#28BD78" strokeWidth="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="#28BD78" strokeWidth="2"/></svg>
                   <span className="font-semibold text-gray-900">Expiry Date:</span>
                   <span className="ml-1 font-medium">{selectedPassword.expiry}</span>
                 </div>
               )}
               {/* Security Level */}
               {selectedPassword.securityLevel && (
-                <div className="flex items-center bg-purple-100 gap-2 sm:gap-3 rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-purple-50">
-                  <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z" stroke="#7c3aed" strokeWidth="2"/></svg>
+                <div className="flex items-center bg-green-100 gap-2 sm:gap-3 rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-green-50">
+                  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z" stroke="#28BD78" strokeWidth="2"/></svg>
                   <span className="font-semibold text-gray-900">Security Level:</span>
                   <span className="ml-1 font-medium">{selectedPassword.securityLevel}</span>
                 </div>
               )}
               {/* Created At */}
               {selectedPassword.createdAt && (
-                <div className="flex items-center bg-purple-100 gap-2 sm:gap-3  rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-purple-50">
-                  <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3" stroke="#7c3aed" strokeWidth="2"/><circle cx="12" cy="12" r="10" stroke="#7c3aed" strokeWidth="2"/></svg>
+                <div className="flex items-center bg-green-100 gap-2 sm:gap-3  rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-green-50">
+                  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3" stroke="#28BD78" strokeWidth="2"/><circle cx="12" cy="12" r="10" stroke="#28BD78" strokeWidth="2"/></svg>
                   <span className="font-semibold text-gray-900">Created At:</span>
                   <span className="ml-1 font-medium">{new Date(selectedPassword.createdAt).toLocaleString()}</span>
                 </div>
               )}
               {/* Custom Fields */}
               {selectedPassword.customFields && selectedPassword.customFields.length > 0 && (
-                <div className="flex flex-col gap-1 bg-purple-100 rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-purple-50">
-                  <span className="font-semibold flex items-center gap-2 text-gray-900"><svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 6v6l4 2" stroke="#7c3aed" strokeWidth="2"/><circle cx="12" cy="12" r="10" stroke="#7c3aed" strokeWidth="2"/></svg>Custom Fields:</span>
+                <div className="flex flex-col gap-1 bg-green-100 rounded-xl px-3 sm:px-4 py-2 shadow-sm border border-green-50">
+                  <span className="font-semibold flex items-center gap-2 text-gray-900"><svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 6v6l4 2" stroke="#28BD78" strokeWidth="2"/><circle cx="12" cy="12" r="10" stroke="#28BD78" strokeWidth="2"/></svg>Custom Fields:</span>
                   <ul className="list-disc ml-7 mt-1">
                     {selectedPassword.customFields.map((f, i) => (
                       <li key={i} className="font-medium"><span className="font-semibold text-gray-900">{f.question}:</span> {f.answer}</li>
@@ -490,11 +490,11 @@ function SecurityContent() {
               )}
             </div>
             {/* Soft divider above actions */}
-            <div className="w-full h-0.5 bg-gradient-to-r from-purple-100/60 via-purple-50/60 to-purple-100/60 my-0" />
+            <div className="w-full h-0.5 bg-gradient-to-r from-green-100/60 via-green-50/60 to-green-100/60 my-0" />
             {/* Actions */}
-            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 px-3 sm:px-12 py-5 sm:py-7 bg-gradient-to-r from-white to-purple-50 rounded-b-3xl border-t border-purple-100/60">
+            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 px-3 sm:px-12 py-5 sm:py-7 bg-gradient-to-r from-white to-green-50 rounded-b-3xl border-t border-green-100/60">
               <button
-                className="bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white font-semibold px-4 sm:px-6 py-2 rounded-2xl flex items-center gap-2 shadow-lg transition text-base focus:outline-none focus:ring-2 focus:ring-purple-200 transform hover:-translate-y-0.5 active:scale-95 font-[Manrope]"
+                className="bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white font-semibold px-4 sm:px-6 py-2 rounded-2xl flex items-center gap-2 shadow-lg transition text-base focus:outline-none focus:ring-2 focus:ring-green-200 transform hover:-translate-y-0.5 active:scale-95 font-[Manrope]"
                 onClick={() => {
                   setEditPassword(selectedPassword);
                   setShowEditModal(true);
@@ -506,7 +506,7 @@ function SecurityContent() {
                 Edit
               </button>
               <button
-                className="bg-gradient-to-r from-purple-100 to-white hover:from-purple-200 hover:to-white text-purple-800 font-semibold px-4 sm:px-6 py-2 rounded-2xl flex items-center gap-2 shadow-lg transition text-base border border-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-200 transform hover:-translate-y-0.5 active:scale-95 font-[Manrope]"
+                className="bg-gradient-to-r from-green-100 to-white hover:from-green-200 hover:to-white text-green-800 font-semibold px-4 sm:px-6 py-2 rounded-2xl flex items-center gap-2 shadow-lg transition text-base border border-green-100 focus:outline-none focus:ring-2 focus:ring-green-200 transform hover:-translate-y-0.5 active:scale-95 font-[Manrope]"
                 onClick={() => setShowPasswordDetailModal(false)}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -564,7 +564,7 @@ function SecurityContent() {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && pendingDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full border border-purple-100 flex flex-col items-center">
+          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full border border-green-100 flex flex-col items-center">
             <svg className="w-12 h-12 text-red-500 mb-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" /><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
             <h3 className="text-lg font-bold text-gray-900 mb-2">Delete Password?</h3>
             <p className="text-gray-600 mb-4 text-center">Are you sure you want to delete this password? This action cannot be undone.</p>
@@ -615,7 +615,7 @@ function SecurityContent() {
             style={{ marginLeft: 0, paddingTop: headerHeight + 16 }}
           >
             <div className="max-w-6xl mx-auto">
-              <h1 className="text-2xl font-extrabold text-[#7c3aed] mb-1">
+              <h1 className="text-2xl font-extrabold text-[#28BD78] mb-1">
                 Password Manager
               </h1>
               <p className="text-gray-500 text-sm mb-6">
@@ -626,10 +626,10 @@ function SecurityContent() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
                 <div className="bg-white rounded-xl shadow p-4 flex flex-col items-start w-full">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="bg-purple-100 p-1.5 rounded-full">
+                    <span className="bg-green-100 p-1.5 rounded-full">
                       {/* Static lock icon */}
                       <svg
-                        className="w-6 h-6 text-purple-500"
+                        className="w-6 h-6 text-green-500"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="2"
@@ -651,11 +651,11 @@ function SecurityContent() {
                           cx="12"
                           cy="15"
                           r="1"
-                          className="fill-current text-purple-400"
+                          className="fill-current text-green-400"
                         />
                       </svg>
                     </span>
-                    <span className="text-base font-semibold text-purple-700">
+                    <span className="text-base font-semibold text-green-700">
                       Total Passwords
                     </span>
                   </div>
@@ -725,7 +725,7 @@ function SecurityContent() {
               {/* Actions: make responsive and compact */}
               <div className="flex flex-col sm:flex-row gap-2 mb-4 items-start sm:items-center w-full">
                 <button
-                  className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-1.5 rounded flex items-center gap-2 transition w-full sm:w-auto text-sm"
+                  className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-1.5 rounded flex items-center gap-2 transition w-full sm:w-auto text-sm"
                   onClick={() => setShowAddModal(true)}
                   aria-label="Add Password"
                 >
@@ -748,7 +748,7 @@ function SecurityContent() {
                   <div className="relative flex-1">
                     <input
                       type="text"
-                      className="w-full border rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-500 text-sm"
+                      className="w-full border rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-500 text-sm"
                       placeholder="Search passwords..."
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
@@ -773,7 +773,7 @@ function SecurityContent() {
                   {/* Category filter dropdown */}
                   <div className="relative flex-1 sm:flex-none">
                     <select
-                      className="w-full border rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm bg-white"
+                      className="w-full border rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm bg-white"
                       value={categoryFilter}
                       onChange={(e) => setCategoryFilter(e.target.value)}
                       aria-label="Filter by category"
@@ -801,7 +801,7 @@ function SecurityContent() {
                 {filteredPasswords.map((p, idx) => (
                   <div
                     key={idx}
-                    className="bg-white rounded-xl shadow border border-gray-100 p-4 flex flex-col gap-2 cursor-pointer hover:bg-purple-50 transition"
+                    className="bg-white rounded-xl shadow border border-gray-100 p-4 flex flex-col gap-2 cursor-pointer hover:bg-green-50 transition"
                     onClick={() => {
                       setSelectedPassword(p);
                       setShowPasswordDetailModal(true);
@@ -853,7 +853,7 @@ function SecurityContent() {
                             : "•".repeat(Math.max(8, p.password.length))}
                         </span>
                         <button
-                          className="text-gray-400 hover:text-purple-600"
+                          className="text-gray-400 hover:text-green-600"
                           onClick={() =>
                             setShowPasswordIdx(
                               showPasswordIdx === idx ? null : idx
@@ -886,7 +886,7 @@ function SecurityContent() {
                           </svg>
                         </button>
                         <button
-                          className="text-gray-400 hover:text-purple-600"
+                          className="text-gray-400 hover:text-green-600"
                           onClick={() => handleCopy(p.password, idx)}
                           title="Copy Password"
                           aria-label="Copy password"
@@ -978,7 +978,7 @@ function SecurityContent() {
                       </tr>
                     )}
                     {filteredPasswords.map((p, idx) => (
-                      <tr key={idx} className="hover:bg-purple-50 transition cursor-pointer" onClick={() => { setSelectedPassword(p); setShowPasswordDetailModal(true); }}>
+                      <tr key={idx} className="hover:bg-green-50 transition cursor-pointer" onClick={() => { setSelectedPassword(p); setShowPasswordDetailModal(true); }}>
                         {/* S.No */}
                         <td className="px-3 py-2 whitespace-nowrap align-top font-semibold text-gray-500">{idx + 1}</td>
                         {/* Website/Service and category always visible */}
@@ -1002,8 +1002,8 @@ function SecurityContent() {
                         <td className="px-3 py-2 whitespace-nowrap align-top">
                           <div className="flex items-center gap-2">
                             <span className="font-mono">{tablePasswordVisible[idx] ? p.password : "•".repeat(Math.max(8, p.password.length))}</span>
-                            <button className="text-gray-400 hover:text-purple-600" onClick={(e) => { e.stopPropagation(); setTablePasswordVisible((v) => ({ ...v, [idx]: !v[idx] })); }} title={tablePasswordVisible[idx] ? "Hide" : "Show"} aria-label={tablePasswordVisible[idx] ? "Hide password" : "Show password"}>{tablePasswordVisible[idx] ? (/* eye-off icon */<svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>) : (/* eye icon */<svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>)}</button>
-                            <button className="text-gray-400 hover:text-purple-600" onClick={(e) => { e.stopPropagation(); handleCopy(p.password, idx); }} title="Copy Password" aria-label="Copy password">
+                            <button className="text-gray-400 hover:text-green-600" onClick={(e) => { e.stopPropagation(); setTablePasswordVisible((v) => ({ ...v, [idx]: !v[idx] })); }} title={tablePasswordVisible[idx] ? "Hide" : "Show"} aria-label={tablePasswordVisible[idx] ? "Hide password" : "Show password"}>{tablePasswordVisible[idx] ? (/* eye-off icon */<svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>) : (/* eye icon */<svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>)}</button>
+                            <button className="text-gray-400 hover:text-green-600" onClick={(e) => { e.stopPropagation(); handleCopy(p.password, idx); }} title="Copy Password" aria-label="Copy password">
                               {copiedIdx === idx ? (
                                 // Tick icon
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
@@ -1035,7 +1035,7 @@ function SecurityContent() {
                         {/* Actions: always visible */}
                         <td className="px-3 py-2 whitespace-nowrap text-center align-middle">
                           <div className="flex gap-2 items-center justify-center">
-                            <button className="text-blue-500 hover:text-blue-700 px-1" onClick={(e) => { e.stopPropagation(); setEditPassword(p); setShowEditModal(true); }} title="Edit Password" aria-label="Edit password">
+                            <button className="text-green-500 hover:text-green-700 px-1" onClick={(e) => { e.stopPropagation(); setEditPassword(p); setShowEditModal(true); }} title="Edit Password" aria-label="Edit password">
                               {/* Modern pen icon */}
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M16.862 3.487a2.25 2.25 0 113.182 3.182L7.5 19.213l-4 1 1-4 12.362-12.726z" strokeLinecap="round" strokeLinejoin="round"/></svg>
                             </button>

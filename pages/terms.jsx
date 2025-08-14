@@ -7,7 +7,7 @@ const Terms = () => (
       <div className="text-gray-500 text-sm mb-8">Last updated: July 8, 2024</div>
       <section className="mb-6">
         <h2 className="text-xl font-bold text-[#22223b] mb-2">1. Introduction</h2>
-        <p>Welcome to Cyber Clipper Admin Panel. By accessing or using our services, you agree to be bound by these Terms & Conditions. Please read them carefully.</p>
+        <p>Welcome to Cyber Clipper InfoTech Admin Panel. By accessing or using our services, you agree to be bound by these Terms & Conditions. Please read them carefully.</p>
       </section>
       <section className="mb-6">
         <h2 className="text-xl font-bold text-[#22223b] mb-2">2. User Obligations</h2>

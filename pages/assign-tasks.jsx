@@ -242,7 +242,7 @@ export default function AssignTasksPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading user data...</p>
         </div>
       </div>
@@ -330,7 +330,7 @@ export default function AssignTasksPage() {
           >
             <div className="max-w-6xl mx-auto">
               {/* Page Title and Subtitle */}
-              <h1 className="text-3xl text-[#7c3aed] font-bold">
+              <h1 className="text-3xl text-[#16a34a] font-bold">
                 Task Assignment
               </h1>
               <p className="text-gray-500 mb-6">
@@ -340,9 +340,9 @@ export default function AssignTasksPage() {
               {/* Summary Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
                 <div className="bg-white rounded-xl shadow flex items-center gap-4 px-6 py-5">
-                  <div className="bg-blue-100 p-3 rounded-full">
+                  <div className="bg-green-200 p-3 rounded-full">
                     <svg
-                      className="w-7 h-7 text-blue-500"
+                      className="w-7 h-7 text-green-500"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
@@ -406,7 +406,7 @@ export default function AssignTasksPage() {
                                          <input
                        type="text"
                        placeholder="Search by name or email"
-                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 placeholder-opacity-100 text-gray-900"
+                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-gray-500 placeholder-opacity-100 text-gray-900"
                        value={searchQuery}
                        onChange={(e) => setSearchQuery(e.target.value)}
                      />
@@ -423,7 +423,7 @@ export default function AssignTasksPage() {
                   <button
                     className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
                       taskView === 'assigned'
-                        ? 'bg-blue-600 text-white shadow-md'
+                        ? 'bg-green-600 text-white shadow-md'
                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
                     onClick={() => setTaskView('assigned')}
@@ -433,7 +433,7 @@ export default function AssignTasksPage() {
                   <button
                     className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
                       taskView === 'submitted'
-                        ? 'bg-blue-600 text-white shadow-md'
+                        ? 'bg-green-600 text-white shadow-md'
                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
                     onClick={() => setTaskView('submitted')}
@@ -443,7 +443,7 @@ export default function AssignTasksPage() {
                   
                   {/* Assign Task Button */}
                   <button
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg shadow flex items-center gap-2"
+                    className="bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2 rounded-lg shadow flex items-center gap-2"
                     onClick={() => {
                       setSelectedTask(null);
                       setShowAddTaskModal(true);
@@ -535,7 +535,7 @@ export default function AssignTasksPage() {
                                {task.internEmail || `intern${task.internId}@company.com`}
                              </td>
                              <td className="px-6 py-4 whitespace-nowrap">
-                               <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                               <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                  Intern
                                </span>
                              </td>
@@ -554,7 +554,7 @@ export default function AssignTasksPage() {
                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                <div className="flex space-x-2">
                                  <button
-                                   className="text-blue-600 hover:text-blue-900"
+                                   className="text-green-600 hover:text-green-900"
                                    onClick={() => {
                                      setSelectedTask(task);
                                      setShowAddTaskModal(true);

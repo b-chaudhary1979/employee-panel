@@ -939,7 +939,7 @@ function APIKeysContent() {
                               type={showVaultKey ? "text" : "password"}
                               value={vaultKey}
                               onChange={(e) => setVaultKey(e.target.value)}
-                              className="w-full border border-gray-200 rounded-lg px-3 sm:px-4 py-2 sm:py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-base sm:text-lg text-gray-900"
+                              className="w-full border border-gray-200 rounded-lg px-3 sm:px-4 py-2 sm:py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-[#28DB78] text-base sm:text-lg text-gray-900"
                               placeholder="Enter vault key..."
                               required
                               disabled={isVaultLoading}
@@ -967,7 +967,7 @@ function APIKeysContent() {
                         <button
                           type="submit"
                           disabled={isVaultLoading || vaultAttempts >= 3}
-                          className="w-full bg-[#a259f7] hover:bg-[#7c3aed] disabled:bg-gray-400 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-base sm:text-lg"
+                          className="w-full bg-[#28DB78] hover:bg-[#16a34a] disabled:bg-gray-400 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-base sm:text-lg"
                         >
                           {isVaultLoading ? (
                             <>
@@ -1009,7 +1009,7 @@ function APIKeysContent() {
                   )}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0 mb-4 sm:mb-6">
                     <div>
-                      <h1 className="text-2xl sm:text-3xl font-extrabold text-[#7c3aed] mb-1">
+                      <h1 className="text-2xl sm:text-3xl font-extrabold text-[#16a34a] mb-1">
                         API Keys
                       </h1>
                       <p className="text-gray-500 text-base sm:text-lg">
@@ -1024,7 +1024,7 @@ function APIKeysContent() {
                         </span>
                       </div>
                       <button
-                        className="mt-2 sm:mt-[10px] bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg shadow transition-colors duration-200 px-3 sm:px-4 py-1 text-base flex items-center gap-2"
+                        className="mt-2 sm:mt-[10px] bg-[#28DB78] hover:bg-[#16a34a] text-white font-semibold rounded-lg shadow transition-colors duration-200 px-3 sm:px-4 py-1 text-base flex items-center gap-2"
                         style={{ marginTop: "10px" }}
                         onClick={() => setShowAddKeyChoiceModal(true)}
                       >
@@ -1131,7 +1131,7 @@ function APIKeysContent() {
             </h2>
             <div className="flex flex-col gap-4">
               <button
-                className="w-full bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg px-4 py-3 transition-colors duration-200"
+                className="w-full bg-[#28DB78] hover:bg-[#16a34a] text-white font-semibold rounded-lg px-4 py-3 transition-colors duration-200"
                 onClick={() => {
                   setShowAddKeyChoiceModal(false);
                   setShowAddKeyModal(true);
