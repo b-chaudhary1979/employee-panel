@@ -291,7 +291,7 @@ function AnnouncementsContent() {
             <div className="pl-4">
               {/* Announcements List */}
               <div className="space-y-4">
-              <h1 className="text-3xl font-bold text-purple-500 mb-2">
+              <h1 className="text-3xl font-bold text-green-500 mb-2">
                   All Announcements
               </h1>
               <p className="text-gray-500 text-lg mb-8">
@@ -337,7 +337,7 @@ function AnnouncementsContent() {
                   announcements.map((announcement) => (
                   <div
                     key={announcement.id}
-                    className={`bg-white rounded-md shadow border border-gray-100 p-3 cursor-pointer hover:shadow-lg hover:border-purple-200 transition-all duration-200 ${
+                    className={`bg-white rounded-md shadow border border-gray-100 p-3 cursor-pointer hover:shadow-lg hover:border-green-200 transition-all duration-200 ${
                       readStatus[announcement.id] ? "opacity-60" : ""
                     }`}
                     onClick={() => handleAnnouncementClick(announcement)}
@@ -467,7 +467,7 @@ function AnnouncementsContent() {
                         {selectedAnnouncement.tags.split(',').filter(tag => tag.trim()).map((tag, index) => (
                           <span
                             key={index}
-                            className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium"
+                            className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium"
                           >
                             {tag.trim()}
                           </span>
@@ -486,7 +486,7 @@ function AnnouncementsContent() {
                     href={selectedAnnouncement.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-800 underline"
+                    className="inline-flex items-center gap-2 text-green-600 hover:text-green-800 underline"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />

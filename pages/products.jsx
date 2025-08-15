@@ -232,12 +232,12 @@ function ProductsContent() {
       {/* Add Product Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-xs flex flex-col items-center relative border-2 border-[#a259f7]">
+          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-xs flex flex-col items-center relative border-2 border-[#28DB78]">
             <h2 className="text-xl font-bold mb-6 text-gray-800">
               Add Product
             </h2>
             <button
-              className="w-full mb-4 py-3 rounded-lg bg-[#a259f7] text-white font-semibold text-lg hover:bg-[#7c3aed] transition-colors"
+              className="w-full mb-4 py-3 rounded-lg bg-[#28DB78] text-white font-semibold text-lg hover:bg-[#16a34a] transition-colors"
               onClick={() => {
                 setShowAddModal(false);
                 setTimeout(() => setShowAutoPopup(true), 200);
@@ -246,7 +246,7 @@ function ProductsContent() {
               Auto Integration
             </button>
             <button
-              className="w-full py-3 rounded-lg bg-[#f3f4f6] text-[#a259f7] font-semibold text-lg border border-[#a259f7] hover:bg-[#ede9fe] transition-colors"
+              className="w-full py-3 rounded-lg bg-[#f3f4f6] text-[#28DB78] font-semibold text-lg border border-[#28DB78] hover:bg-[#ede9fe] transition-colors"
               onClick={() => {
                 setShowAddModal(false);
                 setTimeout(() => setShowManualPopup(true), 200);
@@ -358,7 +358,7 @@ function ProductsContent() {
             <div className="pl-4">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div>
-                  <h1 className="text-3xl text-[#7c3aed] font-bold">
+                  <h1 className="text-3xl text-[#16a34a] font-bold">
                     Product Management
                   </h1>
                   <p className="text-gray-500 mb-6">
@@ -366,7 +366,7 @@ function ProductsContent() {
                   </p>
                 </div>
                 <button
-                  className="w-full sm:w-auto bg-[#7c3aed] hover:bg-[#a259f7] text-white font-semibold px-5 py-2 rounded-lg shadow flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto bg-[#16a34a] hover:bg-[#28DB78] text-white font-semibold px-5 py-2 rounded-lg shadow flex items-center justify-center gap-2"
                   aria-label="Add Product"
                   onClick={() => router.push(`/product-dashboard?token=${encodeURIComponent(CryptoJS.AES.encrypt(JSON.stringify({ ci, aid }), ENCRYPTION_KEY).toString())}`)}
                 >
@@ -401,7 +401,7 @@ function ProductsContent() {
                     placeholder="Search products..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value.trim())}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-gray-900 placeholder:text-gray-400"
+                    className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#28DB78] text-gray-900 placeholder:text-gray-400"
                   />
                 </div>
                 
@@ -409,7 +409,7 @@ function ProductsContent() {
                 <div className="relative category-dropdown-container">
                   <button
                     onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-gray-900 bg-white text-left flex items-center justify-between"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#28DB78] text-gray-900 bg-white text-left flex items-center justify-between"
                   >
                     <span>{selectedCategory}</span>
                     <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -423,7 +423,7 @@ function ProductsContent() {
                           setSelectedCategory("All Categories");
                           setShowCategoryDropdown(false);
                         }}
-                        className="w-full px-4 py-3 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                        className="w-full px-4 py-3 text-left text-gray-900 font-medium hover:bg-green-500 hover:text-white focus:bg-green-500 focus:text-white focus:outline-none transition-colors duration-200"
                       >
                         All Categories
                       </button>
@@ -435,7 +435,7 @@ function ProductsContent() {
                             setSelectedCategory(category);
                             setShowCategoryDropdown(false);
                           }}
-                          className="w-full px-4 py-3 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                          className="w-full px-4 py-3 text-left text-gray-900 font-medium hover:bg-green-500 hover:text-white focus:bg-green-500 focus:text-white focus:outline-none transition-colors duration-200"
                         >
                           {category}
                         </button>
@@ -448,7 +448,7 @@ function ProductsContent() {
                 <div className="relative status-dropdown-container">
                   <button
                     onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-gray-900 bg-white text-left flex items-center justify-between"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#28DB78] text-gray-900 bg-white text-left flex items-center justify-between"
                   >
                     <span>{selectedStatus}</span>
                     <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -462,7 +462,7 @@ function ProductsContent() {
                           setSelectedStatus("All Status");
                           setShowStatusDropdown(false);
                         }}
-                        className="w-full px-4 py-3 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                        className="w-full px-4 py-3 text-left text-gray-900 font-medium hover:bg-green-500 hover:text-white focus:bg-green-500 focus:text-white focus:outline-none transition-colors duration-200"
                       >
                         All Status
                       </button>
@@ -475,7 +475,7 @@ function ProductsContent() {
                             setSelectedStatus(status);
                             setShowStatusDropdown(false);
                           }}
-                          className="w-full px-4 py-3 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                          className="w-full px-4 py-3 text-left text-gray-900 font-medium hover:bg-green-500 hover:text-white focus:bg-green-500 focus:text-white focus:outline-none transition-colors duration-200"
                         >
                           {status}
                         </button>
@@ -496,7 +496,7 @@ function ProductsContent() {
                                   setSelectedStatus(status);
                                   setShowStatusDropdown(false);
                                 }}
-                                className="w-full px-4 py-3 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                                className="w-full px-4 py-3 text-left text-gray-900 font-medium hover:bg-green-500 hover:text-white focus:bg-green-500 focus:text-white focus:outline-none transition-colors duration-200"
                               >
                                 {status}
                               </button>
@@ -513,7 +513,7 @@ function ProductsContent() {
                 <input
                   type="text"
                   placeholder="Search products by name..."
-                  className="flex-1 border text-gray-600 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 placeholder-gray-500"
+                  className="flex-1 border text-gray-600 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-200 placeholder-gray-500"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                 />
@@ -534,7 +534,7 @@ function ProductsContent() {
                           setSelectedCategory("All Categories");
                           setShowCategoryDropdown(false);
                         }}
-                        className="w-full px-3 py-2 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                        className="w-full px-3 py-2 text-left text-gray-900 font-medium hover:bg-green-500 hover:text-white focus:bg-green-500 focus:text-white focus:outline-none transition-colors duration-200"
                       >
                         All Categories
                       </button>
@@ -546,7 +546,7 @@ function ProductsContent() {
                             setSelectedCategory(category);
                             setShowCategoryDropdown(false);
                           }}
-                          className="w-full px-3 py-2 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                          className="w-full px-3 py-2 text-left text-gray-900 font-medium hover:bg-green-500 hover:text-white focus:bg-green-500 focus:text-white focus:outline-none transition-colors duration-200"
                         >
                           {category}
                         </button>
@@ -571,7 +571,7 @@ function ProductsContent() {
                           setSelectedStatus("All Status");
                           setShowStatusDropdown(false);
                         }}
-                        className="w-full px-3 py-2 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                        className="w-full px-3 py-2 text-left text-gray-900 font-medium hover:bg-green-500 hover:text-white focus:bg-green-500 focus:text-white focus:outline-none transition-colors duration-200"
                       >
                         All Status
                       </button>
@@ -584,7 +584,7 @@ function ProductsContent() {
                             setSelectedStatus(status);
                             setShowStatusDropdown(false);
                           }}
-                          className="w-full px-3 py-2 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                          className="w-full px-3 py-2 text-left text-gray-900 font-medium hover:bg-green-500 hover:text-white focus:bg-green-500 focus:text-white focus:outline-none transition-colors duration-200"
                         >
                           {status}
                         </button>
@@ -605,7 +605,7 @@ function ProductsContent() {
                                   setSelectedStatus(status);
                                   setShowStatusDropdown(false);
                                 }}
-                                className="w-full px-3 py-2 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none transition-colors duration-200"
+                                className="w-full px-3 py-2 text-left text-gray-900 font-medium hover:bg-green-500 hover:text-white focus:bg-green-500 focus:text-white focus:outline-none transition-colors duration-200"
                               >
                                 {status}
                               </button>
@@ -681,7 +681,7 @@ function ProductsContent() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-center flex items-center justify-center gap-3" onClick={e => e.stopPropagation()}>
                           <button
-                            className="text-[#a259f7] hover:text-[#7c3aed]"
+                            className="text-[#28DB78] hover:text-[#16a34a]"
                             title="Edit"
                             onClick={e => {
                               e.stopPropagation();
@@ -743,7 +743,7 @@ function ProductsContent() {
                               : product.status === 'Pending'
                               ? 'bg-yellow-100 text-yellow-700'
                               : product.status === 'Coming Soon'
-                              ? 'bg-blue-100 text-blue-700'
+                              ? 'bg-green-100 text-green-700'
                               : product.status === 'Maintenance'
                               ? 'bg-orange-100 text-orange-700'
                               : 'bg-gray-100 text-gray-700'
@@ -754,7 +754,7 @@ function ProductsContent() {
                       </div>
                       <div className="flex gap-3 self-end">
                         <button
-                          className="text-[#a259f7] hover:text-[#7c3aed]"
+                          className="text-[#28DB78] hover:text-[#16a34a]"
                           title="View Product"
                           onClick={(e) => {
                             e.stopPropagation();

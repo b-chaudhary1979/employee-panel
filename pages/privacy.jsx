@@ -3,7 +3,7 @@ import React from "react";
 const Privacy = () => (
   <div className="min-h-screen bg-[#f8f9fa] text-gray-400 py-12 px-4 font-manrope">
     <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8">
-      <h1 className="text-3xl font-extrabold text-[#a259f7] mb-4">Privacy Policy</h1>
+      <h1 className="text-3xl font-extrabold text-[#28DB78] mb-4">Privacy Policy</h1>
       <div className="text-gray-500 text-sm mb-8">Last updated: July 8, 2024</div>
       <section className="mb-6">
         <h2 className="text-xl font-bold text-[#22223b] mb-2">1. Introduction</h2>
@@ -27,7 +27,7 @@ const Privacy = () => (
       </section>
       <section>
         <h2 className="text-xl font-bold text-[#22223b] mb-2">6. Contact Us</h2>
-        <p>If you have any questions about this Privacy Policy, please contact us at <a href="mailto:contact@cyberclipper.com" className="text-[#a259f7] underline">contact@cyberclipper.com</a>.</p>
+        <p>If you have any questions about this Privacy Policy, please contact us at <a href="mailto:contact@cyberclipper.com" className="text-[#28DB78] underline">contact@cyberclipper.com</a>.</p>
       </section>
     </div>
   </div>

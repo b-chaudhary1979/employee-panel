@@ -175,11 +175,11 @@ function PlaygroundContent() {
           >
             <div className="max-w-6xl mt-16 md:mt-6 mx-auto">
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#7c3aed] tracking-tight animate-fade-in-up">
+                <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#16a34a] tracking-tight animate-fade-in-up">
                   Instructions
                 </h2>
                 <button
-                  className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold py-1 px-2 sm:py-2 sm:px-4 md:px-6 rounded-lg shadow transition-colors duration-200 text-xs sm:text-sm md:text-base"
+                  className="bg-[#28BD78] hover:bg-[#16a34a] text-white font-semibold py-1 px-2 sm:py-2 sm:px-4 md:px-6 rounded-lg shadow transition-colors duration-200 text-xs sm:text-sm md:text-base"
                   onClick={() =>
                     router.push(
                       `/dashboard?token=${encodeURIComponent(
@@ -191,30 +191,30 @@ function PlaygroundContent() {
                   Go to Dashboard
                 </button>
               </div>
-              <div className="rounded-2xl bg-[#232136] p-8 mb-16 shadow-xl border border-[#a259f7]/20">
+              <div className="rounded-2xl bg-[#232136] p-8 mb-16 shadow-xl border border-[#28BD78]/20">
                 <ol className="list-decimal list-inside space-y-6 text-lg md:text-xl text-gray-300 animate-fade-in-up">
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Login or Register:
                     </span>{" "}
                     <br />
                     <span>
                       Start by{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/auth/login")}
                       >
                         logging in
                       </span>{" "}
                       or{" "}
                       contacting your administrator for access. Once granted access, you'll receive a{" "}
-                      <span className="text-[#a259f7]">Unique ID</span> and{" "}
-                      <span className="text-[#a259f7]">Company ID</span> for
+                      <span className="text-[#28BD78]">Unique ID</span> and{" "}
+                      <span className="text-[#28BD78]">Company ID</span> for
                       secure access.
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Verify Your Email (if required):
                     </span>{" "}
                     <br />
@@ -224,14 +224,14 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Explore the Dashboard:
                     </span>{" "}
                     <br />
                     <span>
                       The{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/dashboard")}
                       >
                         Dashboard
@@ -242,7 +242,7 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Navigate with the Side Menu:
                     </span>{" "}
                     <br />
@@ -253,7 +253,7 @@ function PlaygroundContent() {
                       <ul className="list-disc ml-8 mt-2 space-y-1">
                         <li>
                           <span
-                            className="underline cursor-pointer hover:text-[#a259f7]"
+                            className="underline cursor-pointer hover:text-[#28BD78]"
                             onClick={() =>
                               router.push(
                                 `/products?token=${encodeURIComponent(
@@ -268,7 +268,7 @@ function PlaygroundContent() {
                         </li>
                         <li>
                           <span
-                            className="underline cursor-pointer hover:text-[#a259f7]"
+                            className="underline cursor-pointer hover:text-[#28BD78]"
                             onClick={() =>
                               router.push(
                                 `/employees?token=${encodeURIComponent(
@@ -283,7 +283,7 @@ function PlaygroundContent() {
                         </li>
                         <li>
                           <span
-                            className="underline cursor-pointer hover:text-[#a259f7]"
+                            className="underline cursor-pointer hover:text-[#28BD78]"
                             onClick={() =>
                               router.push(
                                 `/users-permissions?token=${encodeURIComponent(
@@ -298,7 +298,7 @@ function PlaygroundContent() {
                         </li>
                         <li>
                           <span
-                            className="underline cursor-pointer hover:text-[#a259f7]"
+                            className="underline cursor-pointer hover:text-[#28BD78]"
                             onClick={() =>
                               router.push(
                                 `/api-keys?token=${encodeURIComponent(
@@ -313,7 +313,7 @@ function PlaygroundContent() {
                         </li>
                         <li>
                           <span
-                            className="underline cursor-pointer hover:text-[#a259f7]"
+                            className="underline cursor-pointer hover:text-[#28BD78]"
                             onClick={() =>
                               router.push(
                                 `/security?token=${encodeURIComponent(
@@ -328,7 +328,7 @@ function PlaygroundContent() {
                         </li>
                         <li>
                           <span
-                            className="underline cursor-pointer hover:text-[#a259f7]"
+                            className="underline cursor-pointer hover:text-[#28BD78]"
                             onClick={() =>
                               router.push(
                                 `/announcements?token=${encodeURIComponent(
@@ -343,7 +343,7 @@ function PlaygroundContent() {
                         </li>
                         <li>
                           <span
-                            className="underline cursor-pointer hover:text-[#a259f7]"
+                            className="underline cursor-pointer hover:text-[#28BD78]"
                             onClick={() =>
                               router.push(
                                 `/notes-tasks?token=${encodeURIComponent(
@@ -360,14 +360,14 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Check Pricing & Plans:
                     </span>{" "}
                     <br />
                     <span>
                       Access the{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/#pricing")}
                       >
                         Pricing
@@ -377,7 +377,7 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Use Each Feature:
                     </span>{" "}
                     <br />
@@ -385,21 +385,21 @@ function PlaygroundContent() {
                       Each section is designed for a specific purpose. For
                       example, add or edit products in{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/products")}
                       >
                         Products
                       </span>
                       , manage staff in{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/employees")}
                       >
                         Employees
                       </span>
                       , and set permissions in{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/users-permissions")}
                       >
                         Users & Permissions
@@ -408,21 +408,21 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Security & API:
                     </span>{" "}
                     <br />
                     <span>
                       Visit{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/security")}
                       >
                         Passwords & Security
                       </span>{" "}
                       to update your security settings, and{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/api-keys")}
                       >
                         API Keys
@@ -431,21 +431,21 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Stay Updated:
                     </span>{" "}
                     <br />
                     <span>
                       Check{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/announcements")}
                       >
                         Announcements
                       </span>{" "}
                       for important updates and{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/notes-tasks")}
                       >
                         Notes & Tasks
@@ -454,7 +454,7 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Document Your Changes:
                     </span>{" "}
                     <br />
@@ -464,7 +464,7 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Test Your Implementation:
                     </span>{" "}
                     <br />
@@ -474,7 +474,7 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Logout Securely:
                     </span>{" "}
                     <br />
@@ -483,7 +483,7 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">Need Help?</span>{" "}
+                    <span className="font-bold text-[#28BD78]">Need Help?</span>{" "}
                     <br />
                     <span>
                       If you encounter issues, reach out to support or check the
@@ -492,20 +492,20 @@ function PlaygroundContent() {
                   </li>
                 </ol>
               </div>
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#7c3aed] mb-8 tracking-tight animate-fade-in-up">
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#16a34a] mb-8 tracking-tight animate-fade-in-up">
                 How to Use
               </h2>
-              <div className="rounded-2xl bg-[#232136] p-8 shadow-xl border border-[#a259f7]/20">
+              <div className="rounded-2xl bg-[#232136] p-8 shadow-xl border border-[#28BD78]/20">
                 <ol className="list-decimal list-inside space-y-6 text-lg md:text-xl text-gray-300 animate-fade-in-up">
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Access the Dashboard:
                     </span>{" "}
                     <br />
                     <span>
                       After login, you'll land on the{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/dashboard")}
                       >
                         Dashboard
@@ -514,7 +514,7 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Navigate Sections:
                     </span>{" "}
                     <br />
@@ -525,26 +525,26 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">Manage Data:</span>{" "}
+                    <span className="font-bold text-[#28BD78]">Manage Data:</span>{" "}
                     <br />
                     <span>
                       In{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/products")}
                       >
                         Products
                       </span>{" "}
                       and{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/employees")}
                       >
                         Employees
                       </span>
                       , add, edit, or remove entries as needed. Use{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/users-permissions")}
                       >
                         Users & Permissions
@@ -553,14 +553,14 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Integrate & Secure:
                     </span>{" "}
                     <br />
                     <span>
                       Generate and manage{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/api-keys")}
                       >
                         API Keys
@@ -568,7 +568,7 @@ function PlaygroundContent() {
                       for integrations. Update your password and security settings
                       in{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/security")}
                       >
                         Passwords & Security
@@ -577,21 +577,21 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Stay Organized:
                     </span>{" "}
                     <br />
                     <span>
                       Use{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/notes-tasks")}
                       >
                         Notes & Tasks
                       </span>{" "}
                       to keep track of your work, and{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/announcements")}
                       >
                         Announcements
@@ -600,7 +600,7 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Responsive & Fast:
                     </span>{" "}
                     <br />
@@ -610,19 +610,19 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">Support:</span>{" "}
+                    <span className="font-bold text-[#28BD78]">Support:</span>{" "}
                     <br />
                     <span>For help, check Announcements or contact support.</span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Use Announcements for Team Communication:
                     </span>{" "}
                     <br />
                     <span>
                       Post and read important updates in{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/announcements")}
                       >
                         Announcements
@@ -631,14 +631,14 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Collaborate with Team Members:
                     </span>{" "}
                     <br />
                     <span>
                       Assign tasks and share notes in{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/notes-tasks")}
                       >
                         Notes & Tasks
@@ -647,14 +647,14 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Review and Update Permissions Regularly:
                     </span>{" "}
                     <br />
                     <span>
                       Periodically review user roles in{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/users-permissions")}
                       >
                         Users & Permissions
@@ -663,21 +663,21 @@ function PlaygroundContent() {
                     </span>
                   </li>
                   <li>
-                    <span className="font-bold text-[#a259f7]">
+                    <span className="font-bold text-[#28BD78]">
                       Backup Important Data:
                     </span>{" "}
                     <br />
                     <span>
                       Regularly export or backup your critical data from{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/products")}
                       >
                         Products
                       </span>{" "}
                       and{" "}
                       <span
-                        className="underline cursor-pointer hover:text-[#a259f7]"
+                        className="underline cursor-pointer hover:text-[#28BD78]"
                         onClick={() => router.push("/employees")}
                       >
                         Employees

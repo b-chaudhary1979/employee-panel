@@ -90,11 +90,11 @@ function UsersPermissionsContent() {
       label: "Total Users",
       value: "12,847",
       change: "+12% vs last month",
-      iconBg: "bg-blue-500",
+      iconBg: "bg-green-500",
       icon: (
         <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z" fill="currentColor"/></svg>
       ),
-      color: "text-blue-500"
+      color: "text-green-500"
     },
     {
       label: "Active Users",
@@ -110,11 +110,11 @@ function UsersPermissionsContent() {
       label: "VIP Customers",
       value: "1,247",
       change: "+15% vs last month",
-      iconBg: "bg-purple-500",
+      iconBg: "bg-green-500",
       icon: (
         <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z" fill="currentColor"/></svg>
       ),
-      color: "text-purple-500"
+      color: "text-green-500"
     },
     {
       label: "Suspended",
@@ -190,7 +190,7 @@ function UsersPermissionsContent() {
           <Header ref={headerRef} onMobileSidebarToggle={handleMobileSidebarToggle} mobileSidebarOpen={mobileSidebarOpen} username={user?.name || "admin"} companyName={user?.company || "company name"} />
           <main className="transition-all duration-300 px-2 sm:px-8 py-12 md:py-6" style={{ marginLeft: 0, paddingTop: headerHeight + 16 }}>
             <div className="max-w-6xl mx-auto">
-              <h1 className="text-3xl font-extrabold text-[#7c3aed] mb-1">User Management</h1>
+              <h1 className="text-3xl font-extrabold text-[#28BD78] mb-1">User Management</h1>
               <p className="text-gray-500 text-lg mb-6">Manage customer accounts and user permissions</p>
               {/* Summary cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-6">
@@ -207,11 +207,11 @@ function UsersPermissionsContent() {
               </div>
               {/* Search and filter bar */}
               <div className="flex flex-col md:flex-row gap-3 mb-4 items-center bg-white p-3 rounded-xl shadow border border-gray-100">
-                <input type="text" placeholder="Search users by name, email, or ID..." className="w-full md:flex-1 px-3 py-2 rounded-lg border text-gray-500 border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-base mb-2 md:mb-0" />
+                <input type="text" placeholder="Search users by name, email, or ID..." className="w-full md:flex-1 px-3 py-2 rounded-lg border text-gray-500 border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#16a34a] text-base mb-2 md:mb-0" />
                 <div className="flex flex-row w-full md:w-auto gap-2">
                   <select className="flex-1 px-3 py-2 text-gray-500 rounded-lg border border-gray-200 text-base"><option>All Roles</option></select>
                   <select className="flex-1 px-3 py-2 text-gray-500 rounded-lg border border-gray-200 text-base"><option>All Status</option></select>
-                  <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-base text-gray-700 hover:bg-gray-50 whitespace-nowrap"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" stroke="#a259f7" strokeWidth="2" strokeLinecap="round"/></svg>Filter</button>
+                  <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-base text-gray-700 hover:bg-gray-50 whitespace-nowrap"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" stroke="#16a34a" strokeWidth="2" strokeLinecap="round"/></svg>Filter</button>
                 </div>
               </div>
               {/* User table */}
@@ -233,7 +233,7 @@ function UsersPermissionsContent() {
                     {users.map((user, idx) => (
                       <tr key={user.email} className="border-b hover:bg-gray-50 transition">
                         <td className="py-3 px-4 flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-base">{user.initials}</div>
+                          <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white font-bold text-base">{user.initials}</div>
                           <div>
                             <div className="font-bold text-base text-gray-900">{user.name}</div>
                             <div className="text-gray-400 text-xs">{user.email}</div>
@@ -250,9 +250,9 @@ function UsersPermissionsContent() {
                         </td>
                         <td className="py-3 px-4 text-gray-700">{user.lastLogin}</td>
                         <td className="py-3 px-4 flex gap-2 items-center">
-                          <button className="text-purple-500 hover:text-purple-700" title="View"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M12 5c-7 0-9 7-9 7s2 7 9 7 9-7 9-7-2-7-9-7zm0 10a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" strokeWidth="2"/></svg></button>
+                          <button className="text-green-500 hover:text-green-700" title="View"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M12 5c-7 0-9 7-9 7s2 7 9 7 9-7 9-7-2-7-9-7zm0 10a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" strokeWidth="2"/></svg></button>
                           <button className="text-green-500 hover:text-green-700" title="Message"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" strokeWidth="2"/></svg></button>
-                          <button className="text-blue-500 hover:text-blue-700" title="Edit"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a4 4 0 01-1.414.828l-4.243 1.414 1.414-4.243a4 4 0 01.828-1.414z" stroke="currentColor" strokeWidth="2"/></svg></button>
+                          <button className="text-green-500 hover:text-green-700" title="Edit"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a4 4 0 01-1.414.828l-4.243 1.414 1.414-4.243a4 4 0 01.828-1.414z" stroke="currentColor" strokeWidth="2"/></svg></button>
                           <button className="text-red-500 hover:text-red-700" title="Suspend"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M6 7h12M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3m2 0v12a2 2 0 01-2 2H8a2 2 0 01-2-2V7h12z" stroke="currentColor" strokeWidth="2"/></svg></button>
                         </td>
                       </tr>

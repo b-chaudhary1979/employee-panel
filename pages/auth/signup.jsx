@@ -726,7 +726,7 @@ const Signup = () => {
             Create Your Account
           </h1>
           <p className="text-[#4b5563] text-[1rem] sm:text-[1.1rem] max-w-xl mx-auto">
-            Sign up to get started with Cyber Clipper Admin Panel. Manage your
+            Sign up to get started with Cyber Clipper InfoTech Admin Panel. Manage your
             company, employees, and products with ease.
           </p>
         </div>

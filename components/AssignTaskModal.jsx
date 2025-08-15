@@ -82,10 +82,10 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
   const removeLink = (index) => setForm((prev) => ({ ...prev, links: prev.links.filter((_, i) => i !== index) }));
 
   return (
-    <div className="bg-white/80 border border-purple-200 rounded-3xl shadow-2xl w-full max-w-[772px] p-0 relative animate-modalIn backdrop-blur-xl ring-1 ring-purple-100 animate-premiumModalIn">
+    <div className="bg-white/80 border border-green-200 rounded-3xl shadow-2xl w-full max-w-[772px] p-0 relative animate-modalIn backdrop-blur-xl ring-1 ring-green-100 animate-premiumModalIn">
       <div className="w-full h-full max-h-[90vh] flex flex-col">
         <button
-          className="absolute top-3 right-3 text-gray-400 hover:text-purple-500 text-2xl transition-colors rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white/70 shadow-md hover:bg-purple-100"
+          className="absolute top-3 right-3 text-gray-400 hover:text-green-500 text-2xl transition-colors rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-green-300 bg-white/70 shadow-md hover:bg-green-100"
           onClick={onClose}
           aria-label="Close"
           style={{ lineHeight: 1 }}
@@ -96,14 +96,14 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
           </svg>
         </button>
         <div className="px-8 pt-8 pb-2">
-          <h2 className="text-2xl font-extrabold mb-1 text-purple-700 tracking-tight drop-shadow-sm">Assign New Task</h2>
-          <div className="h-1 w-24 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-600 rounded-full mb-3 animate-shimmer" />
+          <h2 className="text-2xl font-extrabold mb-1 text-green-700 tracking-tight drop-shadow-sm">Assign New Task</h2>
+          <div className="h-1 w-24 bg-gradient-to-r from-green-400 via-pink-400 to-green-600 rounded-full mb-3 animate-shimmer" />
           <p className="mb-4 text-gray-500 text-sm">Fill in the details below to assign a new task.</p>
         </div>
         <div className="flex-1 overflow-x-auto px-4 pb-8">
           <form
             onSubmit={handleSubmit}
-            className="min-w-[340px] sm:min-w-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-8 text-gray-800 bg-white/70 rounded-2xl p-6 shadow-lg ring-1 ring-purple-50 animate-fadeIn"
+            className="min-w-[340px] sm:min-w-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-8 text-gray-800 bg-white/70 rounded-2xl p-6 shadow-lg ring-1 ring-green-50 animate-fadeIn"
           >
             {/* Task Info */}
             <div className="lg:col-span-3 sm:col-span-2 col-span-1">
@@ -116,7 +116,7 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
                 value={form.assignedBy}
                 onChange={(e) => setForm({ ...form, assignedBy: e.target.value })}
                 required
-                className="w-full border-2 border-purple-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder:text-gray-400 text-base text-gray-800 bg-purple-50/80 shadow-md transition-all duration-200 font-semibold animate-inputPulse"
+                className="w-full border-2 border-green-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 placeholder:text-gray-400 text-base text-gray-800 bg-green-50/80 shadow-md transition-all duration-200 font-semibold animate-inputPulse"
                 placeholder="Enter your name"
               />
             </div>
@@ -130,7 +130,7 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
                 required
-                className="w-full border-2 border-purple-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder:text-gray-400 text-base text-gray-800 bg-purple-50/80 shadow-md transition-all duration-200 font-semibold animate-inputPulse"
+                className="w-full border-2 border-green-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 placeholder:text-gray-400 text-base text-gray-800 bg-green-50/80 shadow-md transition-all duration-200 font-semibold animate-inputPulse"
                 placeholder="Enter task title"
               />
             </div>
@@ -143,7 +143,7 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 required
-                className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 bg-purple-50/60 shadow transition-all duration-200"
+                className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-sm text-gray-800 bg-green-50/60 shadow transition-all duration-200"
                 placeholder="Enter task description..."
                 rows={3}
               />
@@ -156,7 +156,7 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
                 <button
                   type="button"
                   onClick={addLink}
-                  className="px-3 py-1 bg-purple-500 hover:bg-purple-600 text-white text-xs font-semibold rounded-lg transition-colors duration-200"
+                  className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold rounded-lg transition-colors duration-200"
                 >
                   Add Link
                 </button>
@@ -169,7 +169,7 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
                         type="url"
                         value={link}
                         onChange={(e) => updateLink(index, e.target.value)}
-                        className="flex-1 border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 bg-purple-50/60 shadow transition-all duration-200"
+                        className="flex-1 border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-sm text-gray-800 bg-green-50/60 shadow transition-all duration-200"
                         placeholder="Enter link URL..."
                       />
                       <button
@@ -188,13 +188,13 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
             {/* Priority */}
             <div>
               <label className="text-xs font-semibold mb-1 text-gray-700 flex items-center gap-2">
-                <FaFlag className="text-purple-400" /> Priority
+                <FaFlag className="text-green-400" /> Priority
               </label>
               <select
                 name="priority"
                 value={form.priority}
                 onChange={(e) => setForm({ ...form, priority: e.target.value })}
-                className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm text-gray-800 bg-purple-50/60 shadow transition-all duration-200"
+                className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm text-gray-800 bg-green-50/60 shadow transition-all duration-200"
               >
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
@@ -206,7 +206,7 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
             {/* Due Date */}
             <div>
               <label className="text-xs font-semibold mb-1 text-gray-700 flex items-center gap-2">
-                <FaCalendarAlt className="text-purple-400" /> Due Date <span className="text-red-500">*</span>
+                <FaCalendarAlt className="text-green-400" /> Due Date <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
@@ -214,7 +214,7 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
                 value={form.dueDate || ""}
                 onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
                 required
-                className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400 placeholder:text-gray-400 text-sm text-gray-800 bg-purple-50/60 shadow transition-all duration-200"
+                className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400 placeholder:text-gray-400 text-sm text-gray-800 bg-green-50/60 shadow transition-all duration-200"
                 placeholder="Select due date"
               />
             </div>
@@ -226,7 +226,7 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
                 name="category"
                 value={form.category}
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm text-gray-800 bg-purple-50/60 shadow transition-all duration-200"
+                className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm text-gray-800 bg-green-50/60 shadow transition-all duration-200"
               >
                 <option value="">Select Department</option>
                 <option value="Software Development">Software Development</option>
@@ -240,8 +240,8 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
             {/* Assigned Intern */}
             <div className="col-span-1 sm:col-span-2 lg:col-span-3 mt-2">
               <div className="flex items-center gap-2 mb-2 mt-2">
-                <span className="text-lg font-semibold text-purple-600">Assigned Intern</span>
-                <div className="flex-1 h-px bg-gradient-to-r from-purple-200 to-transparent" />
+                <span className="text-lg font-semibold text-green-600">Assigned Intern</span>
+                <div className="flex-1 h-px bg-gradient-to-r from-green-200 to-transparent" />
               </div>
             </div>
             <div className="relative mb-8">
@@ -249,7 +249,7 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
               <button
                 type="button"
                 onClick={() => setShowInternDropdown(!showInternDropdown)}
-                className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm text-gray-800 bg-purple-50/60 shadow transition-all duration-200 text-left flex items-center justify-between"
+                className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm text-gray-800 bg-green-50/60 shadow transition-all duration-200 text-left flex items-center justify-between"
                 disabled={internsLoading}
               >
                 <span>
@@ -275,12 +275,12 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
                       const internName = `${intern.firstName || ""} ${intern.lastName || ""}`.trim() || intern.email || intern.id;
                       const isSelected = form.assignedIntern.includes(intern.id);
                       return (
-                        <label key={intern.id} className="flex items-start px-4 py-3 hover:bg-purple-50 cursor-pointer">
+                        <label key={intern.id} className="flex items-start px-4 py-3 hover:bg-green-50 cursor-pointer">
                           <input
                             type="checkbox"
                             checked={isSelected}
                             onChange={() => handleInternChange(intern.id)}
-                            className="mr-3 mt-0.5 text-purple-600 focus:ring-purple-500"
+                            className="mr-3 mt-0.5 text-green-600 focus:ring-green-500"
                           />
                           <div className="flex-1">
                             <div className="text-sm font-medium text-gray-700">{internName}</div>
@@ -314,7 +314,7 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="lg:col-span-3 sm:col-span-2 w-full bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white font-semibold py-3 rounded-2xl transition text-base shadow-xl mt-4 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="lg:col-span-3 sm:col-span-2 w-full bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white font-semibold py-3 rounded-2xl transition text-base shadow-xl mt-4 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -344,7 +344,7 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
 const AssignTaskModal = ({ open, onClose, initialData, onAdd, companyId }) => {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/80 to-purple-100/80 backdrop-blur-[6px]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/80 to-green-100/80 backdrop-blur-[6px]">
       <TaskForm onClose={onClose} onAdd={onAdd} companyId={companyId} initialData={initialData} />
     </div>
   );

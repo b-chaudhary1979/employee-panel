@@ -33,7 +33,7 @@ const menuItems = [
           height="7"
           rx="2"
           fill="none"
-          stroke={isActive ? "#a259f7" : "#222"}
+          stroke={isActive ? "#16a34a" : "#222"}
           strokeWidth="2"
         />
         <rect
@@ -43,7 +43,7 @@ const menuItems = [
           height="7"
           rx="2"
           fill="none"
-          stroke={isActive ? "#a259f7" : "#222"}
+          stroke={isActive ? "#16a34a" : "#222"}
           strokeWidth="2"
         />
         <rect
@@ -53,7 +53,7 @@ const menuItems = [
           height="7"
           rx="2"
           fill="none"
-          stroke={isActive ? "#a259f7" : "#222"}
+          stroke={isActive ? "#16a34a" : "#222"}
           strokeWidth="2"
         />
         <rect
@@ -63,7 +63,7 @@ const menuItems = [
           height="7"
           rx="2"
           fill="none"
-          stroke={isActive ? "#a259f7" : "#222"}
+          stroke={isActive ? "#16a34a" : "#222"}
           strokeWidth="2"
         />
       </svg>
@@ -81,7 +81,7 @@ const menuItems = [
   //         height="13"
   //         rx="2"
   //         fill="none"
-  //         stroke={isActive ? "#a259f7" : "#222"}
+  //         stroke={isActive ? "#16a34a" : "#222"}
   //         strokeWidth="2"
   //       />
   //       <rect
@@ -90,8 +90,8 @@ const menuItems = [
   //         width="10"
   //         height="4"
   //         rx="2"
-  //         fill={isActive ? "#a259f7" : "#fff"}
-  //         stroke={isActive ? "#a259f7" : "#222"}
+  //         fill={isActive ? "#16a34a" : "#fff"}
+  //         stroke={isActive ? "#16a34a" : "#222"}
   //         strokeWidth="2"
   //       />
   //     </svg>
@@ -104,10 +104,10 @@ const menuItems = [
 /*************  ✨ Windsurf Command 🌟  *************/
     icon: (isActive) => (
       <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
-        <rect x="3" y="7" width="18" height="10" rx="2" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" fill="none" />
-        <rect x="7" y="11" width="2" height="2" rx="1" fill={isActive ? "#a259f7" : "#222"} />
-        <rect x="11" y="11" width="2" height="2" rx="1" fill={isActive ? "#a259f7" : "#222"} />
-        <rect x="15" y="11" width="2" height="2" rx="1" fill={isActive ? "#a259f7" : "#222"} />
+        <rect x="3" y="7" width="18" height="10" rx="2" stroke={isActive ? "#16a34a" : "#222"} strokeWidth="2" fill="none" />
+        <rect x="7" y="11" width="2" height="2" rx="1" fill={isActive ? "#16a34a" : "#222"} />
+        <rect x="11" y="11" width="2" height="2" rx="1" fill={isActive ? "#16a34a" : "#222"} />
+        <rect x="15" y="11" width="2" height="2" rx="1" fill={isActive ? "#16a34a" : "#222"} />
       </svg>
     ),
   },
@@ -116,11 +116,11 @@ const menuItems = [
     route: "/intern-management-system",
     icon: (isActive) => (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-  <rect x="2" y="3" width="20" height="18" rx="2" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" />
-  <circle cx="8" cy="9" r="2" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" />
-  <circle cx="16" cy="9" r="2" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" />
-  <path d="M6 17c0-2 4-3 4-3s4 1 4 3" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" strokeLinecap="round" />
-  <path d="M14 17c0-1.5 4-2.5 4-2.5s2 0.5 2 2.5" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" strokeLinecap="round" />
+  <rect x="2" y="3" width="20" height="18" rx="2" stroke={isActive ? "#16a34a" : "#222"} strokeWidth="2" />
+  <circle cx="8" cy="9" r="2" stroke={isActive ? "#16a34a" : "#222"} strokeWidth="2" />
+  <circle cx="16" cy="9" r="2" stroke={isActive ? "#16a34a" : "#222"} strokeWidth="2" />
+  <path d="M6 17c0-2 4-3 4-3s4 1 4 3" stroke={isActive ? "#16a34a" : "#222"} strokeWidth="2" strokeLinecap="round" />
+  <path d="M14 17c0-1.5 4-2.5 4-2.5s2 0.5 2 2.5" stroke={isActive ? "#16a34a" : "#222"} strokeWidth="2" strokeLinecap="round" />
 </svg>
 
     ),
@@ -133,26 +133,26 @@ const menuItems = [
       <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
         <path
           d="M17 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"
-          stroke={isActive ? "#a259f7" : "#222"}
+          stroke={isActive ? "#16a34a" : "#222"}
           strokeWidth="2"
         />
         <circle
           cx="9"
           cy="7"
           r="4"
-          stroke={isActive ? "#a259f7" : "#222"}
+          stroke={isActive ? "#16a34a" : "#222"}
           strokeWidth="2"
         />
         <path
           d="M23 20v-2a4 4 0 0 0-3-3.87"
-          stroke={isActive ? "#a259f7" : "#222"}
+          stroke={isActive ? "#16a34a" : "#222"}
           strokeWidth="2"
         />
         <circle
           cx="17"
           cy="7"
           r="4"
-          stroke={isActive ? "#a259f7" : "#222"}
+          stroke={isActive ? "#16a34a" : "#222"}
           strokeWidth="2"
         />
       </svg>
@@ -163,12 +163,12 @@ const menuItems = [
     route: "/assign-tasks",
     icon: (isActive) => (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-  <rect x="4" y="3" width="16" height="18" rx="2" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2"/>
-  <path d="M9 3V5H15V3" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2"/>
-  <path d="M8 9h8" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" strokeLinecap="round"/>
-  <path d="M8 13h5" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" strokeLinecap="round"/>
-  <path d="M8 17h3" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" strokeLinecap="round"/>
-  <path d="M16 12l2 2l4 -4" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  <rect x="4" y="3" width="16" height="18" rx="2" stroke={isActive ? "#16a34a" : "#222"} strokeWidth="2"/>
+  <path d="M9 3V5H15V3" stroke={isActive ? "#16a34a" : "#222"} strokeWidth="2"/>
+  <path d="M8 9h8" stroke={isActive ? "#16a34a" : "#222"} strokeWidth="2" strokeLinecap="round"/>
+  <path d="M8 13h5" stroke={isActive ? "#16a34a" : "#222"} strokeWidth="2" strokeLinecap="round"/>
+  <path d="M8 17h3" stroke={isActive ? "#16a34a" : "#222"} strokeWidth="2" strokeLinecap="round"/>
+  <path d="M16 12l2 2l4 -4" stroke={isActive ? "#16a34a" : "#222"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
 </svg>
 
 
@@ -180,9 +180,9 @@ const menuItems = [
     route: "/my-tasks",
     icon: (isActive) => (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <rect x="3" y="3" width="18" height="18" rx="2" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" />
-        <path d="M8 8h8M8 12h8M8 16h5" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" strokeLinecap="round" />
-        <path d="M16 12l2 2l4 -4" stroke={isActive ? "#a259f7" : "#222"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <rect x="3" y="3" width="18" height="18" rx="2" stroke={isActive ? "#16a34a" : "#222"} strokeWidth="2" />
+        <path d="M8 8h8M8 12h8M8 16h5" stroke={isActive ? "#16a34a" : "#222"} strokeWidth="2" strokeLinecap="round" />
+        <path d="M16 12l2 2l4 -4" stroke={isActive ? "#16a34a" : "#222"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
   },
@@ -199,13 +199,13 @@ const menuItems = [
   //       xmlns="http://www.w3.org/2000/svg"
   //     >
   //       <path
-  //         fill="#a259f7"
+  //         fill="#16a34a"
   //         fillOpacity={isActive ? 1 : 0.1}
   //         d="M9.99296258,10.5729355 C12.478244,10.5729355 14.4929626,8.55821687 14.4929626,6.0729355 C14.4929626,3.58765413 12.478244,1.5729355 9.99296258,1.5729355 C7.5076812,1.5729355 5.49296258,3.58765413 5.49296258,6.0729355 C5.49296258,8.55821687 7.5076812,10.5729355 9.99296258,10.5729355 Z"
   //       />
   //       <path
   //         d="M10,0 C13.3137085,0 16,2.6862915 16,6 C16,8.20431134 14.8113051,10.1309881 13.0399615,11.173984 C16.7275333,12.2833441 19.4976819,15.3924771 19.9947005,19.2523727 C20.0418583,19.6186047 19.7690435,19.9519836 19.3853517,19.9969955 C19.0016598,20.0420074 18.6523872,19.7816071 18.6052294,19.4153751 C18.0656064,15.2246108 14.4363723,12.0699838 10.034634,12.0699838 C5.6099956,12.0699838 1.93381693,15.231487 1.39476476,19.4154211 C1.34758036,19.7816499 0.998288773,20.0420271 0.614600177,19.9969899 C0.230911582,19.9519526 -0.0418789616,19.6185555 0.00530544566,19.2523267 C0.500630192,15.4077896 3.28612316,12.3043229 6.97954305,11.1838052 C5.19718955,10.1447285 4,8.21217353 4,6 C4,2.6862915 6.6862915,0 10,0 Z"
-  //         stroke={isActive ? "#a259f7" : "#222"}
+  //         stroke={isActive ? "#16a34a" : "#222"}
   //         strokeWidth="1.5"
   //       />
   //     </svg>
@@ -225,13 +225,13 @@ const menuItems = [
         <g>
           <path
             d="M492.168,309.579l-17.626-10.177c2.96-14.723,4.458-29.466,4.458-43.902c0-14.646-1.474-29.403-4.384-43.946l17.552-10.134c5.436-3.138,9.325-8.206,10.949-14.269s0.791-12.396-2.348-17.832l-48-83.139c-3.139-5.436-8.206-9.325-14.269-10.949c-6.064-1.624-12.396-0.791-17.833,2.348l-17.566,10.142C380.912,68.2,354.798,53.092,327,43.692V23.5C327,10.542,316.458,0,303.5,0h-96C194.542,0,184,10.542,184,23.5v20.193c-27.65,9.362-53.728,24.49-75.999,44.088L90.332,77.579c-5.437-3.139-11.77-3.973-17.833-2.348c-6.063,1.625-11.13,5.513-14.269,10.949l-48,83.139c-3.139,5.436-3.972,11.769-2.348,17.832s5.513,11.131,10.949,14.269l17.626,10.177C33.499,226.32,32,241.063,32,255.5c0,14.644,1.474,29.401,4.384,43.945l-17.552,10.134c-11.222,6.479-15.08,20.879-8.602,32.102l48,83.139c6.479,11.221,20.879,15.08,32.102,8.601l17.565-10.142c22.19,19.521,48.303,34.629,76.103,44.03V487.5c0,12.958,10.542,23.5,23.5,23.5h96c12.958,0,23.5-10.542,23.5-23.5v-20.193c27.651-9.362,53.729-24.49,76-44.087l17.668,10.201c11.221,6.479,25.623,2.62,32.102-8.601l48-83.139C507.248,330.458,503.39,316.058,492.168,309.579z"
-            stroke={isActive ? "#a259f7" : "#222"}
+            stroke={isActive ? "#16a34a" : "#222"}
             strokeWidth="16"
             fill="none"
           />
           <path
             d="M255.5,104C171.962,104,104,171.963,104,255.5S171.962,407,255.5,407S407,339.037,407,255.5S339.038,104,255.5,104z M255.5,392C180.234,392,119,330.766,119,255.5S180.234,119,255.5,119S392,180.234,392,255.5S330.766,392,255.5,392z"
-            stroke={isActive ? "#a259f7" : "#222"}
+            stroke={isActive ? "#16a34a" : "#222"}
             strokeWidth="16"
             fill="none"
           />
@@ -278,11 +278,11 @@ const menuItems = [
           width="18"
           height="10"
           rx="2"
-          stroke={isActive ? "#a259f7" : "#222"}
+          stroke={isActive ? "#16a34a" : "#222"}
           strokeWidth="2"
         />
-        <path d="M7 11V7a5 5 0 0110 0v4" stroke="#a259f7" strokeWidth="2" />
-        <circle cx="12" cy="16" r="2" fill="#a259f7" />
+        <path d="M7 11V7a5 5 0 0110 0v4" stroke="#16a34a" strokeWidth="2" />
+        <circle cx="12" cy="16" r="2" fill="#16a34a" />
       </svg>
     ),
   },
@@ -293,12 +293,12 @@ const menuItems = [
       <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
         <path
           d="M3 17V7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"
-          stroke={isActive ? "#a259f7" : "#222"}
+          stroke={isActive ? "#16a34a" : "#222"}
           strokeWidth="2"
         />
-        <path d="M7 7v10" stroke="#a259f7" strokeWidth="2" />
-        <path d="M17 7v10" stroke="#a259f7" strokeWidth="2" />
-        <path d="M12 7v10" stroke="#a259f7" strokeWidth="2" />
+        <path d="M7 7v10" stroke="#16a34a" strokeWidth="2" />
+        <path d="M17 7v10" stroke="#16a34a" strokeWidth="2" />
+        <path d="M12 7v10" stroke="#16a34a" strokeWidth="2" />
       </svg>
     ),
   },
@@ -313,17 +313,17 @@ const menuItems = [
           width="16"
           height="16"
           rx="2"
-          stroke={isActive ? "#a259f7" : "#222"}
+          stroke={isActive ? "#16a34a" : "#222"}
           strokeWidth="2"
         />
         <path
           d="M8 10h8M8 14h4"
-          stroke="#a259f7"
+          stroke="#16a34a"
           strokeWidth="2"
           strokeLinecap="round"
         />
-        <circle cx="8" cy="8" r="1" fill="#a259f7" />
-        <circle cx="8" cy="12" r="1" fill="#a259f7" />
+        <circle cx="8" cy="8" r="1" fill="#16a34a" />
+        <circle cx="8" cy="12" r="1" fill="#16a34a" />
       </svg>
     ),
   },
@@ -373,11 +373,11 @@ export default function SideMenu({ mobileOverlay = false }) {
     background: transparent;
   }
   nav::-webkit-scrollbar-thumb {
-    background:rgb(167, 100, 234); /* Tailwind purple-500 */
+    background:#28DB78; /* Tailwind green-500 */
     border-radius: 6px;
   }
   nav {
-    scrollbar-color:rgb(183, 138, 235) transparent;
+    scrollbar-color:#28DB78 transparent;
     scrollbar-width: thin;
   }
 `}</style>
@@ -425,7 +425,7 @@ export default function SideMenu({ mobileOverlay = false }) {
               >
                 EMPLOYEE &nbsp;PANEL
                 <span
-                  className="absolute left-0 -bottom-1 h-1 rounded-full bg-[#a259f7]"
+                  className="absolute left-0 -bottom-1 h-1 rounded-full bg-[#16a34a]"
                   style={{
                     width: "100%",
                     height: "3px",
@@ -434,7 +434,7 @@ export default function SideMenu({ mobileOverlay = false }) {
                     animation:
                       "underline-move 2.2s cubic-bezier(0.4,0,0.2,1) infinite",
                     background:
-                      "linear-gradient(90deg, #a259f7 0%, #a259f7 60%, transparent 100%)",
+                      "linear-gradient(90deg, #16a34a 0%, #16a34a 60%, transparent 100%)",
                     opacity: 1,
                   }}
                 />
@@ -523,7 +523,7 @@ export default function SideMenu({ mobileOverlay = false }) {
                   } rounded-xl transition-all duration-150 my-0.5
                     ${
                       isActive
-                        ? "bg-[#f5edff] text-[#a259f7] shadow-sm"
+                        ? "bg-[#f5edff] text-[#16a34a] shadow-sm"
                         : "text-gray-600 hover:bg-gray-50"
                     }
                     relative w-full text-left`}
@@ -551,7 +551,7 @@ export default function SideMenu({ mobileOverlay = false }) {
                   {(mobileOverlay || isOpen) && <span>{item.label}</span>}
                   {/* Only show active indicator on desktop */}
                   {!mobileOverlay && isActive && (
-                    <span className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-[#a259f7]" />
+                    <span className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-[#16a34a]" />
                   )}
                 </button>
                 {/* Only show divider on desktop */}
@@ -573,9 +573,9 @@ export default function SideMenu({ mobileOverlay = false }) {
             className={`px-4 py-3 text-xs text-gray-500 flex flex-col items-center justify-center ${mobileOverlay ? '' : isOpen ? '' : 'px-0'}`}
             style={{ borderTop: '1px solid #f3e8ff', marginTop: 'auto' }}
           >
-            <span className="font-semibold" style={{ color: '#a259f7' }}>
-              <a href="https://cyberclipper.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#a259f7', textDecoration: 'underline', cursor: 'pointer' }}>
-                Powered by CyberClipper Solutions LLP.
+            <span className="font-semibold" style={{ color: '#16a34a' }}>
+              <a href="https://cyberclipper.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#16a34a', textDecoration: 'underline', cursor: 'pointer' }}>
+                Powered by CyberClipper InfoTech LLP.
               </a>
             </span>
             <span className="flex items-center gap-1 mt-1">

@@ -80,11 +80,11 @@ export default function AddPasswordModalEmployee({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/80 to-purple-100/80 backdrop-blur-[6px]">
-      <div className="bg-white/80 border border-purple-200 rounded-3xl shadow-2xl w-full max-w-2xl p-0 relative animate-modalIn backdrop-blur-xl ring-1 ring-purple-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/80 to-green-100/80 backdrop-blur-[6px]">
+      <div className="bg-white/80 border border-green-200 rounded-3xl shadow-2xl w-full max-w-2xl p-0 relative animate-modalIn backdrop-blur-xl ring-1 ring-green-100">
         <div className="w-full h-full max-h-[90vh] flex flex-col">
           <button
-            className="absolute top-3 right-3 text-gray-400 hover:text-purple-500 text-2xl transition-colors rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white/70 shadow-md hover:bg-purple-100"
+            className="absolute top-3 right-3 text-gray-400 hover:text-green-500 text-2xl transition-colors rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-green-300 bg-white/70 shadow-md hover:bg-green-100"
             onClick={onClose}
             aria-label="Close"
             style={{ lineHeight: 1 }}
@@ -112,10 +112,10 @@ export default function AddPasswordModalEmployee({
             </svg>
           </button>
           <div className="px-8 pt-8 pb-2">
-            <h2 className="text-2xl font-extrabold mb-1 text-purple-700 tracking-tight drop-shadow-sm">
+            <h2 className="text-2xl font-extrabold mb-1 text-green-700 tracking-tight drop-shadow-sm">
               {initialData ? "Edit Password" : "Add New Password"}
             </h2>
-            <div className="h-1 w-24 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-600 rounded-full mb-3 animate-shimmer" />
+            <div className="h-1 w-24 bg-gradient-to-r from-green-400 via-pink-400 to-green-600 rounded-full mb-3 animate-shimmer" />
             <p className="mb-4 text-gray-500 text-sm">
               Fill in the details below to store your password securely.
             </p>
@@ -123,7 +123,7 @@ export default function AddPasswordModalEmployee({
           <div className="flex-1 overflow-x-auto px-4 pb-8">
             <form
               onSubmit={handleSubmit}
-              className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6 text-gray-800 bg-white/70 rounded-2xl p-6 shadow-lg ring-1 ring-purple-50 animate-fadeIn"
+              className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6 text-gray-800 bg-white/70 rounded-2xl p-6 shadow-lg ring-1 ring-green-50 animate-fadeIn"
             >
               <div className="sm:col-span-2">
                 <label className="block text-xs font-semibold mb-1 text-gray-700">
@@ -146,7 +146,7 @@ export default function AddPasswordModalEmployee({
                   name="website"
                   value={form.website}
                   onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm bg-purple-50/60 shadow"
+                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-sm bg-green-50/60 shadow"
                   placeholder="e.g. Gmail"
                 />
               </div>
@@ -159,33 +159,33 @@ export default function AddPasswordModalEmployee({
                   name="username"
                   value={form.username}
                   onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm bg-purple-50/60 shadow"
+                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-sm bg-green-50/60 shadow"
                   placeholder="e.g. john.doe@gmail.com"
                 />
               </div>
               <div className="sm:col-span-2">
                 <label className="text-xs font-semibold mb-1 text-gray-700 flex items-center gap-2">
-                  <FaKey className="text-purple-400" /> Password
+                  <FaKey className="text-green-400" /> Password
                 </label>
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
                   value={form.password}
                   onChange={handleChange}
-                  className="w-full border-2 border-purple-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm font-mono bg-purple-50/80 shadow-md"
+                  className="w-full border-2 border-green-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm font-mono bg-green-50/80 shadow-md"
                   placeholder="Enter your password"
                 />
                 <div className="mt-2 flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setShowPassword((p) => !p)}
-                    className="text-xs text-purple-500 hover:text-purple-700"
+                    className="text-xs text-green-500 hover:text-green-700"
                   >
                     {showPassword ? "Hide Password" : "Show Password"}
                   </button>
                   <button
                     type="button"
-                    className="text-xs font-semibold bg-purple-100 border border-purple-200 px-3 py-1 rounded-lg hover:bg-purple-200"
+                    className="text-xs font-semibold bg-green-100 border border-green-200 px-3 py-1 rounded-lg hover:bg-green-200"
                     onClick={() =>
                       setForm((f) => ({
                         ...f,
@@ -211,20 +211,20 @@ export default function AddPasswordModalEmployee({
                   name="url"
                   value={form.url}
                   onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm bg-purple-50/60 shadow"
+                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-sm bg-green-50/60 shadow"
                   placeholder="e.g. https://example.com"
                 />
               </div>
 
               <div className="sm:col-span-2">
                 <label className="text-xs font-semibold mb-1 text-gray-700 flex items-center gap-2">
-                  <FaTags className="text-purple-400" /> Notes
+                  <FaTags className="text-green-400" /> Notes
                 </label>
                 <textarea
                   name="notes"
                   value={form.notes}
                   onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm bg-purple-50/60 shadow"
+                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm bg-green-50/60 shadow"
                   rows={2}
                   placeholder="Optional notes..."
                 />
@@ -237,7 +237,7 @@ export default function AddPasswordModalEmployee({
                   name="securityLevel"
                   value={form.securityLevel}
                   onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm text-gray-800 bg-purple-50/60 shadow transition-all duration-200"
+                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm text-gray-800 bg-green-50/60 shadow transition-all duration-200"
                 >
                   <option value="Low">Low</option>
                   <option value="Medium">Medium</option>
@@ -252,7 +252,7 @@ export default function AddPasswordModalEmployee({
                   name="passwordHint"
                   value={form.passwordHint || ""}
                   onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 bg-purple-50/60 shadow transition-all duration-200"
+                  className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-sm text-gray-800 bg-green-50/60 shadow transition-all duration-200"
                   placeholder="e.g., Favorite childhood pet"
                   rows={2}
                 />
@@ -271,7 +271,7 @@ export default function AddPasswordModalEmployee({
               </div>
               <button
                 type="submit"
-                className="sm:col-span-2 w-full bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white font-semibold py-3 rounded-2xl transition text-base shadow-xl mt-4 tracking-wide"
+                className="sm:col-span-2 w-full bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white font-semibold py-3 rounded-2xl transition text-base shadow-xl mt-4 tracking-wide"
               >
                 {initialData ? "Update Password" : "Add Password"}
               </button>
