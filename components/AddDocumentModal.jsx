@@ -417,7 +417,7 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
 
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/80 to-purple-100/80 backdrop-blur-[6px]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/80 to-green-100/80 backdrop-blur-[6px]">
       {/* Success Notification */}
       {successMessage && (
         <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[100] bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-base animate-slideDown">
@@ -427,10 +427,10 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
           {successMessage}
         </div>
       )}
-      <div className="bg-white/80 border border-purple-200 rounded-3xl shadow-2xl w-full max-w-4xl p-0 relative animate-modalIn backdrop-blur-xl ring-1 ring-purple-100">
+      <div className="bg-white/80 border border-green-200 rounded-3xl shadow-2xl w-full max-w-4xl p-0 relative animate-modalIn backdrop-blur-xl ring-1 ring-green-100">
         <div className="w-full h-full max-h-[90vh] flex flex-col">
           <button
-            className="absolute top-3 right-3 text-gray-400 hover:text-purple-500 text-2xl transition-colors rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white/70 shadow-md hover:bg-purple-100"
+            className="absolute top-3 right-3 text-gray-400 hover:text-green-500 text-2xl transition-colors rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-green-300 bg-white/70 shadow-md hover:bg-green-100"
             onClick={onClose}
             aria-label="Close"
           >
@@ -441,21 +441,21 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
           </button>
           
           <div className="px-8 pt-8 pb-2">
-            <h2 className="text-2xl font-extrabold mb-1 text-purple-700 tracking-tight drop-shadow-sm">
+            <h2 className="text-2xl font-extrabold mb-1 text-green-700 tracking-tight drop-shadow-sm">
               {initialData ? "Edit Document" : "Add New Document"}
             </h2>
-            <div className="h-1 w-24 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-600 rounded-full mb-3" />
+            <div className="h-1 w-24 bg-gradient-to-r from-green-400 via-pink-400 to-green-600 rounded-full mb-3" />
             <p className="mb-4 text-gray-500 text-sm">Fill in the details below to add a new document entry.</p>
           </div>
           
           <div className="flex-1 overflow-y-auto px-4 pb-8">
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6 text-gray-800 bg-white/70 rounded-2xl p-6 shadow-lg ring-1 ring-purple-50">
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6 text-gray-800 bg-white/70 rounded-2xl p-6 shadow-lg ring-1 ring-green-50">
               
               {/* Basic Information Section */}
               <div className="lg:col-span-3 sm:col-span-2 col-span-1">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-lg font-semibold text-purple-600">Basic Information</span>
-                  <div className="flex-1 h-px bg-gradient-to-r from-purple-200 via-pink-200 to-transparent" />
+                  <span className="text-lg font-semibold text-green-600">Basic Information</span>
+                  <div className="flex-1 h-px bg-gradient-to-r from-green-200 via-pink-200 to-transparent" />
                 </div>
               </div>
               
@@ -471,8 +471,8 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
                   onChange={handleChange}
                   required
                   disabled={isUploading}
-                  className={`w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400 placeholder:text-gray-400 text-base text-gray-800 shadow-md transition-all duration-200 ${
-                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/80'
+                  className={`w-full border-2 border-green-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400 placeholder:text-gray-400 text-base text-gray-800 shadow-md transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-green-50/80'
                   }`}
                   placeholder="Enter document title"
                 />
@@ -481,7 +481,7 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
               {/* Submitter Name */}
               <div>
                 <label className="text-xs font-semibold mb-1 text-gray-700 flex items-center gap-2">
-                  <FaUser className="text-purple-400" /> Submitter Name <span className="text-red-500">*</span>
+                  <FaUser className="text-green-400" /> Submitter Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -490,8 +490,8 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
                   onChange={handleChange}
                   required
                   disabled={isUploading}
-                  className={`w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400 placeholder:text-gray-400 text-base text-gray-800 shadow-md transition-all duration-200 ${
-                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/80'
+                  className={`w-full border-2 border-green-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400 placeholder:text-gray-400 text-base text-gray-800 shadow-md transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-green-50/80'
                   }`}
                   placeholder="Enter submitter name"
                 />
@@ -500,7 +500,7 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
               {/* Link Data */}
               <div className="lg:col-span-2">
                 <label className="text-xs font-semibold mb-1 text-gray-700 flex items-center gap-2">
-                  <FaLink className="text-purple-400" /> Link Data
+                  <FaLink className="text-green-400" /> Link Data
                 </label>
                 <input
                   type="url"
@@ -508,8 +508,8 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
                   value={form.linkData}
                   onChange={handleChange}
                   disabled={isUploading}
-                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 shadow transition-all duration-200 ${
-                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/60'
+                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-sm text-gray-800 shadow transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-green-50/60'
                   }`}
                   placeholder="https://example.com"
                 />
@@ -523,8 +523,8 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
                   value={form.category}
                   onChange={handleChange}
                   disabled={isUploading}
-                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm text-gray-800 shadow transition-all duration-200 ${
-                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/60'
+                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm text-gray-800 shadow transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-green-50/60'
                   }`}
                 >
                   <option value="">Select Category</option>
@@ -540,15 +540,15 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
               {/* Text Data */}
               <div className="lg:col-span-3 sm:col-span-2">
                 <label className="text-xs font-semibold mb-1 text-gray-700 flex items-center gap-2">
-                  <FaAlignLeft className="text-purple-400" /> Text Data
+                  <FaAlignLeft className="text-green-400" /> Text Data
                 </label>
                 <textarea
                   name="textData"
                   value={form.textData}
                   onChange={handleChange}
                   disabled={isUploading}
-                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 shadow transition-all duration-200 ${
-                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/60'
+                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-sm text-gray-800 shadow transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-green-50/60'
                   }`}
                   placeholder="Enter any text data or description..."
                   rows={4}
@@ -558,18 +558,18 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
               {/* File Upload Section */}
               <div className="lg:col-span-3 sm:col-span-2 col-span-1">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-lg font-semibold text-purple-600">File Upload</span>
-                  <div className="flex-1 h-px bg-gradient-to-r from-purple-200 via-pink-200 to-transparent" />
+                  <span className="text-lg font-semibold text-green-600">File Upload</span>
+                  <div className="flex-1 h-px bg-gradient-to-r from-green-200 via-pink-200 to-transparent" />
                 </div>
                 
-                <div className="border-2 border-dashed border-purple-300 rounded-xl p-6 text-center">
-                  <FaFileUpload className="mx-auto text-purple-400 text-3xl mb-2" />
+                <div className="border-2 border-dashed border-green-300 rounded-xl p-6 text-center">
+                  <FaFileUpload className="mx-auto text-green-400 text-3xl mb-2" />
                   <p className="text-gray-600 mb-3">Upload your media</p>
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}
-                    className={`bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors ${
+                    className={`bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors ${
                       isUploading ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                   >
@@ -596,7 +596,7 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
                         const failedFile = uploadResults.failed.find(f => f.file.name === file.name);
                         return (
                           <div key={index} className={`flex items-center justify-between p-2 rounded-lg ${
-                            failedFile ? 'bg-red-50 border border-red-200' : 'bg-purple-50'
+                            failedFile ? 'bg-red-50 border border-red-200' : 'bg-green-50'
                           }`}>
                             <div className="flex items-center gap-2">
                               <span className="text-sm text-gray-700">{file.name}</span>
@@ -634,15 +634,15 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
               {/* Additional Information Section */}
               <div className="lg:col-span-3 sm:col-span-2 col-span-1">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-lg font-semibold text-purple-600">Additional Information</span>
-                  <div className="flex-1 h-px bg-gradient-to-r from-purple-200 via-pink-200 to-transparent" />
+                  <span className="text-lg font-semibold text-green-600">Additional Information</span>
+                  <div className="flex-1 h-px bg-gradient-to-r from-green-200 via-pink-200 to-transparent" />
                 </div>
               </div>
               
               {/* Tags */}
               <div className="lg:col-span-2">
                 <label className="text-xs font-semibold mb-1 text-gray-700 flex items-center gap-2">
-                  <FaTags className="text-purple-400" /> Tags
+                  <FaTags className="text-green-400" /> Tags
                 </label>
                 <input
                   type="text"
@@ -650,8 +650,8 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
                   value={form.tags}
                   onChange={handleChange}
                   disabled={isUploading}
-                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 shadow transition-all duration-200 ${
-                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/60'
+                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-sm text-gray-800 shadow transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-green-50/60'
                   }`}
                   placeholder="e.g. important, urgent, review (comma separated)"
                 />
@@ -660,7 +660,7 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
               {/* Created Date */}
               <div>
                 <label className="text-xs font-semibold mb-1 text-gray-700 flex items-center gap-2">
-                  <FaCalendarAlt className="text-purple-400" /> Created Date
+                  <FaCalendarAlt className="text-green-400" /> Created Date
                 </label>
                 <input
                   type="text"
@@ -678,8 +678,8 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
                   value={form.notes}
                   onChange={handleChange}
                   disabled={isUploading}
-                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-sm text-gray-800 shadow transition-all duration-200 ${
-                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-purple-50/60'
+                  className={`w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-sm text-gray-800 shadow transition-all duration-200 ${
+                    isUploading ? 'bg-gray-100 cursor-not-allowed' : 'bg-green-50/60'
                   }`}
                   placeholder="Any additional notes..."
                   rows={3}
@@ -694,7 +694,7 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
                     type="button"
                     onClick={handleAddCustomField}
                     disabled={isUploading}
-                    className={`text-xs text-purple-600 hover:text-purple-800 font-semibold px-2 py-1 rounded-xl border border-purple-100 bg-purple-50 transition ${
+                    className={`text-xs text-green-600 hover:text-green-800 font-semibold px-2 py-1 rounded-xl border border-green-100 bg-green-50 transition ${
                       isUploading ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                   >
@@ -710,7 +710,7 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
                       value={field.question}
                       onChange={e => handleCustomFieldChange(idx, 'question', e.target.value)}
                       disabled={isUploading}
-                      className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 ${
+                      className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 ${
                         isUploading ? 'bg-gray-100 cursor-not-allowed' : ''
                       }`}
                     />
@@ -721,7 +721,7 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
                         value={field.answer}
                         onChange={e => handleCustomFieldChange(idx, 'answer', e.target.value)}
                         disabled={isUploading}
-                        className={`flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 ${
+                        className={`flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 ${
                           isUploading ? 'bg-gray-100 cursor-not-allowed' : ''
                         }`}
                       />
@@ -758,7 +758,7 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
               <button
                 type="submit"
                 disabled={isUploading}
-                className={`lg:col-span-3 sm:col-span-2 w-full bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white font-semibold py-3 rounded-2xl transition text-base shadow-xl mt-4 tracking-wide ${
+                className={`lg:col-span-3 sm:col-span-2 w-full bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white font-semibold py-3 rounded-2xl transition text-base shadow-xl mt-4 tracking-wide ${
                   isUploading ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >

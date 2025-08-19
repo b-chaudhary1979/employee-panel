@@ -35,7 +35,7 @@ export default function Loader() {
         .cube {
           width: 24px;
           height: 24px;
-          background: #a259f7;
+          background: #16a34a;
           border-radius: 6px;
           animation: cube-bounce 1.2s infinite ease-in-out;
         }
@@ -44,9 +44,9 @@ export default function Loader() {
         .cube3 { animation-delay: 0.4s; }
         .cube4 { animation-delay: 0.6s; }
         @keyframes cube-bounce {
-          0%, 100% { transform: scale(1) translateY(0); background: #a259f7; }
-          30% { transform: scale(1.2) translateY(-12px); background: #fff; box-shadow: 0 4px 16px #a259f7aa; }
-          60% { transform: scale(1) translateY(0); background: #a259f7; }
+          0%, 100% { transform: scale(1) translateY(0); background: #16a34a; }
+          30% { transform: scale(1.2) translateY(-12px); background: #fff; box-shadow: 0 4px 16px #16a34a; }
+          60% { transform: scale(1) translateY(0); background: #16a34a; }
         }
       `}</style>
     </div>

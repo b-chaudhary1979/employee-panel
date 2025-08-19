@@ -33,7 +33,7 @@ const INTEGRATION_SCRIPT = `<script>(function () {
           text-align: center;
           animation: fadeIn 0.5s ease-out;
         ">
-          <h2 style=\"color:#7c3aed;font-size:1.75rem;font-weight:700;margin-bottom:1rem;\">🔒 Enter Access Key</h2>
+          <h2 style=\"color:#28BD78;font-size:1.75rem;font-weight:700;margin-bottom:1rem;\">🔒 Enter Access Key</h2>
           <input id=\"cyberclipper-access-input\" type=\"text\" placeholder=\"Access Key\"
             style=\"
               padding: 0.75rem 1rem;
@@ -51,7 +51,7 @@ const INTEGRATION_SCRIPT = `<script>(function () {
           <br/>
           <button id=\"cyberclipper-access-btn\"
             style=\"
-              background: #7c3aed;
+              background: #28BD78;
               color: white;
               padding: 0.6rem 1.8rem;
               border: none;
@@ -159,7 +159,7 @@ const AutoIntegration = ({ sharedFormData, updateSharedFormData, clearFormData }
 
   return (
     <div className="p-6 bg-white rounded-xl shadow-md">
-      <h2 className="text-3xl font-bold text-[#7c3aed] mb-4">Auto Integration</h2>
+      <h2 className="text-3xl font-bold text-[#28BD78] mb-4">Auto Integration</h2>
       <p className="text-lg text-gray-700 mb-2">
         Easily connect your product with our platform using automatic integration. This method is fast, secure, and requires minimal setup.
       </p>
@@ -170,7 +170,7 @@ const AutoIntegration = ({ sharedFormData, updateSharedFormData, clearFormData }
       </ul>
       <div className="mb-4">
         <div className="flex items-center mb-2">
-          <label className="block text-purple-400 font-semibold mr-2">Integration Script:</label>
+          <label className="block text-green-400 font-semibold mr-2">Integration Script:</label>
           <button
             onClick={handleCopy}
             className="relative flex items-center px-2 py-1 text-xs font-medium rounded bg-gray-200 hover:bg-gray-300 transition focus:outline-none"
@@ -184,7 +184,7 @@ const AutoIntegration = ({ sharedFormData, updateSharedFormData, clearFormData }
               </svg>
             ) : (
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="5" y="5" width="10" height="12" rx="2" fill="#7c3aed"/>
+                <rect x="5" y="5" width="10" height="12" rx="2" fill="#28BD78"/>
                 <rect x="7" y="3" width="8" height="12" rx="2" fill="#a78bfa"/>
               </svg>
             )}
@@ -195,13 +195,13 @@ const AutoIntegration = ({ sharedFormData, updateSharedFormData, clearFormData }
         </pre>
       </div>
       <button
-        className="bg-[#7c3aed] text-white px-4 py-2 rounded hover:bg-[#5b21b6] transition mb-2"
+        className="bg-[#28BD78] text-white px-4 py-2 rounded hover:bg-[#5b21b6] transition mb-2"
         onClick={handlePreview}
       >
         Preview Modal
       </button>
       <button
-        className="bg-[#7c3aed] text-white px-4 ml-6 py-2 rounded hover:bg-[#5b21b6] transition mb-2"
+        className="bg-[#28BD78] text-white px-4 ml-6 py-2 rounded hover:bg-[#5b21b6] transition mb-2"
         onClick={handleCopy}
       >
         {copied ? (
@@ -251,7 +251,7 @@ const AutoIntegration = ({ sharedFormData, updateSharedFormData, clearFormData }
               }
             `}</style>
             <button onClick={()=>setShowPreview(false)} style={{position:'absolute',top:10,right:10,fontSize:'1.2rem',background:'none',border:'none',cursor:'pointer'}}>&times;</button>
-            <h2 style={{color:'#7c3aed',fontSize:'1.75rem',fontWeight:700,marginBottom:'1rem'}}>🔒 Enter Access Key</h2>
+            <h2 style={{color:'#28BD78',fontSize:'1.75rem',fontWeight:700,marginBottom:'1rem'}}>🔒 Enter Access Key</h2>
             <input
               id="cyberclipper-access-input-preview"
               type="text"
@@ -275,7 +275,7 @@ const AutoIntegration = ({ sharedFormData, updateSharedFormData, clearFormData }
             <button
               onClick={handleSubmit}
               style={{
-                background:'#7c3aed',
+                background:'#28BD78',
                 color:'#fff',
                 padding:'0.6rem 1.8rem',
                 border:'none',

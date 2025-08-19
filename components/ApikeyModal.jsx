@@ -27,7 +27,7 @@ export function EncryptModal({ open, onClose, onSubmit, encryptionPassword, setE
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/40 backdrop-blur-md pointer-events-none p-4">
       <div className="relative w-full max-w-lg mx-auto p-6 pointer-events-auto">
-        <div className="bg-white border-2 border-blue-500 rounded-xl p-6">
+        <div className="bg-white border-2 border-green-500 rounded-xl p-6">
           <h2 className="text-2xl font-bold mb-6 text-black">Encrypt API Key</h2>
           <form className="flex flex-col gap-6" onSubmit={onSubmit}>
             <div>
@@ -41,7 +41,7 @@ export function EncryptModal({ open, onClose, onSubmit, encryptionPassword, setE
             </div>
             <div className="flex justify-between mt-6 w-full">
               <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl" onClick={onClose} disabled={isProcessing}>Close</button>
-              <button type="submit" disabled={isProcessing} className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-xl flex items-center gap-2">
+              <button type="submit" disabled={isProcessing} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-xl flex items-center gap-2">
                 {isProcessing ? (<><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>Encrypting...</>) : (<><Lock size={20} />Encrypt Key</>)}
               </button>
             </div>
@@ -78,7 +78,7 @@ export function DecryptModal({ open, onClose, onSubmit, decryptionPassword, setD
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/40 backdrop-blur-md pointer-events-none p-4">
       <div className="relative w-full max-w-lg mx-auto p-6 pointer-events-auto">
-        <div className="bg-white border-2 border-blue-500 rounded-xl p-6">
+        <div className="bg-white border-2 border-green-500 rounded-xl p-6">
           <h2 className="text-2xl font-bold mb-6 text-black">Decrypt API Key</h2>
           <form className="flex flex-col gap-6" onSubmit={onSubmit}>
             <div>
@@ -92,7 +92,7 @@ export function DecryptModal({ open, onClose, onSubmit, decryptionPassword, setD
             </div>
             <div className="flex justify-between mt-6 w-full">
               <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl" onClick={onClose} disabled={isProcessing}>Close</button>
-              <button type="submit" disabled={isProcessing} className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-xl flex items-center gap-2">
+              <button type="submit" disabled={isProcessing} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-xl flex items-center gap-2">
                 {isProcessing ? (<><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>Decrypting...</>) : (<><Key size={20} />Decrypt Key</>)}
               </button>
             </div>
@@ -153,8 +153,8 @@ export function AddKeyModal({ open, onClose, onSubmit, newKeyName, setNewKeyName
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/40 backdrop-blur-md pointer-events-none p-4">
       <div className="relative w-full max-w-3xl mx-auto p-6 pointer-events-auto max-h-[90vh] overflow-y-auto">
-        <div className="bg-white border-2 border-purple-500 rounded-xl p-6">
-          <h2 className="text-2xl font-bold mb-4 text-purple-600">Add API Key</h2>
+        <div className="bg-white border-2 border-green-500 rounded-xl p-6">
+          <h2 className="text-2xl font-bold mb-4 text-green-600">Add API Key</h2>
           <form className="flex flex-col gap-6" onSubmit={onSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -223,13 +223,13 @@ export function AddKeyModal({ open, onClose, onSubmit, newKeyName, setNewKeyName
                   <input type="text" placeholder="Answer" value={qa.answer} onChange={e => handleCustomQAChange(idx, "answer", e.target.value)} className="flex-1 border rounded px-3 py-2 placeholder-gray-500 text-gray-800" />
                 </div>
               ))}
-              <button type="button" onClick={addCustomQA} className="mt-2 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">+ Add Custom Q&A</button>
+              <button type="button" onClick={addCustomQA} className="mt-2 px-4 py-2 bg-green-100 text-green-700 rounded hover:bg-green-200">+ Add Custom Q&A</button>
             </div>
             {addKeyError && <div className="text-red-600 text-sm font-semibold mt-2">{addKeyError}</div>}
             <div className="flex justify-between items-center mt-4">
               <div className="flex justify-between mt-6 w-full">
                 <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl" onClick={onClose}>Close</button>
-                <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-xl" disabled={!(newKeyName.trim() && customKey.trim())}>Add Key</button>
+                <button type="submit" className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-xl" disabled={!(newKeyName.trim() && customKey.trim())}>Add Key</button>
               </div>
             </div>
           </form>
@@ -267,7 +267,7 @@ export function AddKeyEncryptModal({ open, onClose, onSubmit, addKeyVaultKey, se
     <div className="fixed inset-0 z-[210] flex items-center justify-center bg-white/40 backdrop-blur-md pointer-events-none p-4">
       <div className="relative w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl p-8 pointer-events-auto">
         <button className="absolute top-2 left-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-semibold" onClick={onClose}>&#8592; Back</button>
-        <div className="border-2 border-purple-500 rounded-xl p-6">
+        <div className="border-2 border-green-500 rounded-xl p-6">
           <h2 className="text-2xl font-bold mb-6 text-black">Enter Vault Key to Encrypt</h2>
           <form className="flex flex-col gap-6" onSubmit={onSubmit}>
             <div>
@@ -278,7 +278,7 @@ export function AddKeyEncryptModal({ open, onClose, onSubmit, addKeyVaultKey, se
               </div>
             </div>
             {addKeyError && <div className="text-red-600 text-sm font-semibold mt-2">{addKeyError}</div>}
-            <button type="submit" disabled={isAddingKey} className="bg-[#a259f7] hover:bg-[#7c3aed] disabled:bg-gray-400 text-white font-semibold rounded-lg px-6 py-3 mt-4 transition-colors duration-200 flex items-center justify-center gap-3 text-base">{isAddingKey ? (<><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>Adding Key...</>) : ("Encrypt & Add Key")}</button>
+            <button type="submit" disabled={isAddingKey} className="bg-[#a259f7] hover:bg-[#28BD78] disabled:bg-gray-400 text-white font-semibold rounded-lg px-6 py-3 mt-4 transition-colors duration-200 flex items-center justify-center gap-3 text-base">{isAddingKey ? (<><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>Adding Key...</>) : ("Encrypt & Add Key")}</button>
           </form>
         </div>
       </div>
@@ -311,8 +311,8 @@ export function KeyDetailVaultModal({ open, onClose, onSubmit, keyDetailVaultKey
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/40 backdrop-blur-md pointer-events-none p-4">
       <div className="relative w-full max-w-md mx-auto p-6 pointer-events-auto">
-        <div className="bg-white border-2 border-blue-500 rounded-xl p-6">
-          <h2 className="text-2xl font-bold mb-4 text-purple-600">Verify Access</h2>
+        <div className="bg-white border-2 border-green-500 rounded-xl p-6">
+          <h2 className="text-2xl font-bold mb-4 text-green-600">Verify Access</h2>
           <p className="text-gray-600 mb-4">Enter vault key to view API key details</p>
           <form onSubmit={onSubmit} className="space-y-4">
             <div>
@@ -324,7 +324,7 @@ export function KeyDetailVaultModal({ open, onClose, onSubmit, keyDetailVaultKey
             </div>
             <div className="flex justify-between mt-6 w-full">
               <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl" onClick={onClose}>Close</button>
-              <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-xl">Details</button>
+              <button type="submit" className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-xl">Details</button>
             </div>
           </form>
         </div>
@@ -395,7 +395,7 @@ export function KeyDetailModal({ open, onClose, selectedKey, handleEncrypt, hand
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/40 backdrop-blur-md pointer-events-none p-4">
       <div className="relative w-full max-w-[850px] mx-auto p-6 pointer-events-auto max-h-[640px]">
 
-        <div className="bg-white border-2 border-purple-500 rounded-xl p-6 overflow-y-auto max-h-[500px]">
+        <div className="bg-white border-2 border-green-500 rounded-xl p-6 overflow-y-auto max-h-[500px]">
           <h2 className="text-xl font-bold mb-4 text-black">API Key Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-[15px] mb-4">
             <div className="mb-2"><span className="block font-semibold text-gray-700 mb-1">Stored By</span><span className="block border border-gray-300 rounded px-3 py-2 bg-gray-50 text-gray-900">{selectedKey.storedBy || '-'}</span></div>
@@ -459,7 +459,7 @@ export function KeyDetailModal({ open, onClose, selectedKey, handleEncrypt, hand
               {selectedKey.isEncrypted ? (
                 <button className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200 w-full sm:w-auto" onClick={handleDecrypt} disabled={reencrypting}>Decrypt</button>
               ) : (
-                <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200 w-full sm:w-auto" onClick={handleEncrypt} disabled={reencrypting}>Encrypt</button>
+                <button className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200 w-full sm:w-auto" onClick={handleEncrypt} disabled={reencrypting}>Encrypt</button>
               )}
             </div>
           </div>
@@ -507,12 +507,12 @@ export function DeleteKeyModal({ open, onClose, onConfirm, storedBy, keyName, er
           <h2 className="text-xl font-bold mb-4 text-red-600">Confirm Delete API Key</h2>
           <div className="mb-3">
             <label className="block text-sm font-medium mb-1 text-black">Key Name</label>
-            <input className="w-full border-2 border-blue-500 rounded px-3 py-2 bg-white text-black" value={inputKeyName} onChange={e => setInputKeyName(e.target.value)} placeholder="Enter key name" />
+            <input className="w-full border-2 border-green-500 rounded px-3 py-2 bg-white text-black" value={inputKeyName} onChange={e => setInputKeyName(e.target.value)} placeholder="Enter key name" />
           </div>
           <div className="mb-3">
             <label className="block text-sm font-medium mb-1 text-black">Vault Key</label>
             <div className="relative">
-              <input className="w-full border-2 border-blue-500 rounded px-3 py-2 bg-white text-black pr-12" type={showDeleteVaultKey ? "text" : "password"} value={vaultKey} onChange={e => setVaultKey(e.target.value)} placeholder="Enter vault key..." />
+              <input className="w-full border-2 border-green-500 rounded px-3 py-2 bg-white text-black pr-12" type={showDeleteVaultKey ? "text" : "password"} value={vaultKey} onChange={e => setVaultKey(e.target.value)} placeholder="Enter vault key..." />
               <button type="button" onClick={() => setShowDeleteVaultKey(v => !v)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
                 {showDeleteVaultKey ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -520,7 +520,7 @@ export function DeleteKeyModal({ open, onClose, onConfirm, storedBy, keyName, er
           </div>
           <div className="mb-3">
             <label className="block text-sm font-medium mb-1 text-black">Type <span className="font-bold">confirm</span> to proceed</label>
-            <input className="w-full border-2 border-blue-500 rounded px-3 py-2 bg-white text-black" value={confirmText} onChange={e => setConfirmText(e.target.value)} placeholder="Type 'confirm' to enable delete" />
+            <input className="w-full border-2 border-green-500 rounded px-3 py-2 bg-white text-black" value={confirmText} onChange={e => setConfirmText(e.target.value)} placeholder="Type 'confirm' to enable delete" />
           </div>
           {error && <div className="text-red-600 text-sm font-semibold mb-2">{error}</div>}
           <div className="flex justify-between mt-6">

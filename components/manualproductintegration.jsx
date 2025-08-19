@@ -220,15 +220,9 @@ const ManualProductIntegration = ({
           </div>
         </div>
       )}
-
-
-
-
-
-
       
       <div className="p-2 sm:p-4 bg-white rounded-xl shadow-md w-full">
-        <h2 className="text-3xl font-bold text-[#7c3aed] mb-4">Add Your Product</h2>
+        <h2 className="text-3xl font-bold text-[#28BD78] mb-4">Add Your Product</h2>
         <p className="text-lg text-gray-700 mb-2">Fill out the form below to manually add your product for advanced control and customization.</p>
         <ol className="list-decimal pl-6 text-gray-600 mb-6">
           <li>Download the integration template</li>
@@ -244,7 +238,7 @@ const ManualProductIntegration = ({
               name="productId"
               value={sharedFormData.productId}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
               placeholder="e.g. PROD-12345"
               required
             />
@@ -256,7 +250,7 @@ const ManualProductIntegration = ({
               name="name"
               value={sharedFormData.name}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
               placeholder="Enter product name"
               required
             />
@@ -268,7 +262,7 @@ const ManualProductIntegration = ({
               name="url"
               value={sharedFormData.url}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
               placeholder="https://yourproduct.com"
               required
             />
@@ -280,7 +274,7 @@ const ManualProductIntegration = ({
               name="screenshot"
               value={sharedFormData.screenshot}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
               placeholder="https://example.com/screenshot.png"
               required
             />
@@ -291,7 +285,7 @@ const ManualProductIntegration = ({
               name="description"
               value={sharedFormData.description}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
               rows={3}
               placeholder="Describe your product"
               required
@@ -304,7 +298,7 @@ const ManualProductIntegration = ({
               name="category"
               value={sharedFormData.category}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
               placeholder="e.g. SaaS, E-commerce, Tool"
               required
             />
@@ -316,7 +310,7 @@ const ManualProductIntegration = ({
               name="price"
               value={sharedFormData.price}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
               placeholder="Enter price in USD"
               min="0"
               step="0.01"
@@ -330,7 +324,7 @@ const ManualProductIntegration = ({
               name="email"
               value={sharedFormData.email}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
               placeholder="contact@yourproduct.com"
               required
             />
@@ -342,7 +336,7 @@ const ManualProductIntegration = ({
               name="tags"
               value={sharedFormData.tags}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
               placeholder="e.g. productivity, ai, finance"
               required
             />
@@ -355,7 +349,7 @@ const ManualProductIntegration = ({
               name="contactNumber"
               value={sharedFormData.contactNumber}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
               placeholder="+1 234 567 8900"
               required
             />
@@ -367,7 +361,7 @@ const ManualProductIntegration = ({
               name="launchDate"
               value={sharedFormData.launchDate}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] text-gray-900"
               required
             />
           </div>
@@ -378,7 +372,7 @@ const ManualProductIntegration = ({
               name="companyName"
               value={sharedFormData.companyName}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
               placeholder="Your company name"
               required
             />
@@ -390,7 +384,7 @@ const ManualProductIntegration = ({
               name="version"
               value={sharedFormData.version}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
               placeholder="e.g. 1.0.0"
               required
             />
@@ -402,7 +396,7 @@ const ManualProductIntegration = ({
               name="website"
               value={sharedFormData.website}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
               placeholder="https://companywebsite.com"
               required
             />
@@ -414,7 +408,7 @@ const ManualProductIntegration = ({
               name="supportHours"
               value={sharedFormData.supportHours}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
               placeholder="e.g. 9am - 5pm, Mon-Fri"
               required
             />
@@ -426,7 +420,7 @@ const ManualProductIntegration = ({
               name="address"
               value={sharedFormData.address}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
               placeholder="Company address"
               required
             />
@@ -438,7 +432,7 @@ const ManualProductIntegration = ({
               name="stock"
               value={sharedFormData.stock}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
               placeholder="Available units"
               min="0"
               required
@@ -451,7 +445,7 @@ const ManualProductIntegration = ({
               name="brand"
               value={sharedFormData.brand}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
               placeholder="Product brand"
               required
             />
@@ -463,7 +457,7 @@ const ManualProductIntegration = ({
                 type="button"
                 onClick={() => !sharedFormData.customStatus && setShowStatusDropdown(!showStatusDropdown)}
                 disabled={!!sharedFormData.customStatus}
-                className={`w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-gray-900 bg-white text-left flex items-center justify-between ${sharedFormData.customStatus ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] text-gray-900 bg-white text-left flex items-center justify-between ${sharedFormData.customStatus ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <span>{sharedFormData.customStatus || sharedFormData.status || "Select Status"}</span>
                 <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -481,7 +475,7 @@ const ManualProductIntegration = ({
                         updateSharedFormData({ status: option });
                         setShowStatusDropdown(false);
                       }}
-                      className="w-full px-3 py-2 text-left text-gray-900 font-medium hover:bg-blue-500 hover:text-white focus:bg-blue-500 focus:text-white focus:outline-none first:rounded-t-lg last:rounded-b-lg transition-colors duration-200"
+                      className="w-full px-3 py-2 text-left text-gray-900 font-medium hover:bg-green-500 hover:text-white focus:bg-green-500 focus:text-white focus:outline-none first:rounded-t-lg last:rounded-b-lg transition-colors duration-200"
                     >
                       {option}
                     </button>
@@ -506,7 +500,7 @@ const ManualProductIntegration = ({
                   setShowStatusDropdown(false);
                 }
               }}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
               placeholder="Enter custom status (optional)"
             />
           </div>
@@ -521,7 +515,7 @@ const ManualProductIntegration = ({
                     placeholder="Question"
                     value={question.question}
                     onChange={(e) => handleCustomQuestionChange(idx, "question", e.target.value)}
-                    className="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+                    className="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
                     required
                   />
                   <input
@@ -529,7 +523,7 @@ const ManualProductIntegration = ({
                     placeholder="Answer"
                     value={question.answer}
                     onChange={(e) => handleCustomQuestionChange(idx, "answer", e.target.value)}
-                    className="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-500 text-gray-900"
+                    className="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-500 text-gray-900"
                     required
                   />
                 </div>
@@ -537,7 +531,7 @@ const ManualProductIntegration = ({
               <button
                 type="button"
                 onClick={addCustomQuestion}
-                className="text-[#7c3aed] hover:text-[#5b21b6] font-medium"
+                className="text-[#28BD78] hover:text-[#5b21b6] font-medium"
               >
                 + Add Custom Question
               </button>
@@ -548,7 +542,7 @@ const ManualProductIntegration = ({
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#7c3aed] text-white py-3 px-6 rounded-lg font-semibold hover:bg-[#5b21b6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#28BD78] text-white py-3 px-6 rounded-lg font-semibold hover:bg-[#5b21b6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Submitting..." : "Submit Product"}
             </button>
