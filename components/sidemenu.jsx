@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useSidebar } from "../context/SidebarContext";
 import CryptoJS from "crypto-js";
-import { useUserInfo } from "../context/UserInfoContext";   // ← NEW
+import { useUserInfo } from "../context/UserInfoContext";
 const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
 function decryptToken(token) {
   try {
@@ -20,7 +20,8 @@ function encryptToken(ci, aid) {
   return CryptoJS.AES.encrypt(data, ENCRYPTION_KEY).toString();
 }
 
-const menuItems = [
+const menuItems = (user) => {
+  return [
   {
     label: "Dashboard",
     route: "/dashboard",
@@ -126,7 +127,8 @@ const menuItems = [
     ),
 /*******  e34fd138-9904-443b-a691-237cc1146e8b  *******/
   },
-   {
+   // Only show Employees option for HR, Manager, and Team Lead roles
+   ...(user?.role === "HR" || user?.role === "Manager" || user?.role === "Team Lead" ? [{
     label: "Employees",
     route: "/employees",
     icon: (isActive) => (
@@ -157,7 +159,7 @@ const menuItems = [
         />
       </svg>
     ),
-  },
+  }] : []),
     {
     label: "Assign Tasks",
     route: "/assign-tasks",
@@ -328,6 +330,7 @@ const menuItems = [
     ),
   },
 ];
+};
 
 // Custom bounce animation for Tailwind
 const bounceKeyframes = `
@@ -500,7 +503,7 @@ export default function SideMenu({ mobileOverlay = false }) {
             maxHeight: "100vh"
           }}
         >
-          {menuItems.map((item, idx) => {
+          {menuItems(user).map((item, idx) => {
             const isActive = router.pathname === item.route;
             return (
               <>
