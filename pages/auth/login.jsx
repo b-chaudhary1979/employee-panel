@@ -207,7 +207,7 @@ const Login = () => {
         <div className="flex-1 flex flex-col justify-start items-start py-8 px-4 sm:px-8 md:py-[5vh] md:px-[4vw] relative bg-white/5 backdrop-blur-xs w-full md:w-auto">
           {/* Branding Info */}
           <div className="max-w-full md:max-w-[500px]">
-            <h1 className="text-[32px] sm:text-[40px] md:text-[50px] mt-4 md:mt-8 font-extrabold text-[#a259f7] mb-3 md:mb-4">
+            <h1 className="text-[32px] sm:text-[40px] md:text-[50px] mt-4 md:mt-8 font-extrabold text-[#16a34a] mb-3 md:mb-4">
               Employee Portal
             </h1>
             <p className="text-[15px] sm:text-[16px] md:text-[18px] leading-relaxed text-[#fff]">
@@ -215,7 +215,7 @@ const Login = () => {
               team. Our employee portal is designed to enhance productivity and
               streamline your workflow.
             </p>
-            <ul className="mt-4 md:mt-5 pl-5 text-[#a259f7] font-semibold list-disc text-[14px] sm:text-[15px] md:text-[16px]">
+            <ul className="mt-4 md:mt-5 pl-5 text-[#16a34a] font-semibold list-disc text-[14px] sm:text-[15px] md:text-[16px]">
               <li>Task management</li>
               <li>Team collaboration</li>
               <li>Secure access</li>
@@ -233,7 +233,7 @@ const Login = () => {
             onSubmit={handleVerify}
             className="bg-gray-300 rounded-xl w-full max-w-[95vw] sm:max-w-[400px] pt-2 pb-4 px-4 sm:pt-3 sm:pb-6 sm:px-6 md:pt-4 md:pb-8 md:px-8 flex flex-col gap-4 sm:gap-5"
           >
-            <h2 className="text-[24px] sm:text-[28px] md:text-[30px] font-extrabold text-[#a259f7]">
+            <h2 className="text-[24px] sm:text-[28px] md:text-[30px] font-extrabold text-[#16a34a]">
               Employee Login
             </h2>
             <p className="text-[#6b7280] text-[14px] sm:text-[15px]">
@@ -251,7 +251,7 @@ const Login = () => {
                 placeholder="Enter your employee ID"
                 autoComplete="username"
                 required
-                className="w-full py-3 px-4 pr-10 text-gray-700 rounded-lg border border-[#e0dfea] text-[14px] sm:text-[15px] bg-[#f8f9fa] outline-none focus:border-[#a259f7] focus:ring-2 focus:ring-[#a259f7]"
+                className="w-full py-3 px-4 pr-10 text-gray-700 rounded-lg border border-[#e0dfea] text-[14px] sm:text-[15px] bg-[#f8f9fa] outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]"
               />
               <span
                 className="absolute right-3 top-10 sm:top-12 transform -translate-y-1/2 cursor-pointer"
@@ -269,7 +269,7 @@ const Login = () => {
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
-                    stroke="#a259f7"
+                    stroke="#16a34a"
                     className="w-5 h-5"
                   >
                     <path
@@ -285,7 +285,7 @@ const Login = () => {
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
-                    stroke="#a259f7"
+                    stroke="#16a34a"
                     className="w-5 h-5"
                   >
                     <path
@@ -297,7 +297,7 @@ const Login = () => {
                       cx="12"
                       cy="12"
                       r="3"
-                      stroke="#a259f7"
+                      stroke="#16a34a"
                       strokeWidth="1.5"
                     />
                   </svg>
@@ -318,8 +318,8 @@ const Login = () => {
               disabled={isLoggingIn}
               className={`w-full py-[13px] rounded-lg text-[16px] sm:text-[17px] font-bold transition-all duration-200 tracking-wider border-none flex items-center justify-center gap-2 ${
                 isLoggingIn
-                  ? "bg-[#e0dfea] text-[#a259f7] cursor-not-allowed"
-                  : "bg-[#a259f7] text-white cursor-pointer"
+                  ? "bg-[#e0dfea] text-[#16a34a] cursor-not-allowed"
+                  : "bg-[#16a34a] text-white cursor-pointer"
               }`}
             >
               {isLoggingIn && (

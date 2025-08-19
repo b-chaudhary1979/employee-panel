@@ -309,7 +309,7 @@ export default function InternManagementSystem() {
           <p className="text-gray-600 mb-4">{internsError}</p>
           <button 
             onClick={() => window.location.reload()} 
-            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
           >
             Retry
           </button>
@@ -367,7 +367,7 @@ export default function InternManagementSystem() {
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <div>
-                <h1 className="text-3xl text-[#7c3aed] font-bold">
+                <h1 className="text-3xl text-[#28DB78] font-bold">
                   Intern Management
                 </h1>
                 <p className="text-gray-500 mb-6">
@@ -376,7 +376,7 @@ export default function InternManagementSystem() {
               </div>
               <button
                 onClick={() => setShowAddInternModal(true)}
-                className="bg-[#7c3aed] hover:bg-[#6d28d9] text-white px-4 py-2 rounded-lg shadow-md transition-colors duration-200 flex items-center gap-2"
+                className="bg-[#28DB78] hover:bg-[#16a34a] text-white px-4 py-2 rounded-lg shadow-md transition-colors duration-200 flex items-center gap-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -395,7 +395,7 @@ export default function InternManagementSystem() {
                     placeholder="Search by name, email, or department"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
                 <div>
@@ -403,7 +403,7 @@ export default function InternManagementSystem() {
                   <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
-                    className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+                    className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
                   >
                     <option value="All">All</option>
                     <option value="Active">Active</option>
@@ -497,7 +497,7 @@ export default function InternManagementSystem() {
                     name="name"
                     value={newIntern.name}
                     onChange={handleNewInternChange}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                     required
                   />
                 </div>
@@ -508,7 +508,7 @@ export default function InternManagementSystem() {
                     name="email"
                     value={newIntern.email}
                     onChange={handleNewInternChange}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                     required
                   />
                 </div>
@@ -519,7 +519,7 @@ export default function InternManagementSystem() {
                     name="phone"
                     value={newIntern.phone}
                     onChange={handleNewInternChange}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                     required
                   />
                 </div>
@@ -529,7 +529,7 @@ export default function InternManagementSystem() {
                     name="department"
                     value={newIntern.department}
                     onChange={handleNewInternChange}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
                     required
                   >
                     <option value="">Select Department</option>
@@ -549,7 +549,7 @@ export default function InternManagementSystem() {
                     name="mentor"
                     value={newIntern.mentor}
                     onChange={handleNewInternChange}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                     required
                   />
                 </div>
@@ -560,7 +560,7 @@ export default function InternManagementSystem() {
                     name="startDate"
                     value={newIntern.startDate}
                     onChange={handleNewInternChange}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                     required
                   />
                 </div>
@@ -571,7 +571,7 @@ export default function InternManagementSystem() {
                     name="endDate"
                     value={newIntern.endDate}
                     onChange={handleNewInternChange}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                     required
                   />
                 </div>
@@ -583,7 +583,7 @@ export default function InternManagementSystem() {
                     value={newIntern.githubProfile}
                     onChange={handleNewInternChange}
                     placeholder="https://github.com/username"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
                 <div>
@@ -594,7 +594,7 @@ export default function InternManagementSystem() {
                     value={newIntern.linkedinProfile}
                     onChange={handleNewInternChange}
                     placeholder="https://linkedin.com/in/username"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
                 <div>
@@ -605,7 +605,7 @@ export default function InternManagementSystem() {
                     value={newIntern.portfolioWebsite}
                     onChange={handleNewInternChange}
                     placeholder="https://yourportfolio.com"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
               </div>
@@ -620,7 +620,7 @@ export default function InternManagementSystem() {
                       type="text"
                       value={newIntern.education.university}
                       onChange={(e) => handleEducationChange('university', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                       required
                     />
                   </div>
@@ -630,7 +630,7 @@ export default function InternManagementSystem() {
                       type="text"
                       value={newIntern.education.currentSemester}
                       onChange={(e) => handleEducationChange('currentSemester', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                       required
                     />
                   </div>
@@ -646,7 +646,7 @@ export default function InternManagementSystem() {
                       type="text"
                       value={skill}
                       onChange={(e) => handleSkillChange(index, e.target.value)}
-                      className="flex-grow border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="flex-grow border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                       placeholder="Skill"
                       required
                     />
@@ -664,7 +664,7 @@ export default function InternManagementSystem() {
                 <button
                   type="button"
                   onClick={addSkillField}
-                  className="mt-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200"
+                  className="mt-2 px-4 py-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200"
                 >
                   Add
                 </button>
@@ -679,7 +679,7 @@ export default function InternManagementSystem() {
                       type="text"
                       value={tech}
                       onChange={(e) => handleTechChange(index, e.target.value)}
-                      className="flex-grow border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="flex-grow border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                       placeholder="Technology"
                       required
                     />
@@ -697,7 +697,7 @@ export default function InternManagementSystem() {
                 <button
                   type="button"
                   onClick={addTechField}
-                  className="mt-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200"
+                  className="mt-2 px-4 py-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200"
                 >
                   Add
                 </button>
@@ -712,7 +712,7 @@ export default function InternManagementSystem() {
                       type="text"
                       value={project}
                       onChange={(e) => handleProjectChange(index, e.target.value)}
-                      className="flex-grow border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="flex-grow border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                       placeholder="Project name"
                       required
                     />
@@ -730,7 +730,7 @@ export default function InternManagementSystem() {
                 <button
                   type="button"
                   onClick={addProjectField}
-                  className="mt-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200"
+                  className="mt-2 px-4 py-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200"
                 >
                   Add Project
                 </button>
@@ -743,7 +743,7 @@ export default function InternManagementSystem() {
                   name="aboutYourself"
                   value={newIntern.aboutYourself}
                   onChange={handleNewInternChange}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                   rows="3"
                   placeholder="Tell us about yourself, your background, and interests"
                   required
@@ -757,7 +757,7 @@ export default function InternManagementSystem() {
                   name="careerGoals"
                   value={newIntern.careerGoals}
                   onChange={handleNewInternChange}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                   rows="3"
                   placeholder="Describe your short-term and long-term career goals"
                   required
@@ -774,7 +774,7 @@ export default function InternManagementSystem() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#7c3aed] hover:bg-[#6d28d9] text-white rounded-md"
+                  className="px-4 py-2 bg-[#28DB78] hover:bg-[#16a34a] text-white rounded-md"
                 >
                   Submit Application
                 </button>

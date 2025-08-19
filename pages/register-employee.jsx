@@ -37,7 +37,7 @@ export default function RegisterEmployeePage() {
         <BgAnimation />
       </div>
       <div className="w-full max-w-2xl z-10 relative">
-        <h1 className="text-3xl md:text-4xl font-bold text-purple-500 mb-6 text-center">Employee Registration Portal - Admin Panel</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-green-500 mb-6 text-center">Employee Registration Portal - Admin Panel</h1>
         {/* CID input if not provided in query */}
         {!router.query.cid && (
           <div className="mb-4 flex flex-col items-center">

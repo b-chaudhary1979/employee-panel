@@ -108,7 +108,7 @@ const Header = forwardRef(function Header(
           {isMobile && (
             <button
               type="button"
-              className="mr-3 bg-[#a259f7] text-white rounded-full p-2 shadow-lg focus:outline-none"
+              className="mr-3 bg-[#16a34a] text-white rounded-full p-2 shadow-lg focus:outline-none"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -135,7 +135,7 @@ const Header = forwardRef(function Header(
           )}
           <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-900">
             Welcome,{" "}
-            <span className="text-purple-600 font-semibold">{displayUsername}</span>
+            <span className="text-green-600 font-semibold">{displayUsername}</span>
           </h1>
         </div>
 
@@ -143,7 +143,7 @@ const Header = forwardRef(function Header(
         <div className="flex items-center space-x-4">
           {/* Company name */}
           <div className="hidden md:block">
-            <h2 className="text-lg font-semibold text-purple-500">
+            <h2 className="text-lg font-semibold text-green-500">
               {displayCompany}
             </h2>
           </div>
@@ -152,9 +152,9 @@ const Header = forwardRef(function Header(
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center overflow-hidden">
+              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center overflow-hidden">
                 <User className="w-5 h-5 text-white" />
               </div>
               <ChevronDown
@@ -169,7 +169,7 @@ const Header = forwardRef(function Header(
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                 <button
                   onClick={handleProfileClick}
-                  className="w-full flex items-center space-x-3 px-4 py-2 text-left text-blue-500 hover:bg-gray-50 transition-colors duration-150"
+                  className="w-full flex items-center space-x-3 px-4 py-2 text-left text-green-500 hover:bg-gray-50 transition-colors duration-150"
                 >
                   <User className="w-4 h-4" />
                   <span>Profile</span>
@@ -202,7 +202,7 @@ const Header = forwardRef(function Header(
                     </button>
                     <button
                       onClick={handleCancelLogout}
-                      className="px-4 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors duration-150"
+                      className="px-4 py-2 rounded bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors duration-150"
                     >
                       Cancel
                     </button>

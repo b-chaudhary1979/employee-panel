@@ -236,9 +236,9 @@ function EmployeesContent() {
       {/* Employee Detail Modal (View/Edit) */}
       {showEmployeeModal && selectedEmployee && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur">
-          <div className="relative w-full max-w-2xl md:max-w-4xl mx-auto bg-gradient-to-br from-purple-50 via-white to-blue-50 rounded-2xl shadow-2xl p-10 overflow-y-auto max-h-[90vh] border border-purple-200 ring-1 ring-purple-100 text-[1.15rem] md:text-xl">
+          <div className="relative w-full max-w-2xl md:max-w-4xl mx-auto bg-gradient-to-br from-green-50 via-white to-green-50 rounded-2xl shadow-2xl p-10 overflow-y-auto max-h-[90vh] border border-green-200 ring-1 ring-green-100 text-[1.15rem] md:text-xl">
             {/* Colored top border accent */}
-            <div className="absolute top-0 left-0 w-full h-2 rounded-t-2xl bg-gradient-to-r from-purple-500 via-pink-400 to-blue-400" />
+            <div className="absolute top-0 left-0 w-full h-2 rounded-t-2xl bg-gradient-to-r from-green-500 via-pink-400 to-green-400" />
             {/* Allow Employee To Edit Toggle */}
             <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
               <span className="text-sm font-semibold text-gray-500">Allow Employee to Edit</span>
@@ -261,7 +261,7 @@ function EmployeesContent() {
             </div>
             {/* Back Button */}
             <button
-              className="absolute top-4 left-4 flex items-center gap-2 px-4 py-2 hover:bg-purple-300 rounded text-purple-700 font-semibold text-lg md:text-xl z-20"
+              className="absolute top-4 left-4 flex items-center gap-2 px-4 py-2 hover:bg-green-300 rounded text-green-700 font-semibold text-lg md:text-xl z-20"
               onClick={() => { setShowEmployeeModal(false); setEditMode(false); }}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
@@ -269,9 +269,9 @@ function EmployeesContent() {
             {/* Profile Picture at the top (moved inside the border) */}
             <div className="flex flex-col items-center mb-10 mt-6 relative z-10">
               {selectedEmployee.photo ? (
-                <img src={selectedEmployee.photo} alt="Profile" className="w-32 h-32 rounded-full object-cover border-4 border-purple-200 shadow-lg mb-2" />
+                <img src={selectedEmployee.photo} alt="Profile" className="w-32 h-32 rounded-full object-cover border-4 border-green-200 shadow-lg mb-2" />
               ) : (
-                <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 border-4 border-purple-200 shadow-lg mb-2">
+                <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 border-4 border-green-200 shadow-lg mb-2">
                   <svg className="w-16 h-16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 </div>
               )}
@@ -281,19 +281,19 @@ function EmployeesContent() {
               </div>
             </div>
             {/* Employee Details Section */}
-            <div className="mb-10 bg-white/90 rounded-2xl p-7 border border-purple-100 shadow flex flex-col gap-6">
+            <div className="mb-10 bg-white/90 rounded-2xl p-7 border border-green-100 shadow flex flex-col gap-6">
               <div className="flex items-center gap-2 mb-4">
-                <svg className="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm0 2c-2.67 0-8 1.337-8 4v2h16v-2c0-2.663-5.33-4-8-4z" /></svg>
-                <h2 className="text-2xl md:text-3xl font-bold text-purple-400 tracking-tight">Employee Details</h2>
+                <svg className="w-7 h-7 text-green-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm0 2c-2.67 0-8 1.337-8 4v2h16v-2c0-2.663-5.33-4-8-4z" /></svg>
+                <h2 className="text-2xl md:text-3xl font-bold text-green-400 tracking-tight">Employee Details</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Employee ID</span><br/>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Employee ID</span><br/>
                   <span className="text-xl md:text-2xl text-gray-800 flex items-center gap-2 font-bold">
                     {selectedEmployee.employeeId || selectedEmployee.id || '-'}
                     {(selectedEmployee.employeeId || selectedEmployee.id) && (
                       <button
                         type="button"
-                        className="ml-1 px-2 py-1 bg-gray-200 hover:bg-purple-200 rounded text-xs text-gray-700 flex items-center gap-1"
+                        className="ml-1 px-2 py-1 bg-gray-200 hover:bg-green-200 rounded text-xs text-gray-700 flex items-center gap-1"
                         title="Copy Employee ID"
                         onClick={() => {
                           handleCopyEmployeeId(selectedEmployee.employeeId || selectedEmployee.id);
@@ -315,45 +315,45 @@ function EmployeesContent() {
                     )}
                   </span>
                 </div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Name</span><br/><span className="text-xl md:text-2xl text-gray-800 font-semibold">{selectedEmployee.firstName} {selectedEmployee.lastName}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Email</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.email}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Phone</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.phone}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">DOB</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.dob}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Gender</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.gender}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Department</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.department}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Role</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.role}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Status</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.status || 'Active'}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Date Joined</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.dateJoined}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Address</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.address}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">City</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.city}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">State</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.state}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Country</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.country}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">ZIP Code</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.zip}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Company</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.company}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Name</span><br/><span className="text-xl md:text-2xl text-gray-800 font-semibold">{selectedEmployee.firstName} {selectedEmployee.lastName}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Email</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.email}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Phone</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.phone}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">DOB</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.dob}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Gender</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.gender}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Department</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.department}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Role</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.role}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Status</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.status || 'Active'}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Date Joined</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.dateJoined}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Address</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.address}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">City</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.city}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">State</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.state}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Country</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.country}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">ZIP Code</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.zip}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Company</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedEmployee.company}</span></div>
               </div>
             </div>
-            <div className="my-8 border-t border-purple-100" />
+            <div className="my-8 border-t border-green-100" />
             {/* Custom Q&A Section */}
             <div className="mb-10">
               <div className="flex items-center gap-2 mb-3">
-                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 8.25v-1.5A2.25 2.25 0 0014.25 4.5h-4.5A2.25 2.25 0 007.5 6.75v1.5m9 0v8.25A2.25 2.25 0 0114.25 18H9.75A2.25 2.25 0 007.5 16.5V8.25m9 0H7.5" /></svg>
-                <h3 className="text-xl md:text-2xl font-bold text-blue-400 tracking-tight">Custom Q&A</h3>
+                <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 8.25v-1.5A2.25 2.25 0 0014.25 4.5h-4.5A2.25 2.25 0 007.5 6.75v1.5m9 0v8.25A2.25 2.25 0 0114.25 18H9.75A2.25 2.25 0 007.5 16.5V8.25m9 0H7.5" /></svg>
+                <h3 className="text-xl md:text-2xl font-bold text-green-400 tracking-tight">Custom Q&A</h3>
               </div>
               {(selectedEmployee.customQA || []).length === 0 && <div className="text-base text-gray-400">No custom questions.</div>}
               <div className="space-y-4">
                 {(selectedEmployee.customQA || []).map((qa, idx) => (
-                  <div key={idx} className="bg-white border border-blue-100 rounded-xl px-6 py-4 flex flex-col md:flex-row md:items-center gap-3 shadow">
+                  <div key={idx} className="bg-white border border-green-100 rounded-xl px-6 py-4 flex flex-col md:flex-row md:items-center gap-3 shadow">
                     <div className="flex-1">
                       <span className="font-bold text-black text-lg md:text-xl">Q:</span> <span className="font-semibold text-black text-lg md:text-xl">{qa.question}</span>
                     </div>
-                    <div className="flex-1 border-t md:border-t-0 md:border-l border-blue-100 md:pl-6 pt-3 md:pt-0 mt-3 md:mt-0">
+                    <div className="flex-1 border-t md:border-t-0 md:border-l border-green-100 md:pl-6 pt-3 md:pt-0 mt-3 md:mt-0">
                       <span className="font-bold text-black text-lg md:text-xl">A:</span> <span className="font-semibold text-black text-lg md:text-xl">{qa.answer}</span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="my-8 border-t border-purple-100" />
+            <div className="my-8 border-t border-green-100" />
             {/* Documents Section */}
             <div className="mb-8">
               <div className="flex items-center gap-2 mb-3">
@@ -364,14 +364,14 @@ function EmployeesContent() {
               <ul className="list-disc pl-6">
                 {(selectedEmployee.documents || []).map((doc, idx) => (
                   <li key={idx} className="mb-2">
-                    <a href={doc.data} download={doc.name} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-lg md:text-xl">{doc.name}</a>
+                    <a href={doc.data} download={doc.name} target="_blank" rel="noopener noreferrer" className="text-green-600 underline text-lg md:text-xl">{doc.name}</a>
                   </li>
                 ))}
               </ul>
             </div>
             {/* Status Pills, Edit Form, etc. remain unchanged */}
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-purple-700">Employee Details</h2>
+              <h2 className="text-2xl font-bold text-green-700">Employee Details</h2>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-gray-500">Edit</span>
                 <button onClick={() => setEditMode((v) => !v)} className={`w-10 h-6 rounded-full ${editMode ? 'bg-green-500' : 'bg-gray-300'} flex items-center transition-colors duration-300`}>
@@ -394,51 +394,51 @@ function EmployeesContent() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">First Name</label>
-                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.firstName || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, firstName: e.target.value })} required disabled={!editMode} />
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] text-black" value={selectedEmployee.firstName || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, firstName: e.target.value })} required disabled={!editMode} />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Last Name</label>
-                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.lastName || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, lastName: e.target.value })} required disabled={!editMode} />
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] text-black" value={selectedEmployee.lastName || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, lastName: e.target.value })} required disabled={!editMode} />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Email</label>
-                  <input type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.email || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, email: e.target.value })} required disabled={!editMode} />
+                  <input type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] text-black" value={selectedEmployee.email || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, email: e.target.value })} required disabled={!editMode} />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Phone</label>
-                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.phone || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, phone: e.target.value })} required disabled={!editMode} />
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] text-black" value={selectedEmployee.phone || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, phone: e.target.value })} required disabled={!editMode} />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Department</label>
-                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.department || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, department: e.target.value })} required disabled={!editMode} />
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] text-black" value={selectedEmployee.department || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, department: e.target.value })} required disabled={!editMode} />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Role</label>
-                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.role || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, role: e.target.value })} required disabled={!editMode} />
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] text-black" value={selectedEmployee.role || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, role: e.target.value })} required disabled={!editMode} />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Date Joined</label>
-                  <input type="date" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.dateJoined || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, dateJoined: e.target.value })} required disabled={!editMode} />
+                  <input type="date" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] text-black" value={selectedEmployee.dateJoined || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, dateJoined: e.target.value })} required disabled={!editMode} />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Address</label>
-                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.address || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, address: e.target.value })} required disabled={!editMode} />
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] text-black" value={selectedEmployee.address || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, address: e.target.value })} required disabled={!editMode} />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">City</label>
-                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.city || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, city: e.target.value })} required disabled={!editMode} />
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] text-black" value={selectedEmployee.city || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, city: e.target.value })} required disabled={!editMode} />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">State</label>
-                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.state || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, state: e.target.value })} required disabled={!editMode} />
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] text-black" value={selectedEmployee.state || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, state: e.target.value })} required disabled={!editMode} />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Country</label>
-                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.country || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, country: e.target.value })} required disabled={!editMode} />
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] text-black" value={selectedEmployee.country || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, country: e.target.value })} required disabled={!editMode} />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">ZIP Code</label>
-                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a259f7] text-black" value={selectedEmployee.zip || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, zip: e.target.value })} required disabled={!editMode} />
+                  <input type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#28BD78] text-black" value={selectedEmployee.zip || ''} onChange={e => setSelectedEmployee({ ...selectedEmployee, zip: e.target.value })} required disabled={!editMode} />
                 </div>
               </div>
               {/* Documents Section */}
@@ -448,7 +448,7 @@ function EmployeesContent() {
                 <ul className="list-disc pl-5">
                   {(selectedEmployee.documents || []).map((doc, idx) => (
                     <li key={idx} className="mb-1">
-                      <a href={doc.data} download={doc.name} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-sm">{doc.name}</a>
+                      <a href={doc.data} download={doc.name} target="_blank" rel="noopener noreferrer" className="text-green-600 underline text-sm">{doc.name}</a>
                     </li>
                   ))}
                 </ul>
@@ -462,7 +462,7 @@ function EmployeesContent() {
                       <button
                         key={option}
                         type="button"
-                        className={`px-2 py-1 rounded-full text-xs font-semibold focus:outline-none transition-colors duration-200 ${selectedEmployee.status === option ? 'bg-purple-500 text-white' : 'bg-gray-200 text-gray-700'} cursor-pointer`}
+                        className={`px-2 py-1 rounded-full text-xs font-semibold focus:outline-none transition-colors duration-200 ${selectedEmployee.status === option ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'} cursor-pointer`}
                         style={{ minWidth: 0, height: '28px', fontSize: '0.85rem' }}
                         onClick={() => setSelectedEmployee({ ...selectedEmployee, status: option })}
                       >
@@ -486,13 +486,13 @@ function EmployeesContent() {
                   </div>
                 ))}
                 {editMode && (
-                  <button type="button" onClick={() => setSelectedEmployee({ ...selectedEmployee, customQA: [...(selectedEmployee.customQA || []), { question: '', answer: '' }] })} className="mt-2 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">+ Add Custom Q&A</button>
+                  <button type="button" onClick={() => setSelectedEmployee({ ...selectedEmployee, customQA: [...(selectedEmployee.customQA || []), { question: '', answer: '' }] })} className="mt-2 px-4 py-2 bg-green-100 text-green-700 rounded hover:bg-green-200">+ Add Custom Q&A</button>
                 )}
               </div>
               {editMode && (
                 <div className="flex gap-2 mt-6 justify-end">
                   <button type="button" className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg px-4 py-2 transition-colors duration-200" onClick={() => { setShowEmployeeModal(false); setEditMode(false); }}>Cancel</button>
-                  <button type="submit" className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200">Save Changes</button>
+                  <button type="submit" className="bg-[#28BD78] hover:bg-[#16a34a] text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200">Save Changes</button>
                 </div>
               )}
             </form>
@@ -555,7 +555,7 @@ function EmployeesContent() {
           >
             <div className="max-w-6xl mx-auto">
               {/* Page Title and Subtitle */}
-              <h1 className="text-3xl text-[#7c3aed] font-bold">
+              <h1 className="text-3xl text-[#16a34a] font-bold">
                 Employee Management
               </h1>
               <p className="text-gray-500 mb-6">
@@ -565,9 +565,9 @@ function EmployeesContent() {
               {/* Summary Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                 <div className="bg-white rounded-xl shadow flex items-center gap-4 px-6 py-5">
-                  <div className="bg-blue-100 p-3 rounded-full">
+                  <div className="bg-green-200 p-3 rounded-full">
                     <svg
-                      className="w-7 h-7 text-blue-500"
+                      className="w-7 h-7 text-green-500"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
@@ -640,7 +640,7 @@ function EmployeesContent() {
                 <input
                   type="text"
                   placeholder="Search employees by name, email, or ID..."
-                  className="flex-1 border text-gray-600 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 placeholder-gray-500"
+                  className="flex-1 border text-gray-600 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-200 placeholder-gray-500"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                 />
@@ -659,7 +659,7 @@ function EmployeesContent() {
                 {/* Only show if user role is HR, Manager, or Team Lead */}
                 {["HR", "Manager", "Team Lead"].includes(user?.role) && (
                   <button
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg shadow flex items-center gap-2"
+                    className="bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2 rounded-lg shadow flex items-center gap-2"
                     onClick={() => router.push(`/register-employee?cid=${ci}`)}
                   >
                     <svg
@@ -715,7 +715,7 @@ function EmployeesContent() {
                               </div>
                             )}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap font-semibold text-blue-700 cursor-pointer group relative"
+                          <td className="px-6 py-4 whitespace-nowrap font-semibold text-green-700 cursor-pointer group relative"
                               onClick={e => { e.stopPropagation(); handleCopyEmployeeId(emp.employeeId || emp.id); }}
                               title="Click to copy Employee ID"
                           >
@@ -728,7 +728,7 @@ function EmployeesContent() {
                           <td className="px-6 py-4 whitespace-nowrap">{emp.status === "Active" ? (<span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Active</span>) : (<span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">{emp.status || 'Inactive'}</span>)}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-gray-500">{emp.dateJoined}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-center flex items-center justify-center gap-3" onClick={e => e.stopPropagation()}>
-                            <button className="text-purple-500 hover:text-purple-700" title="Edit Employee" onClick={() => handleEditEmployee(emp)}>
+                            <button className="text-green-500 hover:text-green-700" title="Edit Employee" onClick={() => handleEditEmployee(emp)}>
                               <Pen className="w-5 h-5" />
                             </button>
                             <button className="text-red-500 hover:text-red-700" title="Delete Employee" onClick={() => { setDeleteEmpId(emp.id); setShowDeleteConfirm(true); }}>
@@ -748,7 +748,7 @@ function EmployeesContent() {
                     filteredEmployees.map((emp, idx) => (
                       <div key={emp.id} className="border-b border-gray-200 px-4 py-4 flex flex-col gap-2 cursor-pointer hover:bg-gray-50" onClick={() => handleViewEmployee(emp)}>
                         <div className="flex justify-between items-center">
-                          <span className="font-semibold text-blue-700 flex items-center gap-2">
+                          <span className="font-semibold text-green-700 flex items-center gap-2">
                             {emp.sNo}.
                             {emp.photo ? (
                               <img src={emp.photo} alt="Profile" className="w-8 h-8 rounded-full object-cover border" />
@@ -758,7 +758,7 @@ function EmployeesContent() {
                               </div>
                             )}
                             <span
-                              className="cursor-pointer underline text-blue-700 relative group"
+                              className="cursor-pointer underline text-green-700 relative group"
                               onClick={e => { e.stopPropagation(); handleCopyEmployeeId(emp.employeeId || emp.id); }}
                               title="Click to copy Employee ID"
                             >
@@ -767,7 +767,7 @@ function EmployeesContent() {
                             </span>
                           </span>
                           <div className="flex gap-3 self-end" onClick={e => e.stopPropagation()}>
-                            <button className="text-purple-500 hover:text-purple-700" title="Edit Employee" onClick={() => handleEditEmployee(emp)}><Pen className="w-5 h-5" /></button>
+                            <button className="text-green-500 hover:text-green-700" title="Edit Employee" onClick={() => handleEditEmployee(emp)}><Pen className="w-5 h-5" /></button>
                             <button className="text-red-500 hover:text-red-700" title="Delete Employee" onClick={() => { setDeleteEmpId(emp.id); setShowDeleteConfirm(true); }}><Trash2 className="w-5 h-5" /></button>
                           </div>
                         </div>

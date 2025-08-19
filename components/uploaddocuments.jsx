@@ -3,7 +3,7 @@ import React from "react";
 function InlineLoader() {
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-60 z-10">
-      <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
   );
 }
@@ -40,7 +40,7 @@ export default function UploadDocuments({
         )}
         {/* Custom file input button - use ref and button outside form context */}
         <div className="flex justify-center">
-          <button type="button" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow cursor-pointer" onClick={() => fileInputRef.current && fileInputRef.current.click()}>
+          <button type="button" className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg shadow cursor-pointer" onClick={() => fileInputRef.current && fileInputRef.current.click()}>
             Choose Photo
           </button>
           <input ref={fileInputRef} type="file" accept="image/*" name="photo" onChange={onPhotoChange} className="hidden" form="noform" />
@@ -58,7 +58,7 @@ export default function UploadDocuments({
             <span className="text-xs text-gray-600">{doc.name ? doc.name : "No file chosen"}</span>
           </div>
         ))}
-        <button type="button" onClick={addDocumentInput} className="mt-2 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">+ Add Document</button>
+        <button type="button" onClick={addDocumentInput} className="mt-2 px-4 py-2 bg-green-100 text-green-700 rounded hover:bg-green-200">+ Add Document</button>
       </div>
     </div>
   );

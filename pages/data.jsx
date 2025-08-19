@@ -482,7 +482,7 @@ function DataContent() {
     return (
       <div className="flex items-center justify-center min-h-screen w-full">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -583,7 +583,7 @@ function DataContent() {
             <div className="max-w-6xl mx-auto">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h1 className="text-3xl font-extrabold text-[#7c3aed] mb-1">
+                  <h1 className="text-3xl font-extrabold text-[#16a34a] mb-1">
                     Data Management
                   </h1>
                   <p className="text-gray-500 text-lg">
@@ -594,7 +594,7 @@ function DataContent() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => router.push(`/add-documents?cid=${ci}&aid=${aid}`)}
-                    className="bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition-all duration-200 flex items-center gap-2"
+                    className="bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition-all duration-200 flex items-center gap-2"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -629,8 +629,8 @@ function DataContent() {
                     onClick={() => setActiveTab(tab.key)}
                     className={`px-6 py-3 text-lg font-semibold border-b-2 transition-colors duration-200 focus:outline-none ${
                       activeTab === tab.key
-                        ? "border-purple-500 text-[#7c3aed] bg-white"
-                        : "border-transparent text-gray-500 hover:text-[#7c3aed]"
+                        ? "border-green-500 text-[#16a34a] bg-white"
+                        : "border-transparent text-gray-500 hover:text-[#16a34a]"
                     }`}
                     style={{
                       background: activeTab === tab.key ? "#fff" : "#f3f4f6",

@@ -54,7 +54,7 @@ export default function MyTasksPage() {
      {
        value: "in-progress",
        label: "In Progress",
-       color: "bg-blue-100 text-blue-700",
+       color: "bg-green-100 text-green-700",
      },
      {
        value: "completed",
@@ -344,7 +344,7 @@ export default function MyTasksPage() {
             href={link}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 underline text-sm truncate"
+            className="text-green-600 hover:text-green-800 underline text-sm truncate"
           >
             Link {index + 1}
           </a>
@@ -405,7 +405,7 @@ export default function MyTasksPage() {
          style={{ marginLeft: getContentMarginLeft(), marginTop: headerHeight }}
        >
                    <div className="flex items-center gap-3 mb-1">
-                     <h1 className="text-3xl font-extrabold text-[#7c3aed] font-manrope">My Tasks</h1>
+                     <h1 className="text-3xl font-extrabold text-[#28BD78] font-manrope">My Tasks</h1>
                      
                    </div>
                    <p className="text-gray-500 text-lg font-manrope">Track all your tasks, update statuses, and submit your work here. Data updates in real-time.</p>
@@ -455,7 +455,7 @@ export default function MyTasksPage() {
                                    href={link} 
                                    target="_blank" 
                                    rel="noopener noreferrer" 
-                                   className="text-purple-600 hover:text-purple-900 text-xs font-manrope"
+                                   className="text-green-600 hover:text-green-900 text-xs font-manrope"
                                  >
                                    Link {linkIndex + 1}
                                  </a>
@@ -471,7 +471,7 @@ export default function MyTasksPage() {
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                            <button 
                              onClick={() => handleViewDetails(task)}
-                             className="text-purple-600 hover:text-purple-900 font-manrope"
+                             className="text-green-600 hover:text-green-900 font-manrope"
                            >
                              View Details
                            </button>
@@ -576,7 +576,7 @@ export default function MyTasksPage() {
                               href={link}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-600 hover:text-blue-800 underline break-all font-manrope"
+                              className="text-green-600 hover:text-green-800 underline break-all font-manrope"
                             >
                               Link {index + 1}
                             </a>

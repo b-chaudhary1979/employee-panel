@@ -184,7 +184,7 @@ export default function LinksSection({ onDelete }) {
   return (
     <div>
       <div className="mb-6 text-left">
-        <h2 className="text-2xl font-bold text-[#7c3aed]">Links</h2>
+        <h2 className="text-2xl font-bold text-[#28BD78]">Links</h2>
         <p className="text-gray-500 text-base mt-1">Access and manage your saved links.</p>
       </div>
       {/* Search Bar */}
@@ -195,14 +195,14 @@ export default function LinksSection({ onDelete }) {
             placeholder="Search by link, date, or employee..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full px-4 py-2 rounded-lg shadow border border-purple-400 focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-600 text-gray-900 transition"
+            className="w-full px-4 py-2 rounded-lg shadow border border-green-400 focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-600 text-gray-900 transition"
           />
         </div>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white rounded-lg shadow-md">
           <thead>
-            <tr className="bg-[#f3f4f6] text-[#7c3aed]">
+            <tr className="bg-[#f3f4f6] text-[#28BD78]">
               <th className="py-3 px-4 text-left">S.No</th>
               <th className="py-3 px-4 text-left">Date</th>
               <th className="py-3 px-4 text-left">Link</th>
@@ -226,7 +226,7 @@ export default function LinksSection({ onDelete }) {
                     href={link.url || link.linkData}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#7c3aed] underline break-all hover:text-[#5b21b6]"
+                    className="text-[#28BD78] underline break-all hover:text-[#5b21b6]"
                   >
                     {link.url || link.linkData}
                   </a>
@@ -234,7 +234,7 @@ export default function LinksSection({ onDelete }) {
                 <td className="py-2 px-4 flex gap-2">
                   <button
                     onClick={e => { e.stopPropagation(); handleCopy(link.url || link.linkData, link.id || idx); }}
-                    className="px-3 py-1 bg-[#ede9fe] text-[#7c3aed] rounded hover:bg-[#c7d2fe] transition"
+                    className="px-3 py-1 bg-[#ede9fe] text-[#28BD78] rounded hover:bg-[#c7d2fe] transition"
                   >
                     {copied === (link.id || idx) ? "Copied!" : "Copy"}
                   </button>
@@ -242,7 +242,7 @@ export default function LinksSection({ onDelete }) {
                     href={link.url || link.linkData}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3 py-1 bg-[#f3f4f6] text-[#7c3aed] rounded hover:bg-[#e0e7ff] transition"
+                    className="px-3 py-1 bg-[#f3f4f6] text-[#28BD78] rounded hover:bg-[#e0e7ff] transition"
                     onClick={e => e.stopPropagation()}
                   >
                     Open
@@ -262,17 +262,17 @@ export default function LinksSection({ onDelete }) {
           </div>
           {/* Notification (top center, always visible) */}
           {notification && (
-            <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[100] bg-gradient-to-r from-[#7c3aed] to-[#a78bfa] text-white px-6 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-base animate-slideDown">
+            <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[100] bg-gradient-to-r from-[#28BD78] to-[#a78bfa] text-white px-6 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-base animate-slideDown">
               <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' strokeWidth={2} stroke='currentColor' className='w-6 h-6 text-white'>
                 <path strokeLinecap='round' strokeLinejoin='round' d='M5 13l4 4L19 7' />
               </svg>
               {notification}
             </div>
           )}
-          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scaleIn bg-white border border-purple-200 rounded-2xl shadow-2xl flex flex-col items-center p-0" style={{animation: 'scaleIn 0.25s cubic-bezier(.4,2,.6,1)'}}>
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scaleIn bg-white border border-green-200 rounded-2xl shadow-2xl flex flex-col items-center p-0" style={{animation: 'scaleIn 0.25s cubic-bezier(.4,2,.6,1)'}}>
             {/* Close Button */}
             <button
-              className="absolute top-4 right-4 bg-white border border-purple-400 rounded-full w-10 h-10 flex items-center justify-center text-2xl text-gray-700 shadow hover:bg-purple-50 hover:scale-110 transition-all duration-200 z-10"
+              className="absolute top-4 right-4 bg-white border border-green-400 rounded-full w-10 h-10 flex items-center justify-center text-2xl text-gray-700 shadow hover:bg-green-50 hover:scale-110 transition-all duration-200 z-10"
               onClick={() => setModal(null)}
               aria-label="Close"
             >
@@ -281,7 +281,7 @@ export default function LinksSection({ onDelete }) {
             {/* Info Row: Employee/Date */}
             <div className="flex w-full justify-between items-center mb-4">
               <div className="flex items-center gap-3 pl-6 pt-6">
-                <UserIcon className="w-5 h-5 text-purple-400" />
+                <UserIcon className="w-5 h-5 text-green-400" />
                 <span className="text-gray-700 font-bold text-base">{modal.employee || modal.submitterName || '-'}</span>
                 <span className="text-gray-700 text-sm">{modal.date || (modal.createdAt ? new Date(modal.createdAt.seconds ? modal.createdAt.seconds * 1000 : modal.createdAt).toLocaleDateString() : "-")}</span>
               </div>
@@ -292,7 +292,7 @@ export default function LinksSection({ onDelete }) {
                 href={modal.url || modal.linkData}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-xl shadow max-w-full max-h-64 object-contain border border-purple-100 bg-purple-50 px-6 py-4 text-purple-700 font-mono text-lg break-all underline text-center w-full"
+                className="rounded-xl shadow max-w-full max-h-64 object-contain border border-green-100 bg-green-50 px-6 py-4 text-green-700 font-mono text-lg break-all underline text-center w-full"
                 style={{ background: '#fff' }}
               >
                 {modal.url || modal.linkData}
@@ -301,19 +301,19 @@ export default function LinksSection({ onDelete }) {
             {/* Title (removed as requested) */}
             {/* Work Link Section (copy only, removed open/eye icon) */}
             <div className="w-full flex items-center justify-between gap-2 px-6 mb-4">
-              <span className="truncate text-purple-600 font-mono text-sm bg-purple-50 px-3 py-2 rounded-lg border border-purple-100 select-all" title={modal.url || modal.linkData}>{modal.url || modal.linkData}</span>
+              <span className="truncate text-green-600 font-mono text-sm bg-green-50 px-3 py-2 rounded-lg border border-green-100 select-all" title={modal.url || modal.linkData}>{modal.url || modal.linkData}</span>
               <button
-                className={`ml-2 p-2 rounded-full border border-purple-300 bg-white shadow hover:bg-purple-50 transition flex items-center justify-center`}
+                className={`ml-2 p-2 rounded-full border border-green-300 bg-white shadow hover:bg-green-50 transition flex items-center justify-center`}
                 onClick={() => {navigator.clipboard.writeText(modal.url || modal.linkData); setCopied(modal.id || modal.url || modal.linkData); setTimeout(() => setCopied(null), 1500);}}
                 aria-label={copied === (modal.id || modal.url || modal.linkData) ? 'Copied!' : 'Copy link'}
                 title={copied === (modal.id || modal.url || modal.linkData) ? 'Copied!' : 'Copy link'}
               >
                 {copied === (modal.id || modal.url || modal.linkData) ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="#7c3aed" className="w-5 h-5 animate-bounce">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="#28BD78" className="w-5 h-5 animate-bounce">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="#7c3aed" className="w-5 h-5">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="#28BD78" className="w-5 h-5">
                     <rect x="9" y="9" width="13" height="13" rx="2" />
                     <rect x="3" y="3" width="13" height="13" rx="2" />
                   </svg>
@@ -323,11 +323,11 @@ export default function LinksSection({ onDelete }) {
             {/* Feedback */}
             <div className="w-full flex flex-col items-center mb-4 px-6">
               <label className="flex items-center gap-2 text-gray-700 font-semibold mb-2 self-start">
-                <ChatBubbleLeftRightIcon className="w-5 h-5 text-purple-400" />
+                <ChatBubbleLeftRightIcon className="w-5 h-5 text-green-400" />
                 Feedback / Message
               </label>
               <textarea
-                className="w-full bg-white border border-purple-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-400 text-gray-700 placeholder-gray-400 shadow-sm transition mb-2"
+                className="w-full bg-white border border-green-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-700 placeholder-gray-400 shadow-sm transition mb-2"
                 placeholder="Leave feedback or message..."
                 value={modal.feedback || ''}
                 onChange={e => setModal(m => ({ ...m, feedback: e.target.value }))}
@@ -338,15 +338,15 @@ export default function LinksSection({ onDelete }) {
             {/* Actions: Submit Feedback and Delete Button in the same row below feedback */}
             <div className="flex gap-3 w-full px-6 mb-8">
               <button
-                className="flex-1 flex items-center justify-center gap-2 bg-white border border-purple-400 text-gray-700 rounded-full px-5 py-2 font-bold shadow hover:bg-purple-50 active:scale-95 transition-all"
+                className="flex-1 flex items-center justify-center gap-2 bg-white border border-green-400 text-gray-700 rounded-full px-5 py-2 font-bold shadow hover:bg-green-50 active:scale-95 transition-all"
                 onClick={handleFeedbackSubmit}
               >
-                <ChatBubbleLeftRightIcon className="w-5 h-5 text-purple-400" />
+                <ChatBubbleLeftRightIcon className="w-5 h-5 text-green-400" />
                 Submit Feedback
               </button>
               <button
                 type="button"
-                className="flex-1 flex items-center justify-center gap-2 bg-white border border-purple-400 text-red-600 rounded-full px-5 py-2 font-bold shadow hover:bg-red-50 active:scale-95 transition-all text-center"
+                className="flex-1 flex items-center justify-center gap-2 bg-white border border-green-400 text-red-600 rounded-full px-5 py-2 font-bold shadow hover:bg-red-50 active:scale-95 transition-all text-center"
                 onClick={() => setConfirmDelete(modal)}
               >
                 <TrashIcon className="w-5 h-5 text-red-400" />
@@ -359,7 +359,7 @@ export default function LinksSection({ onDelete }) {
                 <h3 className="text-gray-700 font-semibold mb-3 text-center">Feedback</h3>
                 <div className="space-y-2">
                   {comments.map((comment, index) => (
-                    <div key={index} className="bg-purple-50 border border-purple-200 rounded-lg p-3 flex justify-between items-start gap-2">
+                    <div key={index} className="bg-green-50 border border-green-200 rounded-lg p-3 flex justify-between items-start gap-2">
                       <p className="text-gray-700 text-sm flex-1">{comment}</p>
                       <button
                         onClick={() => handleDeleteComment(comment)}

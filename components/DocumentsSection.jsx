@@ -434,7 +434,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
       case "image":
         return <FaImage className="text-green-500" />;
       default:
-        return <FaFileAlt className="text-blue-500" />;
+        return <FaFileAlt className="text-green-500" />;
     }
   };
 
@@ -728,7 +728,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading documents...</p>
         </div>
       </div>
@@ -741,7 +741,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
         <p className="text-red-600 mb-4">{error}</p>
         <button
           onClick={() => window.location.reload()}
-          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
         >
           Try Again
         </button>
@@ -752,7 +752,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
   return (
     <div>
       <div className="mb-6 text-left">
-        <h2 className="text-2xl font-bold text-[#7c3aed]">Documents</h2>
+        <h2 className="text-2xl font-bold text-[#28BD78]">Documents</h2>
         <p className="text-gray-500 text-base mt-1">
           Manage your documents and files.
         </p>
@@ -767,13 +767,13 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
               placeholder="Search documents, submitter, category, or tags..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg shadow border border-purple-400 focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-600 text-gray-900 transition"
+              className="w-full px-4 py-2 rounded-lg shadow border border-green-400 focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-600 text-gray-900 transition"
             />
           </div>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-4 py-2 rounded-lg shadow border border-purple-400 focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-gray-900"
+            className="px-4 py-2 rounded-lg shadow border border-green-400 focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-[#28BD78] text-gray-900"
           >
             <option value="">All Categories</option>
             {categories.map((category) => (
@@ -788,7 +788,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white rounded-lg shadow-md">
           <thead>
-            <tr className="bg-[#f3f4f6] text-[#7c3aed]">
+            <tr className="bg-[#f3f4f6] text-[#28BD78]">
               <th className="py-3 px-4 text-left">S.No</th>
               <th className="py-3 px-4 text-left">Title</th>
               <th className="py-3 px-4 text-left">Submitter</th>
@@ -832,7 +832,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                             .map((tag, i) => (
                               <span
                                 key={i}
-                                className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full"
+                                className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full"
                               >
                                 {tag.trim()}
                               </span>
@@ -845,7 +845,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                     {doc.submitterName}
                   </td>
                   <td className="py-3 px-4">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
                       {doc.category}
                     </span>
                   </td>
@@ -892,7 +892,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                       <div className="flex gap-1">
                         <button
                           onClick={() => handleView(doc)}
-                          className="px-2 py-1 bg-[#ede9fe] text-[#7c3aed] rounded text-xs hover:bg-[#c7d2fe] transition flex items-center gap-1"
+                          className="px-2 py-1 bg-[#ede9fe] text-[#28BD78] rounded text-xs hover:bg-[#c7d2fe] transition flex items-center gap-1"
                           title="View"
                         >
                           <FaEye className="w-3 h-3" />
@@ -901,7 +901,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                         {doc.files && doc.files.length > 0 && (
                           <button
                             onClick={() => handleDownload(doc)}
-                            className="px-2 py-1 bg-[#f3f4f6] text-[#7c3aed] rounded text-xs hover:bg-[#e0e7ff] transition flex items-center gap-1"
+                            className="px-2 py-1 bg-[#f3f4f6] text-[#28BD78] rounded text-xs hover:bg-[#e0e7ff] transition flex items-center gap-1"
                             title="Download"
                           >
                             <FaDownload className="w-3 h-3" />
@@ -956,7 +956,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
           <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-purple-700">
+              <h3 className="text-xl font-bold text-green-700">
                 Edit Document
               </h3>
               <button
@@ -977,7 +977,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                   type="text"
                   value={editModal.formData.title}
                   onChange={(e) => handleEditChange("title", e.target.value)}
-                  className="w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-base text-gray-800 bg-purple-50/80 shadow-md transition-all duration-200"
+                  className="w-full border-2 border-green-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-base text-gray-800 bg-green-50/80 shadow-md transition-all duration-200"
                   placeholder="Enter document title"
                 />
               </div>
@@ -990,7 +990,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                 <select
                   value={editModal.formData.category}
                   onChange={(e) => handleEditChange("category", e.target.value)}
-                  className="w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 text-base text-gray-800 bg-purple-50/80 shadow-md transition-all duration-200"
+                  className="w-full border-2 border-green-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 text-base text-gray-800 bg-green-50/80 shadow-md transition-all duration-200"
                 >
                   <option value="">Select Category</option>
                   <option value="Report">Report</option>
@@ -1011,7 +1011,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                   type="text"
                   value={editModal.formData.tags}
                   onChange={(e) => handleEditChange("tags", e.target.value)}
-                  className="w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-base text-gray-800 bg-purple-50/80 shadow-md transition-all duration-200"
+                  className="w-full border-2 border-green-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-base text-gray-800 bg-green-50/80 shadow-md transition-all duration-200"
                   placeholder="e.g. important, urgent, review (comma separated)"
                 />
               </div>
@@ -1024,7 +1024,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                 <textarea
                   value={editModal.formData.textData}
                   onChange={(e) => handleEditChange("textData", e.target.value)}
-                  className="w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-base text-gray-800 bg-purple-50/80 shadow-md transition-all duration-200"
+                  className="w-full border-2 border-green-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-base text-gray-800 bg-green-50/80 shadow-md transition-all duration-200"
                   placeholder="Enter any text data or description..."
                   rows={4}
                 />
@@ -1038,7 +1038,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                 <textarea
                   value={editModal.formData.notes}
                   onChange={(e) => handleEditChange("notes", e.target.value)}
-                  className="w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-base text-gray-800 bg-purple-50/80 shadow-md transition-all duration-200"
+                  className="w-full border-2 border-green-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-base text-gray-800 bg-green-50/80 shadow-md transition-all duration-200"
                   placeholder="Any additional notes..."
                   rows={3}
                 />
@@ -1056,7 +1056,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
               <button
                 onClick={() => setShowConfirmSave(true)}
                 disabled={saving}
-                className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition disabled:opacity-50"
+                className="flex-1 px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition disabled:opacity-50"
               >
                 {saving ? "Saving..." : "Save Changes"}
               </button>
@@ -1068,8 +1068,8 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
       {/* Save Confirmation Modal */}
       {showConfirmSave && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full border-2 border-purple-200 flex flex-col items-center">
-            <h3 className="text-xl font-bold text-purple-600 mb-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full border-2 border-green-200 flex flex-col items-center">
+            <h3 className="text-xl font-bold text-green-600 mb-4">
               Save Changes?
             </h3>
             <p className="text-gray-700 mb-6 text-center">
@@ -1083,7 +1083,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                 Cancel
               </button>
               <button
-                className="px-6 py-2 rounded-lg bg-purple-500 text-white font-semibold hover:bg-purple-600 transition"
+                className="px-6 py-2 rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 transition"
                 onClick={handleSaveEdit}
               >
                 Save
@@ -1098,7 +1098,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
           <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="mb-6">
-              <h3 className="text-xl font-bold text-purple-700">View Files</h3>
+              <h3 className="text-xl font-bold text-green-700">View Files</h3>
             </div>
 
             <div className="mb-4">
@@ -1114,7 +1114,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                 viewModal.document.files.map((file, index) => (
                   <div
                     key={file.id}
-                    className="flex items-center justify-between p-4 border border-purple-200 rounded-lg bg-purple-50/50"
+                    className="flex items-center justify-between p-4 border border-green-200 rounded-lg bg-green-50/50"
                   >
                     <div className="flex items-center gap-3">
                       {getFileIcon(file.fileType)}
@@ -1131,7 +1131,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                     </div>
                     <button
                       onClick={() => handleViewFile(file)}
-                      className="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center gap-2"
+                      className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2"
                       title="View file"
                     >
                       <FaEye className="w-4 h-4" />
@@ -1169,7 +1169,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
           <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="mb-6">
-              <h3 className="text-xl font-bold text-purple-700">
+              <h3 className="text-xl font-bold text-green-700">
                 Download Files
               </h3>
             </div>
@@ -1187,7 +1187,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                 downloadModal.document.files.map((file, index) => (
                   <div
                     key={file.id}
-                    className="flex items-center justify-between p-4 border border-purple-200 rounded-lg bg-purple-50/50"
+                    className="flex items-center justify-between p-4 border border-green-200 rounded-lg bg-green-50/50"
                   >
                     <div className="flex items-center gap-3">
                       {getFileIcon(file.fileType)}
@@ -1248,7 +1248,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
           <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="mb-6">
-              <h3 className="text-xl font-bold text-purple-700">Edit Files</h3>
+              <h3 className="text-xl font-bold text-green-700">Edit Files</h3>
             </div>
 
             <div className="mb-4">
@@ -1266,7 +1266,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                 editFilesModal.document.files.map((file, index) => (
                   <div
                     key={file.id}
-                    className="flex items-center justify-between p-4 border border-purple-200 rounded-lg bg-purple-50/50"
+                    className="flex items-center justify-between p-4 border border-green-200 rounded-lg bg-green-50/50"
                   >
                     <div className="flex items-center gap-3">
                       {getFileIcon(file.fileType)}
@@ -1355,7 +1355,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="mb-6">
-              <h3 className="text-xl font-bold text-purple-700">Edit File</h3>
+              <h3 className="text-xl font-bold text-green-700">Edit File</h3>
             </div>
 
             <div className="space-y-4">
@@ -1373,7 +1373,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                       formData: { ...prev.formData, fileName: e.target.value },
                     }))
                   }
-                  className="w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-base text-gray-800 bg-purple-50/80 shadow-md transition-all duration-200"
+                  className="w-full border-2 border-green-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-base text-gray-800 bg-green-50/80 shadow-md transition-all duration-200"
                   placeholder="Enter file name"
                 />
               </div>
@@ -1391,7 +1391,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                       formData: { ...prev.formData, category: e.target.value },
                     }))
                   }
-                  className="w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 text-base text-gray-800 bg-purple-50/80 shadow-md transition-all duration-200"
+                  className="w-full border-2 border-green-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 text-base text-gray-800 bg-green-50/80 shadow-md transition-all duration-200"
                 >
                   <option value="">Select Category</option>
                   <option value="Report">Report</option>
@@ -1417,7 +1417,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                       formData: { ...prev.formData, tags: e.target.value },
                     }))
                   }
-                  className="w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-base text-gray-800 bg-purple-50/80 shadow-md transition-all duration-200"
+                  className="w-full border-2 border-green-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-base text-gray-800 bg-green-50/80 shadow-md transition-all duration-200"
                   placeholder="e.g. important, urgent, review (comma separated)"
                 />
               </div>
@@ -1435,7 +1435,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                       formData: { ...prev.formData, textData: e.target.value },
                     }))
                   }
-                  className="w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-base text-gray-800 bg-purple-50/80 shadow-md transition-all duration-200"
+                  className="w-full border-2 border-green-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-base text-gray-800 bg-green-50/80 shadow-md transition-all duration-200"
                   placeholder="Enter any text data or description..."
                   rows={4}
                 />
@@ -1454,7 +1454,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                       formData: { ...prev.formData, notes: e.target.value },
                     }))
                   }
-                  className="w-full border-2 border-purple-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-400 text-base text-gray-800 bg-purple-50/80 shadow-md transition-all duration-200"
+                  className="w-full border-2 border-green-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-base text-gray-800 bg-green-50/80 shadow-md transition-all duration-200"
                   placeholder="Any additional notes..."
                   rows={3}
                 />
@@ -1498,7 +1498,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                   
                   }
                 }}
-                className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition"
+                className="flex-1 px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition"
               >
                 Save Changes
               </button>
@@ -1510,7 +1510,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
       {/* Delete Confirmation Modal */}
       {deleteConfirmModal && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full border-2 border-purple-200 flex flex-col items-center">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full border-2 border-green-200 flex flex-col items-center">
             <h3 className="text-xl font-bold text-red-600 mb-4">Confirm Deletion</h3>
             <p className="text-gray-700 mb-6 text-center">
               Are you sure you want to delete the document "{deleteConfirmModal.title}"? This action cannot be undone.
@@ -1565,7 +1565,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
       {/* Delete File Confirmation Modal */}
       {deleteFileConfirmModal && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full border-2 border-purple-200 flex flex-col items-center">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full border-2 border-green-200 flex flex-col items-center">
             <h3 className="text-xl font-bold text-red-600 mb-4">Confirm Deletion</h3>
             <p className="text-gray-700 mb-6 text-center">
               Are you sure you want to delete the file "{deleteFileConfirmModal.file.fileName}" from the document "{deleteFileConfirmModal.document.title}"? This action cannot be undone.

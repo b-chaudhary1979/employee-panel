@@ -43,13 +43,13 @@ export default function FavouriteSection({ images = [], videos = [], music = [],
   return (
     <div>
       <div className="mb-6 text-left">
-        <h2 className="text-2xl font-bold text-[#7c3aed]">Favourites</h2>
+        <h2 className="text-2xl font-bold text-[#28BD78]">Favourites</h2>
         <p className="text-gray-500 text-base mt-1">Your premium collection of favourite items.</p>
       </div>
       {/* Premium Search Bar */}
       <div className="flex justify-between items-center mb-6 flex-col sm:flex-row gap-2">
         <div className="w-full sm:w-96 relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-green-400 pointer-events-none">
             <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
           </span>
           <input
@@ -58,7 +58,7 @@ export default function FavouriteSection({ images = [], videos = [], music = [],
             placeholder="Search by title, date, or employee..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-lg border-2 border-purple-400 focus:border-purple-600 bg-gradient-to-r from-white via-[#f3e8ff] to-white shadow-lg focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-600 text-gray-900 transition"
+            className="w-full pl-10 pr-4 py-2 rounded-lg border-2 border-green-400 focus:border-green-600 bg-gradient-to-r from-white via-[#f3e8ff] to-white shadow-lg focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-600 text-gray-900 transition"
             style={{ boxShadow: '0 2px 12px 0 rgba(124,58,237,0.08)' }}
           />
         </div>
@@ -71,7 +71,7 @@ export default function FavouriteSection({ images = [], videos = [], music = [],
             <div key={item.type + item.id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden flex flex-col items-stretch relative group cursor-pointer" onClick={() => setModal({ item })}>
               {/* Star icon */}
               <button
-                className="absolute top-2 right-2 z-10 p-0.5 bg-[#7c3aed] rounded-full shadow-md hover:bg-[#5b21b6] transition"
+                className="absolute top-2 right-2 z-10 p-0.5 bg-[#28BD78] rounded-full shadow-md hover:bg-[#16a34a] transition"
                 onClick={(e) => {
                   e.stopPropagation();
                   onRemoveFavourite && onRemoveFavourite(item);
@@ -94,7 +94,7 @@ export default function FavouriteSection({ images = [], videos = [], music = [],
               )}
               <div className="flex justify-between items-center p-2 w-full">
                 <span className="text-gray-700 font-medium text-xs">{item.submitterName || item.employee || 'Unknown'}</span>
-                <span className="text-[#7c3aed] font-semibold text-sm">{item.title || 'Untitled'}</span>
+                <span className="text-[#28BD78] font-semibold text-sm">{item.title || 'Untitled'}</span>
               </div>
               <div className="px-2 pb-2 text-gray-500 text-xs">
                 {item.date || (item.uploadedAt ? new Date(item.uploadedAt.seconds ? item.uploadedAt.seconds * 1000 : item.uploadedAt).toLocaleDateString() : '')}
@@ -111,10 +111,10 @@ export default function FavouriteSection({ images = [], videos = [], music = [],
             <BgAnimation />
           </div>
 
-          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scaleIn bg-white border border-purple-200 rounded-2xl shadow-2xl flex flex-col items-center p-0" style={{animation: 'scaleIn 0.25s cubic-bezier(.4,2,.6,1)'}}>
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scaleIn bg-white border border-green-200 rounded-2xl shadow-2xl flex flex-col items-center p-0" style={{animation: 'scaleIn 0.25s cubic-bezier(.4,2,.6,1)'}}>
             {/* Close Button */}
             <button
-              className="absolute top-4 right-4 bg-white border border-purple-400 rounded-full w-10 h-10 flex items-center justify-center text-2xl text-gray-700 shadow hover:bg-purple-50 hover:scale-110 transition-all duration-200 z-10"
+              className="absolute top-4 right-4 bg-white border border-green-400 rounded-full w-10 h-10 flex items-center justify-center text-2xl text-gray-700 shadow hover:bg-green-50 hover:scale-110 transition-all duration-200 z-10"
               onClick={() => setModal(null)}
               aria-label="Close"
             >
@@ -123,7 +123,7 @@ export default function FavouriteSection({ images = [], videos = [], music = [],
             {/* Info Row: Employee/Date left */}
             <div className="flex w-full justify-between items-center mb-4 p-6 pb-0">
               <div className="flex items-center gap-3">
-                <UserIcon className="w-5 h-5 text-purple-400" />
+                <UserIcon className="w-5 h-5 text-green-400" />
                 <span className="text-gray-700 font-bold text-base">{modal.item.submitterName || modal.item.employee || 'Unknown'}</span>
                 <span className="text-gray-700 text-sm">{modal.item.date || (modal.item.uploadedAt ? new Date(modal.item.uploadedAt.seconds ? modal.item.uploadedAt.seconds * 1000 : modal.item.uploadedAt).toLocaleDateString() : "-")}</span>
               </div>
@@ -134,7 +134,7 @@ export default function FavouriteSection({ images = [], videos = [], music = [],
                 <img
                   src={modal.item.cloudinaryUrl}
                   alt={modal.item.title || 'Image'}
-                  className="rounded-xl shadow max-w-full max-h-64 object-contain border border-purple-100"
+                  className="rounded-xl shadow max-w-full max-h-64 object-contain border border-green-100"
                   style={{ background: '#fff' }}
                 />
               )}
@@ -142,7 +142,7 @@ export default function FavouriteSection({ images = [], videos = [], music = [],
                 <video
                   src={modal.item.cloudinaryUrl}
                   controls
-                  className="rounded-xl shadow max-w-full max-h-64 object-contain border border-purple-100"
+                  className="rounded-xl shadow max-w-full max-h-64 object-contain border border-green-100"
                   style={{ background: '#fff' }}
                 />
               )}
@@ -162,10 +162,10 @@ export default function FavouriteSection({ images = [], videos = [], music = [],
             {/* Actions */}
             <div className="flex gap-3 w-full px-6 mb-6">
               <button
-                className="flex-1 flex items-center justify-center gap-2 bg-white border border-purple-400 text-gray-700 rounded-full px-5 py-2 font-bold shadow hover:bg-purple-50 active:scale-95 transition-all"
+                className="flex-1 flex items-center justify-center gap-2 bg-white border border-green-400 text-gray-700 rounded-full px-5 py-2 font-bold shadow hover:bg-green-50 active:scale-95 transition-all"
                 onClick={() => handlePreview(modal.item)}
               >
-                <EyeIcon className="w-5 h-5 text-purple-400" />
+                <EyeIcon className="w-5 h-5 text-green-400" />
                 Preview
               </button>
               <button
@@ -173,7 +173,7 @@ export default function FavouriteSection({ images = [], videos = [], music = [],
                   onRemoveFavourite && onRemoveFavourite(modal.item);
                   setModal(null);
                 }}
-                className="flex-1 flex items-center justify-center gap-2 bg-white border border-purple-400 text-red-600 rounded-full px-5 py-2 font-bold shadow hover:bg-red-50 active:scale-95 transition-all text-center"
+                className="flex-1 flex items-center justify-center gap-2 bg-white border border-green-400 text-red-600 rounded-full px-5 py-2 font-bold shadow hover:bg-red-50 active:scale-95 transition-all text-center"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="w-5 h-5 text-red-400">
                   <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
@@ -192,19 +192,19 @@ function WorkLinkSection({ url }) {
   const [copied, setCopied] = React.useState(false);
   return (
     <div className="w-full flex items-center justify-between gap-2 px-6 mb-4">
-      <span className="truncate text-purple-600 font-mono text-sm bg-purple-50 px-3 py-2 rounded-lg border border-purple-100 select-all" title={url}>{url}</span>
+      <span className="truncate text-green-600 font-mono text-sm bg-green-50 px-3 py-2 rounded-lg border border-green-100 select-all" title={url}>{url}</span>
       <button
-        className={`ml-2 p-2 rounded-full border border-purple-300 bg-white shadow hover:bg-purple-50 transition flex items-center justify-center ${copied ? 'bg-purple-100 border-purple-400' : ''}`}
+        className={`ml-2 p-2 rounded-full border border-green-300 bg-white shadow hover:bg-green-50 transition flex items-center justify-center ${copied ? 'bg-green-100 border-green-400' : ''}`}
         onClick={() => {navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1500);}}
         aria-label={copied ? 'Copied!' : 'Copy link'}
         title={copied ? 'Copied!' : 'Copy link'}
       >
         {copied ? (
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="#7c3aed" className="w-5 h-5 animate-bounce">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="#28BD78" className="w-5 h-5 animate-bounce">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="#7c3aed" className="w-5 h-5">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="#28BD78" className="w-5 h-5">
             <rect x="9" y="9" width="13" height="13" rx="2" />
             <rect x="3" y="3" width="13" height="13" rx="2" />
           </svg>

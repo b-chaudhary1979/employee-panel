@@ -194,18 +194,18 @@ export default function ImagesSection({ onFavourite }) {
   return (
     <div>
       <div className="mb-6 text-left">
-        <h2 className="text-2xl font-bold text-[#7c3aed]">Images</h2>
+        <h2 className="text-2xl font-bold text-[#28BD78]">Images</h2>
         <p className="text-gray-500 text-base mt-1">
           Browse and manage your uploaded images.
         </p>
-        <div className="mt-2 text-purple-700 font-semibold">
+        <div className="mt-2 text-green-700 font-semibold">
           Total Images: {allImages.length}
         </div>
       </div>
       {/* Search Bar */}
       <div className="flex justify-between items-center mb-4 flex-col sm:flex-row gap-2">
         <div className="w-full sm:w-96 relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-green-400 pointer-events-none">
             <svg
               width="20"
               height="20"
@@ -224,7 +224,7 @@ export default function ImagesSection({ onFavourite }) {
             placeholder="Search by title, date, or employee..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-lg border-2 border-purple-400 focus:border-purple-600 bg-gradient-to-r from-white via-[#f3e8ff] to-white shadow-lg focus:outline-none focus:ring-2 focus:ring-[#7c3aed] placeholder-gray-600 text-gray-900 transition"
+            className="w-full pl-10 pr-4 py-2 rounded-lg border-2 border-green-400 focus:border-green-600 bg-gradient-to-r from-white via-[#f3e8ff] to-white shadow-lg focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-600 text-gray-900 transition"
             style={{ boxShadow: "0 2px 12px 0 rgba(124,58,237,0.08)" }}
           />
         </div>
@@ -243,7 +243,7 @@ export default function ImagesSection({ onFavourite }) {
             >
               {/* Star icon */}
               <button
-                className="absolute top-2 right-2 z-10 p-0.5 bg-[#7c3aed] rounded-full shadow-md hover:bg-[#5b21b6] transition"
+                className="absolute top-2 right-2 z-10 p-0.5 bg-[#28BD78] rounded-full shadow-md hover:bg-[#5b21b6] transition"
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleFavourite(img);
@@ -271,7 +271,7 @@ export default function ImagesSection({ onFavourite }) {
                 <span className="text-gray-700 font-medium text-xs">
                   {img.submitterName}
                 </span>
-                <span className="text-[#7c3aed] font-semibold text-sm">
+                <span className="text-[#28BD78] font-semibold text-sm">
                   {img.title}
                 </span>
               </div>
@@ -297,7 +297,7 @@ export default function ImagesSection({ onFavourite }) {
           </div>
           {/* Notification (top center, always visible) */}
           {notification && (
-            <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[100] bg-gradient-to-r from-[#7c3aed] to-[#a78bfa] text-white px-6 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-base animate-slideDown">
+            <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[100] bg-gradient-to-r from-[#28BD78] to-[#a78bfa] text-white px-6 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-base animate-slideDown">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -316,12 +316,12 @@ export default function ImagesSection({ onFavourite }) {
             </div>
           )}
           <div
-            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scaleIn bg-white border border-purple-200 rounded-2xl shadow-2xl flex flex-col items-center p-0"
+            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scaleIn bg-white border border-green-200 rounded-2xl shadow-2xl flex flex-col items-center p-0"
             style={{ animation: "scaleIn 0.25s cubic-bezier(.4,2,.6,1)" }}
           >
             {/* Close Button */}
             <button
-              className="absolute top-4 right-4 bg-white border border-purple-400 rounded-full w-10 h-10 flex items-center justify-center text-2xl text-gray-700 shadow hover:bg-purple-50 hover:scale-110 transition-all duration-200 z-10"
+              className="absolute top-4 right-4 bg-white border border-green-400 rounded-full w-10 h-10 flex items-center justify-center text-2xl text-gray-700 shadow hover:bg-green-50 hover:scale-110 transition-all duration-200 z-10"
               onClick={() => setModal(null)}
               aria-label="Close"
             >
@@ -330,7 +330,7 @@ export default function ImagesSection({ onFavourite }) {
             {/* Info Row: Employee/Date left */}
             <div className="flex w-full justify-between items-center mb-4">
               <div className="flex items-center gap-3 pl-6 pt-6">
-                <UserIcon className="w-5 h-5 text-purple-400" />
+                <UserIcon className="w-5 h-5 text-green-400" />
                 <span className="text-gray-700 font-bold text-base">
                   {modal.image.submitterName}
                 </span>
@@ -351,7 +351,7 @@ export default function ImagesSection({ onFavourite }) {
               <img
                 src={modal.image.cloudinaryUrl}
                 alt={modal.image.title}
-                className="rounded-xl shadow max-w-full max-h-64 object-contain border border-purple-100"
+                className="rounded-xl shadow max-w-full max-h-64 object-contain border border-green-100"
                 style={{ background: "#fff" }}
               />
             </div>
@@ -364,11 +364,11 @@ export default function ImagesSection({ onFavourite }) {
             {/* Feedback */}
             <div className="w-full flex flex-col items-center mb-4 px-6">
               <label className="flex items-center gap-2 text-gray-700 font-semibold mb-2 self-start">
-                <ChatBubbleLeftRightIcon className="w-5 h-5 text-purple-400" />
+                <ChatBubbleLeftRightIcon className="w-5 h-5 text-green-400" />
                 Feedback / Message
               </label>
               <textarea
-                className="w-full bg-white border border-purple-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-400 text-gray-700 placeholder-gray-400 shadow-sm transition mb-2"
+                className="w-full bg-white border border-green-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-700 placeholder-gray-400 shadow-sm transition mb-2"
                 placeholder="Leave feedback or message..."
                 value={modal.feedback}
                 onChange={(e) =>
@@ -381,17 +381,17 @@ export default function ImagesSection({ onFavourite }) {
             {/* Actions */}
             <div className="flex gap-3 w-full px-6 mb-6">
               <button
-                className="flex-1 flex items-center justify-center gap-2 bg-white border border-purple-400 text-gray-700 rounded-full px-5 py-2 font-bold shadow hover:bg-purple-50 active:scale-95 transition-all"
+                className="flex-1 flex items-center justify-center gap-2 bg-white border border-green-400 text-gray-700 rounded-full px-5 py-2 font-bold shadow hover:bg-green-50 active:scale-95 transition-all"
                 onClick={handleFeedbackSubmit}
               >
-                <ChatBubbleLeftRightIcon className="w-5 h-5 text-purple-400" />
+                <ChatBubbleLeftRightIcon className="w-5 h-5 text-green-400" />
                 Submit Feedback
               </button>
               <button
                 onClick={() => handlePreview(modal.image)}
-                className="flex-1 flex items-center justify-center gap-2 bg-white border border-purple-400 text-gray-700 rounded-full px-5 py-2 font-bold shadow hover:bg-purple-50 active:scale-95 transition-all text-center"
+                className="flex-1 flex items-center justify-center gap-2 bg-white border border-green-400 text-gray-700 rounded-full px-5 py-2 font-bold shadow hover:bg-green-50 active:scale-95 transition-all text-center"
               >
-                <EyeIcon className="w-5 h-5 text-purple-400" />
+                <EyeIcon className="w-5 h-5 text-green-400" />
                 Preview
               </button>
             </div>
@@ -400,14 +400,14 @@ export default function ImagesSection({ onFavourite }) {
               <a
                 href={modal.image.cloudinaryUrl}
                 download={modal.image.title + ".jpg"}
-                className="flex-1 flex items-center justify-center gap-2 bg-white border border-purple-400 text-gray-700 rounded-full px-5 py-2 font-bold shadow hover:bg-purple-50 active:scale-95 transition-all text-center"
+                className="flex-1 flex items-center justify-center gap-2 bg-white border border-green-400 text-gray-700 rounded-full px-5 py-2 font-bold shadow hover:bg-green-50 active:scale-95 transition-all text-center"
               >
-                <ArrowDownTrayIcon className="w-5 h-5 text-purple-400" />
+                <ArrowDownTrayIcon className="w-5 h-5 text-green-400" />
                 Download
               </a>
               <button
                 type="button"
-                className="flex-1 flex items-center justify-center gap-2 bg-white border border-purple-400 text-red-600 rounded-full px-5 py-2 font-bold shadow hover:bg-red-50 active:scale-95 transition-all text-center"
+                className="flex-1 flex items-center justify-center gap-2 bg-white border border-green-400 text-red-600 rounded-full px-5 py-2 font-bold shadow hover:bg-red-50 active:scale-95 transition-all text-center"
                 onClick={() => setConfirmDelete(modal.image)}
               >
                 <TrashIcon className="w-5 h-5 text-red-400" />
@@ -424,7 +424,7 @@ export default function ImagesSection({ onFavourite }) {
                   {comments.map((comment, index) => (
                     <div
                       key={index}
-                      className="bg-purple-50 border border-purple-200 rounded-lg p-3 flex justify-between items-start gap-2"
+                      className="bg-green-50 border border-green-200 rounded-lg p-3 flex justify-between items-start gap-2"
                     >
                       <p className="text-gray-700 text-sm flex-1">{comment}</p>
                       <button
@@ -539,13 +539,13 @@ function WorkLinkSection({ url }) {
   return (
     <div className="w-full flex items-center justify-between gap-2 px-6 mb-4">
       <span
-        className="truncate text-purple-600 font-mono text-sm bg-purple-50 px-3 py-2 rounded-lg border border-purple-100 select-all"
+        className="truncate text-green-600 font-mono text-sm bg-green-50 px-3 py-2 rounded-lg border border-green-100 select-all"
         title={url}
       >
         {url}
       </span>
       <button
-        className={`ml-2 p-2 rounded-full border border-purple-300 bg-white shadow hover:bg-purple-50 transition flex items-center justify-center ${copied ? "bg-purple-100 border-purple-400" : ""}`}
+        className={`ml-2 p-2 rounded-full border border-green-300 bg-white shadow hover:bg-green-50 transition flex items-center justify-center ${copied ? "bg-green-100 border-green-400" : ""}`}
         onClick={() => {
           navigator.clipboard.writeText(url);
           setCopied(true);
@@ -560,7 +560,7 @@ function WorkLinkSection({ url }) {
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={2}
-            stroke="#7c3aed"
+            stroke="#28BD78"
             className="w-5 h-5 animate-bounce"
           >
             <path
@@ -575,7 +575,7 @@ function WorkLinkSection({ url }) {
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={2}
-            stroke="#7c3aed"
+            stroke="#28BD78"
             className="w-5 h-5"
           >
             <rect x="9" y="9" width="13" height="13" rx="2" />

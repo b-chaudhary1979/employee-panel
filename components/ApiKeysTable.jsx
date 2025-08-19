@@ -36,7 +36,7 @@ export default function ApiKeysTable({
             </p>
             <button
               onClick={() => setShowAddKeyChoiceModal(true)}
-              className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200"
+              className="bg-[#16a34a] hover:bg-[#28BD78] text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200"
             >
               Add Your First Key
             </button>
@@ -179,7 +179,7 @@ export default function ApiKeysTable({
             </p>
             <button
               onClick={() => setShowAddKeyChoiceModal(true)}
-              className="bg-[#a259f7] hover:bg-[#7c3aed] text-white font-semibold rounded-lg px-3 py-2 text-sm transition-colors duration-200"
+              className="bg-[#16a34a] hover:bg-[#28] text-white font-semibold rounded-lg px-3 py-2 text-sm transition-colors duration-200"
             >
               Add Your First Key
             </button>
