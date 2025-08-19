@@ -127,8 +127,8 @@ const menuItems = (user) => {
     ),
 /*******  e34fd138-9904-443b-a691-237cc1146e8b  *******/
   },
-   // Only show Employees option for HR, Manager, and Team Lead roles
-   ...(user?.role === "HR" || user?.role === "Manager" || user?.role === "Team Lead" ? [{
+   // Only show Employees option for HR, Manager, and Team Lead roles (case-insensitive)
+   ...(user?.role?.toLowerCase() === "hr" || user?.role?.toLowerCase() === "manager" || user?.role?.toLowerCase() === "team lead" ? [{
     label: "Employees",
     route: "/employees",
     icon: (isActive) => (
