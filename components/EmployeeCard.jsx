@@ -100,10 +100,7 @@ reader.onload = (event) => {
             <p className="text-xs text-gray-500 font-semibold uppercase">Employee ID</p>
             <p className="text-gray-800 font-bold">{user.id || 'N/A'}</p>
           </div>
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <p className="text-xs text-gray-500 font-semibold uppercase">Company ID</p>
-            <p className="text-gray-800 font-bold">{user.companyId || 'N/A'}</p>
-          </div>
+          
           <div className="bg-gray-50 p-3 rounded-lg">
             <p className="text-xs text-gray-500 font-semibold uppercase">Email</p>
             <p className="text-gray-800 font-medium truncate">{user.email || 'N/A'}</p>
@@ -117,7 +114,7 @@ reader.onload = (event) => {
         <div className="flex justify-between items-center border-t border-gray-100 pt-4">
           <div>
             <p className="text-xs text-gray-500 font-semibold uppercase">Date Joined</p>
-            <p className="text-gray-800 font-medium">{formatDate(user.joinedAt)}</p>
+            <p className="text-gray-800 font-medium">{formatDate(user.dateJoined)}</p>
           </div>
           <div className="flex space-x-2">
             <button className="bg-green-100 hover:bg-green-200 text-green-700 p-2 rounded-full transition-colors">
