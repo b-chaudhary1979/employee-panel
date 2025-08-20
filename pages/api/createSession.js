@@ -42,7 +42,6 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Error creating session:', error);
     return res.status(500).json({ 
       error: 'Failed to create session',
       details: error.message 

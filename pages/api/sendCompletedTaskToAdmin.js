@@ -21,7 +21,6 @@ const initializeAdminFirebase = () => {
 
       adminDb = getFirestore(adminApp);
     } catch (error) {
-      console.error('Error initializing admin Firebase:', error);
       throw new Error('Failed to initialize admin database connection');
     }
   }
@@ -104,9 +103,8 @@ export default async function handler(req, res) {
         createdAt: new Date().toISOString()
       }, { merge: true });
 
-      console.log('Parent documents ensured in admin database');
     } catch (error) {
-      console.log('Warning: Could not ensure parent documents in admin database:', error.message);
+              // Warning: Could not ensure parent documents in admin database
     }
 
     // Remove from admin pending_tasks collection if it exists
@@ -118,16 +116,13 @@ export default async function handler(req, res) {
         .doc(employeeId)
         .collection('pending_tasks');
 
-      console.log('Attempting to delete from admin pending_tasks by taskId...');
       const byIdRef = adminPendingCollectionRef.doc(taskId);
       const byIdSnap = await byIdRef.get();
       if (byIdSnap.exists) {
         await byIdRef.delete();
-        console.log('Deleted pending task by document id:', taskId);
       } else {
         // Try by originalTaskId
         try {
-          console.log('Pending delete by originalTaskId:', taskId);
           const byOriginalIdSnap = await adminPendingCollectionRef
             .where('originalTaskId', '==', taskId)
             .get();
@@ -135,16 +130,14 @@ export default async function handler(req, res) {
             const batch = adminFirestore.batch();
             byOriginalIdSnap.forEach((docSnap) => batch.delete(docSnap.ref));
             await batch.commit();
-            console.log(`Deleted ${byOriginalIdSnap.size} pending task(s) by originalTaskId`);
           }
         } catch (qErr) {
-          console.log('Warning: query by originalTaskId failed:', qErr.message);
+          // Warning: query by originalTaskId failed
         }
 
         // Try by taskName as a fallback
         if (taskData?.taskName) {
           try {
-            console.log('Pending delete by taskName:', taskData.taskName);
             const byNameSnap = await adminPendingCollectionRef
               .where('taskName', '==', taskData.taskName)
               .get();
@@ -152,15 +145,14 @@ export default async function handler(req, res) {
               const batch = adminFirestore.batch();
               byNameSnap.forEach((docSnap) => batch.delete(docSnap.ref));
               await batch.commit();
-              console.log(`Deleted ${byNameSnap.size} pending task(s) by taskName`);
             }
           } catch (qErr) {
-            console.log('Warning: query by taskName failed:', qErr.message);
+            // Warning: query by taskName failed
           }
         }
       }
     } catch (error) {
-      console.log('Warning: Could not delete from admin pending_tasks (may not exist):', error.message);
+              // Warning: Could not delete from admin
     }
 
     // Store in admin database
@@ -186,12 +178,7 @@ export default async function handler(req, res) {
       taskType: 'employee_task'
     });
 
-    // Update task status in the employee's local database if needed
-    // This could be done by calling another API endpoint or directly here
-    // For now, we'll just log that the task was successfully sent to admin
-
-    console.log(`Task ${taskId} successfully sent to admin database for employee ${employeeId}`);
-
+   
     return res.status(200).json({ 
       success: true,
       message: 'Task successfully sent to admin database',
@@ -201,7 +188,6 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Error sending task to admin database:', error);
     return res.status(500).json({ 
       error: 'Failed to send task to admin database',
       details: error.message 

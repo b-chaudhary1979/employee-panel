@@ -1,57 +1,34 @@
-import React, { useState, useRef, useEffect, useMemo } from "react";
-import { FaUser, FaLink, FaFileUpload, FaCalendarAlt, FaTags, FaAlignLeft } from "react-icons/fa";
+import React, { useState, useEffect} from "react";
 import { useUserInfo } from "../context/UserInfoContext";
+import { useAuth } from "../context/AuthContext";
 import { useRouter } from 'next/router';
 import { SidebarProvider } from "../context/SidebarContext";
 import AddDocumentModal from "../components/AddDocumentModal";
-import useStoreData from "../hooks/useStoreData";
-// import CryptoJS from "crypto-js"; // TEMPORARILY DISABLED - not using encryption
-
-// TEMPORARILY DISABLED: Utility to decrypt token into ci and aid
-// const ENCRYPTION_KEY = "cyberclipperSecretKey123!";
-// function decryptToken(token) {
-//   console.log("🔐 [DECRYPT] Attempting to decrypt token:", token ? "present" : "missing");
-//   try {
-//     const bytes = CryptoJS.AES.decrypt(token, ENCRYPTION_KEY);
-//     const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-//     const { ci, aid } = JSON.parse(decrypted);
-//     console.log("🔐 [DECRYPT] Successfully decrypted - ci:", ci, "aid:", aid);
-//     return { ci, aid };
-//   } catch (error) {
-//     console.error("🔐 [DECRYPT] Failed to decrypt token:", error);
-//     return { ci: null, aid: null };
-//   }
-// }
 
 function AddDocumentsPageContent() {
   
   const router = useRouter();
-  const { token, cid, aid } = router.query; // Get encrypted token or cid and aid from query
+  const { user: authUser, loading: authLoading } = useAuth();
   const { user, loading } = useUserInfo();
   
-    // Wait for router to be ready and have valid parameters
-  const isRouterReady = router.isReady && (cid || token);
+  // Wait for router to be ready and user to be authenticated
+  const isRouterReady = router.isReady && authUser;
 
-  // Calculate companyId and employeeId - these might be undefined initially
-  const companyId = cid;
-  const employeeId = aid || user?.aid || user?.employeeId || user?.id || 'temp-employee-id';
-
-
-  // Call useStoreData hook first - it will handle its own memoization and early returns
-  const { uploadMedia, addLink, loading: uploadLoading, error: uploadError } = useStoreData(companyId, employeeId);
-  
+  // Get companyId and employeeId from AuthContext
+  const companyId = authUser?.companyId;
+  const employeeId = authUser?.employeeId;
 
   // Add modal state
   const [showAddDocumentModal, setShowAddDocumentModal] = useState(true);
   const [notification, setNotification] = useState({ show: false, message: "", color: "green" });
 
 
-  // Simple authentication check - same as other pages
+  // Simple authentication check - redirect if not authenticated
   useEffect(() => {
-    if (router.isReady && !cid && !token) {
+    if (router.isReady && !authUser && !authLoading) {
       router.replace("/auth/login");
     }
-  }, [router.isReady, cid, token]);
+  }, [router.isReady, authUser, authLoading]);
 
   // Don't render the modal until we have valid parameters
   if (!isRouterReady || !companyId || !employeeId) {
@@ -65,9 +42,8 @@ function AddDocumentsPageContent() {
     );
   }
 
-  // Simple loading states - same as other pages
-  // Only show loading if we don't have valid parameters yet
-  if (loading && (!companyId || !employeeId)) {
+  // Simple loading states - show loading if auth is still loading
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -75,10 +51,10 @@ function AddDocumentsPageContent() {
           <p className="text-gray-600">Please wait while we load your information.</p>
           <div className="mt-4 text-sm text-gray-500">
             <p>Debug Info:</p>
-            <p>CID: {cid || "missing"}</p>
-            <p>User Loading: {loading ? "true" : "false"}</p>
+            <p>Company ID: {companyId || "missing"}</p>
             <p>Employee ID: {employeeId || "missing"}</p>
-            <p>User: {user ? "present" : "missing"}</p>
+            <p>Auth Loading: {authLoading ? "true" : "false"}</p>
+            <p>User Loading: {loading ? "true" : "false"}</p>
           </div>
         </div>
       </div>
@@ -117,8 +93,6 @@ function AddDocumentsPageContent() {
         open={showAddDocumentModal}
         onClose={handleCloseModal}
         onAdd={handleAddDocument}
-        companyId={companyId}
-        employeeId={employeeId}
         onSuccess={(message) => {
           setNotification({ show: true, message, color: 'green' });
           setTimeout(() => {

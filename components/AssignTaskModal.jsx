@@ -3,7 +3,7 @@ import { FaCalendarAlt, FaFlag } from "react-icons/fa";
 import useFetchInterns from "../hooks/useFetchInterns";
 
 // TaskForm Component - Intern assignment only
-const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
+const TaskForm = ({ onClose, onAdd, companyId, initialData, isSubmitting }) => {
   const [form, setForm] = useState({
     assignedBy: initialData?.assignedBy || "",
     title: initialData?.title || "",
@@ -22,7 +22,6 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
   });
   const [error, setError] = useState("");
   const [showInternDropdown, setShowInternDropdown] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch real interns for this company
   const { interns, loading: internsLoading, error: internsError } = useFetchInterns(companyId);
@@ -30,7 +29,6 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setIsSubmitting(true);
 
     try {
       // Create task entries for each selected intern id
@@ -52,15 +50,13 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
             priority: form.priority,
             category: form.category,
             notes: form.notes,
+            messageToIntern: form.messageToIntern || "",
           });
         }
       });
-
-      onClose();
+      // Remove onClose() - let parent handle closing after API call completes
     } catch (error) {
       setError("Failed to assign task. Please try again.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -183,6 +179,21 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* Message to Intern */}
+            <div className="lg:col-span-3 sm:col-span-2 col-span-1">
+              <label className="block text-xs font-semibold mb-1 text-gray-700">
+                Message to Intern
+              </label>
+              <textarea
+                name="messageToIntern"
+                value={form.messageToIntern || ""}
+                onChange={(e) => setForm({ ...form, messageToIntern: e.target.value })}
+                className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-sm text-gray-800 bg-green-50/60 shadow transition-all duration-200"
+                placeholder="Enter a message for the intern..."
+                rows={3}
+              />
             </div>
 
             {/* Priority */}
@@ -327,7 +338,7 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                   </svg>
-                  Uploading...
+                  Assigning...
                 </>
               ) : (
                 <>Assign Task</>
@@ -341,11 +352,11 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
 };
 
 // Main AssignTaskModal component
-const AssignTaskModal = ({ open, onClose, initialData, onAdd, companyId }) => {
+const AssignTaskModal = ({ open, onClose, initialData, onAdd, companyId, isSubmitting }) => {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/80 to-green-100/80 backdrop-blur-[6px]">
-      <TaskForm onClose={onClose} onAdd={onAdd} companyId={companyId} initialData={initialData} />
+      <TaskForm onClose={onClose} onAdd={onAdd} companyId={companyId} initialData={initialData} isSubmitting={isSubmitting} />
     </div>
   );
 };

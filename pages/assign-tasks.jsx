@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import SideMenu from "../components/sidemenu";
 import Header from "../components/header";
 import AssignTaskModal from "../components/AssignTaskModal";
+import InternTasksModal from "../components/InternTasksModal";
 import { useSidebar } from "../context/SidebarContext";
 import { useRouter } from "next/router";
 import { useUserInfo } from "../context/UserInfoContext";
@@ -45,14 +46,17 @@ export default function AssignTasksPage() {
   const [isSubmitting, setIsSubmitting] = useState(false); // loading state for form submission
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [showInternTasksModal, setShowInternTasksModal] = useState(false);
+  const [selectedIntern, setSelectedIntern] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [taskView, setTaskView] = useState('assigned'); // 'assigned' or 'submitted'
   
   // Fetch assigned tasks
-  const { tasks: assignedTasks, loading: tasksLoading, error: tasksError, refetch: refetchTasks } = useFetchAssignedTasks(ci, aid);
+  const { pendingTasks: assignedPendingTasks, completedTasks: assignedCompletedTasks, loading: tasksLoading, error: tasksError, refetch: refetchTasks } = useFetchAssignedTasks(ci, aid);
   
   // Filter tasks based on search query and task view
-  const filteredTasks = assignedTasks.filter(task => {
+  const sourceTasks = taskView === 'submitted' ? assignedCompletedTasks : assignedPendingTasks;
+  const filteredTasks = sourceTasks.filter(task => {
     // First filter by task view (assigned = pending, submitted = completed)
     if (taskView === 'assigned' && task.status !== 'pending') return false;
     if (taskView === 'submitted' && task.status !== 'completed') return false;
@@ -66,6 +70,38 @@ export default function AssignTasksPage() {
     
     return internName.includes(query) || internEmail.includes(query);
   });
+
+  // Group tasks by intern
+  const groupedTasksByIntern = useMemo(() => {
+    const grouped = {};
+    
+    filteredTasks.forEach(task => {
+      const internId = task.internId;
+      if (!grouped[internId]) {
+        grouped[internId] = {
+          internId,
+          internName: task.internName || `Intern ${internId}`,
+          internEmail: task.internEmail || `intern${internId}@company.com`,
+          internRole: task.internRole || "Intern",
+          tasks: [],
+          totalTasks: 0,
+          pendingTasks: 0,
+          completedTasks: 0
+        };
+      }
+      
+      grouped[internId].tasks.push(task);
+      grouped[internId].totalTasks++;
+      
+      if (task.status === 'pending') {
+        grouped[internId].pendingTasks++;
+      } else if (task.status === 'completed') {
+        grouped[internId].completedTasks++;
+      }
+    });
+    
+    return Object.values(grouped);
+  }, [filteredTasks]);
 
   // Handle mobile sidebar
   const handleMobileSidebarToggle = () => {
@@ -120,9 +156,9 @@ export default function AssignTasksPage() {
   /* Fetch interns once companyId is available */
   useEffect(() => {
     const fetchInterns = async () => {
-      console.log("Fetching interns for companyId:", ci);
+      console.log("Fetching interns for company");
       if (!ci) {
-        console.log("No companyId available, skipping fetch");
+        console.log("No company ID available, skipping fetch");
         return;
       }
       try {
@@ -139,19 +175,18 @@ export default function AssignTasksPage() {
         }
 
         const data = await response.json();
-        console.log("API response:", data);
+        console.log("API response received successfully");
         
         const opts = (data.interns || []).map((intern) => {
-          console.log("Intern data:", intern);
           return { 
             id: intern.id, 
             name: `${intern.firstName || ""} ${intern.lastName || ""}`.trim() || "Unnamed" 
           };
         });
-        console.log("Processed intern options:", opts);
+        console.log("Processed intern options successfully");
         setInternOptions(opts);
       } catch (error) {
-        console.error("Error fetching interns:", error);
+        // Error fetching interns
       }
     };
     fetchInterns();
@@ -169,6 +204,7 @@ export default function AssignTasksPage() {
         dueDate: taskData.dueDate,
         priority: taskData.priority,
         links: taskData.links || [],
+        messageToIntern: taskData.messageToIntern || "",
         assignedAt: new Date().toISOString(),
         employeeId: aid,
         employeeName: user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() : "Unknown Employee",
@@ -228,11 +264,11 @@ export default function AssignTasksPage() {
   };
 
   // Debug loading state
-  console.log("Loading state:", { userLoading, user: !!user, ci: !!ci, aid });
+        // Loading state check
   
   // Temporarily allow rendering without user to debug
   if (!ci) {
-    console.log("Showing loader because: no ci");
+    console.log("Showing loader because: no company ID");
     return <Loader />;
   }
   
@@ -269,15 +305,26 @@ export default function AssignTasksPage() {
         </div>
       )}
 
-      {/* Assign Task Modal */}
-      <AssignTaskModal
-        key={selectedTask?.documentId || 'new-task'}
-        open={showAddTaskModal}
-        onClose={() => setShowAddTaskModal(false)}
-        onAdd={handleAddTask}
-        initialData={selectedTask}
-        companyId={ci}
-      />
+                           {/* Assign Task Modal */}
+        <AssignTaskModal
+          key={selectedTask?.documentId || 'new-task'}
+          open={showAddTaskModal}
+          onClose={() => setShowAddTaskModal(false)}
+          onAdd={handleAddTask}
+          initialData={selectedTask}
+          companyId={ci}
+          isSubmitting={isSubmitting}
+        />
+
+        {/* Intern Tasks Modal */}
+        <InternTasksModal
+          open={showInternTasksModal}
+          onClose={() => {
+            setShowInternTasksModal(false);
+            setSelectedIntern(null);
+          }}
+          intern={selectedIntern}
+        />
 
       <div className="bg-[#fbf9f4] min-h-screen flex relative">
         {/* Sidebar for desktop */}
@@ -357,7 +404,7 @@ export default function AssignTasksPage() {
                   </div>
                   <div>
                     <div className="text-gray-500 text-sm">Total Tasks</div>
-                    <div className="text-2xl text-gray-600 font-bold">{filteredTasks.length}</div>
+                    <div className="text-2xl text-gray-600 font-bold">{sourceTasks.length}</div>
                   </div>
                 </div>
                 <div className="bg-white rounded-xl shadow flex items-center gap-4 px-6 py-5">
@@ -367,7 +414,7 @@ export default function AssignTasksPage() {
                   <div>
                     <div className="text-gray-500 text-sm">Pending</div>
                     <div className="text-2xl text-gray-600 font-bold">
-                      {filteredTasks.filter(task => task.status === 'pending').length}
+                      {assignedPendingTasks.length}
                     </div>
                   </div>
                 </div>
@@ -378,7 +425,7 @@ export default function AssignTasksPage() {
                   <div>
                     <div className="text-gray-500 text-sm">Completed</div>
                     <div className="text-2xl text-gray-600 font-bold">
-                      {filteredTasks.filter(task => task.status === 'completed').length}
+                      {assignedCompletedTasks.length}
                     </div>
                   </div>
                 </div>
@@ -511,71 +558,68 @@ export default function AssignTasksPage() {
                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                              Role
                            </th>
-                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                             Assigned By
-                           </th>
-                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                             Task Status
-                           </th>
+                                                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Assigned By
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Task Status
+                            </th>
                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                              Actions
                            </th>
                          </tr>
                        </thead>
-                       <tbody className="bg-white divide-y divide-gray-200">
-                         {filteredTasks.map((task, index) => (
-                           <tr key={task.id} className="hover:bg-gray-50">
-                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                               {index + 1}
-                             </td>
-                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                               {task.internName || `Intern ${task.internId}`}
-                             </td>
-                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                               {task.internEmail || `intern${task.internId}@company.com`}
-                             </td>
-                             <td className="px-6 py-4 whitespace-nowrap">
-                               <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                 Intern
-                               </span>
-                             </td>
-                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                               {task.assignedBy || 'Unknown'}
-                             </td>
-                             <td className="px-6 py-4 whitespace-nowrap">
-                               <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                 task.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                 task.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                 'bg-gray-100 text-gray-800'
-                               }`}>
-                                 {task.status}
-                               </span>
-                             </td>
-                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                               <div className="flex space-x-2">
-                                 <button
-                                   className="text-green-600 hover:text-green-900"
-                                   onClick={() => {
-                                     setSelectedTask(task);
-                                     setShowAddTaskModal(true);
-                                   }}
-                                 >
-                                   <Eye className="w-4 h-4" />
-                                 </button>
-                                 <button
-                                   className="text-green-600 hover:text-green-900"
-                                   onClick={() => {
-                                     setSelectedTask(task);
-                                     setShowAddTaskModal(true);
-                                   }}
-                                 >
-                                   <Edit className="w-4 h-4" />
-                                 </button>
-                               </div>
-                             </td>
-                           </tr>
-                         ))}
-                       </tbody>
+                                               <tbody className="bg-white divide-y divide-gray-200">
+                          {groupedTasksByIntern.map((group, index) => (
+                            <tr 
+                              key={group.internId} 
+                              className="hover:bg-gray-50 cursor-pointer"
+                              onClick={() => {
+                                setSelectedIntern(group);
+                                setShowInternTasksModal(true);
+                              }}
+                            >
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {index + 1}
+                              </td>
+                                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                 {group.internName}
+                                 {group.totalTasks > 1 && (
+                                   <sup className="inline-flex items-center justify-center w-5 h-5 bg-blue-500 text-white text-xs font-semibold rounded-full ml-1">
+                                     {group.totalTasks}
+                                   </sup>
+                                 )}
+                               </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {group.internEmail}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                  {group.internRole}
+                                </span>
+                              </td>
+                                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                 {group.tasks[0]?.assignedBy || 'Unknown'}
+                               </td>
+                               <td className="px-6 py-4 whitespace-nowrap">
+                                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                   group.tasks[0]?.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                   group.tasks[0]?.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                   'bg-gray-100 text-gray-800'
+                                 }`}>
+                                   {group.tasks[0]?.status}
+                                 </span>
+                               </td>
+                                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                 <div className="flex space-x-2">
+                                   <div className="text-green-600">
+                                     <Eye className="w-4 h-4" />
+                                   </div>
+                                 </div>
+                               </td>
+                            </tr>
+                          ))}
+                        </tbody>
                      </table>
                    </div>
                  )}

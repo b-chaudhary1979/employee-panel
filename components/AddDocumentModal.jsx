@@ -1,19 +1,19 @@
 import React, { useState, useRef, useEffect, memo, useMemo } from "react";
 import { FaUser, FaLink, FaFileUpload, FaCalendarAlt, FaTags, FaAlignLeft } from "react-icons/fa";
 import { useUserInfo } from "../context/UserInfoContext";
+import { useAuth } from "../context/AuthContext";
 import useStoreData from "../hooks/useStoreData";
 import useDataSyncToAdmin from "../hooks/useDataSyncToAdmin";
 
-const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, onSuccess, companyId, employeeId: propEmployeeId, initialData }) {
+const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, onSuccess, initialData }) {
   const { user, aid } = useUserInfo();
+  const { user: authUser } = useAuth();
   
-  // Use the passed employeeId prop if available, otherwise fall back to user context
-  const employeeId = useMemo(() => {
-    return propEmployeeId || aid || user?.employeeId || user?.id || 'temp-employee-id';
-  }, [propEmployeeId, aid, user?.employeeId, user?.id]);
+  // Get companyId and employeeId from AuthContext
+  const companyId = authUser?.companyId;
+  const employeeId = authUser?.employeeId;
   
-  
-  // Use the passed companyId prop instead of user context to avoid undefined errors
+  // Use the passed companyId and employeeId from AuthContext
   const { uploadMedia, addLink, loading: uploadLoading, error: uploadError } = useStoreData(companyId, employeeId);
   
   // Admin sync hook

@@ -84,7 +84,6 @@ export default function useStoreApiKeys(companyId, user) {
       
       setKeys(fetchedKeys);
     } catch (err) {
-      console.error("Error fetching keys:", err);
       setError(err);
       throw err;
     } finally {
@@ -129,7 +128,6 @@ export default function useStoreApiKeys(companyId, user) {
         
         return decryptedKey;
       } catch (err) {
-        console.error("Error decrypting key:", err);
         setError(err);
         throw err;
       }
@@ -174,7 +172,6 @@ export default function useStoreApiKeys(companyId, user) {
       await fetchKeys();
       return { success: true, keyId };
     } catch (err) {
-      console.error("Error adding key:", err);
       setError(err);
       throw err;
     }
@@ -246,7 +243,6 @@ export default function useStoreApiKeys(companyId, user) {
         await fetchKeys();
         return true;
       } catch (err) {
-        console.error("Error importing keys:", err);
         setError(err);
         throw err;
       } finally {
@@ -280,7 +276,6 @@ export default function useStoreApiKeys(companyId, user) {
         await fetchKeys();
         return true;
       } catch (err) {
-        console.error("Error deleting key:", err);
         setError(err);
         throw err;
       } finally {
@@ -311,7 +306,6 @@ export default function useStoreApiKeys(companyId, user) {
         await fetchKeys();
         return true;
       } catch (err) {
-        console.error("Error updating key encryption:", err);
         setError(err);
         throw err;
       } finally {
@@ -340,7 +334,6 @@ export default function useStoreApiKeys(companyId, user) {
         await fetchKeys();
         return true;
       } catch (err) {
-        console.error("Error updating key status:", err);
         setError(err);
         throw err;
       } finally {

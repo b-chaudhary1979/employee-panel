@@ -115,7 +115,7 @@ export default function MyTasksPage() {
           return [...pendingTasks, ...completedTasks];
         });
       }, (error) => {
-        console.error("Error listening to pending tasks:", error);
+        // Error listening to pending tasks
       });
 
       unsubscribers.push(pendingUnsubscribe);
@@ -139,7 +139,7 @@ export default function MyTasksPage() {
           return [...pendingTasks, ...completedTasks];
         });
       }, (error) => {
-        console.error("Error listening to completed tasks:", error);
+        // Error listening to completed tasks
       });
 
       unsubscribers.push(completedUnsubscribe);
@@ -148,7 +148,7 @@ export default function MyTasksPage() {
       setFetching(false);
 
     } catch (error) {
-      console.error("Error setting up real-time listeners:", error);
+      // Error setting up real-time listeners
       setTasks([]);
       setFetching(false);
     }
@@ -249,7 +249,7 @@ export default function MyTasksPage() {
         return;
       }
 
-      console.log('Submitting assignment with links:', validSubmissionLinks);
+      console.log('Submitting assignment with links');
 
       const response = await fetch('/api/submitEmployeeTask', {
         method: 'POST',
@@ -282,7 +282,7 @@ export default function MyTasksPage() {
       }
 
       const result = await response.json();
-      console.log('Task submitted successfully:', result);
+      console.log('Task submitted successfully');
 
       // Show success message
       showNotification('Task submitted successfully!', 'green');
@@ -294,7 +294,7 @@ export default function MyTasksPage() {
       // Tasks will automatically update via real-time listeners
 
     } catch (error) {
-      console.error('Error submitting task:', error);
+      // Error submitting task
       showNotification(`Failed to submit task: ${error.message}`, 'red');
       setShowConfirmation(false);
     } finally {

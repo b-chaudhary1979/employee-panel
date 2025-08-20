@@ -291,7 +291,9 @@ function APIKeysContent() {
   // Fetch keys when vault is unlocked
   useEffect(() => {
     if (isVaultUnlocked && ci) {
-      fetchKeys().catch(console.error);
+      fetchKeys().catch(() => {
+      // Error fetching keys
+    });
     }
   }, [isVaultUnlocked, ci, fetchKeys]);
 

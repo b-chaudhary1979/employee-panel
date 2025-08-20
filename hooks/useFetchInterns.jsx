@@ -34,7 +34,6 @@ export default function useFetchInterns(companyId) {
       setInterns(data.interns || []);
     } catch (err) {
       setError(err.message);
-      console.error("Error fetching interns:", err);
     } finally {
       setLoading(false);
     }
@@ -75,7 +74,6 @@ export default function useFetchInterns(companyId) {
       
       return result.internId;
     } catch (err) {
-      console.error("Error adding intern:", err);
       throw err;
     }
   }, [companyId, fetchInterns]);
@@ -104,7 +102,6 @@ export default function useFetchInterns(companyId) {
       // Refresh the interns list
       await fetchInterns();
     } catch (err) {
-      console.error("Error updating intern:", err);
       throw err;
     }
   }, [companyId, fetchInterns]);
@@ -132,7 +129,6 @@ export default function useFetchInterns(companyId) {
       // Refresh the interns list
       await fetchInterns();
     } catch (err) {
-      console.error("Error deleting intern:", err);
       throw err;
     }
   }, [companyId, fetchInterns]);

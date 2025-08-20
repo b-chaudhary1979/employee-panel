@@ -593,7 +593,7 @@ function DataContent() {
                 {/* Add Data Button */}
                 <div className="flex gap-3">
                   <button
-                    onClick={() => router.push(`/add-documents?cid=${ci}&aid=${aid}`)}
+                    onClick={() => router.push('/add-documents')}
                     className="bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition-all duration-200 flex items-center gap-2"
                   >
                     <svg
@@ -675,7 +675,7 @@ function DataContent() {
                 {activeTab === "documents" && (
                   <DocumentsSection
                     onEdit={handleEditDocument}
-                    onAdd={() => router.push(`/add-documents?cid=${ci}&aid=${aid}`)}
+                    onAdd={() => router.push('/add-documents')}
                     onDelete={handleDeleteDocument}
                   />
                 )}
