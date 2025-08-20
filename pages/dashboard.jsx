@@ -239,7 +239,7 @@ function DashboardContent() {
             style={{ marginLeft: 0, paddingTop: headerHeight + 16 }}
           >
             <div className="max-w-6xl mx-auto">
-              <h1 className="text-4xl font-extrabold text-[#7c3aed] mt-8">Employee Dashboard</h1>
+              <h1 className="text-4xl font-extrabold text-bg-green-500 mt-8">Employee Dashboard</h1>
               <p className="mt-2 text-gray-500 text-lg">Welcome back! Here's what's new for you today.</p>
               
               {/* Employee Card */}
@@ -296,7 +296,7 @@ function DashboardContent() {
                         </div>
                       </div>
                       <div className="ml-4 flex-shrink-0">
-                        <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-green-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
+                        <span className="flex items-center justify-center w-10 h-10 rounded-lg text-green-600 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                           </svg>
