@@ -43,9 +43,9 @@ const EmployeeCard = ({ user }) => {
   const handleImageUpload = async (file) => {
     if (!file) return;
 
-    // Validate file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
-      setNotification({ show: true, message: 'Image size exceeds 5MB. Please upload a smaller image.', type: "error" });
+    // Validate file size (500KB limit)
+    if (file.size > 500 * 1024) {
+      setNotification({ show: true, message: 'Image size exceeds 500KB. Please upload a smaller image.', type: "error" });
       return;
     }
 
@@ -169,12 +169,15 @@ const EmployeeCard = ({ user }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <div className="absolute top-0 right-0 bg-gray-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
-            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </div>
+          {/* Camera icon - only show when no photo is available */}
+          {!user?.photo && (
+            <div className="absolute top-0 right-0 bg-gray-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center">
+              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+          )}
           
           <div className="ml-6">
             <h2 className="text-2xl font-bold text-gray-800">{`${user.firstName || ''} ${user.lastName || ''}`}</h2>
