@@ -8,6 +8,7 @@ import { useUserInfo } from "../context/UserInfoContext";
 import Loader from "../loader/Loader";
 import CryptoJS from "crypto-js";
 import Support from "../components/support";
+import EmployeeCard from "../components/EmployeeCard";
 import useStoreEmployees from "../hooks/useStoreEmployees";
 import useStorePassword from "../hooks/useStorePassword";
 import useNotesTasks from "../hooks/useNotesTasks";
@@ -238,8 +239,14 @@ function DashboardContent() {
             style={{ marginLeft: 0, paddingTop: headerHeight + 16 }}
           >
             <div className="max-w-6xl mx-auto">
-              <h1 className="text-4xl font-extrabold text-[#16a34a] mt-8">Employee Dashboard</h1>
-              <p className="mt-2 text-gray-500 text-lg">Welcome back! Here’s what’s new for you today.</p>
+              <h1 className="text-4xl font-extrabold text-[#7c3aed] mt-8">Employee Dashboard</h1>
+              <p className="mt-2 text-gray-500 text-lg">Welcome back! Here's what's new for you today.</p>
+              
+              {/* Employee Card */}
+              <div className="mt-8 mb-8">
+                <EmployeeCard user={{...user, companyId: ci, id: aid, companyName: user?.company || "CyberClipper Solutions LLP"}} />
+              </div>
+
               {/* Stat Cards Section */}
               <div
                 className="w-full"
