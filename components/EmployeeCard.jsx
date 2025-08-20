@@ -153,9 +153,18 @@ const EmployeeCard = ({ user }) => {
                   }}
                 />
               ) : (
-                <svg className="w-12 h-12 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+                <div className="flex items-center justify-center w-full h-full">
+                  <svg className="w-12 h-12 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  {/* Camera icon next to profile SVG */}
+                  <div className="absolute top-0 right-0 bg-gray-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center">
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                </div>
               )}
             </div>
             {isUploading && (
@@ -169,15 +178,7 @@ const EmployeeCard = ({ user }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          {/* Camera icon - only show when no photo is available */}
-          {!user?.photo && (
-            <div className="absolute top-0 right-0 bg-gray-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center">
-              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </div>
-          )}
+          {/* Camera icon is now integrated with the profile SVG above */}
           
           <div className="ml-6">
             <h2 className="text-2xl font-bold text-gray-800">{`${user.firstName || ''} ${user.lastName || ''}`}</h2>
@@ -199,26 +200,12 @@ const EmployeeCard = ({ user }) => {
             <p className="text-xs text-gray-500 font-semibold uppercase">Company</p>
             <p className="text-gray-800 font-bold">{user.companyName || 'CyberClipper'}</p>
           </div>
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <p className="text-xs text-gray-500 font-semibold uppercase">Date Joined</p>
+            <p className="text-gray-800 font-bold">{formatDate(user.dateJoined)}</p>
+          </div>
         </div>
         
-        <div className="flex justify-between items-center border-t border-gray-100 pt-4">
-          <div>
-            <p className="text-xs text-gray-500 font-semibold uppercase">Date Joined</p>
-            <p className="text-gray-800 font-medium">{formatDate(user.dateJoined)}</p>
-          </div>
-          <div className="flex space-x-2">
-            <button className="bg-green-100 hover:bg-green-200 text-green-700 p-2 rounded-full transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-            </button>
-            <button className="bg-green-100 hover:bg-green-200 text-green-700 p-2 rounded-full transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-              </svg>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );
