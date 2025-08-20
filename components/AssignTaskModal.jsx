@@ -3,7 +3,7 @@ import { FaCalendarAlt, FaFlag } from "react-icons/fa";
 import useFetchInterns from "../hooks/useFetchInterns";
 
 // TaskForm Component - Intern assignment only
-const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
+const TaskForm = ({ onClose, onAdd, companyId, initialData, isSubmitting }) => {
   const [form, setForm] = useState({
     assignedBy: initialData?.assignedBy || "",
     title: initialData?.title || "",
@@ -22,7 +22,6 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
   });
   const [error, setError] = useState("");
   const [showInternDropdown, setShowInternDropdown] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch real interns for this company
   const { interns, loading: internsLoading, error: internsError } = useFetchInterns(companyId);
@@ -30,7 +29,6 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setIsSubmitting(true);
 
     try {
       // Create task entries for each selected intern id
@@ -56,12 +54,9 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
           });
         }
       });
-
-      onClose();
+      // Remove onClose() - let parent handle closing after API call completes
     } catch (error) {
       setError("Failed to assign task. Please try again.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -343,7 +338,7 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                   </svg>
-                  Uploading...
+                  Assigning...
                 </>
               ) : (
                 <>Assign Task</>
@@ -357,11 +352,11 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
 };
 
 // Main AssignTaskModal component
-const AssignTaskModal = ({ open, onClose, initialData, onAdd, companyId }) => {
+const AssignTaskModal = ({ open, onClose, initialData, onAdd, companyId, isSubmitting }) => {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/80 to-green-100/80 backdrop-blur-[6px]">
-      <TaskForm onClose={onClose} onAdd={onAdd} companyId={companyId} initialData={initialData} />
+      <TaskForm onClose={onClose} onAdd={onAdd} companyId={companyId} initialData={initialData} isSubmitting={isSubmitting} />
     </div>
   );
 };
