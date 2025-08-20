@@ -195,7 +195,7 @@ export default function LinksSection({ onDelete }) {
             placeholder="Search by link, date, or employee..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full px-4 py-2 rounded-lg shadow border border-green-400 focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-[#28BD78] placeholder-gray-600 text-gray-900 transition"
+            className="w-full px-4 py-2 rounded-lg shadow border border-green-400 focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-[#28BD78] bg-gradient-to-r from-white via-[#bbf7d0] to-white placeholder-gray-600 text-gray-900 transition"
           />
         </div>
       </div>

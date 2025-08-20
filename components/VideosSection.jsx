@@ -216,7 +216,7 @@ export default function VideosSection({ onFavourite }) {
             placeholder="Search by title, date, or employee..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-lg border-2 border-green-400 focus:border-green-600 bg-gradient-to-r from-white via-[#f3e8ff] to-white shadow-lg focus:outline-none focus:ring-2 focus:ring-[#16a34a] placeholder-gray-600 text-gray-900 transition"
+            className="w-full pl-10 pr-4 py-2 rounded-lg border-2 border-green-400 focus:border-green-600 bg-gradient-to-r from-white via-[#bbf7d0] to-white shadow-lg focus:outline-none focus:ring-2 focus:ring-[#16a34a] placeholder-gray-600 text-gray-900 transition"
             style={{ boxShadow: "0 2px 12px 0 rgba(124,58,237,0.08)" }}
           />
         </div>

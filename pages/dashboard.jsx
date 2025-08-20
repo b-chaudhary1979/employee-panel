@@ -187,7 +187,7 @@ function DashboardContent() {
                 <svg className={`w-12 h-12 text-green-500 ${user.photo ? 'hidden' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
               </div>
               <h2 className="text-2xl font-extrabold text-green-600 mb-1">Your Profile</h2>
-              <span className="text-gray-500 text-base font-medium">Employee Details</span>
+              <span className="text-[#16A34A] text-base font-medium">Employee Details</span>
             </div>
             <div className="space-y-3">
               <div><span className="text-xs text-green-400 font-bold uppercase">Name</span><br/><span className="text-lg text-gray-800 font-bold">{`${user?.firstName || ''} ${user?.lastName || ''}`|| '-'}</span></div>
