@@ -385,10 +385,10 @@ export default function SideMenu({ mobileOverlay = false }) {
   }
 `}</style>
 
-      <aside
-        className={`fixed top-0 left-0 h-full z-40 transition-all duration-300 bg-green-50 shadow flex flex-col ${sidebarWidthClass} border-r border-green-100`}
+<aside
+        className={`fixed top-0 left-0 h-full z-40 transition-all duration-300 bg-white shadow flex flex-col ${sidebarWidthClass} border-r border-gray-100`}
         style={{
-          boxShadow: "2px 0 16px 0 rgba(22,163,74,0.15), 4px 0 0 0 #28DB78",
+          boxShadow: "2px 0 16px 0 rgba(162,89,247,0.15), 4px 0 0 0 #A1E3BE",
         }}
       >
         {/* Logo and toggle */}
@@ -526,8 +526,8 @@ export default function SideMenu({ mobileOverlay = false }) {
                   } rounded-xl transition-all duration-150 my-0.5
                     ${
                       isActive
-                        ? "bg-green-100 text-[#16a34a] shadow-sm"
-                        : "text-gray-600 hover:bg-green-50"
+                        ? "bg-[#45CA8A] text-[#FFFFFF] shadow-sm"
+                        : "text-gray-600 hover:bg-[#B9F8CF]"
                     }
                     relative w-full text-left`}
                style={{
