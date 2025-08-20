@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
+import useStoreEmployees from '../hooks/useStoreEmployees';
+import useDataSyncToAdmin from '../hooks/useDataSyncToAdmin';
 
 const EmployeeCard = ({ user }) => {
   // Format date if it exists
   const formatDate = (dateValue) => {
     if (!dateValue) return 'N/A';
     // Handle Firestore timestamp objects
-    const date = dateValue.seconds 
-      ? new Date(dateValue.seconds * 1000) 
+    const date = dateValue.seconds
+      ? new Date(dateValue.seconds * 1000)
       : new Date(dateValue);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -16,7 +18,78 @@ const EmployeeCard = ({ user }) => {
     });
   };
 
+  const [previewImage, setPreviewImage] = useState(user?.photo || null);
+  const [isUploading, setIsUploading] = useState(false);
+  
+  // Get employee hook with companyId
+  const employeesHook = useStoreEmployees(user?.companyId);
+  
+  // Get data sync hook
+  const dataSyncHook = useDataSyncToAdmin();
+
   if (!user) return null;
+
+  const handleImageUpload = async (file) => {
+    if (!file) return;
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size exceeds 5MB. Please upload a smaller image.');
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload a valid image file.');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      // Convert image to base64 data URL
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64Image = event.target.result;
+        
+        // Update preview with the base64 image
+        setPreviewImage(base64Image);
+        
+        // Update employee data in Firestore
+        if (user.companyId && user.id) {
+          await employeesHook.updateEmployee(user.id, {
+            photo: base64Image
+          });
+          
+          // Sync to admin panel
+          await dataSyncHook.syncToAdmin({
+            companyId: user.companyId,
+            collectionName: 'employees',
+            documentId: user.id,
+            data: {
+              photo: base64Image
+            },
+            operation: 'set'
+          });
+        }
+        
+        alert('Profile image updated successfully!');
+        setIsUploading(false);
+      };
+      
+      reader.onerror = (error) => {
+        console.error('Error reading file:', error);
+        alert('Error reading image file. Please try again.');
+        setIsUploading(false);
+      };
+      
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Error uploading image. Please try again.');
+      setIsUploading(false);
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl border border-green-100 transform hover:-translate-y-1">
@@ -30,63 +103,45 @@ const EmployeeCard = ({ user }) => {
       <div className="p-6">
         <div className="flex items-center mb-6">
           <div className="relative">
-  <input
-    type="file"
-    accept="image/*"
-    className="absolute inset-0 opacity-0 cursor-pointer"
-    onChange={(e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        if (file.size > 500000) {
-    alert('Image size exceeds 500kb. Please upload a smaller image.');
-    return;
-}
-reader.onload = (event) => {
-          const base64Image = event.target.result;
-          console.log('Base64 Image:', base64Image);
-          // Store the base64 image in the database
-          fetch('/api/uploadProfileImage', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ image: base64Image })
-          }).then(response => {
-            if (response.ok) {
-              console.log('Image uploaded successfully');
-            } else {
-              console.error('Failed to upload image');
-            }
-          }).catch(error => {
-            console.error('Error uploading image:', error);
-          });
-        };
-        reader.readAsDataURL(file);
-      }
-    }}
-  />
+            <input
+              type="file"
+              accept="image/*"
+              className="absolute inset-0 opacity-0 cursor-pointer"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) {
+                  handleImageUpload(file);
+                }
+              }}
+              disabled={isUploading}
+            />
             <div className="w-24 h-24 rounded-full bg-gradient-to-br from-green-200 via-green-100 to-emerald-200 flex items-center justify-center shadow-lg overflow-hidden border-4 border-white">
-              {user.photo ? (
-                <img 
-                  src={user.photo.startsWith('data:') ? user.photo : `data:image/jpeg;base64,${user.photo}`}
+              {previewImage ? (
+                <img
+                  src={previewImage}
                   className="w-full h-full object-cover"
-                  alt={`${user.firstName} ${user.lastName}`}
+                  alt="Profile"
                   onError={(e) => {
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'flex';
                   }}
                 />
-              ) : null}
-              <svg className={`w-12 h-12 text-green-500 ${user.photo ? 'hidden' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+              ) : (
+                <svg className="w-12 h-12 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              )}
             </div>
-            <div className="absolute bottom-0 right-0 bg-green-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center">
-              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
+            {isUploading && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full">
+                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
+          </div>
+          <div className="absolute bottom-0 right-0 bg-green-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center">
+            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+            </svg>
           </div>
           
           <div className="ml-6">
@@ -100,10 +155,7 @@ reader.onload = (event) => {
             <p className="text-xs text-gray-500 font-semibold uppercase">Employee ID</p>
             <p className="text-gray-800 font-bold">{user.id || 'N/A'}</p>
           </div>
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <p className="text-xs text-gray-500 font-semibold uppercase">Company ID</p>
-            <p className="text-gray-800 font-bold">{user.companyId || 'N/A'}</p>
-          </div>
+          
           <div className="bg-gray-50 p-3 rounded-lg">
             <p className="text-xs text-gray-500 font-semibold uppercase">Email</p>
             <p className="text-gray-800 font-medium truncate">{user.email || 'N/A'}</p>
@@ -117,7 +169,7 @@ reader.onload = (event) => {
         <div className="flex justify-between items-center border-t border-gray-100 pt-4">
           <div>
             <p className="text-xs text-gray-500 font-semibold uppercase">Date Joined</p>
-            <p className="text-gray-800 font-medium">{formatDate(user.joinedAt)}</p>
+            <p className="text-gray-800 font-medium">{formatDate(user.dateJoined)}</p>
           </div>
           <div className="flex space-x-2">
             <button className="bg-green-100 hover:bg-green-200 text-green-700 p-2 rounded-full transition-colors">
