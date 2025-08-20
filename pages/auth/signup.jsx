@@ -706,7 +706,7 @@ const Signup = () => {
       await navigator.clipboard.writeText(text);
       showCopySuccess(buttonId);
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      // Failed to copy text
     }
   };
 

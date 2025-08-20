@@ -80,11 +80,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  console.log('createAssignment API called with:', {
-    hasCompanyId: !!req.body.companyId,
-    internCount: req.body.selectedInternIds?.length || 0,
-    assignmentDataKeys: Object.keys(req.body.assignmentData || {}),
-  });
+  // createAssignment API called
 
   try {
     const { 
@@ -146,7 +142,7 @@ export default async function handler(req, res) {
           });
         }
       } catch (error) {
-        console.error(`Error fetching intern details:`, error);
+        // Error fetching intern details
         // Fallback if any error occurs
         internDetails.push({
           internId: internId,

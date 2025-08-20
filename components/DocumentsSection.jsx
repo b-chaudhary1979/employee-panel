@@ -327,10 +327,10 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
           });
           
           if (!result.success) {
-            console.error('Failed to delete document:', result.error);
+            // Failed to delete document
           }
         } else {
-          console.error('No file data found for document');
+          // No file data found for document
         }
         
         // Update progress
@@ -345,8 +345,6 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
       setTimeout(() => window.document.body.removeChild(toast), 3000);
 
     } catch (err) {
-      console.error('Document deletion error:', err);
-      
       // Show error message
       const toast = window.document.createElement('div');
       toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
@@ -395,8 +393,6 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
       setTimeout(() => window.document.body.removeChild(toast), 3000);
 
     } catch (err) {
-      console.error('File deletion error:', err);
-      
       // Show error message
       const toast = window.document.createElement('div');
       toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
@@ -1547,7 +1543,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                     setDocuments(prev => prev.filter(doc => doc.id !== deleteConfirmModal.id));
                     setDeleteConfirmModal(null);
                   } catch (error) {
-                    console.error('Delete error:', error);
+                    // Delete error occurred
                   } finally {
                     setIsDeletingDocument(false);
                     setDeletingDocumentId(null);
@@ -1587,7 +1583,7 @@ export default function DocumentsSection({ onEdit, onAdd, onDelete }) {
                     await handleDeleteFile(deleteFileConfirmModal.file, deleteFileConfirmModal.document);
                     setDeleteFileConfirmModal(null);
                   } catch (error) {
-                    console.error('Delete file error:', error);
+                    // Delete file error occurred
                   } finally {
                     setIsDeletingFile(false);
                     setDeletingFileId(null);

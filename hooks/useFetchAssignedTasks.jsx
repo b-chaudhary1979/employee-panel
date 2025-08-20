@@ -105,7 +105,6 @@ export default function useFetchAssignedTasks(companyId, employeeId) {
       setPendingTasks(aggregatedPendingTasks);
       setCompletedTasks(aggregatedCompletedTasks);
     } catch (err) {
-      console.error("Error fetching assigned tasks:", err);
       setError(err.message);
     } finally {
       setLoading(false);

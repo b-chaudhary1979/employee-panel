@@ -20,7 +20,6 @@ const initializeInternFirebase = () => {
       }
       internDb = getFirestore(internApp);
     } catch (error) {
-      console.error('Error initializing intern Firebase:', error);
       throw new Error('Failed to initialize intern database connection');
     }
   }
@@ -77,7 +76,6 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Error fetching interns:', error);
     return res.status(500).json({ 
       error: 'Failed to fetch interns',
       details: error.message 

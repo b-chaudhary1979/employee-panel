@@ -78,8 +78,6 @@ export default async function handler(req, res) {
     // Commit the batch operations
     await batch.commit();
 
-    console.log(`Task successfully moved from pending to completed in employee database`);
-
     // Step 3: Sync to admin database
     try {
       // Initialize admin Firebase
@@ -100,7 +98,6 @@ export default async function handler(req, res) {
           }
           adminDb = getAdminFirestore(adminApp);
         } catch (error) {
-          console.error('Error initializing admin Firebase:', error);
           throw new Error('Failed to initialize admin database connection');
         }
       }
@@ -133,7 +130,6 @@ export default async function handler(req, res) {
           createdAt: new Date().toISOString()
         }, { merge: true });
       } catch (error) {
-        console.log('Warning: Could not ensure parent documents in admin database:', error.message);
       }
 
       // Remove from admin pending_tasks collection if it exists
@@ -145,16 +141,15 @@ export default async function handler(req, res) {
           .doc(employeeId)
           .collection('pending_tasks');
 
-        console.log('Attempting to delete from admin pending_tasks...');
         const byIdRef = adminPendingCollectionRef.doc(taskId);
         const byIdSnap = await byIdRef.get();
         if (byIdSnap.exists) {
           await byIdRef.delete();
-          console.log('Deleted pending task by document id');
+          
         } else {
           // Try by originalTaskId
           try {
-            console.log('Pending delete by originalTaskId');
+           
             const byOriginalIdSnap = await adminPendingCollectionRef
               .where('originalTaskId', '==', taskId)
               .get();
@@ -162,16 +157,16 @@ export default async function handler(req, res) {
               const batch = adminDb.batch();
               byOriginalIdSnap.forEach((docSnap) => batch.delete(docSnap.ref));
               await batch.commit();
-              console.log(`Deleted ${byOriginalIdSnap.size} pending task(s) by originalTaskId`);
+            
             }
           } catch (qErr) {
-            console.log('Warning: query by originalTaskId failed:', qErr.message);
+           
           }
 
           // Try by taskName as a fallback
           if (taskData?.taskName) {
             try {
-              console.log('Pending delete by taskName');
+             
               const byNameSnap = await adminPendingCollectionRef
                 .where('taskName', '==', taskData.taskName)
                 .get();
@@ -179,15 +174,15 @@ export default async function handler(req, res) {
                 const batch = adminDb.batch();
                 byNameSnap.forEach((docSnap) => batch.delete(docSnap.ref));
                 await batch.commit();
-                console.log(`Deleted ${byNameSnap.size} pending task(s) by taskName`);
+               
               }
             } catch (qErr) {
-              console.log('Warning: query by taskName failed:', qErr.message);
+             
             }
           }
         }
       } catch (error) {
-        console.log('Warning: Could not delete from admin pending_tasks (may not exist):', error.message);
+       
       }
 
       // Store in admin database
@@ -212,11 +207,8 @@ export default async function handler(req, res) {
         taskType: 'employee_task'
       });
 
-      console.log(`Task successfully sent to admin database for employee`);
     } catch (adminError) {
-      console.error('Error syncing to admin database:', adminError);
-      // Don't fail the entire operation if admin sync fails
-      // The task is already completed in employee database
+     
     }
 
     return res.status(200).json({ 
@@ -229,7 +221,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Error submitting employee task:', error);
+   
     return res.status(500).json({ 
       error: 'Failed to submit task',
       details: error.message 

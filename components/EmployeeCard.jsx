@@ -42,9 +42,8 @@ const EmployeeCard = ({ user }) => {
     alert('Image size exceeds 500kb. Please upload a smaller image.');
     return;
 }
-reader.onload = (event) => {
+        reader.onload = (event) => {
           const base64Image = event.target.result;
-          console.log('Base64 Image:', base64Image);
           // Store the base64 image in the database
           fetch('/api/uploadProfileImage', {
             method: 'POST',
@@ -54,12 +53,12 @@ reader.onload = (event) => {
             body: JSON.stringify({ image: base64Image })
           }).then(response => {
             if (response.ok) {
-              console.log('Image uploaded successfully');
+              // Image uploaded successfully
             } else {
-              console.error('Failed to upload image');
+              // Failed to upload image
             }
           }).catch(error => {
-            console.error('Error uploading image:', error);
+            // Error uploading image
           });
         };
         reader.readAsDataURL(file);

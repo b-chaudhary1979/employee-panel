@@ -15,7 +15,7 @@ try {
     }, 'admin-app');
   }
 } catch (error) {
-  console.error('Error initializing admin Firebase app:', error);
+  // Error initializing admin Firebase app
 }
 
 export default async function handler(req, res) {
@@ -67,7 +67,6 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Error updating views count:', error);
     return res.status(500).json({ 
       error: 'Failed to update views count',
       details: error.message 

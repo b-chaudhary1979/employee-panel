@@ -37,6 +37,9 @@ export default function InternManagementSystem() {
   // Use the hook to fetch interns
   const { interns, loading: internsLoading, error: internsError, addIntern, updateIntern } = useFetchInterns(companyId);
   
+  // Add loading state for form submission
+  const [isAddingIntern, setIsAddingIntern] = useState(false);
+  
   const [selectedIntern, setSelectedIntern] = useState(null);
   const [showAddInternModal, setShowAddInternModal] = useState(false);
   const [newIntern, setNewIntern] = useState({
@@ -105,6 +108,8 @@ export default function InternManagementSystem() {
       return;
     }
 
+    setIsAddingIntern(true); // Start loading
+
     try {
       await addIntern(newIntern);
       setShowAddInternModal(false);
@@ -140,8 +145,10 @@ export default function InternManagementSystem() {
         setNotification({ show: false, message: "", color: "green" });
       }, 3000);
     } catch (err) {
-      console.error("Failed to add intern to Firestore", err);
+      // Failed to add intern to Firestore
       setNotification({ show: true, message: "Failed to add intern. Please try again.", color: "red" });
+    } finally {
+      setIsAddingIntern(false); // End loading
     }
   };
 
@@ -288,7 +295,7 @@ export default function InternManagementSystem() {
         setNotification({ show: false, message: "", color: "green" });
       }, 3000);
     } catch (err) {
-      console.error("Failed to update intern status:", err);
+      // Failed to update intern status
       setNotification({
         show: true,
         message: "Failed to update intern status. Please try again.",
@@ -768,15 +775,27 @@ export default function InternManagementSystem() {
                 <button
                   type="button"
                   onClick={() => setShowAddInternModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  disabled={isAddingIntern}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#28DB78] hover:bg-[#16a34a] text-white rounded-md"
+                  disabled={isAddingIntern}
+                  className="px-4 py-2 bg-[#28DB78] hover:bg-[#16a34a] text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  Submit Application
+                  {isAddingIntern ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                      </svg>
+                      Adding Intern...
+                    </>
+                  ) : (
+                    "Submit Application"
+                  )}
                 </button>
               </div>
             </form>

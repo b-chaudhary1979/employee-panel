@@ -86,7 +86,6 @@ export default function useAnnouncements(cid, aid) {
       
       setReadStatus(readStatusMap);
     } catch (error) {
-      console.error('Error fetching read status:', error);
       setReadStatus({});
     }
   }, [cid, aid, announcements]);
@@ -137,7 +136,6 @@ export default function useAnnouncements(cid, aid) {
       const result = await response.json();
 
     } catch (error) {
-      console.error('Error marking as read:', error);
       // Rollback Operation 1 if Operation 2 failed
       try {
         const readerRef = doc(db, `users/${cid}/announcement/${announcementId}/readers/${aid}`);
@@ -149,9 +147,9 @@ export default function useAnnouncements(cid, aid) {
           [announcementId]: false
         }));
         
-      } catch (rollbackError) {
-        console.error('Error rolling back read status:', rollbackError);
-      }
+              } catch (rollbackError) {
+          // Silent rollback error
+        }
     }
   }, [cid, aid, readStatus]);
 

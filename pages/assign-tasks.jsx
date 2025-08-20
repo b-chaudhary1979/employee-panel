@@ -186,7 +186,7 @@ export default function AssignTasksPage() {
         console.log("Processed intern options successfully");
         setInternOptions(opts);
       } catch (error) {
-        console.error("Error fetching interns:", error);
+        // Error fetching interns
       }
     };
     fetchInterns();
@@ -264,7 +264,7 @@ export default function AssignTasksPage() {
   };
 
   // Debug loading state
-  console.log("Loading state:", { userLoading, user: !!user, companyId: !!ci, employeeId: !!aid });
+        // Loading state check
   
   // Temporarily allow rendering without user to debug
   if (!ci) {
