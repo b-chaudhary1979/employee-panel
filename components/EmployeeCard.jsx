@@ -1,4 +1,4 @@
-enimport React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import useStoreEmployees from '../hooks/useStoreEmployees';
 import useDataSyncToAdmin from '../hooks/useDataSyncToAdmin';
