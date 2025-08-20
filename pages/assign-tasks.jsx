@@ -49,10 +49,11 @@ export default function AssignTasksPage() {
   const [taskView, setTaskView] = useState('assigned'); // 'assigned' or 'submitted'
   
   // Fetch assigned tasks
-  const { tasks: assignedTasks, loading: tasksLoading, error: tasksError, refetch: refetchTasks } = useFetchAssignedTasks(ci, aid);
+  const { pendingTasks: assignedPendingTasks, completedTasks: assignedCompletedTasks, loading: tasksLoading, error: tasksError, refetch: refetchTasks } = useFetchAssignedTasks(ci, aid);
   
   // Filter tasks based on search query and task view
-  const filteredTasks = assignedTasks.filter(task => {
+  const sourceTasks = taskView === 'submitted' ? assignedCompletedTasks : assignedPendingTasks;
+  const filteredTasks = sourceTasks.filter(task => {
     // First filter by task view (assigned = pending, submitted = completed)
     if (taskView === 'assigned' && task.status !== 'pending') return false;
     if (taskView === 'submitted' && task.status !== 'completed') return false;
@@ -356,7 +357,7 @@ export default function AssignTasksPage() {
                   </div>
                   <div>
                     <div className="text-gray-500 text-sm">Total Tasks</div>
-                    <div className="text-2xl text-gray-600 font-bold">{filteredTasks.length}</div>
+                    <div className="text-2xl text-gray-600 font-bold">{sourceTasks.length}</div>
                   </div>
                 </div>
                 <div className="bg-white rounded-xl shadow flex items-center gap-4 px-6 py-5">
@@ -366,7 +367,7 @@ export default function AssignTasksPage() {
                   <div>
                     <div className="text-gray-500 text-sm">Pending</div>
                     <div className="text-2xl text-gray-600 font-bold">
-                      {filteredTasks.filter(task => task.status === 'pending').length}
+                      {assignedPendingTasks.length}
                     </div>
                   </div>
                 </div>
@@ -377,7 +378,7 @@ export default function AssignTasksPage() {
                   <div>
                     <div className="text-gray-500 text-sm">Completed</div>
                     <div className="text-2xl text-gray-600 font-bold">
-                      {filteredTasks.filter(task => task.status === 'completed').length}
+                      {assignedCompletedTasks.length}
                     </div>
                   </div>
                 </div>

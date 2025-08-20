@@ -52,6 +52,7 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
             priority: form.priority,
             category: form.category,
             notes: form.notes,
+            messageToIntern: form.messageToIntern || "",
           });
         }
       });
@@ -183,6 +184,21 @@ const TaskForm = ({ onClose, onAdd, companyId, initialData }) => {
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* Message to Intern */}
+            <div className="lg:col-span-3 sm:col-span-2 col-span-1">
+              <label className="block text-xs font-semibold mb-1 text-gray-700">
+                Message to Intern
+              </label>
+              <textarea
+                name="messageToIntern"
+                value={form.messageToIntern || ""}
+                onChange={(e) => setForm({ ...form, messageToIntern: e.target.value })}
+                className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400 text-sm text-gray-800 bg-green-50/60 shadow transition-all duration-200"
+                placeholder="Enter a message for the intern..."
+                rows={3}
+              />
             </div>
 
             {/* Priority */}

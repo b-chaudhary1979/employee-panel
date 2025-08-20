@@ -169,6 +169,7 @@ export default async function handler(req, res) {
       dueDate: assignmentData.dueDate || '',
       priority: assignmentData.priority || 'Medium',
       category: assignmentData.department || '',
+      messageToIntern: assignmentData.messageToIntern || '',
       syncedAt: new Date().toISOString()
     };
 
@@ -256,6 +257,9 @@ export default async function handler(req, res) {
                      .doc(internId)
                      .set({
                        internId: internId,
+                       role: "Intern",
+                       email: internDetail?.internEmail || `intern${internId}@company.com`,
+                       name: internDetail?.internName || `Intern ${internId}`,
                        createdAt: new Date().toISOString()
                      });
                  }
@@ -359,7 +363,10 @@ export default async function handler(req, res) {
                 console.log(`Creating task-data document for intern assignment`);
                 await taskDataRef.set({
                   createdAt: new Date().toISOString(),
-                  internId: internId
+                  internId: internId,
+                  role: "Intern",
+                  email: internDetail?.internEmail || `intern${internId}@company.com`,
+                  name: internDetail?.internName || `Intern ${internId}`
                 });
               }
               
@@ -429,6 +436,9 @@ export default async function handler(req, res) {
                     .doc(internId)
                     .set({
                       internId: internId,
+                      role: "Intern",
+                      email: internDetail?.internEmail || `intern${internId}@company.com`,
+                      name: internDetail?.internName || `Intern ${internId}`,
                       createdAt: new Date().toISOString()
                     });
                 }
