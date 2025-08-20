@@ -386,14 +386,14 @@ export default function SideMenu({ mobileOverlay = false }) {
 `}</style>
 
       <aside
-        className={`fixed top-0 left-0 h-full z-40 transition-all duration-300 bg-white shadow flex flex-col ${sidebarWidthClass} border-r border-gray-100`}
+        className={`fixed top-0 left-0 h-full z-40 transition-all duration-300 bg-green-50 shadow flex flex-col ${sidebarWidthClass} border-r border-green-100`}
         style={{
-          boxShadow: "2px 0 16px 0 rgba(162,89,247,0.15), 4px 0 0 0 #e0d7f8",
+          boxShadow: "2px 0 16px 0 rgba(22,163,74,0.15), 4px 0 0 0 #28DB78",
         }}
       >
         {/* Logo and toggle */}
         <div
-          className={`flex items-center justify-between px-6 py-6 border-b border-gray-200 ${
+          className={`flex items-center justify-between px-6 py-6 border-b border-green-100 ${
             mobileOverlay ? "" : isOpen ? "" : "px-2 justify-center"
           }`}
         >
@@ -447,7 +447,7 @@ export default function SideMenu({ mobileOverlay = false }) {
           {/* Only show arrow/collapse button on desktop (not mobile overlay) */}
           {!mobileOverlay && (
             <button
-              className="ml-2 p-1 rounded hover:bg-gray-100 transition-colors"
+              className="ml-2 p-1 rounded hover:bg-green-100 transition-colors"
               aria-label={isOpen ? "Close menu" : "Open menu"}
               onClick={toggleSidebar}
             >
@@ -526,16 +526,16 @@ export default function SideMenu({ mobileOverlay = false }) {
                   } rounded-xl transition-all duration-150 my-0.5
                     ${
                       isActive
-                        ? "bg-[#f5edff] text-[#16a34a] shadow-sm"
-                        : "text-gray-600 hover:bg-gray-50"
+                        ? "bg-green-100 text-[#16a34a] shadow-sm"
+                        : "text-gray-600 hover:bg-green-50"
                     }
                     relative w-full text-left`}
-                  style={{
-                    boxShadow: isActive
-                      ? "0 2px 8px 0 rgba(162,89,247,0.08)"
-                      : undefined,
-                    minHeight: 48,
-                  }}
+               style={{
+                 boxShadow: isActive
+                   ? "0 2px 8px 0 rgba(22,163,74,0.08)"
+                   : undefined,
+                 minHeight: 48,
+               }}
                 >
                   {/* Only show icon on desktop, always for collapsed, with text if open */}
                   {!mobileOverlay && (
@@ -562,7 +562,7 @@ export default function SideMenu({ mobileOverlay = false }) {
                   <div
                     className={`w-full ${
                       isOpen ? "ml-5" : "ml-0"
-                    } border-t border-gray-100`}
+                    } border-t border-green-100`}
                     style={{ height: 1 }}
                   />
                 )}
@@ -574,7 +574,7 @@ export default function SideMenu({ mobileOverlay = false }) {
         {(!mobileOverlay && isOpen) || mobileOverlay ? (
           <div
             className={`px-4 py-3 text-xs text-gray-500 flex flex-col items-center justify-center ${mobileOverlay ? '' : isOpen ? '' : 'px-0'}`}
-            style={{ borderTop: '1px solid #f3e8ff', marginTop: 'auto' }}
+            style={{ borderTop: '1px solid #28DB78', marginTop: 'auto' }}
           >
             <span className="font-semibold" style={{ color: '#16a34a' }}>
               <a href="https://cyberclipper.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#16a34a', textDecoration: 'underline', cursor: 'pointer' }}>
