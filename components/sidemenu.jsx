@@ -114,7 +114,7 @@ const menuItems = (user) => {
   },
   {
     label: "Interns",
-    route: "/intern-management-system",
+    route: "/intern",
     icon: (isActive) => (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
   <rect x="2" y="3" width="20" height="18" rx="2" stroke={isActive ? "#16a34a" : "#222"} strokeWidth="2" />
