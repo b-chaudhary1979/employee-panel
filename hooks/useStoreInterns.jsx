@@ -181,7 +181,7 @@ const useStoreInterns = (cid, isEmployeePanel = false) => {
     setLoading(true);
     setError(null);
     try {
-      const internsRef = collection(db, 'users', cid, isEmployeePanel ? 'employeeInterns' : 'interns');
+      const internsRef = collection(db, 'users', cid, 'interns'); // Changed to intern panel database
       const internId = internData.internId;
       const dataToSave = {
         ...internData,
@@ -190,7 +190,7 @@ const useStoreInterns = (cid, isEmployeePanel = false) => {
       };
       await setDoc(doc(internsRef, internId), dataToSave);
       await triggerInternSync(dataToSave, internId);
-      await syncInternToPanels(dataToSave); // Added sync function
+      await syncInternToPanels(dataToSave);
       setLoading(false);
     } catch (err) {
       setError(err.message);
