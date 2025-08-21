@@ -22,7 +22,7 @@ const useStoreInterns = (cid, isEmployeePanel = false) => {
     if (!cid) return;
     setLoading(true);
     setError(null);
-    const internsRef = collection(db, 'users', cid, isEmployeePanel ? 'employeeInterns' : 'interns');
+    const internsRef = collection(db, 'users', cid, 'interns'); // Changed to intern panel database
     // Real-time updates
     const unsubscribe = onSnapshot(
       internsRef,
@@ -41,7 +41,7 @@ const useStoreInterns = (cid, isEmployeePanel = false) => {
       }
     );
     return unsubscribe;
-  }, [cid, isEmployeePanel]);
+  }, [cid]);
 
   useEffect(() => {
     const unsubscribe = fetchInterns();
