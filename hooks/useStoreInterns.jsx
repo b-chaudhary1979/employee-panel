@@ -138,6 +138,35 @@ const useStoreInterns = (cid, isEmployeePanel = false) => {
   };
 
   // Add a new intern
+  const syncInternToPanels = async (internData) => {
+    try {
+      // Sync to Intern Panel
+      const internPanelData = {
+        ...internData,
+        panel: 'Intern'
+      };
+      await fetch('/api/intern-panel/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(internPanelData)
+      });
+  
+      // Sync to Admin Panel
+      const adminPanelData = {
+        ...internData,
+        panel: 'Admin'
+      };
+      await fetch('/api/admin-panel/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(adminPanelData)
+      });
+    } catch (error) {
+      console.error('Error syncing intern to panels:', error);
+    }
+  };
+  
+  // Modify addIntern to include syncInternToPanels
   const addIntern = async (internData) => {
     if (!cid) return;
     setLoading(true);
@@ -152,14 +181,15 @@ const useStoreInterns = (cid, isEmployeePanel = false) => {
       };
       await setDoc(doc(internsRef, internId), dataToSave);
       await triggerInternSync(dataToSave, internId);
+      await syncInternToPanels(dataToSave); // Added sync function
       setLoading(false);
     } catch (err) {
       setError(err.message);
       setLoading(false);
     }
   };
-
-  // Update an intern
+  
+  // Modify updateIntern to include syncInternToPanels
   const updateIntern = async (id, updatedData) => {
     if (!cid || !id) return;
     setLoading(true);
@@ -167,10 +197,10 @@ const useStoreInterns = (cid, isEmployeePanel = false) => {
     try {
       const internRef = doc(db, 'users', cid, 'interns', id);
       await updateDoc(internRef, updatedData);
-      
+  
       // Update task arrays with new intern info
       await updateTaskArraysWithInternInfo(id, updatedData);
-      
+  
       // Trigger webhook to update intern in IMS database
       try {
         const webhookData = {
@@ -179,13 +209,13 @@ const useStoreInterns = (cid, isEmployeePanel = false) => {
           internId: id,
           updatedData: updatedData
         };
-
+  
         const response = await fetch('/api/webhooks/intern-updated', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(webhookData)
         });
-
+  
         if (response.ok) {
           const result = await response.json();
           
@@ -193,7 +223,8 @@ const useStoreInterns = (cid, isEmployeePanel = false) => {
       } catch (error) {
         // Don't throw error - webhook failure shouldn't prevent intern update in admin panel
       }
-      
+  
+      await syncInternToPanels(updatedData); // Added sync function
       setLoading(false);
     } catch (err) {
       setError(err.message);
