@@ -12,7 +12,7 @@ import {
   serverTimestamp, // Add this import
 } from 'firebase/firestore';
 
-const useStoreInterns = (cid, isEmployeePanel = false) => {
+const useStoreInterns = (cid) => {
   const [interns, setInterns] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -22,7 +22,7 @@ const useStoreInterns = (cid, isEmployeePanel = false) => {
     if (!cid) return;
     setLoading(true);
     setError(null);
-    const internsRef = collection(db, 'users', cid, 'interns'); // Changed to intern panel database
+    const internsRef = collection(db, 'users', cid, 'interns');
     // Real-time updates
     const unsubscribe = onSnapshot(
       internsRef,
@@ -138,57 +138,20 @@ const useStoreInterns = (cid, isEmployeePanel = false) => {
   };
 
   // Add a new intern
-  const syncInternToPanels = async (internData) => {
-    try {
-      // Sync to Intern Panel
-      const internPanelData = {
-        ...internData,
-        panel: 'Intern'
-      };
-      const internPanelResponse = await fetch('/api/intern-panel/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(internPanelData)
-      });
-  
-      if (!internPanelResponse.ok) {
-        throw new Error(`Intern Panel sync failed: ${internPanelResponse.status} ${internPanelResponse.statusText}`);
-      }
-  
-      // Sync to Admin Panel
-      const adminPanelData = {
-        ...internData,
-        panel: 'Admin'
-      };
-      const adminPanelResponse = await fetch('/api/admin-panel/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(adminPanelData)
-      });
-  
-      if (!adminPanelResponse.ok) {
-        throw new Error(`Admin Panel sync failed: ${adminPanelResponse.status} ${adminPanelResponse.statusText}`);
-      }
-    } catch (error) {
-      console.error('Error syncing intern to panels:', error);
-      throw error; // Propagate error for better debugging
-    }
-  };
-  
-  // Modify addIntern to include syncInternToPanels
   const addIntern = async (internData) => {
     if (!cid) return;
     setLoading(true);
     setError(null);
     try {
-      const internsRef = collection(db, 'users', cid, 'interns'); // Changed to intern panel database
-      const internId = internData.internId;
+      const internsRef = collection(db, 'users', cid, 'interns'); // Ensure correct path
+      const internId = internData.internId || doc(internsRef).id; // Generate intern ID if not provided
       const dataToSave = {
         ...internData,
+        internId: internId, // Include generated ID in data
         status: internData.status || 'Active',
         dateRegistered: serverTimestamp(),
       };
-      await setDoc(doc(internsRef, internId), dataToSave);
+      await setDoc(doc(internsRef, internId), dataToSave); // Save to Firebase
       await triggerInternSync(dataToSave, internId);
       await syncInternToPanels(dataToSave);
       setLoading(false);
@@ -197,8 +160,8 @@ const useStoreInterns = (cid, isEmployeePanel = false) => {
       setLoading(false);
     }
   };
-  
-  // Modify updateIntern to include syncInternToPanels
+
+  // Update an intern
   const updateIntern = async (id, updatedData) => {
     if (!cid || !id) return;
     setLoading(true);
@@ -206,10 +169,10 @@ const useStoreInterns = (cid, isEmployeePanel = false) => {
     try {
       const internRef = doc(db, 'users', cid, 'interns', id);
       await updateDoc(internRef, updatedData);
-  
+      
       // Update task arrays with new intern info
       await updateTaskArraysWithInternInfo(id, updatedData);
-  
+      
       // Trigger webhook to update intern in IMS database
       try {
         const webhookData = {
@@ -218,13 +181,13 @@ const useStoreInterns = (cid, isEmployeePanel = false) => {
           internId: id,
           updatedData: updatedData
         };
-  
+
         const response = await fetch('/api/webhooks/intern-updated', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(webhookData)
         });
-  
+
         if (response.ok) {
           const result = await response.json();
           
@@ -232,8 +195,7 @@ const useStoreInterns = (cid, isEmployeePanel = false) => {
       } catch (error) {
         // Don't throw error - webhook failure shouldn't prevent intern update in admin panel
       }
-  
-      await syncInternToPanels(updatedData); // Added sync function
+      
       setLoading(false);
     } catch (err) {
       setError(err.message);
@@ -287,7 +249,7 @@ const useStoreInterns = (cid, isEmployeePanel = false) => {
     addIntern,
     updateIntern,
     deleteIntern,
-    fetchInterns,
+    fetchInterns, // in case you want to refetch manually
   };
 };
 
