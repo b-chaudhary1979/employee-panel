@@ -145,24 +145,33 @@ const useStoreInterns = (cid, isEmployeePanel = false) => {
         ...internData,
         panel: 'Intern'
       };
-      await fetch('/api/intern-panel/sync', {
+      const internPanelResponse = await fetch('/api/intern-panel/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(internPanelData)
       });
+  
+      if (!internPanelResponse.ok) {
+        throw new Error(`Intern Panel sync failed: ${internPanelResponse.status} ${internPanelResponse.statusText}`);
+      }
   
       // Sync to Admin Panel
       const adminPanelData = {
         ...internData,
         panel: 'Admin'
       };
-      await fetch('/api/admin-panel/sync', {
+      const adminPanelResponse = await fetch('/api/admin-panel/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(adminPanelData)
       });
+  
+      if (!adminPanelResponse.ok) {
+        throw new Error(`Admin Panel sync failed: ${adminPanelResponse.status} ${adminPanelResponse.statusText}`);
+      }
     } catch (error) {
       console.error('Error syncing intern to panels:', error);
+      throw error; // Propagate error for better debugging
     }
   };
   
