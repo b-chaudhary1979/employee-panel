@@ -21,6 +21,7 @@ const EmployeeCard = ({ user }) => {
   const [previewImage, setPreviewImage] = useState(user?.photo || null);
   const [isUploading, setIsUploading] = useState(false);
   const [notification, setNotification] = useState({ show: false, message: "", type: "success" }); // Add notification state
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   
   // Get employee hook with companyId
   const employeesHook = useStoreEmployees(user?.companyId);
@@ -129,9 +130,9 @@ const EmployeeCard = ({ user }) => {
       <div className="p-6">
         <div className="flex items-center mb-6">
           <div className="relative group">
-            {photo ? (
+            {previewImage ? (
               <img
-                src={photo}
+                src={previewImage}
                 alt="Profile Picture"
                 className="w-16 h-16 rounded-full object-cover"
               />
@@ -151,35 +152,66 @@ const EmployeeCard = ({ user }) => {
                 />
               </svg>
             )}
-            {/* Camera Icon Overlay */}
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-full bg-black bg-opacity-40">
-              {isUploadingPhoto ? (
-                <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
-              ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   strokeWidth="2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                  />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              )}
+                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
             </div>
+            <input
+              type="file"
+              accept="image/*"
+              className="absolute inset-0 opacity-0 cursor-pointer"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) {
+                  const reader = new FileReader();
+                  if (file.size > 500000) {
+                    alert('Image size exceeds 500kb. Please upload a smaller image.');
+                    return;
+                  }
+                  reader.onload = (event) => {
+                    const base64Image = event.target.result;
+                    console.log('Base64 Image:', base64Image);
+                    // Store the base64 image in the database
+                    fetch('/api/uploadProfileImage', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({ image: base64Image })
+                    }).then(response => {
+                      if (response.ok) {
+                        console.log('Image uploaded successfully');
+                      } else {
+                        console.error('Failed to upload image');
+                      }
+                    }).catch(error => {
+                      console.error('Error uploading image:', error);
+                    });
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
           </div>
-          <div className="absolute top-0 right-0 bg-gray-500 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center">
-            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </div>
+         
           {/* Camera icon is now integrated with the profile SVG above */}
           
           <div className="ml-6">
