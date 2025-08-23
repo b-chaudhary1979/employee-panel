@@ -17,38 +17,78 @@ const useStoreInterns = (cid) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch interns for the given company id (as subcollection)
+  // Fetch interns with API call to intern Firebase database
   const fetchInterns = useCallback(() => {
     if (!cid) return;
     setLoading(true);
     setError(null);
-    const internsRef = collection(db, 'users', cid, 'interns');
-    // Real-time updates
-    const unsubscribe = onSnapshot(
-      internsRef,
-      (querySnapshot) => {
-        const interns = [];
-        let sNo = 1;
-        querySnapshot.forEach((doc) => {
-          interns.push({ sNo: sNo++, id: doc.id, ...doc.data() });
+    
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`/api/interns/fetchInterns?companyId=${cid}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         });
-        setInterns(interns);
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch interns: ${response.statusText}`);
+        }
+
+        const responseData = await response.json();
+        // Make sure we're setting the interns array, not the whole response object
+        if (responseData.interns && Array.isArray(responseData.interns)) {
+          // Add sNo property to each intern for consistency with the original code
+          const internsWithSNo = responseData.interns.map((intern, index) => ({
+            ...intern,
+            sNo: index + 1
+          }));
+          setInterns(internsWithSNo);
+          
+          // Trigger a sync to ensure admin panel is up to date
+          // We do this silently in the background without blocking
+          try {
+            triggerInternSync(null, null);
+          } catch (syncErr) {
+            console.error('Background sync failed:', syncErr);
+            // Don't set error state for background sync
+          }
+        } else {
+          // If the response doesn't have the expected structure, set an empty array
+          console.error('Unexpected response structure:', responseData);
+          setInterns([]);
+        }
         setLoading(false);
-      },
-      (err) => {
+      } catch (err) {
         setError(err.message);
         setLoading(false);
       }
-    );
-    return unsubscribe;
+    };
+
+    fetchData();
+    
+    // Since we're not using onSnapshot anymore, we return an empty function
+    return () => {};
   }, [cid]);
 
   useEffect(() => {
     const unsubscribe = fetchInterns();
+    
+    // Initial sync with admin panel when component mounts
+    if (cid) {
+      try {
+        triggerInternSync(null, null);
+      } catch (syncErr) {
+        console.error('Initial sync failed:', syncErr);
+        // Don't set error state for background sync
+      }
+    }
+    
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [fetchInterns]);
+  }, [fetchInterns, cid]);
 
   // Update task arrays when intern information changes
   const updateTaskArraysWithInternInfo = async (internId, updatedData) => {
@@ -113,27 +153,59 @@ const useStoreInterns = (cid) => {
   // Trigger sync-on-login to add intern to IMS database
   const triggerInternSync = async (internData, internId) => {
     try {
-      const syncData = {
+      // First sync with the admin panel
+      const adminSyncData = {
         cid: cid,
-        system: 'IMS'
+        system: 'IMS',
+        newData: internData,
+        internId: internId
       };
 
-      const response = await fetch('/api/user-management/sync-on-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(syncData),
-        signal: AbortSignal.timeout(15000) // 15 second timeout for sync
-      });
-
-      if (response.ok) {
-        return await response.json();
-      } else {
-        const errorText = await response.text();
-        throw new Error(`Intern sync failed: ${response.status} ${response.statusText} - ${errorText}`);
+      try {
+        // Call the sync API to update the admin panel
+        const adminResponse = await fetch('/api/user-management/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(adminSyncData),
+          signal: AbortSignal.timeout(15000) // 15 second timeout for sync
+        });
+      } catch (adminSyncError) {
+        // Log but continue if admin sync fails
+        console.error('Admin sync error:', adminSyncError);
+        // Continue with IMS sync even if admin sync fails
       }
+
+      try {
+        // Then sync with the IMS database
+        const imsData = {
+          cid: cid,
+          system: 'IMS'
+        };
+
+        const imsResponse = await fetch('/api/user-management/sync-on-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(imsData),
+          signal: AbortSignal.timeout(15000) // 15 second timeout for sync
+        });
+
+        if (imsResponse.ok) {
+          return await imsResponse.json();
+        }
+        // If response is not OK, log but don't throw
+        const errorText = await imsResponse.text();
+        console.warn(`IMS sync warning: ${imsResponse.status} ${imsResponse.statusText} - ${errorText}`);
+      } catch (imsSyncError) {
+        // Log but continue if IMS sync fails
+        console.error('IMS sync error:', imsSyncError);
+      }
+      
+      // Return a default success response even if syncs fail
+      return { success: true, message: 'Operation completed on intern database' };
     } catch (error) {
       // Don't throw error - sync failure shouldn't prevent intern addition to admin panel
-      return;
+      console.error('Sync error:', error);
+      return { success: true, message: 'Operation completed but sync failed' };
     }
   };
 
@@ -143,17 +215,34 @@ const useStoreInterns = (cid) => {
     setLoading(true);
     setError(null);
     try {
-      const internsRef = collection(db, 'users', cid, 'interns'); // Ensure correct path
-      const internId = internData.internId || doc(internsRef).id; // Generate intern ID if not provided
-      const dataToSave = {
-        ...internData,
-        internId: internId, // Include generated ID in data
-        status: internData.status || 'Active',
-        dateRegistered: serverTimestamp(),
-      };
-      await setDoc(doc(internsRef, internId), dataToSave); // Save to Firebase
-      await triggerInternSync(dataToSave, internId);
-      await syncInternToPanels(dataToSave);
+      // Save to intern Firebase database using API endpoint
+      const response = await fetch('/api/interns/addInterns', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          companyId: cid,
+          internData: {
+            ...internData,
+            status: internData.status || 'Active',
+            dateRegistered: new Date().toISOString(),
+          }
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to add intern: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      const internId = result.internId;
+
+      // Sync the intern to the admin panel
+      await triggerInternSync(internData, internId);
+
+      // Also fetch the interns to update the local state
+      fetchInterns();
       setLoading(false);
     } catch (err) {
       setError(err.message);
@@ -167,35 +256,31 @@ const useStoreInterns = (cid) => {
     setLoading(true);
     setError(null);
     try {
-      const internRef = doc(db, 'users', cid, 'interns', id);
-      await updateDoc(internRef, updatedData);
+      // Update intern in the intern Firebase database using API endpoint
+      const response = await fetch('/api/interns/updateInterns', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          companyId: cid,
+          internId: id,
+          updates: updatedData
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update intern: ${response.statusText}`);
+      }
       
       // Update task arrays with new intern info
       await updateTaskArraysWithInternInfo(id, updatedData);
       
-      // Trigger webhook to update intern in IMS database
-      try {
-        const webhookData = {
-          path: `users/${cid}/interns/${id}`,
-          companyId: cid,
-          internId: id,
-          updatedData: updatedData
-        };
-
-        const response = await fetch('/api/webhooks/intern-updated', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(webhookData)
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          
-        }
-      } catch (error) {
-        // Don't throw error - webhook failure shouldn't prevent intern update in admin panel
-      }
+      // Sync the updated intern to the admin panel
+      await triggerInternSync(updatedData, id);
       
+      // Also fetch the interns to update the local state
+      fetchInterns();
       setLoading(false);
     } catch (err) {
       setError(err.message);
@@ -209,32 +294,33 @@ const useStoreInterns = (cid) => {
     setLoading(true);
     setError(null);
     try {
-      const internRef = doc(db, 'users', cid, 'interns', id);
-      await deleteDoc(internRef);
+      // Get the intern data before deletion for sync purposes
+      const internData = interns.find(intern => intern.id === id);
       
-      // Trigger webhook to delete intern from IMS database
-      try {
-        
-        const webhookData = {
-          path: `users/${cid}/interns/${id}`,
+      // Delete intern from the intern Firebase database using API endpoint
+      const response = await fetch('/api/interns/deleteInterns', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           companyId: cid,
           internId: id
-        };
+        }),
+      });
 
-        const response = await fetch('/api/webhooks/intern-deleted', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(webhookData)
-        });
+      if (!response.ok) {
+        throw new Error(`Failed to delete intern: ${response.statusText}`);
+      }
 
-        if (response.ok) {
-          const result = await response.json();
-          
-        }
-      } catch (error) {
-        // Don't throw error - webhook failure shouldn't prevent intern deletion from admin panel
+      // Sync the deletion to the admin panel
+      if (internData) {
+        // For deletion, we'll use the sync-on-login endpoint which handles deletions
+        await triggerInternSync(internData, id);
       }
       
+      // Also fetch the interns to update the local state
+      fetchInterns();
       setLoading(false);
     } catch (err) {
       setError(err.message);
