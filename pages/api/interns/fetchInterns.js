@@ -30,6 +30,7 @@ export default async function handler(req, res) {
   // Set CORS headers
   const allowedOrigins = [
     'https://intern-management-system-2.vercel.app',
+    'https://intern-management-system-2-five.vercel.app/',
     'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:3002'
@@ -65,9 +66,15 @@ export default async function handler(req, res) {
 
     const interns = [];
     snapshot.forEach((doc) => {
+      const data = doc.data();
+      // Ensure all ID fields are consistent
+      const internId = data.internId || doc.id;
       interns.push({
-        id: doc.id,
-        ...doc.data(),
+        ...data,
+        // Ensure all ID fields have the same value
+        id: internId,
+        originalId: internId,
+        internId: internId
       });
     });
 

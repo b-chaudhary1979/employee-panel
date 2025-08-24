@@ -79,6 +79,7 @@ export default async function handler(req, res) {
   // Set CORS headers
   const allowedOrigins = [
     'https://intern-management-system-2.vercel.app',
+    'https://intern-management-system-2-five.vercel.app/',
     'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:3002'
@@ -109,21 +110,23 @@ export default async function handler(req, res) {
 
     const db = initializeInternFirebase();
     
-    // Generate new intern ID using the new pattern
-    const newId = generateInternId(internData);
+    // Use provided internId if available, otherwise generate a new one
+    const internId = internData.internId || generateInternId(internData);
     
     const internToAdd = {
       ...internData,
-      id: newId,
+      id: internId, // Set id to the same value as internId
+      originalId: internId, // Set originalId to the same value as internId
+      internId: internId, // Keep internId
       createdAt: new Date().toISOString(),
       lastUpdated: new Date().toISOString()
     };
 
-    await db.collection('users').doc(companyId).collection('interns').doc(newId).set(internToAdd);
+    await db.collection('users').doc(companyId).collection('interns').doc(internId).set(internToAdd);
 
     return res.status(200).json({ 
       success: true,
-      internId: newId,
+      internId: internId,
       message: 'Intern added successfully'
     });
 
