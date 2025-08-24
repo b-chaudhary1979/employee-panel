@@ -30,6 +30,7 @@ export default async function handler(req, res) {
   // Set CORS headers
   const allowedOrigins = [
     'https://intern-management-system-2.vercel.app',
+    'https://intern-management-system-2-five.vercel.app/',
     'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:3002'
@@ -61,8 +62,11 @@ export default async function handler(req, res) {
     const db = initializeInternFirebase();
     const internRef = db.collection('users').doc(companyId).collection('interns').doc(internId);
     
+    // Ensure all ID fields are consistent if internId is being updated
     const updateData = {
       ...updates,
+      // If updates contains internId, update id and originalId to match
+      ...(updates.internId ? { id: updates.internId, originalId: updates.internId } : {}),
       lastUpdated: new Date().toISOString()
     };
 

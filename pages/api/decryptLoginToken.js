@@ -6,6 +6,7 @@ export default function handler(req, res) {
   // Set CORS headers
   const allowedOrigins = [
     "https://intern-management-system-2.vercel.app",
+    'https://intern-management-system-2-five.vercel.app/',
     "http://localhost:3000",
     "http://localhost:3001",
     "http://localhost:3002",

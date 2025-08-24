@@ -201,22 +201,22 @@ function InternsContent() {
   }, [isDeleting]);
 
   // Filter interns by search and status
-  const filteredInterns = interns.filter(inter => {
+  const filteredInterns = interns.filter(intern => {
     // Status filter
-    const statusMatch = !statusFilter || (inter.status || "Active") === statusFilter;
+    const statusMatch = !statusFilter || (intern.status || "Active") === statusFilter;
     // Search filter (name, email, id)
     const q = searchQuery.trim().toLowerCase();
-    const name = `${inter.firstName || ''} ${inter.lastName || ''}`.toLowerCase();
-    const email = (inter.email || '').toLowerCase();
-    const id = (inter.internId || intern.id || '').toLowerCase();
+    const name = `${intern.firstName || ''} ${intern.lastName || ''}`.toLowerCase();
+    const email = (intern.email || '').toLowerCase();
+    const id = (intern.internId ).toLowerCase();
     const searchMatch = !q || name.includes(q) || email.includes(q) || id.includes(q);
     return statusMatch && searchMatch;
   });
 
   // Summary stats
   const totalInterns = interns.length;
-  const activeInterns = interns.filter(inter => (inter.status || "Active") === "Active").length;
-  const inactiveInterns = interns.filter(inter => (inter.status || "Active") !== "Active").length;
+  const activeInterns = interns.filter(intern => (intern.status || "Active") === "Active").length;
+  const inactiveInterns = interns.filter(intern => (intern.status || "Active") !== "Active").length;
 
   // Only return after all hooks
   if (!isAuthenticated || (!ci && !aid)) return null;
@@ -791,12 +791,12 @@ function InternsContent() {
                         <td colSpan={9} className="text-center py-6 text-gray-400">No interns found.</td>
                       </tr>
                     ) : (
-                      filteredInterns.map((inter, idx) => (
-                        <tr key={inter.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => handleViewIntern(inter)}>
-                          <td className="px-6 py-4 whitespace-nowrap text-gray-500">{inter.sNo}</td>
+                      filteredInterns.map((intern, idx) => (
+                        <tr key={intern.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => handleViewIntern(intern)}>
+                          <td className="px-6 py-4 whitespace-nowrap text-gray-500">{intern.sNo}</td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            {inter.photo ? (
-                              <img src={inter.photo} alt="Profile" className="w-9 h-9 rounded-full object-cover border" />
+                            {intern.photo ? (
+                              <img src={intern.photo} alt="Profile" className="w-9 h-9 rounded-full object-cover border" />
                             ) : (
                               <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 border">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -804,22 +804,22 @@ function InternsContent() {
                             )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap font-semibold text-blue-700 cursor-pointer group relative"
-                              onClick={e => { e.stopPropagation(); handleCopyInternId(inter.internId || inter.id); }}
+                              onClick={e => { e.stopPropagation(); handleCopyInternId(intern.internId || intern.id); }}
                               title="Click to copy Intern ID"
                           >
-                            {inter.InternId || inter.id}
+                            {intern.internId || intern.id}
                             <span className="absolute left-1/2 -translate-x-1/2 top-full mt-1 text-xs text-green-600 bg-white px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">Copy</span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-gray-500"><div className="font-bold">{inter.firstName} {inter.lastName}</div></td>
-                          <td className="px-6 py-4 whitespace-nowrap text-gray-500">{inter.email}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-gray-500">{inter.role}</td>
-                          <td className="px-6 py-4 whitespace-nowrap">{inter.status === "Active" ? (<span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Active</span>) : (<span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">{inter.status || 'Inactive'}</span>)}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-gray-500">{inter.dateJoined}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-gray-500"><div className="font-bold">{intern.firstName} {intern.lastName}</div></td>
+                          <td className="px-6 py-4 whitespace-nowrap text-gray-500">{intern.email}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-gray-500">{intern.role}</td>
+                          <td className="px-6 py-4 whitespace-nowrap">{intern.status === "Active" ? (<span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Active</span>) : (<span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">{intern.status || 'Inactive'}</span>)}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-gray-500">{intern.dateJoined}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-center flex items-center justify-center gap-3" onClick={e => e.stopPropagation()}>
-                            <button className="text-purple-500 hover:text-purple-700" title="Edit Intern" onClick={() => handleEditIntern(inter)}>
+                            <button className="text-purple-500 hover:text-purple-700" title="Edit Intern" onClick={() => handleEditIntern(intern)}>
                               <Pen className="w-5 h-5" />
                             </button>
-                            <button className="text-red-500 hover:text-red-700" title="Delete Intern" onClick={() => { setDeleteIntId(inter.id); setShowDeleteConfirm(true); }}>
+                            <button className="text-red-500 hover:text-red-700" title="Delete Intern" onClick={() => { setDeleteIntId(intern.id); setShowDeleteConfirm(true); }}>
                               <Trash2 className="w-5 h-5" />
                             </button>
                           </td>
@@ -833,13 +833,13 @@ function InternsContent() {
                   {filteredInterns.length === 0 ? (
                     <div className="text-center text-gray-400 py-6">No interns found.</div>
                   ) : (
-                    filteredInterns.map((inter, idx) => (
-                      <div key={inter.id} className="border-b border-gray-200 px-4 py-4 flex flex-col gap-2 cursor-pointer hover:bg-gray-50" onClick={() => handleViewIntern(inter)}>
+                    filteredInterns.map((intern, idx) => (
+                      <div key={intern.id} className="border-b border-gray-200 px-4 py-4 flex flex-col gap-2 cursor-pointer hover:bg-gray-50" onClick={() => handleViewIntern(intern)}>
                         <div className="flex justify-between items-center">
                           <span className="font-semibold text-blue-700 flex items-center gap-2">
-                            {inter.sNo}.
-                            {inter.photo ? (
-                              <img src={inter.photo} alt="Profile" className="w-8 h-8 rounded-full object-cover border" />
+                            {intern.sNo}.
+                            {intern.photo ? (
+                              <img src={intern.photo} alt="Profile" className="w-8 h-8 rounded-full object-cover border" />
                             ) : (
                               <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 border">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -847,23 +847,23 @@ function InternsContent() {
                             )}
                             <span
                               className="cursor-pointer underline text-blue-700 relative group"
-                              onClick={e => { e.stopPropagation(); handleCopyInternId(inter.internId || inter.id); }}
+                              onClick={e => { e.stopPropagation(); handleCopyInternId(intern.internId || intern.id); }}
                               title="Click to copy Intern ID"
                             >
-                              {inter.internId || inter.id}
+                              {intern.internId || intern.id}
                               <span className="absolute left-1/2 -translate-x-1/2 top-full mt-1 text-xs text-green-600 bg-white px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">Copy</span>
                             </span>
                           </span>
                           <div className="flex gap-3 self-end" onClick={e => e.stopPropagation()}>
-                            <button className="text-purple-500 hover:text-purple-700" title="Edit Intern" onClick={() => handleEditIntern(inter)}><Pen className="w-5 h-5" /></button>
-                            <button className="text-red-500 hover:text-red-700" title="Delete Intern" onClick={() => { setDeleteIntId(inter.id); setShowDeleteConfirm(true); }}><Trash2 className="w-5 h-5" /></button>
+                            <button className="text-purple-500 hover:text-purple-700" title="Edit Intern" onClick={() => handleEditIntern(intern)}><Pen className="w-5 h-5" /></button>
+                            <button className="text-red-500 hover:text-red-700" title="Delete Intern" onClick={() => { setDeleteIntId(intern.id); setShowDeleteConfirm(true); }}><Trash2 className="w-5 h-5" /></button>
                           </div>
                         </div>
-                        <div className="text-gray-500"><span className="font-semibold">Name: </span>{inter.firstName} {inter.lastName}</div>
-                        <div className="text-gray-500"><span className="font-semibold">Email: </span>{inter.email}</div>
-                        <div className="text-gray-500"><span className="font-semibold">Role: </span>{inter.role}</div>
-                        <div>{inter.status === "Active" ? (<span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Active</span>) : (<span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">{inter.status || 'Inactive'}</span>)}</div>
-                        <div className="text-gray-500"><span className="font-semibold">Date Joined: </span>{inter.dateJoined}</div>
+                        <div className="text-gray-500"><span className="font-semibold">Name: </span>{intern.firstName} {intern.lastName}</div>
+                        <div className="text-gray-500"><span className="font-semibold">Email: </span>{intern.email}</div>
+                        <div className="text-gray-500"><span className="font-semibold">Role: </span>{intern.role}</div>
+                        <div>{intern.status === "Active" ? (<span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Active</span>) : (<span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">{intern.status || 'Inactive'}</span>)}</div>
+                        <div className="text-gray-500"><span className="font-semibold">Date Joined: </span>{intern.dateJoined}</div>
                       </div>
                     ))
                   )}

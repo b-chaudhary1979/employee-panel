@@ -48,12 +48,18 @@ const useStoreInterns = (cid) => {
           
           // Trigger a sync to ensure admin panel is up to date
           // We do this silently in the background without blocking
-          try {
-            triggerInternSync(null, null);
-          } catch (syncErr) {
-            console.error('Background sync failed:', syncErr);
-            // Don't set error state for background sync
-          }
+          const performBackgroundSync = async () => {
+            try {
+              await triggerInternSync(null, null);
+              console.log('Background sync with admin panel completed');
+            } catch (syncErr) {
+              console.error('Background sync failed:', syncErr);
+              // Don't set error state for background sync
+            }
+          };
+          
+          // Execute sync in background
+          performBackgroundSync();
         } else {
           // If the response doesn't have the expected structure, set an empty array
           console.error('Unexpected response structure:', responseData);
@@ -77,12 +83,18 @@ const useStoreInterns = (cid) => {
     
     // Initial sync with admin panel when component mounts
     if (cid) {
-      try {
-        triggerInternSync(null, null);
-      } catch (syncErr) {
-        console.error('Initial sync failed:', syncErr);
-        // Don't set error state for background sync
-      }
+      // Wrap in async function to properly handle promises
+      const performInitialSync = async () => {
+        try {
+          await triggerInternSync(null, null);
+          console.log('Initial sync with admin panel completed');
+        } catch (syncErr) {
+          console.error('Initial sync failed:', syncErr);
+          // Don't set error state for background sync
+        }
+      };
+      
+      performInitialSync();
     }
     
     return () => {
@@ -150,7 +162,7 @@ const useStoreInterns = (cid) => {
     }
   };
 
-  // Trigger sync-on-login to add intern to IMS database
+  // Trigger sync to add/update intern in admin panel and IMS database
   const triggerInternSync = async (internData, internId) => {
     try {
       // First sync with the admin panel
@@ -169,6 +181,13 @@ const useStoreInterns = (cid) => {
           body: JSON.stringify(adminSyncData),
           signal: AbortSignal.timeout(15000) // 15 second timeout for sync
         });
+        
+        if (!adminResponse.ok) {
+          const errorText = await adminResponse.text();
+          console.warn(`Admin panel sync warning: ${adminResponse.status} ${adminResponse.statusText} - ${errorText}`);
+        } else {
+          console.log('Admin panel sync successful');
+        }
       } catch (adminSyncError) {
         // Log but continue if admin sync fails
         console.error('Admin sync error:', adminSyncError);
@@ -190,6 +209,7 @@ const useStoreInterns = (cid) => {
         });
 
         if (imsResponse.ok) {
+          console.log('IMS sync successful');
           return await imsResponse.json();
         }
         // If response is not OK, log but don't throw
@@ -201,7 +221,7 @@ const useStoreInterns = (cid) => {
       }
       
       // Return a default success response even if syncs fail
-      return { success: true, message: 'Operation completed on intern database' };
+      return { success: true, message: 'Operation completed on intern database and admin panel' };
     } catch (error) {
       // Don't throw error - sync failure shouldn't prevent intern addition to admin panel
       console.error('Sync error:', error);
@@ -239,7 +259,15 @@ const useStoreInterns = (cid) => {
       const internId = result.internId;
 
       // Sync the intern to the admin panel
-      await triggerInternSync(internData, internId);
+      try {
+        // Ensure internId is present in internData for sync
+        const syncInternData = { ...internData, internId };
+        await triggerInternSync(syncInternData, internId);
+        console.log('Intern successfully synced with admin panel');
+      } catch (syncError) {
+        console.error('Failed to sync intern with admin panel:', syncError);
+        // Continue execution even if sync fails
+      }
 
       // Also fetch the interns to update the local state
       fetchInterns();
@@ -251,8 +279,8 @@ const useStoreInterns = (cid) => {
   };
 
   // Update an intern
-  const updateIntern = async (id, updatedData) => {
-    if (!cid || !id) return;
+  const updateIntern = async (internId, updatedData) => {
+    if (!cid || !internId) return;
     setLoading(true);
     setError(null);
     try {
@@ -264,7 +292,7 @@ const useStoreInterns = (cid) => {
         },
         body: JSON.stringify({
           companyId: cid,
-          internId: id,
+          internId: internId,
           updates: updatedData
         }),
       });
@@ -274,10 +302,16 @@ const useStoreInterns = (cid) => {
       }
       
       // Update task arrays with new intern info
-      await updateTaskArraysWithInternInfo(id, updatedData);
+      await updateTaskArraysWithInternInfo(internId, updatedData);
       
       // Sync the updated intern to the admin panel
-      await triggerInternSync(updatedData, id);
+      try {
+        await triggerInternSync(updatedData, internId);
+        console.log('Intern update successfully synced with admin panel');
+      } catch (syncError) {
+        console.error('Failed to sync intern update with admin panel:', syncError);
+        // Continue execution even if sync fails
+      }
       
       // Also fetch the interns to update the local state
       fetchInterns();
@@ -289,13 +323,13 @@ const useStoreInterns = (cid) => {
   };
 
   // Delete an intern (hard delete)
-  const deleteIntern = async (id) => {
-    if (!cid || !id) return;
+  const deleteIntern = async (internId) => {
+    if (!cid || !internId) return;
     setLoading(true);
     setError(null);
     try {
       // Get the intern data before deletion for sync purposes
-      const internData = interns.find(intern => intern.id === id);
+      const internData = interns.find(intern => intern.internId === internId);
       
       // Delete intern from the intern Firebase database using API endpoint
       const response = await fetch('/api/interns/deleteInterns', {
@@ -305,7 +339,7 @@ const useStoreInterns = (cid) => {
         },
         body: JSON.stringify({
           companyId: cid,
-          internId: id
+          internId: internId
         }),
       });
 
@@ -315,8 +349,14 @@ const useStoreInterns = (cid) => {
 
       // Sync the deletion to the admin panel
       if (internData) {
-        // For deletion, we'll use the sync-on-login endpoint which handles deletions
-        await triggerInternSync(internData, id);
+        try {
+          // For deletion, we'll use the sync-on-login endpoint which handles deletions
+          await triggerInternSync(internData, internId);
+          console.log('Intern deletion successfully synced with admin panel');
+        } catch (syncError) {
+          console.error('Failed to sync intern deletion with admin panel:', syncError);
+          // Continue execution even if sync fails
+        }
       }
       
       // Also fetch the interns to update the local state
@@ -336,6 +376,7 @@ const useStoreInterns = (cid) => {
     updateIntern,
     deleteIntern,
     fetchInterns, // in case you want to refetch manually
+    triggerInternSync, // expose sync function for manual syncing if needed
   };
 };
 
