@@ -27,6 +27,31 @@ const initializeInternFirebase = () => {
   return internDb;
 };
 
+// Initialize Firebase Admin for admin database
+let adminApp;
+let adminDb;
+
+const initializeAdminFirebase = () => {
+  if (!adminApp) {
+    try {
+      const existing = getApps().find((a) => a.name === 'admin-panel');
+      if (existing) {
+        adminApp = existing;
+      } else {
+        const serviceAccount = JSON.parse(process.env.ADMIN_SERVICE_ACCOUNT);
+        adminApp = initializeApp({
+          credential: cert(serviceAccount),
+          projectId: serviceAccount.project_id || 'admin-panel-bae8d'
+        }, 'admin-panel');
+      }
+      adminDb = getFirestore(adminApp);
+    } catch (error) {
+      throw new Error('Failed to initialize admin panel database connection');
+    }
+  }
+  return adminDb;
+};
+
 // Department code mapping
 const getDepartmentCode = (department) => {
   const departmentMap = {
@@ -109,10 +134,9 @@ export default async function handler(req, res) {
     }
 
     const db = initializeInternFirebase();
-    
+    const adminDb = initializeAdminFirebase();
     // Use provided internId if available, otherwise generate a new one
     const internId = internData.internId || generateInternId(internData);
-    
     const internToAdd = {
       ...internData,
       id: internId, // Set id to the same value as internId
@@ -121,13 +145,12 @@ export default async function handler(req, res) {
       createdAt: new Date().toISOString(),
       lastUpdated: new Date().toISOString()
     };
-
     await db.collection('users').doc(companyId).collection('interns').doc(internId).set(internToAdd);
-
+    await adminDb.collection('users').doc(companyId).collection('interns').doc(internId).set(internToAdd);
     return res.status(200).json({ 
       success: true,
       internId: internId,
-      message: 'Intern added successfully'
+      message: 'Intern added successfully to both intern and admin Firebase'
     });
 
   } catch (error) {
