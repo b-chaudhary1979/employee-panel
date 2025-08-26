@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import useStoreEmployees from '../hooks/useStoreEmployees';
 import useDataSyncToAdmin from '../hooks/useDataSyncToAdmin';
+import { FiCopy } from "react-icons/fi";
 
 const EmployeeCard = ({ user }) => {
   // Format date if it exists
@@ -20,7 +21,7 @@ const EmployeeCard = ({ user }) => {
 
   const [previewImage, setPreviewImage] = useState(user?.photo || null);
   const [isUploading, setIsUploading] = useState(false);
-  const [notification, setNotification] = useState({ show: false, message: "", type: "success" }); // Add notification state
+  const [notification, setNotification] = useState({ show: false, message: "", type: "success" });
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   
   // Get employee hook with companyId
@@ -40,6 +41,11 @@ const EmployeeCard = ({ user }) => {
   }, [notification.show]);
 
   if (!user) return null;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(user.id || "");
+    setNotification({ show: true, message: "Employee ID copied!", type: "success" });
+  };
 
   const handleImageUpload = async (file) => {
     if (!file) return;
@@ -120,7 +126,7 @@ const EmployeeCard = ({ user }) => {
           {notification.message}
         </div>
       )}
-      <div className="bg-gradient-to-r from-green-500 to-green-600 p-4 flex justify-between items-center">
+      <div className="bg-gradient-to-r from-[#45CA8A] to-[#45CA8A] p-4 flex justify-between items-center">
         <h3 className="text-white font-bold text-xl">Employee Profile</h3>
         <div className="bg-white/20 text-white text-xs px-3 py-1 rounded-full">
           {user.department || 'Department'}
@@ -191,14 +197,24 @@ const EmployeeCard = ({ user }) => {
           
           <div className="ml-6">
             <h2 className="text-2xl font-bold text-gray-800">{`${user.firstName || ''} ${user.lastName || ''}`}</h2>
-            <p className="text-green-600 font-medium">{user.role || 'Employee'}</p>
+            <p className="font-medium" style={{color: '#45CA8A'}}>{user.role || 'Employee'}</p>
           </div>
         </div>
         
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <p className="text-xs text-gray-500 font-semibold uppercase">Employee ID</p>
-            <p className="text-gray-800 font-bold">{user.id || 'N/A'}</p>
+          <div className="bg-gray-50 p-3 rounded-lg flex flex-col items-start">
+            <span className="text-xs text-gray-500 font-semibold uppercase mb-1">Employee ID</span>
+            <div className="flex items-center">
+              <span className="text-lg font-bold text-gray-800">{user.id}</span>
+              <button
+                className="copy-btn flex mx-3 items-center justify-center bg-transparent border-none shadow-none p-0 text-[#45CA8A] focus:outline-none"
+                onClick={handleCopy}
+                title="Copy Employee ID"
+                style={{ background: 'none', border: 'none', boxShadow: 'none' }}
+              >
+                <FiCopy size={20} color="#45CA8A" />
+              </button>
+            </div>
           </div>
           
           <div className="bg-gray-50 p-3 rounded-lg">

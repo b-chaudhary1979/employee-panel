@@ -239,7 +239,7 @@ function DashboardContent() {
             style={{ marginLeft: 0, paddingTop: headerHeight + 16 }}
           >
             <div className="max-w-6xl mx-auto">
-              <h1 className="text-4xl font-extrabold text-bg-green-500 mt-8">Employee Dashboard</h1>
+              <h1 className="text-4xl font-extrabold mt-8" style={{color: '#45CA8A'}}>Employee Dashboard</h1>
               <p className="mt-2 text-gray-500 text-lg">Welcome back! Here's what's new for you today.</p>
               
               {/* Employee Card */}
@@ -307,7 +307,7 @@ function DashboardContent() {
                   
                   {/* Your Profile */}
                   <div className="bg-white rounded-2xl shadow p-6 flex flex-col justify-between min-w-[220px] border border-gray-200 transition-transform duration-200 hover:shadow-lg hover:scale-105 group cursor-pointer"
-                    onClick={() => setProfileModalOpen(true)}
+                    onClick={() => router.push(`/employeeinfo_edit${token ? `?token=${encodeURIComponent(token)}` : ''}`)}                    
                   >
                     <div className="flex items-center justify-between w-full">
                       <div>
@@ -391,8 +391,7 @@ function DashboardContent() {
                       <div className="ml-4 flex-shrink-0">
                         <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-green-500 transition-transform duration-200 group-hover:scale-110 hover:scale-110">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 13V7a2 2 0 00-2-2H7a2 2 0 00-2 2v6m14 0a2 2 0 01-2 2H7a2 2 0 01-2-2m14 0v6a2 2 0 01-2 2H7a2 2 0 01-2-2v-6" />
-                          </svg>
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 13V7a2 2 0 00-2-2H7a2 2 0 00-2 2v6m14 0a2 2 0 01-2 2H7a2 2 0 01-2-2m14 0v6a2 2 0 01-2 2H7a2 2 0 01-2-2v-6" /></svg>
                         </span>
                       </div>
                     </div>
@@ -612,7 +611,7 @@ function DashboardContent() {
                   </button>
                   
                   <button 
-                    onClick={() => setProfileModalOpen(true)}
+                    onClick={() => router.push(`/employeeinfo_edit${token ? `?token=${encodeURIComponent(token)}` : ''}`)}                    
                     className="bg-white/90 hover:bg-white p-4 rounded-lg flex items-center gap-3 transition-colors duration-200 shadow-sm"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">

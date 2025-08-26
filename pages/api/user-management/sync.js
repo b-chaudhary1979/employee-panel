@@ -99,33 +99,33 @@ async function checkCompanyExists(cid, systemType) {
   }
 }
 
-// Migrate new data to management system
+// Migrate new data to management system and admin panel
 async function migrateNewData(cid, systemType, collection, newData) {
   try {
-    const batch = systemDb.batch();
-    
-    // Determine the correct ID field based on system type
+    // Write to systemDb (intern Firebase)
+    const systemBatch = systemDb.batch();
     const idField = 'internId';
     const documentId = newData[idField] || newData.id || admin.firestore.FieldValue.serverTimestamp();
-    
-    // Add migration metadata to the data
     const migratedData = {
       ...newData,
       migratedFrom: 'admin-panel',
       migratedAt: admin.firestore.FieldValue.serverTimestamp(),
       originalId: documentId
     };
+    const systemRef = systemDb.collection('users').doc(cid).collection(collection).doc(documentId);
+    systemBatch.set(systemRef, migratedData);
+    await systemBatch.commit();
 
-    // Create reference for the new document
-    const newRef = systemDb.collection('users').doc(cid).collection(collection).doc(documentId);
-    batch.set(newRef, migratedData);
-    
-    await batch.commit();
-    
+    // Write to adminPanelDb (admin Firebase)
+    const adminBatch = adminPanelDb.batch();
+    const adminRef = adminPanelDb.collection('users').doc(cid).collection(collection).doc(documentId);
+    adminBatch.set(adminRef, migratedData);
+    await adminBatch.commit();
+
     return {
       success: true,
-      message: 'New data migrated successfully',
-      migratedCount: 1
+      message: 'New data migrated successfully to both intern and admin Firebase',
+      migratedCount: 2
     };
   } catch (error) {
     return { success: false, error: error.message };
