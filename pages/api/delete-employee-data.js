@@ -69,7 +69,7 @@ export default async function handler(req, res) {
     let cloudinaryResult = null;
     if (cloudinaryPublicId) {
       try {
-        const cloudinaryResponse = await fetch(`${process.env.NEXTAUTH_URL || 'https://cyberclipper-admin-panel.vercel.app'}/api/cloudinary-delete`, {
+        const cloudinaryResponse = await fetch(`${process.env.NEXTAUTH_URL || 'https://cyberclipper-admin-panel-ochre.vercel.app/'}/api/cloudinary-delete`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
