@@ -74,7 +74,8 @@ const AdminInfoEdit = () => {
   };
 
   const NON_EDITABLE_FIELDS = [
-    'id', 'uniqueId', 'companyId', 'companyName', 'plan', 'status', 'profilePhoto', 'updatedAt', 'employeeId', 'aid'
+    'id', 'uniqueId', 'companyId', 'companyName', 'plan', 'status', 'profilePhoto', 'updatedAt', 'employeeId', 'aid',
+    'originalId', 'dateRegistered', 'migratedAt', 'company', 'photo'
   ];
 
   const renderFields = () => {
@@ -193,7 +194,7 @@ const AdminInfoEdit = () => {
       <div className="flex flex-col items-center w-full min-h-[70vh] pt-24 pb-12 px-4 animate-fadeIn md:flex-row md:items-start md:justify-center md:gap-8">
         {/* Main Form Section */}
         <div className="w-full max-w-4xl">
-          <h2 className="text-4xl font-extrabold text-[#28BD78D78] mb-10 tracking-tight w-full text-left max-w-6xl">Employee Info</h2>
+          <h2 className="text-4xl font-extrabold text-[#45CA8A] mb-10 tracking-tight w-full text-left max-w-6xl">Employee Info</h2>
           <form className="w-full max-w-6xl flex flex-col gap-6">
             {renderFields()}
             <button
