@@ -98,7 +98,7 @@ const AdminInfoEdit = () => {
 
   const NON_EDITABLE_FIELDS = [
     'id', 'uniqueId', 'companyId', 'companyName', 'plan', 'status', 'profilePhoto', 'employeeId', 'aid',
-    'originalId',  'company', 'photo'
+    'originalId',  'company', 'photo', 'dateJoined'
   ];
 
   const renderFields = () => {
