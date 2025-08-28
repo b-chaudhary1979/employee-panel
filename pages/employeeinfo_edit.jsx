@@ -21,13 +21,11 @@ const DISPLAY_ORDER = [
   "firstName",
   "lastName",
   "gender",
-  "dateRegistered",
   "role",
   "department",
   "phone",
   "email",
   "photo",
-  "migratedAt",
   "customQA",
   "city",
   "dob",
@@ -36,9 +34,7 @@ const DISPLAY_ORDER = [
   "employeeId",
   "state",
   "status",
-  "migratedFrom",
   "company",
-  "originalId",
   "zip",
   "country",
   "documents"
@@ -101,8 +97,8 @@ const AdminInfoEdit = () => {
   };
 
   const NON_EDITABLE_FIELDS = [
-    'id', 'uniqueId', 'companyId', 'companyName', 'plan', 'status', 'profilePhoto', 'updatedAt', 'employeeId', 'aid',
-    'originalId', 'dateRegistered', 'migratedAt', 'company', 'photo'
+    'id', 'uniqueId', 'companyId', 'companyName', 'plan', 'status', 'profilePhoto', 'employeeId', 'aid',
+    'originalId',  'company', 'photo'
   ];
 
   const renderFields = () => {
