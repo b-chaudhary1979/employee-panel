@@ -16,6 +16,33 @@ function decryptToken(token) {
   }
 }
 
+const DISPLAY_ORDER = [
+  "id",
+  "firstName",
+  "lastName",
+  "gender",
+  "dateRegistered",
+  "role",
+  "department",
+  "phone",
+  "email",
+  "photo",
+  "migratedAt",
+  "customQA",
+  "city",
+  "dob",
+  "address",
+  "dateJoined",
+  "employeeId",
+  "state",
+  "status",
+  "migratedFrom",
+  "company",
+  "originalId",
+  "zip",
+  "country",
+  "documents"
+];
 const AdminInfoEdit = () => {
   const router = useRouter();
   const { token } = router.query;
@@ -80,10 +107,45 @@ const AdminInfoEdit = () => {
 
   const renderFields = () => {
     if (!editFields) return null;
-    return Object.entries(editFields)
-      .filter(([key]) => key !== 'profilePhoto' && key !== 'updatedAt')
-      .map(([key, value]) => {
+    return DISPLAY_ORDER.filter(key => {
+      const value = editFields[key];
+      if ((key === 'customQA' || key === 'documents') && (!value || (Array.isArray(value) && value.length === 0))) {
+        return false;
+      }
+      return key !== 'profilePhoto' && key !== 'updatedAt' && value !== undefined;
+    }).map(key => {
+      const value = editFields[key];
         const isNonEditable = NON_EDITABLE_FIELDS.includes(key);
+        if (key === 'documents' && Array.isArray(value) && value.length > 0) {
+          return (
+            <div key={key} className="mb-6 w-full max-w-2xl">
+              <label className="block text-black font-semibold mb-1 text-base capitalize tracking-wide">Documents</label>
+              <div className="flex flex-col gap-2">
+                {value.map((doc, idx) => (
+                  <div key={idx} className="border rounded-lg p-3 bg-[#f8f9fa]">
+                    <div className="text-sm text-gray-700"><strong>Name:</strong> {doc.name || "-"}</div>
+                    <div className="text-sm text-gray-700"><strong>Data:</strong> {doc.data || "-"}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        }
+        if (key === 'customQA' && Array.isArray(value) && value.length > 0) {
+          return (
+            <div key={key} className="mb-6 w-full max-w-2xl">
+              <label className="block text-black font-semibold mb-1 text-base capitalize tracking-wide">Custom Q&A</label>
+              <div className="flex flex-col gap-2">
+                {value.map((qa, idx) => (
+                  <div key={idx} className="border rounded-lg p-3 bg-[#f8f9fa]">
+                    <div className="text-sm text-gray-700"><strong>Question:</strong> {qa.question || "-"}</div>
+                    <div className="text-sm text-gray-700"><strong>Answer:</strong> {qa.answer || "-"}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        }
         return (
           <div key={key} className="mb-6 w-full max-w-2xl">
             <label className="block text-black font-semibold mb-1 text-base capitalize tracking-wide">{key.replace(/([A-Z])/g, ' $1')}</label>
