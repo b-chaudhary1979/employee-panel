@@ -196,7 +196,17 @@ export default function AssignTasksPage() {
   const handleAddTask = async (taskData) => {
     try {
       setIsSubmitting(true);
-      
+
+      // Find intern details from internOptions
+      let internDetails = { name: '', email: '' };
+      if (taskData.internId) {
+        const foundIntern = internOptions.find(opt => opt.id === taskData.internId);
+        if (foundIntern) {
+          internDetails.name = foundIntern.name;
+          internDetails.email = foundIntern.email || '';
+        }
+      }
+
       const assignmentData = {
         title: taskData.taskName,
         description: taskData.description,
@@ -208,7 +218,9 @@ export default function AssignTasksPage() {
         assignedAt: new Date().toISOString(),
         employeeId: aid,
         employeeName: user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() : "Unknown Employee",
-        assignedByRole: "Employee"
+        assignedByRole: "Employee",
+        internName: internDetails.name,
+        internEmail: internDetails.email
       };
 
       // Determine selected intern IDs based on task data (intern-only)
