@@ -249,7 +249,7 @@ function InternsContent() {
         <style>{`html,body{background-color:#fbf9f4 !important;}`}</style>
       </Head>
       {notification.show && (
-        <div className={`fixed top-8 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 ${notification.color === 'green' ? 'bg-green-500' : 'bg-gradient-to-r from-red-500 to-pink-500'} text-white px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown`}>
+        <div className={`fixed top-8 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 ${notification.color === 'green' ? 'bg-green-500' : 'bg-gradient-to-r from-red-500 to-green-500'} text-white px-7 py-3 rounded-xl shadow-xl font-semibold flex items-center gap-2 text-lg animate-slideDown`}>
           {notification.color === 'green' ? (
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-white">
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -286,9 +286,9 @@ function InternsContent() {
       {/* Intern Detail Modal (View/Edit) */}
       {showInternModal && selectedIntern && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur">
-          <div className="relative w-full max-w-2xl md:max-w-4xl mx-auto bg-gradient-to-br from-purple-50 via-white to-blue-50 rounded-2xl shadow-2xl p-10 overflow-y-auto max-h-[90vh] border border-purple-200 ring-1 ring-purple-100 text-[1.15rem] md:text-xl">
+          <div className="relative w-full max-w-2xl md:max-w-4xl mx-auto bg-gradient-to-br from-green-50 via-white to-blue-50 rounded-2xl shadow-2xl p-10 overflow-y-auto max-h-[90vh] border border-green-200 ring-1 ring-green-100 text-[1.15rem] md:text-xl">
             {/* Colored top border accent */}
-            <div className="absolute top-0 left-0 w-full h-2 rounded-t-2xl bg-gradient-to-r from-purple-500 via-pink-400 to-blue-400" />
+            <div className="absolute top-0 left-0 w-full h-2 rounded-t-2xl bg-gradient-to-r from-green-500 via-green-400 to-green-400" />
             {/* Allow Intern To Edit Toggle */}
             <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
               <span className="text-sm font-semibold text-gray-500">Allow Intern to Edit</span>
@@ -311,7 +311,7 @@ function InternsContent() {
             </div>
             {/* Back Button */}
             <button
-              className="absolute top-4 left-4 flex items-center gap-2 px-4 py-2 hover:bg-purple-300 rounded text-purple-700 font-semibold text-lg md:text-xl z-20"
+              className="absolute top-4 left-4 flex items-center gap-2 px-4 py-2 hover:bg-green-300 rounded text-green-700 font-semibold text-lg md:text-xl z-20"
               onClick={() => { setShowInternModal(false); setEditMode(false); }}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
@@ -319,9 +319,9 @@ function InternsContent() {
             {/* Profile Picture at the top (moved inside the border) */}
             <div className="flex flex-col items-center mb-10 mt-6 relative z-10">
               {selectedIntern.photo ? (
-                <img src={selectedIntern.photo} alt="Profile" className="w-32 h-32 rounded-full object-cover border-4 border-purple-200 shadow-lg mb-2" />
+                <img src={selectedIntern.photo} alt="Profile" className="w-32 h-32 rounded-full object-cover border-4 border-green-200 shadow-lg mb-2" />
               ) : (
-                <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 border-4 border-purple-200 shadow-lg mb-2">
+                <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 border-4 border-green-200 shadow-lg mb-2">
                   <svg className="w-16 h-16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 </div>
               )}
@@ -331,15 +331,15 @@ function InternsContent() {
               </div>
             </div>
             {/* Intern Details Section */}
-            <div className="mb-10 bg-white/90 rounded-2xl p-7 border border-purple-100 shadow flex flex-col gap-6">
+            <div className="mb-10 bg-white/90 rounded-2xl p-7 border border-green-100 shadow flex flex-col gap-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <svg className="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm0 2c-2.67 0-8 1.337-8 4v2h16v-2c0-2.663-5.33-4-8-4z" /></svg>
-                  <h2 className="text-2xl md:text-3xl font-bold text-purple-400 tracking-tight">Intern Details</h2>
+                  <svg className="w-7 h-7 text-green-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm0 2c-2.67 0-8 1.337-8 4v2h16v-2c0-2.663-5.33-4-8-4z" /></svg>
+                  <h2 className="text-2xl md:text-3xl font-bold text-green-400 tracking-tight">Intern Details</h2>
                 </div>
                 <button
                   onClick={() => handleGenerateQR(selectedIntern)}
-                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors duration-200 flex items-center gap-2"
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors duration-200 flex items-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1zM5 20h2a1 1 0 001-1v-1a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1z" />
@@ -348,13 +348,13 @@ function InternsContent() {
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Intern ID</span><br/>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Intern ID</span><br/>
                   <span className="text-xl md:text-2xl text-gray-800 flex items-center gap-2 font-bold">
                     {selectedIntern.internId || selectedIntern.id || '-'}
                     {(selectedIntern.internId || selectedIntern.id) && (
                       <button
                         type="button"
-                        className="ml-1 px-2 py-1 bg-gray-200 hover:bg-purple-200 rounded text-xs text-gray-700 flex items-center gap-1"
+                        className="ml-1 px-2 py-1 bg-gray-200 hover:bg-green-200 rounded text-xs text-gray-700 flex items-center gap-1"
                         title="Copy Intern ID"
                         onClick={() => {
                           handleCopyInternId(selectedIntern.internId || selectedIntern.id);
@@ -376,24 +376,24 @@ function InternsContent() {
                     )}
                   </span>
                 </div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Name</span><br/><span className="text-xl md:text-2xl text-gray-800 font-semibold">{selectedIntern.firstName} {selectedIntern.lastName}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Email</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.email}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Phone</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.phone}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">DOB</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.dob}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Gender</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.gender}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Department</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.department}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Role</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.role}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Status</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.status || 'Active'}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Date Joined</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.dateJoined}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Address</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.address}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">City</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.city}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">State</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.state}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Country</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.country}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">ZIP Code</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.zip}</span></div>
-                <div><span className="text-xs text-purple-400 font-bold uppercase">Company</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.company}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Name</span><br/><span className="text-xl md:text-2xl text-gray-800 font-semibold">{selectedIntern.firstName} {selectedIntern.lastName}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Email</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.email}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Phone</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.phone}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">DOB</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.dob}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Gender</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.gender}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Department</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.department}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Role</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.role}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Status</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.status || 'Active'}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Date Joined</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.dateJoined}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Address</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.address}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">City</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.city}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">State</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.state}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Country</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.country}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">ZIP Code</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.zip}</span></div>
+                <div><span className="text-xs text-green-400 font-bold uppercase">Company</span><br/><span className="text-lg md:text-xl text-gray-800">{selectedIntern.company}</span></div>
               </div>
             </div>
-            <div className="my-8 border-t border-purple-100" />
+            <div className="my-8 border-t border-green-100" />
             {/* Custom Q&A Section */}
             <div className="mb-10">
               <div className="flex items-center gap-2 mb-3">
@@ -414,7 +414,7 @@ function InternsContent() {
                 ))}
               </div>
             </div>
-            <div className="my-8 border-t border-purple-100" />
+            <div className="my-8 border-t border-green-100" />
             {/* Documents Section */}
             <div className="mb-8">
               <div className="flex items-center gap-2 mb-3">
@@ -432,7 +432,7 @@ function InternsContent() {
             </div>
             {/* Status Pills, Edit Form, etc. remain unchanged */}
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-purple-700">Intern Details</h2>
+              <h2 className="text-2xl font-bold text-green-700">Intern Details</h2>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-gray-500">Edit</span>
                 <button onClick={() => setEditMode((v) => !v)} className={`w-10 h-6 rounded-full ${editMode ? 'bg-green-500' : 'bg-gray-300'} flex items-center transition-colors duration-300`}>
@@ -523,7 +523,7 @@ function InternsContent() {
                       <button
                         key={option}
                         type="button"
-                        className={`px-2 py-1 rounded-full text-xs font-semibold focus:outline-none transition-colors duration-200 ${selectedIntern.status === option ? 'bg-purple-500 text-white' : 'bg-gray-200 text-gray-700'} cursor-pointer`}
+                        className={`px-2 py-1 rounded-full text-xs font-semibold focus:outline-none transition-colors duration-200 ${selectedIntern.status === option ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'} cursor-pointer`}
                         style={{ minWidth: 0, height: '28px', fontSize: '0.85rem' }}
                         onClick={() => setSelectedIntern({ ...selectedIntern, status: option })}
                       >
@@ -816,7 +816,7 @@ function InternsContent() {
                           <td className="px-6 py-4 whitespace-nowrap">{intern.status === "Active" ? (<span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Active</span>) : (<span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">{intern.status || 'Inactive'}</span>)}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-gray-500">{intern.dateJoined}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-center flex items-center justify-center gap-3" onClick={e => e.stopPropagation()}>
-                            <button className="text-purple-500 hover:text-purple-700" title="Edit Intern" onClick={() => handleEditIntern(intern)}>
+                            <button className="text-green-500 hover:text-green-700" title="Edit Intern" onClick={() => handleEditIntern(intern)}>
                               <Pen className="w-5 h-5" />
                             </button>
                             <button className="text-red-500 hover:text-red-700" title="Delete Intern" onClick={() => { setDeleteIntId(intern.id); setShowDeleteConfirm(true); }}>
@@ -855,7 +855,7 @@ function InternsContent() {
                             </span>
                           </span>
                           <div className="flex gap-3 self-end" onClick={e => e.stopPropagation()}>
-                            <button className="text-purple-500 hover:text-purple-700" title="Edit Intern" onClick={() => handleEditIntern(intern)}><Pen className="w-5 h-5" /></button>
+                            <button className="text-green-500 hover:text-green-700" title="Edit Intern" onClick={() => handleEditIntern(intern)}><Pen className="w-5 h-5" /></button>
                             <button className="text-red-500 hover:text-red-700" title="Delete Intern" onClick={() => { setDeleteIntId(intern.id); setShowDeleteConfirm(true); }}><Trash2 className="w-5 h-5" /></button>
                           </div>
                         </div>
