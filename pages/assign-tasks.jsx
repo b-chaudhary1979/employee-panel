@@ -180,7 +180,8 @@ export default function AssignTasksPage() {
         const opts = (data.interns || []).map((intern) => {
           return { 
             id: intern.id, 
-            name: `${intern.firstName || ""} ${intern.lastName || ""}`.trim() || "Unnamed" 
+            name: `${intern.firstName || ""} ${intern.lastName || ""}`.trim() || "Unnamed",
+            email: intern.email || ""
           };
         });
         console.log("Processed intern options successfully");
