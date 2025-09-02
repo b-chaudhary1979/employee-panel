@@ -80,9 +80,9 @@ export default function AssignTasksPage() {
       if (!grouped[internId]) {
         grouped[internId] = {
           internId,
-          internName: task.name || `Intern ${internId}`,
-          internEmail: task.email || `intern${internId}@company.com`,
-          internRole: task.role || "Intern",
+          internName: task.internName || `Intern ${internId}`,
+          internEmail: task.internEmail || `intern${internId}@company.com`,
+          internRole: task.internRole || "Intern",
           tasks: [],
           totalTasks: 0,
           pendingTasks: 0,
