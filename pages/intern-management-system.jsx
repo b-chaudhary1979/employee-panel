@@ -111,7 +111,13 @@ export default function InternManagementSystem() {
     setIsAddingIntern(true); // Start loading
 
     try {
-      await addIntern(newIntern);
+      // Get employee info from user context
+      const employeeInfo = {
+        email: user?.email,
+        name: user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim()
+      };
+      
+      await addIntern(newIntern, employeeInfo);
       setShowAddInternModal(false);
       setNewIntern({
         name: "",

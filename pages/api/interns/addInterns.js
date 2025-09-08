@@ -1,6 +1,8 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import CryptoJS from 'crypto-js';
+import { sendInternWelcomeEmail } from '../../../utils/emailService';
+
 
 // Initialize Firebase Admin for intern database
 let internApp;
@@ -146,6 +148,15 @@ export default async function handler(req, res) {
     };
     await db.collection('users').doc(companyId).collection('interns').doc(internId).set(internToAdd);
     await adminDb.collection('users').doc(companyId).collection('interns').doc(internId).set(internToAdd);
+
+// ✅ Send welcome email to intern
+    try {
+     await sendInternWelcomeEmail(internToAdd, companyId);
+     } catch (emailError) {
+      console.error("Failed to send welcome email to intern:", emailError);
+  // (don’t stop the flow — intern is already saved)
+    }
+
     return res.status(200).json({ 
       success: true,
       internId: internId,

@@ -66,7 +66,13 @@ function InternsContent() {
 
   // Add handler for form submit
   const handleAddIntern = async (form, customQA) => {
-    await addIntern({ ...form, customQA });
+    // Get employee info from user context
+    const employeeInfo = {
+      email: user?.email,
+      name: user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim()
+    };
+    
+    await addIntern({ ...form, customQA }, employeeInfo);
     setShowRegisterModal(false);
     setNotification({ show: true, message: "Intern registered successfully!", color: "green" });
     setTimeout(() => setNotification({ show: false, message: "", color: "green" }), 2000);

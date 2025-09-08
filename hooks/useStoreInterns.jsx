@@ -18,68 +18,61 @@ const useStoreInterns = (cid) => {
   const [error, setError] = useState(null);
 
   // Fetch interns with API call to intern Firebase database
-  const fetchInterns = useCallback(() => {
+  const fetchInterns = useCallback(async () => {
     if (!cid) return;
     setLoading(true);
     setError(null);
     
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`/api/interns/fetchInterns?companyId=${cid}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+    try {
+      const response = await fetch(`/api/interns/fetchInterns?companyId=${cid}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch interns: ${response.statusText}`);
-        }
-
-        const responseData = await response.json();
-        // Make sure we're setting the interns array, not the whole response object
-        if (responseData.interns && Array.isArray(responseData.interns)) {
-          // Add sNo property to each intern for consistency with the original code
-          const internsWithSNo = responseData.interns.map((intern, index) => ({
-            ...intern,
-            sNo: index + 1
-          }));
-          setInterns(internsWithSNo);
-          
-          // Trigger a sync to ensure admin panel is up to date
-          // We do this silently in the background without blocking
-          const performBackgroundSync = async () => {
-            try {
-              await triggerInternSync(null, null);
-              console.log('Background sync with admin panel completed');
-            } catch (syncErr) {
-              console.error('Background sync failed:', syncErr);
-              // Don't set error state for background sync
-            }
-          };
-          
-          // Execute sync in background
-          performBackgroundSync();
-        } else {
-          // If the response doesn't have the expected structure, set an empty array
-          console.error('Unexpected response structure:', responseData);
-          setInterns([]);
-        }
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch interns: ${response.statusText}`);
       }
-    };
 
-    fetchData();
-    
-    // Since we're not using onSnapshot anymore, we return an empty function
-    return () => {};
+      const responseData = await response.json();
+      // Make sure we're setting the interns array, not the whole response object
+      if (responseData.interns && Array.isArray(responseData.interns)) {
+        // Add sNo property to each intern for consistency with the original code
+        const internsWithSNo = responseData.interns.map((intern, index) => ({
+          ...intern,
+          sNo: index + 1
+        }));
+        setInterns(internsWithSNo);
+        
+        // Trigger a sync to ensure admin panel is up to date
+        // We do this silently in the background without blocking
+        const performBackgroundSync = async () => {
+          try {
+            await triggerInternSync(null, null);
+            console.log('Background sync with admin panel completed');
+          } catch (syncErr) {
+            console.error('Background sync failed:', syncErr);
+            // Don't set error state for background sync
+          }
+        };
+        
+        // Execute sync in background
+        performBackgroundSync();
+      } else {
+        // If the response doesn't have the expected structure, set an empty array
+        console.error('Unexpected response structure:', responseData);
+        setInterns([]);
+      }
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
   }, [cid]);
 
   useEffect(() => {
-    const unsubscribe = fetchInterns();
+    fetchInterns();
     
     // Initial sync with admin panel when component mounts
     if (cid) {
@@ -96,10 +89,6 @@ const useStoreInterns = (cid) => {
       
       performInitialSync();
     }
-    
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
   }, [fetchInterns, cid]);
 
   // Update task arrays when intern information changes
@@ -230,11 +219,15 @@ const useStoreInterns = (cid) => {
   };
 
   // Add a new intern
-  const addIntern = async (internData) => {
+  const addIntern = async (internData, employeeInfo = null) => {
     if (!cid) return;
     setLoading(true);
     setError(null);
     try {
+      // Get employee info from context or parameter
+      const employeeEmail = employeeInfo?.email || (typeof window !== 'undefined' ? localStorage.getItem('employeeEmail') : null);
+      const employeeName = employeeInfo?.name || (typeof window !== 'undefined' ? localStorage.getItem('employeeName') : null);
+      
       // Save to intern Firebase database using API endpoint
       const response = await fetch('/api/interns/addInterns', {
         method: 'POST',
@@ -247,7 +240,9 @@ const useStoreInterns = (cid) => {
             ...internData,
             status: internData.status || 'Active',
             dateRegistered: new Date().toISOString(),
-          }
+          },
+          employeeEmail: employeeEmail,
+          employeeName: employeeName
         }),
       });
 
@@ -270,7 +265,13 @@ const useStoreInterns = (cid) => {
       }
 
       // Also fetch the interns to update the local state
-      fetchInterns();
+      await fetchInterns();
+      
+      // Force a small delay to ensure data is synced
+      setTimeout(() => {
+        fetchInterns();
+      }, 1000);
+      
       setLoading(false);
     } catch (err) {
       setError(err.message);
@@ -314,7 +315,7 @@ const useStoreInterns = (cid) => {
       }
       
       // Also fetch the interns to update the local state
-      fetchInterns();
+      await fetchInterns();
       setLoading(false);
     } catch (err) {
       setError(err.message);
@@ -360,7 +361,7 @@ const useStoreInterns = (cid) => {
       }
       
       // Also fetch the interns to update the local state
-      fetchInterns();
+      await fetchInterns();
       setLoading(false);
     } catch (err) {
       setError(err.message);
