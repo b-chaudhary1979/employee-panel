@@ -177,6 +177,16 @@ const menuItems = (user) => {
     ),
 /*******  e34fd138-9904-443b-a691-237cc1146e8b  *******/
   },
+  {
+    label: "DWR",
+    route: "/dwr",
+    icon: (isActive) => (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path d="M4 6h16v12H4z" stroke={isActive ? "#16a34a" : "#222"} strokeWidth="2" />
+        <path d="M8 9h8M8 13h8" stroke={isActive ? "#16a34a" : "#222"} strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    ),
+  },
    {
     label: "My Tasks",
     route: "/my-tasks",

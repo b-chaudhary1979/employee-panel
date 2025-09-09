@@ -337,7 +337,23 @@ export default function AssignTasksPage() {
             setSelectedIntern(null);
           }}
           intern={selectedIntern}
+          companyId={ci}
+          onTaskUpdated={async () => {
+            // Refresh tasks and keep modal open
+            await refetchTasks();
+            // Refresh selectedIntern tasks from the refreshed list
+            const refreshed = (assignedPendingTasks || []).find(t => t.internId === selectedIntern?.internId) || null;
+            // Close edit UI by refetching and resetting selectedIntern data
+            setShowInternTasksModal(true);
+          }}
+          onTaskDeleted={async () => {
+            // Refresh tasks and close modal if no tasks left
+            await refetchTasks();
+            setShowInternTasksModal(false);
+            setSelectedIntern(null);
+          }}
         />
+       
 
       <div className="bg-[#fbf9f4] min-h-screen flex relative">
         {/* Sidebar for desktop */}
@@ -512,6 +528,7 @@ export default function AssignTasksPage() {
                     <Plus className="w-5 h-5" />
                     Assign Task
                   </button>
+                  
                 </div>
               </div>
 

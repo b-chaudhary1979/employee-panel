@@ -1,14 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { db } from "../firebase";
-import {
-  collection,
-  query,
-  getDocs,
-  orderBy,
-  where,
-  doc,
-  getDoc,
-} from "firebase/firestore";
+
+
+// We'll call a server endpoint that reads from admin Firestore
 
 export default function useFetchAssignedTasks(companyId, employeeId) {
   const [pendingTasks, setPendingTasks] = useState([]);
@@ -26,86 +19,26 @@ export default function useFetchAssignedTasks(companyId, employeeId) {
     setError(null);
 
     try {
-      // Fetch tasks from the employee's intern_tasks collection
-      const internsCollectionRef = collection(
-        db,
-        "users",
-        companyId,
-        "employees",
-        employeeId,
-        "intern_tasks"
-      );
+      console.log('Fetching assigned tasks for companyId:', companyId);
+      const resp = await fetch('/api/AssignedTasks/getAssignedTasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ companyId, employeeId })
+      });
 
-      const internsSnapshot = await getDocs(internsCollectionRef);
-      const aggregatedPendingTasks = [];
-      const aggregatedCompletedTasks = [];
-
-      for (const internDoc of internsSnapshot.docs) {
-        const internId = internDoc.id;
-        const internData = internDoc.data();
-
-        // Pending tasks
-        const pendingTasksRef = collection(
-          db,
-          "users",
-          companyId,
-          "employees",
-          employeeId,
-          "intern_tasks",
-          internId,
-          "pending_tasks"
-        );
-
-        const pendingTasksSnapshot = await getDocs(
-          query(pendingTasksRef, orderBy("assignedAt", "desc"))
-        );
-
-        pendingTasksSnapshot.forEach((taskDoc) => {
-          const taskData = taskDoc.data();
-          aggregatedPendingTasks.push({
-            id: taskDoc.id,
-            internId,
-            internName: internData.name || `Intern ${internId}`,
-            internEmail: internData.email || `intern${internId}@company.com`,
-            internRole: internData.role || "Intern",
-            status: taskData.status || "pending",
-            ...taskData,
-          });
-        });
-
-        // Completed tasks
-        const completedTasksRef = collection(
-          db,
-          "users",
-          companyId,
-          "employees",
-          employeeId,
-          "intern_tasks",
-          internId,
-          "completed_tasks"
-        );
-
-        // Not all documents may have sortable fields; keep simple getDocs to avoid query errors
-        const completedTasksSnapshot = await getDocs(completedTasksRef);
-
-        completedTasksSnapshot.forEach((taskDoc) => {
-          const taskData = taskDoc.data();
-          aggregatedCompletedTasks.push({
-            id: taskDoc.id,
-            internId,
-            internName: internData.name || `Intern ${internId}`,
-            internEmail: internData.email || `intern${internId}@company.com`,
-            internRole: internData.role || "Intern",
-            status: taskData.status || "completed",
-            ...taskData,
-          });
-        });
+      if (!resp.ok) {
+        const e = await resp.json().catch(() => ({}));
+        console.error('Server returned error when fetching assigned tasks', e);
+        throw new Error(e.error || 'Failed to fetch assigned tasks from server');
       }
 
-      setPendingTasks(aggregatedPendingTasks);
-      setCompletedTasks(aggregatedCompletedTasks);
+      const data = await resp.json();
+      console.log('Assigned tasks fetched:', { pending: (data.pendingTasks || []).length, completed: (data.completedTasks || []).length });
+      setPendingTasks(data.pendingTasks || []);
+      setCompletedTasks(data.completedTasks || []);
     } catch (err) {
-      setError(err.message);
+      console.error('Error in fetchAssignedTasks:', err);
+      setError(err.message || String(err));
     } finally {
       setLoading(false);
     }
