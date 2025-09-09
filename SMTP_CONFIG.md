@@ -65,3 +65,4 @@ The system sends a professional welcome email to interns containing:
 
 The email is sent automatically when a new intern is added through the system.
 
+
