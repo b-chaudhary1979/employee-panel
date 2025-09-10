@@ -23,7 +23,14 @@ export default function RegisterInternPage() {
     }
     try {
       const panelType = user?.role === "employee" ? "employee" : "admin";
-      await addIntern({ ...form, customQA, panelType });
+      
+      // Prepare employee info for email notification
+      const employeeInfo = {
+        email: user?.email,
+        name: user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim()
+      };
+      
+      await addIntern({ ...form, customQA, panelType }, employeeInfo);
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
