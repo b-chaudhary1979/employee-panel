@@ -100,55 +100,43 @@ export default async function handler(req, res) {
       ? assignmentData.links.filter((l) => typeof l === 'string' && l.trim() !== '')
       : [];
 
-    // Fetch intern details for each selected intern
+    // Fetch intern details for each selected intern directly from intern Firebase
     const internDetails = [];
     for (const internId of selectedInternIds) {
       try {
-        // Fetch intern details from intern database
-        const internResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/interns/fetchInterns`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ companyId }),
-        });
+        if (!internDb) throw new Error('Intern database not initialized');
+        const internDocRef = internDb.collection('users').doc(companyId).collection('interns').doc(internId);
+        const internSnap = await internDocRef.get();
+        if (internSnap.exists) {
+          const data = internSnap.data() || {};
+          // Construct name from available fields
+          const first = (data.firstName || data.first_name || '').toString().trim();
+          const last = (data.lastName || data.last_name || '').toString().trim();
+          const fullName = (data.name || `${first} ${last}`.trim() || `Intern ${internId}`).toString();
+          const email = (data.email || data.emailAddress || data.contact?.email || '').toString() || `intern${internId}@company.com`;
 
-        if (internResponse.ok) {
-          const internData = await internResponse.json();
-          const intern = internData.interns.find(i => i.id === internId);
-          if (intern) {
-            internDetails.push({
-              internId: internId,
-              internName: `${intern.firstName || ""} ${intern.lastName || ""}`.trim() || "Unknown Intern",
-              internEmail: intern.email || `intern${internId}@company.com`,
-              internRole: "Intern"
-            });
-          } else {
-            // Fallback if intern not found
-            internDetails.push({
-              internId: internId,
-              internName: `Intern ${internId}`,
-              internEmail: `intern${internId}@company.com`,
-              internRole: "Intern"
-            });
-          }
+          internDetails.push({
+            internId: internId,
+            internName: fullName,
+            internEmail: email,
+            internRole: data.role || data.internRole || 'Intern'
+          });
         } else {
-          // Fallback if API call fails
+          // If doc doesn't exist, push fallback
           internDetails.push({
             internId: internId,
             internName: `Intern ${internId}`,
             internEmail: `intern${internId}@company.com`,
-            internRole: "Intern"
+            internRole: 'Intern'
           });
         }
       } catch (error) {
-        // Error fetching intern details
-        // Fallback if any error occurs
+        // On any error, fallback with sensible defaults
         internDetails.push({
           internId: internId,
           internName: `Intern ${internId}`,
           internEmail: `intern${internId}@company.com`,
-          internRole: "Intern"
+          internRole: 'Intern'
         });
       }
     }
@@ -169,296 +157,84 @@ export default async function handler(req, res) {
       syncedAt: new Date().toISOString()
     };
 
+    // Only save intern tasks to Admin Database under: users/{companyId}/interns/{internId}/tasks/task-data
     let employeeSuccess = false;
     let internSuccess = false;
     let adminSuccess = false;
-    let generatedDocIds = []; // Store generated document IDs - moved outside try block
+    const generatedDocIds = [];
 
-                                       // 1. Save to Employee Database (current project) - Generate document IDs
-       try {
-         console.log('Starting employee database save...');
-         
-         if (selectedInternIds && selectedInternIds.length > 0) {
-           console.log(`Creating assignments for ${selectedInternIds.length} interns`);
-            // Create assignment for each selected intern
-           for (const internId of selectedInternIds) {
-             // Find the intern details for this specific intern
-             const internDetail = internDetails.find(detail => detail.internId === internId);
-             const internData = { 
-               ...standardizedData,
-               internId: internId,
-               internName: internDetail?.internName || `Intern ${internId}`,
-               internEmail: internDetail?.internEmail || `intern${internId}@company.com`,
-               internRole: internDetail?.internRole || "Intern"
-             };
-             
-             // Debug: Log the data being saved (sanitized)
-              console.log(`Data prepared for intern assignment`);
-             
-             let docId;
-             if (uuidv4) {
-               // Use UUID if available
-               docId = uuidv4();
-               console.log(`Using UUID for intern assignment`);
-               
-               // Validate data before saving
-               if (!internData.taskName || !internData.description) {
-                 console.error(`Missing required fields for intern assignment:`, {
-                   taskName: !!internData.taskName,
-                   description: !!internData.description
-                 });
-                 throw new Error(`Missing required fields for intern assignment`);
-               }
-               
-               try {
-                 // First, check if the employee document exists
-                 const employeeDoc = await employeeDb
-                   .collection('users')
-                   .doc(companyId)
-                   .collection('employees')
-                   .doc(assignmentData.employeeId)
-                   .get();
-                 
-                 if (!employeeDoc.exists) {
-                   console.log(`Employee document does not exist, creating it...`);
-                   await employeeDb
-                     .collection('users')
-                     .doc(companyId)
-                     .collection('employees')
-                     .doc(assignmentData.employeeId)
-                     .set({
-                       employeeId: assignmentData.employeeId,
-                       createdAt: new Date().toISOString()
-                     });
-                 }
-                 
-                 // Check if intern_tasks document exists
-                 const internTasksDoc = await employeeDb
-                   .collection('users')
-                   .doc(companyId)
-                   .collection('employees')
-                   .doc(assignmentData.employeeId)
-                   .collection('intern_tasks')
-                   .doc(internId)
-                   .get();
-                 
-                 if (!internTasksDoc.exists) {
-                   console.log(`Intern tasks document does not exist, creating it...`);
-                   await employeeDb
-                     .collection('users')
-                     .doc(companyId)
-                     .collection('employees')
-                     .doc(assignmentData.employeeId)
-                     .collection('intern_tasks')
-                     .doc(internId)
-                     .set({
-                       internId: internId,
-                       role: "Intern",
-                       email: internDetail?.internEmail || `intern${internId}@company.com`,
-                       name: internDetail?.internName || `Intern ${internId}`,
-                       createdAt: new Date().toISOString()
-                     });
-                 }
-                 
-                 // Now write the actual task data
-                 await employeeDb
-                   .collection('users')
-                   .doc(companyId)
-                   .collection('employees')
-                   .doc(assignmentData.employeeId)
-                   .collection('intern_tasks')
-                   .doc(internId)
-                   .collection('pending_tasks')
-                   .doc(docId)
-                   .set(internData);
-                 console.log(`Successfully wrote data to employee DB for intern assignment`);
-                                } catch (writeError) {
-                   console.error(`Error writing to employee DB for intern assignment:`, writeError);
-                 throw writeError;
-               }
-                            } else {
-                 // Use Firestore auto-generated ID
-                 console.log(`Using Firestore auto-generated ID for intern assignment`);
-                 try {
-                 const docRef = await employeeDb
-                     .collection('users')
-                     .doc(companyId)
-                     .collection('employees')
-                     .doc(assignmentData.employeeId)
-                     .collection('intern_tasks')
-                     .doc(internId)
-                     .collection('pending_tasks')
-                     .add(internData);
-                   docId = docRef.id;
-                   console.log(`Successfully wrote data to employee DB for intern assignment with auto-generated ID`);
-                 } catch (writeError) {
-                   console.error(`Error writing to employee DB for intern assignment:`, writeError);
-                   throw writeError;
-                 }
-               }
-             
-             generatedDocIds.push({ docId, internId, type: 'intern' });
-             console.log(`Saved to employee DB for intern assignment`);
-           }
-         } else {
-           return res.status(400).json({ 
-             error: 'No interns provided',
-             details: 'Please provide at least one intern to assign the task to'
-           });
-         }
-         
-         // Check if we actually created any documents
-         if (generatedDocIds.length === 0) {
-           console.log('No documents were created in employee database');
-           return res.status(400).json({ 
-             error: 'No documents created',
-             details: 'No valid assignments were created in the employee database'
-           });
-         }
-         
-         employeeSuccess = true;
-         console.log('Successfully saved to employee database with generated document IDs');
-       } catch (error) {
-         console.error('Error saving to employee database:', error);
-         return res.status(500).json({ 
-           error: 'Failed to save to employee database',
-           details: error.message 
-         });
-       }
+    if (!adminDb) {
+      console.error('Admin database is not initialized');
+      return res.status(500).json({ error: 'Admin database not available' });
+    }
 
-                                                                             // 2. Save to Intern Database (if assignee type is intern) - Use same document IDs
-         if (selectedInternIds && selectedInternIds.length > 0 && internDb) {
-          try {
-            // Use the generated document IDs from employee database
-            for (const { docId, internId } of generatedDocIds.filter(item => item.type === 'intern')) {
-              // Find the intern details for this specific intern
-              const internDetail = internDetails.find(detail => detail.internId === internId);
-              const internData = { 
-                ...standardizedData,
-                internId: internId,
-                internName: internDetail?.internName || `Intern ${internId}`,
-                internEmail: internDetail?.internEmail || `intern${internId}@company.com`,
-                internRole: internDetail?.internRole || "Intern"
-              };
-              
-              console.log(`Saving to intern DB for intern assignment`);
-              
-              // Since users/{companyId}/interns/{internId} always exists,
-              // we only need to ensure task-data document exists
-              const taskDataRef = internDb
-                .collection('users')
-                .doc(companyId)
-                .collection('interns')
-                .doc(internId)
-                .collection('tasks')
-                .doc('task-data');
-              
-              // Check if task-data document exists, if not create it
-              const taskDataDoc = await taskDataRef.get();
-              if (!taskDataDoc.exists) {
-                console.log(`Creating task-data document for intern assignment`);
-                await taskDataRef.set({
-                  createdAt: new Date().toISOString(),
-                  internId: internId,
-                  role: "Intern",
-                  email: internDetail?.internEmail || `intern${internId}@company.com`,
-                  name: internDetail?.internName || `Intern ${internId}`
-                });
-              }
-              
-              // Use the same document ID from employee database
-              await taskDataRef
-                .collection('pending_tasks')
-                .doc(docId)
-                .set(internData);
-            }
-            internSuccess = true;
-            console.log('Successfully saved to intern database with same document IDs');
-          } catch (error) {
-            console.error('Error saving to intern database:', error);
-            // Continue execution - don't fail the request
-          }
+    try {
+      if (!selectedInternIds || selectedInternIds.length === 0) {
+        return res.status(400).json({ error: 'No interns provided', details: 'Please provide at least one intern to assign the task to' });
+      }
+
+      // Ensure company document exists and then write tasks under the requested admin path
+      for (const internId of selectedInternIds) {
+        const internDetail = internDetails.find(detail => detail.internId === internId);
+        const adminData = {
+          ...standardizedData,
+          internId: internId,
+          internName: internDetail?.internName || `Intern ${internId}`,
+          internEmail: internDetail?.internEmail || `intern${internId}@company.com`,
+          internRole: internDetail?.internRole || 'Intern'
+        };
+
+        // Ensure parent company doc
+        const companyDocRef = adminDb.collection('users').doc(companyId);
+        const companyDoc = await companyDocRef.get();
+        if (!companyDoc.exists) {
+          await companyDocRef.set({ companyId, createdAt: new Date().toISOString() });
         }
 
-                                                                                                                                                                                                                                                                                                                               // 3. Save to Admin Database - Use same document IDs
-         if (adminDb) {
-          try {
-            if (selectedInternIds && selectedInternIds.length > 0) {
-              // Use the generated document IDs from employee database
-              for (const { docId, internId } of generatedDocIds.filter(item => item.type === 'intern')) {
-                // Find the intern details for this specific intern
-                const internDetail = internDetails.find(detail => detail.internId === internId);
-                const adminData = { 
-                  ...standardizedData,
-                  internId: internId,
-                  internName: internDetail?.internName || `Intern ${internId}`,
-                  internEmail: internDetail?.internEmail || `intern${internId}@company.com`,
-                  internRole: internDetail?.internRole || "Intern"
-                };
-                
-                console.log(`Saving to admin DB for intern assignment`);
-                
-                // First, check if the company document exists in admin DB
-                const companyDoc = await adminDb
-                  .collection('users')
-                  .doc(companyId)
-                  .get();
-                
-                if (!companyDoc.exists) {
-                  console.log(`Company document does not exist in admin DB, creating it...`);
-                  await adminDb
-                    .collection('users')
-                    .doc(companyId)
-                    .set({
-                      companyId: companyId,
-                      createdAt: new Date().toISOString()
-                    });
-                }
-                
-                // Check if intern_tasks document exists
-                const internTasksDoc = await adminDb
-                  .collection('users')
-                  .doc(companyId)
-                  .collection('intern_tasks')
-                  .doc(internId)
-                  .get();
-                
-                if (!internTasksDoc.exists) {
-                  console.log(`Intern tasks document does not exist in admin DB, creating it...`);
-                  await adminDb
-                    .collection('users')
-                    .doc(companyId)
-                    .collection('intern_tasks')
-                    .doc(internId)
-                    .set({
-                      internId: internId,
-                      role: "Intern",
-                      email: internDetail?.internEmail || `intern${internId}@company.com`,
-                      name: internDetail?.internName || `Intern ${internId}`,
-                      createdAt: new Date().toISOString()
-                    });
-                }
-                
-                // Now write the actual task data
-                await adminDb
-                  .collection('users')
-                  .doc(companyId)
-                  .collection('intern_tasks')
-                  .doc(internId)
-                  .collection('pending_tasks')
-                  .doc(docId)
-                  .set(adminData);
-                  
-                console.log(`Successfully wrote data to admin DB for intern assignment`);
-              }
-            }
-            adminSuccess = true;
-            console.log('Successfully saved to admin database with same document IDs');
-          } catch (error) {
-            console.error('Error saving to admin database:', error);
-            // Continue execution - don't fail the request
-          }
+        // Ensure intern doc under users/{companyId}/interns/{internId}
+        const internDocRef = companyDocRef.collection('interns').doc(internId);
+        const internDoc = await internDocRef.get();
+        if (!internDoc.exists) {
+          await internDocRef.set({
+            internId,
+            role: 'Intern',
+            email: internDetail?.internEmail || `intern${internId}@company.com`,
+            name: internDetail?.internName || `Intern ${internId}`,
+            createdAt: new Date().toISOString()
+          });
         }
+
+        // Ensure task-data doc exists at users/{companyId}/interns/{internId}/tasks/task-data
+        const taskDataDocRef = internDocRef.collection('tasks').doc('task-data');
+        const taskDataDoc = await taskDataDocRef.get();
+        if (!taskDataDoc.exists) {
+          await taskDataDocRef.set({
+            createdAt: new Date().toISOString(),
+            internId,
+            role: 'Intern',
+            email: internDetail?.internEmail || `intern${internId}@company.com`,
+            name: internDetail?.internName || `Intern ${internId}`
+          });
+        }
+
+        let docId = null;
+        if (uuidv4) {
+          docId = uuidv4();
+          await taskDataDocRef.collection('pending_tasks').doc(docId).set(adminData);
+        } else {
+          const added = await taskDataDocRef.collection('pending_tasks').add(adminData);
+          docId = added.id;
+        }
+
+        generatedDocIds.push({ docId, internId });
+      }
+
+      adminSuccess = true;
+      console.log('Successfully saved intern tasks to admin DB at users/{companyId}/interns/{internId}/tasks/task-data');
+    } catch (error) {
+      console.error('Error saving intern tasks to admin DB:', error);
+      return res.status(500).json({ error: 'Failed to save intern tasks to admin DB', details: error.message });
+    }
 
     // Return success response (only employee database success matters for user feedback)
     return res.status(200).json({
