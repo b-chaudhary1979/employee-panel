@@ -4,19 +4,33 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Theme colors */
+  --color-primary: #16a34a; /* green-600 */
+  --color-primary-700: #15803d;
+  --color-accent: #7c3aed; /* purple-ish */
+  --color-muted: #6b7280; /* gray-500 */
+  --color-success: #10b981;
+  --color-danger: #ef4444;
+  --card-bg: #ffffff;
+  --modal-backdrop: rgba(15, 23, 42, 0.6); /* dark translucent */
+  --modal-card-bg: #ffffff;
+  --input-bg: #fbfdff;
+  --input-border: #e6eef0;
+  --surface-1: #fbfbfb;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* theme-inline block removed: keep CSS variables in :root for compatibility */
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+  /* Dark-mode overrides for form visibility */
+  --input-bg: #0b1220;
+  --input-border: #1f2937;
+  --modal-card-bg: #071025;
+  --modal-backdrop: rgba(2,6,23,0.75);
+  --color-primary: #34d399; /* slightly brighter green for dark */
   }
 }
 
@@ -24,6 +38,143 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: 'Manrope', sans-serif;
+}
+
+/* Common UI tokens */
+.input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.5rem;
+  outline: none;
+  transition: box-shadow .15s ease, transform .08s ease;
+  color: var(--foreground) !important;
+  font-size: 0.95rem;
+}
+.input:focus {
+  box-shadow: 0 6px 18px rgba(20, 184, 166, 0.06);
+  transform: translateY(-1px);
+  border-color: rgba(22,163,74,0.9);
+}
+
+/* placeholder color */
+.input::placeholder { color: #94a3b8; }
+
+/* Style selects consistently */
+select.input { appearance: none; -webkit-appearance: none; -moz-appearance: none; }
+select.input option { color: var(--foreground); background: var(--modal-card-bg); }
+
+/* Ensure textarea uses same styles */
+textarea.input { resize: vertical; min-height: 96px; }
+
+/* Force caret color and input text visibility across themes */
+.input, textarea.input, select.input {
+  caret-color: var(--color-primary) !important;
+  color: var(--foreground) !important;
+  background: var(--input-bg) !important;
+}
+
+/* Section heading accent */
+.modal-card section h4 { display: flex; align-items: center; gap: 8px; }
+.modal-card section h4::after { content: ''; flex: 1; height: 1px; background: rgba(22,163,74,0.08); margin-left: 8px; border-radius: 2px; }
+
+/* Subtle input helper text */
+.modal-card .helper { font-size: 12px; color: #6b7280; }
+
+.btn {
+  background: linear-gradient(180deg, var(--color-primary), var(--color-primary-700));
+  color: #fff;
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 8px 20px rgba(22,163,74,0.12);
+  cursor: pointer;
+}
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-muted {
+  background: transparent;
+  border: 1px solid #e6eef0;
+  color: var(--color-muted);
+  padding: 0.5rem 0.85rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.form-checkbox { width: 14px; height: 14px; }
+
+/* Modal backdrop and card */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--modal-backdrop);
+  backdrop-filter: blur(6px) saturate(110%);
+}
+.modal-card {
+  background: var(--modal-card-bg);
+  width: 95%;
+  max-width: 1000px;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 30px 80px rgba(2,6,23,0.35);
+  color: var(--foreground);
+  /* Keep modal fully visible: cap height and allow internal scroll */
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  margin: 12px 0;
+}
+
+/* Force modal to always render with a light / white theme regardless of OS theme */
+.modal-card.light-theme {
+  background: #ffffff !important;
+  color: #0f172a !important; /* slate-900 */
+  box-shadow: 0 30px 80px rgba(2,6,23,0.08);
+}
+.modal-card.light-theme section {
+  background: rgba(250,253,250,0.9) !important;
+}
+.modal-card.light-theme .input,
+.modal-card.light-theme textarea.input,
+.modal-card.light-theme select.input {
+  background: #fbfdff !important;
+  border: 1px solid #e6eef0 !important;
+  color: #0f172a !important;
+  caret-color: var(--color-primary) !important;
+}
+.modal-card.light-theme .input::placeholder {
+  color: #94a3b8 !important;
+}
+.modal-card.light-theme select.input option {
+  color: #0f172a !important;
+  background: #ffffff !important;
+}
+.modal-card.light-theme .btn-muted {
+  border-color: #e6eef0 !important;
+  color: var(--color-muted) !important;
+  background: transparent !important;
+}
+
+
+/* Full screen modal on small devices */
+@media (max-width: 640px) {
+  .modal-card {
+    width: calc(100vw - 16px);
+    height: calc(100vh - 24px);
+    max-height: none;
+    border-radius: 8px;
+    margin: 8px;
+    overflow-y: auto;
+  }
+}
+
+/* Small responsive tweaks */
+@media (min-width: 768px) {
+  .modal-card { width: 90%; }
 }
 
 /* Custom Animations */
