@@ -160,35 +160,35 @@ const menuItems = (user) => {
       </svg>
     ),
   }] : []),
-     {
-    label: "Generate Letter",
-    route: "/generate-letter",
-    icon: (isActive) => (
-      <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
-        <path
-          d="M12 20h9"
-          stroke={isActive ? "#fff" : "#28BD78"}
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M16 4h1a2 2 0 012 2v14M8 4H7a2 2 0 00-2 2v14m14-14H5"
-          stroke={isActive ? "#fff" : "#222"}
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M9 9h6M9 13h4"
-          stroke={isActive ? "#fff" : "#28BD78"}
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
+  //    {
+  //   label: "Generate Letter",
+  //   route: "/generate-letter",
+  //   icon: (isActive) => (
+  //     <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+  //       <path
+  //         d="M12 20h9"
+  //         stroke={isActive ? "#fff" : "#28BD78"}
+  //         strokeWidth="2"
+  //         strokeLinecap="round"
+  //         strokeLinejoin="round"
+  //       />
+  //       <path
+  //         d="M16 4h1a2 2 0 012 2v14M8 4H7a2 2 0 00-2 2v14m14-14H5"
+  //         stroke={isActive ? "#fff" : "#222"}
+  //         strokeWidth="2"
+  //         strokeLinecap="round"
+  //         strokeLinejoin="round"
+  //       />
+  //       <path
+  //         d="M9 9h6M9 13h4"
+  //         stroke={isActive ? "#fff" : "#28BD78"}
+  //         strokeWidth="2"
+  //         strokeLinecap="round"
+  //         strokeLinejoin="round"
+  //       />
+  //     </svg>
+  //   ),
+  // },
   
     {
     label: "Assign Tasks",
