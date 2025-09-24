@@ -16,7 +16,7 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
   // Use the passed companyId and employeeId from AuthContext
   const { uploadMedia, addLink, loading: uploadLoading, error: uploadError } = useStoreData(companyId, employeeId);
   
-  // Admin sync hook
+ 
   const { 
     syncMediaToAdmin, 
     syncLinkToAdmin: syncLinkToAdminHook, 
