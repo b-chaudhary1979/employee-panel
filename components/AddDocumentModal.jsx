@@ -159,7 +159,7 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
         const syncResult = await syncMediaToAdmin({
           companyId,
           employeeId,
-          documentId: meta.docId, // Use the same document ID
+          documentId: meta.docId, 
           data: documentData,
           mediaType,
           operation: 'set'
