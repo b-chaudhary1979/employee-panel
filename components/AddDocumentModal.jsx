@@ -9,7 +9,7 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
   const { user, aid } = useUserInfo();
   const { user: authUser } = useAuth();
   
-  // Get companyId and employeeId from AuthContext
+  
   const companyId = authUser?.companyId;
   const employeeId = authUser?.employeeId;
   
