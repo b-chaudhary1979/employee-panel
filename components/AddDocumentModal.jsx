@@ -13,7 +13,7 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
   const companyId = authUser?.companyId;
   const employeeId = authUser?.employeeId;
   
-  // Use the passed companyId and employeeId from AuthContext
+
   const { uploadMedia, addLink, loading: uploadLoading, error: uploadError } = useStoreData(companyId, employeeId);
   
  
