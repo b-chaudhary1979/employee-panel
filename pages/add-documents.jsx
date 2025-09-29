@@ -11,7 +11,6 @@ function AddDocumentsPageContent() {
   const { user: authUser, loading: authLoading } = useAuth();
   const { user, loading } = useUserInfo();
   
-  // Wait for router to be ready and user to be authenticated
   const isRouterReady = router.isReady && authUser;
 
   // Get companyId and employeeId from AuthContext
