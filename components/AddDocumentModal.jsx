@@ -49,7 +49,7 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
   const [isUploading, setIsUploading] = useState(false);
 
 
-  // Reset uploadedFiles only when modal closes
+
   useEffect(() => {
     if (!open) {
       setUploadedFiles([]);
