@@ -72,7 +72,7 @@ const AddDocumentModal = memo(function AddDocumentModal({ open, onClose, onAdd, 
       return newFiles;
     });
     
-    e.target.value = ""; // Reset input so selecting the same file again works
+    e.target.value = ""; 
   };
 
   const handleRemoveFile = (index) => {
