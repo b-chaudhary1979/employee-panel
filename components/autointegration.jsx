@@ -145,7 +145,7 @@ const AutoIntegration = ({ sharedFormData, updateSharedFormData, clearFormData }
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch (e) {
-      // fallback for older browsers
+      
       const textarea = document.createElement('textarea');
       textarea.value = INTEGRATION_SCRIPT;
       document.body.appendChild(textarea);
