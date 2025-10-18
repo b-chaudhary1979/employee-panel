@@ -43,7 +43,7 @@ function DashboardContent() {
   const [notification, setNotification] = useState({ show: false, message: "" });
   const [profileModalOpen, setProfileModalOpen] = useState(false);
 
-  // Fetch data from hooks
+  
   const employeesHook = useStoreEmployees(ci);
   const passwordsHook = useStorePassword(ci, aid);
   const tasksHook = useNotesTasks(ci);
