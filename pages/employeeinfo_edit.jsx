@@ -264,7 +264,7 @@ const AdminInfoEdit = () => {
             </button>
           </form>
         </div>
-        {/* Instruction Card Section */}
+        
         <div className="hidden md:flex md:flex-col md:justify-center md:items-center w-full max-w-sm ml-0 md:mr-12 mt-10 md:mt-10">
           <div className="rounded-3xl shadow-xl p-10 border-4 border-[#16a34a]/50 flex flex-col items-center w-full transition-all duration-300">
             <h3 className="text-3xl font-extrabold text-[#28BD78] mb-6 tracking-tight text-center">How to Edit</h3>
