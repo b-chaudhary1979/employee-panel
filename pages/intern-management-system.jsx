@@ -34,7 +34,7 @@ export default function InternManagementSystem() {
   const { ci, aid } = decryptToken(token);
   const companyId = ci; 
   
-  // Use the hook to fetch interns
+  
   const { interns, loading: internsLoading, error: internsError, addIntern, updateIntern } = useFetchInterns(companyId);
   
   // Add loading state for form submission
