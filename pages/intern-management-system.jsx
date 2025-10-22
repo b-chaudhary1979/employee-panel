@@ -32,7 +32,7 @@ export default function InternManagementSystem() {
   // Get company ID from URL token (same as other pages)
   const { token } = router.query;
   const { ci, aid } = decryptToken(token);
-  const companyId = ci; // This is the real companyId from the token
+  const companyId = ci; 
   
   // Use the hook to fetch interns
   const { interns, loading: internsLoading, error: internsError, addIntern, updateIntern } = useFetchInterns(companyId);
