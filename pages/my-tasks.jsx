@@ -109,7 +109,7 @@ export default function MyTasksPage() {
           status: d.data().status || 'pending'
         }));
 
-        // Update tasks with real-time data
+        
         setTasks(currentTasks => {
           const completedTasks = currentTasks.filter(task => task.status === 'completed');
           return [...pendingTasks, ...completedTasks];
