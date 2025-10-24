@@ -225,7 +225,7 @@ export default function GenerateLetter() {
   const getFormFields = () => {
     const baseFields = {
       'offer-letter': [
-        // Candidate details
+        
         { name: 'candidateName', label: 'Candidate Name', type: 'text', required: true },
         { name: 'candidateEmail', label: 'Candidate Email', type: 'text', required: false },
         { name: 'candidatePhone', label: 'Candidate Phone', type: 'text', required: false },
