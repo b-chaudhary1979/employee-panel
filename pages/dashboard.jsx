@@ -53,7 +53,7 @@ function DashboardContent() {
   const isAnyLoading = loading || employeesHook.loading || passwordsHook.loading || tasksHook.loading || announcementsHook.loading;
   const anyError = error || employeesHook.error || passwordsHook.error || tasksHook.error || announcementsHook.error;
 
-  // Real counts
+  
   const totalEmployees = employeesHook.employees?.length || 0;
   const totalPasswords = passwordsHook.passwords?.length || 0;
   const totalTasks = tasksHook.tasks?.length || 0;
