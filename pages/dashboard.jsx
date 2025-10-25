@@ -69,7 +69,7 @@ function DashboardContent() {
   }).length;
   const department = user?.department || 'N/A';
 
-  // Mock data for products, users, media
+  
   // Use the real totalMedia from the Data page
   // (If you want to fetch from Firestore in the future, update both places)
   const totalProducts = 89; // TODO: Replace with real data if available
