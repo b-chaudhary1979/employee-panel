@@ -49,7 +49,7 @@ function DashboardContent() {
   const tasksHook = useNotesTasks(ci);
   const announcementsHook = useAnnouncements(ci, aid);
 
-  // Loading and error states
+  
   const isAnyLoading = loading || employeesHook.loading || passwordsHook.loading || tasksHook.loading || announcementsHook.loading;
   const anyError = error || employeesHook.error || passwordsHook.error || tasksHook.error || announcementsHook.error;
 
