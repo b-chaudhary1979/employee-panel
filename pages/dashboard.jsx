@@ -76,7 +76,7 @@ function DashboardContent() {
   const totalUsers = 2345;  // TODO: Replace with real data if available
   // const totalMedia = 42;    // TODO: Replace with real data if available
 
-  // Recent activity (latest 3)
+  
   const recentEmployees = (employeesHook.employees || []).slice(-3).reverse();
   const recentTasks = (tasksHook.tasks || []).slice(0, 3);
   const recentAnnouncements = (announcementsHook.announcements || []).slice(0, 3);
