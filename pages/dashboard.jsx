@@ -59,7 +59,7 @@ function DashboardContent() {
   const totalTasks = tasksHook.tasks?.length || 0;
   const totalAnnouncements = announcementsHook.announcements?.length || 0;
 
-  // Additional employee-specific stats
+  
   const completedTasks = (tasksHook.tasks || []).filter(t => t.completed === true).length;
   const pendingTasks = (tasksHook.tasks || []).filter(t => t.completed !== true).length;
   const highPriorityTasks = (tasksHook.tasks || []).filter(t => t.priority === 'High' && t.completed !== true).length;
