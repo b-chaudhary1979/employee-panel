@@ -13,7 +13,7 @@ function AddDocumentsPageContent() {
   
   const isRouterReady = router.isReady && authUser;
 
-  // Get companyId and employeeId from AuthContext
+  
   const companyId = authUser?.companyId;
   const employeeId = authUser?.employeeId;
 
