@@ -17,7 +17,7 @@ function AddDocumentsPageContent() {
   const companyId = authUser?.companyId;
   const employeeId = authUser?.employeeId;
 
-  // Add modal state
+  
   const [showAddDocumentModal, setShowAddDocumentModal] = useState(true);
   const [notification, setNotification] = useState({ show: false, message: "", color: "green" });
 
