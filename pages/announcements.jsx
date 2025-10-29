@@ -29,7 +29,7 @@ function AnnouncementsContent() {
   // memoise decryption to avoid re‑runs
   const { ci, aid } = useMemo(() => decryptToken(token), [token]);
 
-  /** sidebar & layout **/
+  
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { isOpen, isMobile, isHydrated } = useSidebar();
   const isCollapsed = !mobileSidebarOpen && !isOpen;
