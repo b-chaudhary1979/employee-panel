@@ -36,7 +36,7 @@ function AnnouncementsContent() {
   const headerRef = useRef(null);
   const [headerHeight, setHeaderHeight] = useState(72); // Default to 72px (typical header height)
 
-  /** user session **/
+  
   const { user, loading, error } = useUserInfo();
   const [notification, setNotification] = useState({
     show: false,
