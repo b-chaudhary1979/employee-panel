@@ -34,7 +34,7 @@ export default function AssignTasksPage() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(72);
   const headerRef = useRef(null);
-  const [assigneeType, setAssigneeType] = useState("intern"); // intern or employee
+  const [assigneeType, setAssigneeType] = useState("intern"); 
   const [notification, setNotification] = useState({
     show: false,
     message: "",
