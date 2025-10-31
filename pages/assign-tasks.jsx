@@ -40,7 +40,7 @@ export default function AssignTasksPage() {
     message: "",
     color: "green",
   });
-  const [internOptions, setInternOptions] = useState([]); // fetched list
+  const [internOptions, setInternOptions] = useState([]); 
   const [selectedInternIds, setSelectedInternIds] = useState([]); // chosen interns
   const [showInternDropdown, setShowInternDropdown] = useState(false); // dropdown visibility
   const [isSubmitting, setIsSubmitting] = useState(false); // loading state for form submission
